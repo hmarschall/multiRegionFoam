@@ -23,26 +23,25 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    ggiInterfaceToInterfaceMapping
+    amiInterfaceToInterfaceMapping
 
 Description
-    interfaceToInterfaceMapping wrapper for GGI interpolation
+    interfaceToInterfaceMapping wrapper for AMI interpolation
 
 Author
     Philip Cardiff, UCD. All rights reserved.
 
 SourceFiles
-    ggiInterfaceToInterfaceMapping.C
+    amiInterfaceToInterfaceMapping.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef ggiInterfaceToInterfaceMapping_H
-#define ggiInterfaceToInterfaceMapping_H
+#ifndef amiInterfaceToInterfaceMapping_H
+#define amiInterfaceToInterfaceMapping_H
 
 #include "interfaceToInterfaceMapping.H"
-#ifdef FOAMEXTEND
-    #include "ggiInterpolation.H"
-#endif
+#include "amiZoneInterpolation.H"
+#include "FieldField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -53,34 +52,70 @@ namespace interfaceToInterfaceMappings
 {
 
 /*---------------------------------------------------------------------------*\
-                        Class ggiInterfaceToInterfaceMapping Declaration
+                        Class amiInterfaceToInterfaceMapping Declaration
 \*---------------------------------------------------------------------------*/
 
-class ggiInterfaceToInterfaceMapping
+class amiInterfaceToInterfaceMapping
 :
     public interfaceToInterfaceMapping
 {
     // Private data
 
-#ifdef FOAMEXTEND
-        //- GGI interpolator between two standAlone patches
-        mutable autoPtr< GGIInterpolation<standAlonePatch, standAlonePatch> >
+#ifdef OPENFOAMESI
+        //- AMI interpolator between two standAlone patches
+        mutable autoPtr< AMIInterpolation<standAlonePatch, standAlonePatch> >
             interpolatorPtr_;
+
+            //- zoneB face into which each point of zoneA is projected
+            mutable List<labelPair>* zoneAPointAddressingPtr_;
+
+            //- zoneA point weighting factors
+            mutable FieldField<Field, scalar>* zoneAPointWeightsPtr_;
+
+            //- zoneA face into which each point of zoneB is projected
+            mutable List<labelPair>* zoneBPointAddressingPtr_;
+
+            //- zoneB point weighting factors
+            mutable FieldField<Field, scalar>* zoneBPointWeightsPtr_;
 
     // Private Member Functions
 
-        //- Make the GGI interpolator
+        //- Make the AMI interpolator
         void makeInterpolator() const;
 
-        //- Return a const access to the GGI interpolator
-        const GGIInterpolation<standAlonePatch, standAlonePatch>&
+        //- Return a const access to the AMI interpolator
+        const AMIInterpolation<standAlonePatch, standAlonePatch>&
             interpolator() const;
 
         //- Check zoneA to zoneB face interpolation error
         void checkZoneAToZoneBError() const;
 
         //- Check zoneB to zoneA point interpolation error
-        void checkZoneBToZoneAError() const;
+        //void checkZoneBToZoneAError() const;
+
+        //- Calculate zoneA point addressing
+        void calcZoneAPointAddressing() const;
+
+        //- Calculate zoneA point weights
+        void calcZoneAPointWeights() const;
+
+        //- Calculate zoneB point addressing
+        void calcZoneBPointAddressing() const;
+
+        //- Calculate zoneB point weights
+        void calcZoneBPointWeights() const;
+
+        //- Return reference to zoneA point addressing
+        const List<labelPair>& zoneAPointAddr() const;
+
+        //- Return reference to zoneA point weights
+        const FieldField<Field, scalar>& zoneAPointWeights() const;
+
+        //- Return reference to zoneB point addressing
+        const List<labelPair>& zoneBPointAddr() const;
+
+        //- Return reference to zoneB point weights
+        const FieldField<Field, scalar>& zoneBPointWeights() const;
 
         //- Transfer/map/interpolate from one zone faces to another zone
         //  faces for Type
@@ -106,22 +141,22 @@ class ggiInterfaceToInterfaceMapping
 #endif
 
         //- Disallow default bitwise copy construct
-        ggiInterfaceToInterfaceMapping(const ggiInterfaceToInterfaceMapping&);
+        amiInterfaceToInterfaceMapping(const amiInterfaceToInterfaceMapping&);
 
         //- Disallow default bitwise assignment
-        void operator=(const ggiInterfaceToInterfaceMapping&);
+        void operator=(const amiInterfaceToInterfaceMapping&);
 
 
 public:
 
     //- Runtime type information
-    TypeName("GGI");
+    TypeName("AMI");
 
 
     // Constructors
 
         //- Construct from components
-        ggiInterfaceToInterfaceMapping
+        amiInterfaceToInterfaceMapping
         (
             const word& type,
             const dictionary& dict,
@@ -134,7 +169,7 @@ public:
 
     // Destructor
 
-        virtual ~ggiInterfaceToInterfaceMapping()
+        virtual ~amiInterfaceToInterfaceMapping()
         {}
 
 
@@ -191,9 +226,9 @@ public:
 
 } // End namespace Foam
 
-#ifdef FOAMEXTEND
+#ifdef OPENFOAMESI
 #ifdef NoRepository
-#   include "ggiInterfaceToInterfaceMappingTemplates.C"
+#   include "amiInterfaceToInterfaceMappingTemplates.C"
 #endif
 #endif
 
