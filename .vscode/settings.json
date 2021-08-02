@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "multiRegionSystem.C": "cpp",
+        "createFields.H": "cpp",
+        "multiRegionConjugateHeatFoam.C": "cpp",
+        "newRegionInterface.C": "cpp",
+        "transportTemperature.C": "cpp",
+        "regionTypeList.C": "cpp",
+        "interfaceKey.C": "cpp",
+        "regionInterface.C": "cpp",
+        "regionType.C": "cpp",
+        "newRegionType.C": "cpp",
+        "regionInterfaceTemplates.C": "cpp",
+        "ostream": "cpp",
+        "conductTemperature.C": "cpp",
+        "conductTemperature.H": "cpp",
+        "regionInterfaceList.C": "cpp",
+        "multiRegionFoam.C": "cpp"
+    }
+}

@@ -1,0 +1,12 @@
+#!/bin/sh
+set -x
+
+wcleanLnIncludeAll
+rmdepall
+rmoall
+
+wclean libso src/multiRegionSystem
+
+wclean applications/solvers/conjugateHeatFoam
+wclean applications/solvers/multiRegionFoam
+

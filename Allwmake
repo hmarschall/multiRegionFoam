@@ -1,0 +1,11 @@
+#!/bin/sh
+set -x
+
+wmakeLnInclude -f .
+
+wmakeLnInclude -f src/.
+
+wmake libso src/multiRegionSystem
+
+wmake applications/solvers/conjugateHeatFoam
+wmake applications/solvers/multiRegionFoam

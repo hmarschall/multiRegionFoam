@@ -1,0 +1,86 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.0                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build    : 4.0-268bb07d15d8
+Exec     : conjugateHeatFoam
+Date     : Jul 23 2021
+Time     : 13:49:00
+Host     : coyote
+PID      : 30986
+CtrlDict : "/mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionHeatTransfer/tutorials/conjugateChannelFlow/system/controlDict"
+Case     : /mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionHeatTransfer/tutorials/conjugateChannelFlow
+nProcs   : 1
+SigFpe   : Enabling floating point exception trapping (FOAM_SIGFPE).
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Creating meshes
+
+	Creating fluid mesh
+
+	Creating solid mesh
+
+Initializing the region couple interpolator between master/shadow patches: bottom and top on region solid
+	Reading fluid temperature field
+
+	Reading fluid velocity field
+
+	Reading/calculating fluid face flux field
+
+	Reading fluid density
+
+	Reading fluid specific heat
+
+	Reading fluid thermal conductivity
+
+Reading field alpha
+
+	Reading solid temperature field
+
+	Reading solid density
+
+	Reading solid specific heat
+
+	Reading solid thermal conductivity
+
+Reading field alpha
+
+
+Starting time loop
+
+
+Time = 0.01
+
+
+
+--> FOAM FATAL ERROR: 
+Not implemented
+
+    From function zeroGradientpatchNeighbourField()
+    in file lnInclude/fvPatchField.H at line 373.
+
+FOAM aborting (FOAM_ABORT set)
+
+
+#0  Foam::error::printStack(Foam::Ostream&) at ??:?
+#1  Foam::error::abort() at ??:?
+#2  Foam::fvPatchField<Foam::SymmTensor<double> >::patchNeighbourField() const at ??:?
+#3  Foam::leastSquaresVectors::makeLeastSquaresVectors() const at ??:?
+#4  Foam::leastSquaresVectors::pVectors() const at ??:?
+#5  Foam::fv::leastSquaresGrad<double>::calcGrad(Foam::GeometricField<double, Foam::fvPatchField, Foam::volMesh> const&, Foam::word const&) const at ??:?
+#6  Foam::fv::gradScheme<double>::grad(Foam::GeometricField<double, Foam::fvPatchField, Foam::volMesh> const&, Foam::word const&) const at ??:?
+#7  Foam::linearUpwind<double>::correction(Foam::GeometricField<double, Foam::fvPatchField, Foam::volMesh> const&) const at ??:?
+#8  Foam::fv::gaussConvectionScheme<double>::fvmDiv(Foam::GeometricField<double, Foam::fvsPatchField, Foam::surfaceMesh> const&, Foam::GeometricField<double, Foam::fvPatchField, Foam::volMesh> const&) const at ??:?
+#9  Foam::tmp<Foam::fvMatrix<double> > Foam::fvm::div<double>(Foam::GeometricField<double, Foam::fvsPatchField, Foam::surfaceMesh> const&, Foam::GeometricField<double, Foam::fvPatchField, Foam::volMesh> const&, Foam::word const&) at ??:?
+#10  
+ at ??:?
+#11  
+ at ??:?
+#12  __libc_start_main in "/lib/x86_64-linux-gnu/libc.so.6"
+#13  
+ at ??:?
