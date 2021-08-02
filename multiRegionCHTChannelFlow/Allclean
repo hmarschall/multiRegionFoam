@@ -1,0 +1,14 @@
+#!/bin/bash
+
+find -type l -delete
+
+rm -rf 0.* [1-9]* log* proc* VTK
+
+rm 0/fluid/constant/polyMesh/blockMeshDict 2>/dev/null
+rm 0/solid/constant/polyMesh/blockMeshDict 2>/dev/null
+
+rm 0/fluid/T 2>/dev/null
+rm 0/fluid/alpha 2>/dev/null
+
+rm 0/solid/T 2>/dev/null
+rm 0/solid/kS 2>/dev/null
