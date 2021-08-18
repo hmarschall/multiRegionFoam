@@ -1,0 +1,9 @@
+/* ../globalPolyPatch/globalPolyPatchTemplates.C */
+/*../../numerics/newGGIInterpolation/newGGIInterpolationName.C*/
+
+interfaces = ./regionInterface
+$(interfaces)/interfaceKey.C
+$(interfaces)/newRegionInterface.C
+$(interfaces)/regionInterface.C
+
+LIB = $(FOAM_USER_LIBBIN)/libregionInterface
