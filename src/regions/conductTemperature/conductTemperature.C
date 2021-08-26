@@ -112,12 +112,12 @@ void Foam::regionTypes::conductTemperature::setRDeltaT()
 }
 
 
-void Foam::regionTypes::conductTemperature::solveRegion()
+void Foam::regionTypes::conductTemperature::solveCoupledPartitioned()
 {
     // do nothing, add as required
 }
 
-void Foam::regionTypes::conductTemperature::solveCoupledPartitioned()
+void Foam::regionTypes::conductTemperature::solveRegion()
 {
     Info << nl << "Solving for temperature in " << regionName_ << endl;
     simpleControl simpleControlRegion(*this);

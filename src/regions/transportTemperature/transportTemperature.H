@@ -37,6 +37,7 @@ SourceFiles
 #include "multiRegionSystem.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "IOReferencer.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -79,6 +80,9 @@ class transportTemperature
 
         //- temperature
         volScalarField T_;
+
+        //- pointers to coupled equations
+        fvScalarMatrix* TEqnPtr_;
 
 public:
 
@@ -123,6 +127,13 @@ public:
         virtual void solveCoupledPartitioned();
 
         // virtual tmp<fvScalarMatrix> coupledFvScalarMatrix() const;
+
+        template<class Type>
+        void regCoupledEqn
+        (
+            const fvMatrix<Type>& fvm
+//            const DimensionedField<Type, volMesh>& psi
+        );
 };
 
 

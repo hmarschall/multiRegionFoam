@@ -25,6 +25,7 @@ License
 
 #include "regionType.H"
 #include "multiRegionSystem.H"
+#include "IOReferencer.H"
 
 namespace Foam
 {
@@ -72,10 +73,54 @@ Foam::regionType::regionType
 }
 
 
+// * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+// compressible/steadyUniversalMRFFoam/createThermo.H  43   
+// psisPtr = const_cast<volScalarField*>(&(thermoPtr->psi()));
+
+//template<class Type>
+//void Foam::regionType::regCoupledEqn
+//(
+//    const fvMatrix<Type>& fvm,
+//    const fvMesh& mesh
+//)
+//{
+//    //const fvMesh& mesh = fvm.psi().mesh(); //! not working (private in this context)
+//
+//    // checkin to object registry if not already present
+//    if
+//    (
+//       !(
+//            mesh.thisDb().foundObject<IOReferencer<fvMatrix<Type> > >
+//            (
+//                fvm.psi().name() + "Eqn"
+//            )
+//        )
+//    )
+//    {
+//        IOReferencer<fvMatrix<Type> >* fvmRef =
+//        new IOReferencer<fvMatrix<Type> >
+//        (
+//            IOobject
+//            (
+//                fvm.psi().name() + "Eqn",
+//                mesh.time().timeName(),
+//                mesh,
+//                IOobject::NO_READ,  /*must be NO_READ*/
+//                IOobject::NO_WRITE  /*must be NO_WRITE*/
+//            ),
+//            &(const_cast<fvMatrix<Type>& >(fvm))
+//        );
+
+//        Info<< "Registered " << fvmRef->name() 
+//            << " from region " << mesh.name()
+//            << " to object registry" << nl << endl;
+//    }
+//}
+
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::regionType::~regionType()
 {}
-
 
 // ************************************************************************* //

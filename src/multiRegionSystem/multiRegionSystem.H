@@ -34,12 +34,18 @@ SourceFiles
 #ifndef multiRegionSystem_H
 #define multiRegionSystem_H
 
+#include "IOReferencer.H"
 #include "IOdictionary.H"
+#include "hashedWordList.H"
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 
 #include "fvMatrix.H"
+
+#include "regionTypeList.H"
+#include "regionInterfaceList.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -60,6 +66,13 @@ class multiRegionSystem
 {
     // Private data
 
+        typedef
+            HashTable
+            <
+                wordList, interfaceKey, interfaceKey::hash
+            >
+            fieldsTable;
+
         //- Reference to the mesh
         const fvMesh& mesh_;
 
@@ -71,6 +84,24 @@ class multiRegionSystem
 
         //- Maximum coupling iterations (partitioned)
         label maxCoupleIter_;
+
+    // Private member functions
+
+        //- assemble and solve blockMatrix system
+        template<class T>
+        void assembleCoupledFields
+        (
+            PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
+            regionTypeList& regions,
+            const hashedWordList& fldNames
+        ) const;
+
+        template<class T>
+        void assembleAndSolveBlockMatrix
+        (
+            PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
+            word fldName
+        ) const;
 
 public:
 

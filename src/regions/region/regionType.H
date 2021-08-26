@@ -34,10 +34,12 @@ SourceFiles
 
 #include "IOdictionary.H"
 #include "dimensionedScalar.H"
-#include "volFields.H"
-#include "fvMesh.H"
+
 #include "Map.H"
 #include "runTimeSelectionTables.H"
+
+#include "volFields.H"
+#include "fvMesh.H"
 #include "fvMatrix.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -126,6 +128,13 @@ public:
         virtual void solveRegion() = 0;
 
         virtual void solveCoupledPartitioned() = 0;
+
+//        template<class Type>
+//        void regCoupledEqn
+//        (
+//            const fvMatrix<Type>& fvm,
+//            const fvMesh& mesh
+//        );
 
         // virtual tmp<fvScalarMatrix> coupledFvScalarMatrix() const;
 };
