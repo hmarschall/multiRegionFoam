@@ -24,7 +24,7 @@ partitionedTypeRegionInterfaces
 (
     fluidSolid 
     (
-        (((fluid bottom)(solid top)) ("T2"))
+        (((fluid bottom)(solid top)) (T U T))
     )
 );
 
