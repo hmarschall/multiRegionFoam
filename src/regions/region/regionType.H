@@ -75,29 +75,34 @@ protected:
 
         const IOdictionary dict_;
 
-        //- equation-equation coupling
-//        template<class Type>
-//        struct eqnTable
-//        {
-//            HashPtrTable<fvMatrix<Type> > table;
+            HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
+            HashPtrTable<fvMatrix<vector> > fvVectorMatrices;
+            HashPtrTable<fvMatrix<symmTensor> > fvSymmTensorMatrices;
+            HashPtrTable<fvMatrix<tensor> > fvTensorMatrices;
+
+//        //- equation-equation coupling
+//        struct eqnTable {
+
+//            // equation tables
+//            HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
+//            HashPtrTable<fvMatrix<vector> > fvVectorMatrices;
+//            HashPtrTable<fvMatrix<symmTensor> > fvSymmTensorMatrices;
+//            HashPtrTable<fvMatrix<tensor> > fvTensorMatrices;
+
+////            // Get a ref to the fvMatrix 
+////            template<class T>
+////            fvMatrix<T>& getCoupledEqn
+////            (
+////                word name
+////            );
 //        };
 
-//        eqnTable<scalar> fvScalarMatrices;
-//        eqnTable<vector> fvVectorMatrices;
-//        eqnTable<symmTensor> fvSymmTensorMatrices;
-//        eqnTable<tensor> fvTensorMatrices;
-
-        HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
-
-//        template<class Type>
-//        struct eqnTable;
-
-//        template<> 
-//        struct eqnTable<scalar>
-//        {
-//            HashPtrTable<fvMatrix<scalar> > table;
-//        };
-
+//        // Get a ref to the fvMatrix 
+//        template<class T>
+//        fvMatrix<T>& getCoupledEqn
+//        (
+//            word name
+//        );
 
 public:
 
@@ -155,79 +160,22 @@ public:
 
         virtual void setCoupledEqns() = 0;
 
-//        virtual fvScalarMatrix& getCoupledEqn(word name) = 0;
-
-//        template <class Type>
-//        fvMatrix<Type>& getCoupledEqn
-//        (
-//            word name
-//        );
-
-        template<class Type>
-        fvMatrix<Type>& getCoupledEqn
+        // Get a ref to the fvMatrix 
+        template<class T>
+        fvMatrix<T>& getCoupledEqn
         (
             word name
-        )
-        {
-            //TODO: use enum and switch/case
+        );
 
-            if (typeid(Type).name() == typeid(scalar).name())
-            {
-                if (!fvScalarMatrices.found(name))
-                {
-                    FatalErrorIn("transportTemperature::getCoupledEqn")
-                        << "Equation " << name << " does not exist."
-                        << abort(FatalError);
-                }
-
-                return *fvScalarMatrices[name];
-            }
-//            else if (typeid(Type).name() == typeid(vector).name())
-//            {
-//                if (!fvVectorMatrices.table.found(name))
-//                {
-//                    FatalErrorIn("transportTemperature::getCoupledEqn")
-//                        << "Equation " << name << " does not exist."
-//                        << abort(FatalError);
-//                }
-
-//                return *fvVectorMatrices.table[name];
-//            }
-//            else if (typeid(Type).name() == typeid(symmTensor).name())
-//            {
-//                if (!fvSymmTensorMatrices.table.found(name))
-//                {
-//                    FatalErrorIn("transportTemperature::getCoupledEqn")
-//                        << "Equation " << name << " does not exist."
-//                        << abort(FatalError);
-//                }
-
-//                return *fvSymmTensorMatrices.table[name];
-//            }            
-//            else if (typeid(Type).name() == typeid(tensor).name())
-//            {
-//                if (!fvTensorMatrices.table.found(name))
-//                {
-//                    FatalErrorIn("transportTemperature::getCoupledEqn")
-//                        << "Equation " << name << " does not exist."
-//                        << abort(FatalError);
-//                }
-
-//                return *fvTensorMatrices.table[name];
-//            }
-            else
-            {
-                FatalErrorIn("transportTemperature::getCoupledEqn")
-                    << "Equation type not supported"
-                    << abort(FatalError);
-            }
-        }
 };
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
+
+//#ifdef NoRepository
+//#   include "regionTypeTemplates.C"
+//#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

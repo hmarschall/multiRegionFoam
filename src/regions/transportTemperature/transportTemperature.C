@@ -91,8 +91,6 @@ Foam::regionTypes::transportTemperature::transportTemperature
             "transportProperties",
             this->time().constant(),
             *this,
-//            this->time().timeName(),
-//            *this,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -106,32 +104,19 @@ Foam::regionTypes::transportTemperature::transportTemperature
         (
             "T",
             this->time().timeName(),
-//            mesh_,
             *this,
             IOobject::MUST_READ,
             IOobject::AUTO_WRITE
         ),
         *this
     )
-{
-//    eqns_.insert
-//    (
-//        T_.name() + "Eqn",
-//        new fvScalarMatrix
-//        (
-//            T_,
-//            T_.dimensions()/dimTime
-//        )
-//    );
-}
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::regionTypes::transportTemperature::~transportTemperature()
-{
-//    delete TEqnPtr_;
-}
+{}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 

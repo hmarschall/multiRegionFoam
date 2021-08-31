@@ -97,9 +97,10 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
                 fldName + regions[regI].name() + "Eqn"
             );
 
-        Info<< "Solving for " << eqn.psi().name() 
-            << " in " << regions[regI].name()
-            << endl;
+//        Info<< nl 
+//            << "Solving for " << eqn.psi().name() 
+//            << " in " << regions[regI].name()
+//            << endl;
 
         simpleControl simpleControlRegion(regions[regI]);
 
@@ -160,16 +161,16 @@ void Foam::multiRegionSystem::assembleCoupledFields
                         iter()->name()
                     );
 
-                flds.setSize(flds.size() + 1); //no append
+                flds.setSize(flds.size() + 1); //no append() available
 
                 flds.set(nFlds, fld);
 
                 nFlds++;
 
-//                Info<< "Coupled field type : " 
-//                    << GeometricField<T, fvPatchField, volMesh>::typeName
-//                    << ", name : " << iter()->name()
-//                    << endl;
+                // Info<< "Coupled field type : " 
+                //     << GeometricField<T, fvPatchField, volMesh>::typeName
+                //     << ", name : " << iter()->name()
+                //     << endl;
             }
         }
     }

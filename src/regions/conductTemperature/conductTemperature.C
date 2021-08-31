@@ -66,8 +66,6 @@ Foam::regionTypes::conductTemperature::conductTemperature
             "transportProperties",
             this->time().constant(),
             *this,
-//            this->time().timeName(),
-//            *this,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -87,17 +85,7 @@ Foam::regionTypes::conductTemperature::conductTemperature
         ),
         *this
     )
-{
-//    eqns_.insert
-//    (
-//        T_.name() + "Eqn",
-//        new fvScalarMatrix
-//        (
-//            T_,
-//            dimensionSet(1, -1, -2, 1, 0, 0, 0)
-//        )
-//    );
-}
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

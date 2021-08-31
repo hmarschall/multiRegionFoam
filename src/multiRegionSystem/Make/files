@@ -1,4 +1,4 @@
-regions = ./../regions/
+regions = ./../regions
 $(regions)/region/regionType.C
 $(regions)/region/newRegionType.C
 $(regions)/region/regionTypeList.C

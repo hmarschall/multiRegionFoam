@@ -33,7 +33,7 @@ monolithicTypeRegionInterfaces
 
 partitionedCoupling
 {
-    maxCoupleIter 10;
+    maxCoupleIter 6;
 }
 
 // ************************************************************************* //

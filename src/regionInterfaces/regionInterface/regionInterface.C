@@ -272,7 +272,9 @@ Foam::regionInterface::regionInterface
 
 Foam::regionInterface::~regionInterface()
 {
-    delete ggiInterpolatePtr_;
+//    delete ggiInterpolatePtr_;
+    deleteDemandDrivenData(ggiInterpolatePtr_);
+    deleteDemandDrivenData(ggiInterpolatorPtr_);
     deleteDemandDrivenData(currentAZonePatchPtr_);
     deleteDemandDrivenData(currentAZonePointsPtr_);
 }
