@@ -60,22 +60,17 @@ Foam::regionType::regionType
         (
             "multiRegionProperties",
             mesh_.time().constant(),
-//            this->time().constant(),
             mesh_.time(),
-//            *this,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
     )
-{
-    // fileName regionConst = fileName(mesh_.time().caseConstant()/this->name());
-    // fileName& regionConst = const_cast<fileName&>(mesh_.time().caseConstant());
-}
+{}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-// compressible/steadyUniversalMRFFoam/createThermo.H  43   
+//-HM: see compressible/steadyUniversalMRFFoam/createThermo.H  43   
 // psisPtr = const_cast<volScalarField*>(&(thermoPtr->psi()));
 
 //template<class Type>

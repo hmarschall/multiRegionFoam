@@ -38,6 +38,7 @@ SourceFiles
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "IOReferencer.H"
+#include "HashPtrTable.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -78,11 +79,23 @@ class transportTemperature
         //- density
         dimensionedScalar rho_;
 
+protected:
+
         //- temperature
         volScalarField T_;
 
-        //- pointers to coupled equations
-        fvScalarMatrix* TEqnPtr_;
+        //- equation-equation coupling
+//        template<class Type>
+//        struct eqnTable
+//        {
+//            HashPtrTable<Type> eqns_;
+//        };
+
+//        eqnTable<scalar> eqns_;
+
+//        HashPtrTable<fvScalarMatrix> eqns_;
+
+//        IOReferencer<fvScalarMatrix>* TEqnPtr_;
 
 public:
 
@@ -124,16 +137,89 @@ public:
 
         virtual void solveRegion();
 
-        virtual void solveCoupledPartitioned();
+        virtual void setCoupledEqns();
 
-        // virtual tmp<fvScalarMatrix> coupledFvScalarMatrix() const;
+        // Get equation by name
+//        fvScalarMatrix& getCoupledEqn
+//        (
+//            word name
+//        )
+//        {
+//            if (!fvScalarMatrices.table.found(name))
+//            {
+//                FatalErrorIn("transportTemperature::getCoupledEqn")
+//                    << "Equation " << name << " does not exist."
+//                    << abort(FatalError);
+//            }
 
-        template<class Type>
-        void regCoupledEqn
-        (
-            const fvMatrix<Type>& fvm
-//            const DimensionedField<Type, volMesh>& psi
-        );
+//            return *fvScalarMatrices.table[name];
+//        }
+
+//        template<class Type>
+//        fvMatrix<Type>& getCoupledEqn
+//        (
+//            word name
+//        )
+//        {
+//            if (Type::componentName == "scalar")
+//            {
+//                if (!fvScalarMatrices.table.found(name))
+//                {
+//                    FatalErrorIn("transportTemperature::getCoupledEqn")
+//                        << "Equation " << name << " does not exist."
+//                        << abort(FatalError);
+//                }
+
+//                return *fvScalarMatrices.table[name];
+//            }
+//            else if (Type::componentName == "vector")
+//            {
+//                if (!fvVectorMatrices.table.found(name))
+//                {
+//                    FatalErrorIn("transportTemperature::getCoupledEqn")
+//                        << "Equation " << name << " does not exist."
+//                        << abort(FatalError);
+//                }
+
+//                return *fvVectorMatrices.table[name];
+//            }
+//            else if (Type::componentName == "symmTensor")
+//            {
+//                if (!fvSymmTensorMatrices.table.found(name))
+//                {
+//                    FatalErrorIn("transportTemperature::getCoupledEqn")
+//                        << "Equation " << name << " does not exist."
+//                        << abort(FatalError);
+//                }
+
+//                return *fvSymmTensorMatrices.table[name];
+//            }            
+//            else if (Type::componentName == "tensor")
+//            {
+//                if (!fvTensorMatrices.table.found(name))
+//                {
+//                    FatalErrorIn("transportTemperature::getCoupledEqn")
+//                        << "Equation " << name << " does not exist."
+//                        << abort(FatalError);
+//                }
+
+//                return *fvTensorMatrices.table[name];
+//            }
+//            else
+//            {
+//                FatalErrorIn("transportTemperature::getCoupledEqn")
+//                    << "Equation type not supported"
+//                    << abort(FatalError);
+//            }
+
+//            return (nullptr);
+//        }
+
+//        template<class Type>
+//        void regCoupledEqn
+//        (
+//            fvMatrix<Type>& fvm
+//        );
 };
 
 

@@ -103,6 +103,8 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
             {
                 Info << "Creating " << regions[regionI] << endl;
 
+                Info << "Mesh name : " << mesh_.name() << endl;
+
                 this->set
                 (
                     i++,
@@ -145,11 +147,11 @@ void Foam::regionTypeList::solveRegion()
     }
 }
 
-void Foam::regionTypeList::solveCoupledPartitioned()
+void Foam::regionTypeList::setCoupledEqns()
 {
     forAll(*this, i)
     {
-        this->operator[](i).solveCoupledPartitioned();
+        this->operator[](i).setCoupledEqns();
     }
 }
 

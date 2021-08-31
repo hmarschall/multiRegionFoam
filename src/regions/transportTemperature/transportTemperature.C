@@ -108,21 +108,31 @@ Foam::regionTypes::transportTemperature::transportTemperature
         (
             "T",
             this->time().timeName(),
+//            mesh_,
             *this,
             IOobject::MUST_READ,
             IOobject::AUTO_WRITE
         ),
         *this
-    ),
-    TEqnPtr_(NULL)
-{}
+    )
+{
+//    eqns_.insert
+//    (
+//        T_.name() + "Eqn",
+//        new fvScalarMatrix
+//        (
+//            T_,
+//            T_.dimensions()/dimTime
+//        )
+//    );
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::regionTypes::transportTemperature::~transportTemperature()
 {
-    delete TEqnPtr_;
+//    delete TEqnPtr_;
 }
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -139,132 +149,112 @@ void Foam::regionTypes::transportTemperature::setRDeltaT()
 }
 
 
-void Foam::regionTypes::transportTemperature::solveCoupledPartitioned()
+void Foam::regionTypes::transportTemperature::setCoupledEqns()
 {
-    // do nothing, add as required
+    dimensionedScalar alpha = k_/(rho_*cp_);
+
+    fvScalarMatrix TEqn =
+    (
+        fvm::ddt(T_)
+      + fvm::div(phi_, T_)
+     ==
+        fvm::laplacian(alpha, T_)
+    );
+
+    fvScalarMatrices.set
+    (
+        T_.name() + this->name() + "Eqn",
+        new fvScalarMatrix(TEqn)
+    );
+
+//    TEqn_.relax();
+//    TEqn_.solve();
+
+
+//    TEqnPtr_ =
+//        new IOReferencer<fvScalarMatrix>
+//        (
+//            IOobject
+//            (
+//                T_.name() + "Eqn",
+//                this->time().timeName(),
+//                *this,
+//                IOobject::NO_READ,  /*must be NO_READ*/
+//                IOobject::NO_WRITE  /*must be NO_WRITE*/
+//            ),
+//            &TEqn_
+////            solidInterface::New(solIntType, sigma.mesh(), *this).ptr()
+//        );
+
+//    regCoupledEqn(TEqn_);
+
+//    TEqn.relax();
+//    TEqn.solve();
+
+//    TEqnPtr_ = new fvScalarMatrix
+//    (
+//        fvm::ddt(T_)
+//      + fvm::div(phi_, T_)
+//     ==
+//        fvm::laplacian(alpha, T_)
+//    );
+
+//    TEqnPtr_->solve();
+
+//    regCoupledEqn(*TEqnPtr_);
 }
 
 void Foam::regionTypes::transportTemperature::solveRegion()
 {
-    Info << nl << "Solving for temperature in " << regionName_ << endl;
-    simpleControl simpleControlRegion(*this);
+    // do nothing, add as required
 
-    dimensionedScalar alpha = k_/(rho_*cp_);
+//    Info << nl << "Solving for temperature in " << regionName_ << endl;
+//    simpleControl simpleControlRegion(*this);
 
-    while (simpleControlRegion.correctNonOrthogonal())
-    {
-        TEqnPtr_ = new fvScalarMatrix
-        (
-            fvm::ddt(T_)
-          + fvm::div(phi_, T_)
-         ==
-            fvm::laplacian(alpha, T_)
-        );
-
-//        regCoupledEqn(TEqn, T_.mesh());
-        regCoupledEqn(*TEqnPtr_);
-
-        TEqnPtr_->relax();
-        TEqnPtr_->solve();
-    }
-
-
-//    dimensionedScalar alpha = k_/(rho_*cp_);
-
-//    fvScalarMatrix* TEqn = new fvScalarMatrix
-//    (
-//        fvm::ddt(T_)
-//      + fvm::div(phi_, T_)
-//      ==
-//        fvm::laplacian(alpha, T_)
-//    );
-
-//    IOReferencer<fvScalarMatrix> TEqnRef
-//    (
-//        IOobject
-//        (
-//            TEqn->psi().name() + "Eqn",
-//            this->time().timeName(),
-//            *this,
-//            IOobject::NO_READ,  /*must be NO_READ*/
-//            IOobject::NO_WRITE  /*must be NO_WRITE*/
-//        ),
-//        TEqn
-//    );
-
-//    TEqn->relax();
-//    TEqn->solve();
-
-
-//    const objectRegistry& db = *this; //this->thisDb();
-
-//    Info << nl <<"Objects registered to "
-//         << this->name() << " :" << nl << endl;
-
-//    forAllConstIter(HashTable<regIOobject*>, db, iter)
+//    while (simpleControlRegion.correctNonOrthogonal())
 //    {
-//        Info << " name : " << iter()->name() << nl
-//             << " type : " << iter()->type() << nl
-//             << endl;
+//        TEqnPtr_->relax();
+//        TEqnPtr_->solve();
 //    }
-
 }
 
-template<class Type>
-void Foam::regionTypes::transportTemperature::regCoupledEqn
-(
-    const fvMatrix<Type>& fvm
-//    const DimensionedField<Type, volMesh>& psi
-)
-{
-//    const fvMesh mesh = psi.mesh();
+//template<class Type>
+//void Foam::regionTypes::transportTemperature::regCoupledEqn
+//(
+//    fvMatrix<Type>& fvm
+////    const DimensionedField<Type, volMesh>& psi
+//)
+//{
+//    // checkin to object registry if not already present
+////    if
+////    (
+////       !(
+////            this->thisDb().foundObject<IOReferencer<fvMatrix<Type> > >
+////            (
+////                fvm.psi().name() + "Eqn"
+////            )
+////        )
+////    )
+//    {
+//        IOReferencer<fvMatrix<Type> >* fvmRef =
+//        new IOReferencer<fvMatrix<Type> >
+//        (
+//            IOobject
+//            (
+//                fvm.psi().name() + "Eqn",
+//                this->time().timeName(),
+//                *this,
+//                IOobject::NO_READ,  /*must be NO_READ*/
+//                IOobject::NO_WRITE  /*must be NO_WRITE*/
+//            ),
+//            &fvm
+////            &(const_cast<fvMatrix<Type>& >(fvm))
+//        );
 
-    // checkin to object registry if not already present
-    if
-    (
-       !(
-            this->thisDb().foundObject<IOReferencer<fvMatrix<Type> > >
-            (
-                fvm.psi().name() + "Eqn"
-            )
-        )
-    )
-    {
-        IOReferencer<fvMatrix<Type> >* fvmRef =
-        new IOReferencer<fvMatrix<Type> >
-        (
-            IOobject
-            (
-                fvm.psi().name() + "Eqn",
-                this->time().timeName(),
-                *this,
-                IOobject::NO_READ,  /*must be NO_READ*/
-                IOobject::NO_WRITE  /*must be NO_WRITE*/
-            ),
-            &(const_cast<fvMatrix<Type>& >(fvm))
-        );
-
-        Info<< "Registered " << fvmRef->name() 
-            << " from region " << this->name()
-            << " to object registry" << nl << endl;
-    }
-}
-
-// tmp<fvScalarMatrix> 
-// Foam::regionTypes::transportTemperature::coupledFvScalarMatrix() const
-// {
-//     dimensionedScalar alpha = k_/(rho_*cp_);
-
-//     return tmp<fvScalarMatrix>
-//     (
-//         new fvScalarMatrix
-//         (
-//             fvm::ddt(T_)
-//         + fvm::div(phi_, T_)
-//         ==
-//             fvm::laplacian(alpha, T_)
-//         )
-//     );
-// }
+//        Info<< "Registered " << fvmRef->name() 
+//            << " from region " << this->name()
+//            << " to object registry" << nl << endl;
+//    }
+//}
 
 // ************************************************************************* //

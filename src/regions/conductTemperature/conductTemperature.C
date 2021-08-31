@@ -88,15 +88,26 @@ Foam::regionTypes::conductTemperature::conductTemperature
             IOobject::AUTO_WRITE
         ),
         *this
-    ),
-    coupledScalarEqnsTable_()
-{}
+    )
+{
+//    eqns_.insert
+//    (
+//        T_.name() + "Eqn",
+//        new fvScalarMatrix
+//        (
+//            T_,
+//            dimensionSet(1, -1, -2, 1, 0, 0, 0)
+//        )
+//    );
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::regionTypes::conductTemperature::~conductTemperature()
-{}
+{
+//    delete TEqnPtr_;
+}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
@@ -112,53 +123,113 @@ void Foam::regionTypes::conductTemperature::setRDeltaT()
 }
 
 
-void Foam::regionTypes::conductTemperature::solveCoupledPartitioned()
+void Foam::regionTypes::conductTemperature::setCoupledEqns()
 {
-    // do nothing, add as required
+    fvScalarMatrix TEqn =
+    (
+        fvm::ddt(rho_*cv_, T_)
+     ==
+        fvm::laplacian(k_, T_, "laplacian(k,T)")
+    );
+
+    fvScalarMatrices.set
+    (
+        T_.name() + this->name() + "Eqn",
+        new fvScalarMatrix(TEqn)
+    );
+
+//    TEqn_.relax();
+//    TEqn_.solve();
+
+
+
+//    TEqnPtr_ =
+//        new IOReferencer<fvScalarMatrix>
+//        (
+//            IOobject
+//            (
+//                T_.name() + "Eqn",
+//                this->time().timeName(),
+//                *this,
+//                IOobject::NO_READ,  /*must be NO_READ*/
+//                IOobject::NO_WRITE  /*must be NO_WRITE*/
+//            ),
+//            &TEqn_
+////            solidInterface::New(solIntType, sigma.mesh(), *this).ptr()
+//        );
+
+
+//    regCoupledEqn(TEqn_);
+
+//    TEqn.relax();
+//    TEqn.solve();
+
+//    TEqnPtr_ = new fvScalarMatrix
+//    (
+//        fvm::ddt(rho_*cv_, T_)
+//     ==
+//        fvm::laplacian(k_, T_, "laplacian(k,T)")
+//    );
+
+//    TEqnPtr_->solve();
+
+//    regCoupledEqn(*TEqnPtr_);
 }
 
 void Foam::regionTypes::conductTemperature::solveRegion()
 {
-    Info << nl << "Solving for temperature in " << regionName_ << endl;
-    simpleControl simpleControlRegion(*this);
+    // do nothing, add as required
 
-    while (simpleControlRegion.correctNonOrthogonal())
-    {
-        tmp<fvScalarMatrix> TEqn
-        (
-            fvm::ddt(rho_*cv_, T_)
-         ==
-            fvm::laplacian(k_, T_, "laplacian(k,T)")
-        );
+//    Info << nl << "Solving for temperature in " << regionName_ << endl;
+//    simpleControl simpleControlRegion(*this);
 
-        TEqn->relax();
-
-        TEqn->solve();
-    }
+//    while (simpleControlRegion.correctNonOrthogonal())
+//    {
+//        TEqn->relax();
+//        TEqn->solve();
+//    }
 }
 
-// HashTable
-// <
-//     Foam::tmp<Foam::fvScalarMatrix>, word, word::hash
-// >
-// Foam::regionTypes::conductTemperature::coupledScalarEqnsTable() const
-// {
-//     return coupledScalarEqnsTable_;
-// }
+//template<class Type>
+//void Foam::regionTypes::conductTemperature::regCoupledEqn
+//(
+//    fvMatrix<Type>& fvm
+////    const DimensionedField<Type, volMesh>& psi
+//)
+//{
+////    const fvMesh mesh = psi.mesh();
 
-// tmp<fvScalarMatrix> 
-// Foam::regionTypes::conductTemperature::coupledFvScalarMatrix() const
-// {
-//     return tmp<fvScalarMatrix>
-//     (
-//         new fvScalarMatrix
-//         (
-//             fvm::ddt(rho_*cv_, T_)
-//          ==
-//             fvm::laplacian(k_, T_, "laplacian(k,T)")
-//         )
-//     );
-// }
+//    // checkin to object registry if not already present
+////    if
+////    (
+////       !(
+////            this->thisDb().foundObject<IOReferencer<fvMatrix<Type> > >
+////            (
+////                fvm.psi().name() + "Eqn"
+////            )
+////        )
+////    )
+//    {
+//        IOReferencer<fvMatrix<Type> >* fvmRef =
+//        new IOReferencer<fvMatrix<Type> >
+//        (
+//            IOobject
+//            (
+//                fvm.psi().name() + "Eqn",
+//                this->time().timeName(),
+//                *this,
+//                IOobject::NO_READ,  /*must be NO_READ*/
+//                IOobject::NO_WRITE  /*must be NO_WRITE*/
+//            ),
+//            &fvm
+////            &(const_cast<fvMatrix<Type>& >(fvm))
+//        );
+
+//        Info<< "Registered " << fvmRef->name() 
+//            << " from region " << this->name()
+//            << " to object registry" << nl << endl;
+//    }
+//}
 
 
 // ************************************************************************* //

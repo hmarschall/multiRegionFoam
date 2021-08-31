@@ -33,35 +33,6 @@ License
 
 // * * * * * * * * * * * * * * * Private functions * * * * * * * * * * * * * //
 
-//! consider HashTable usage 
-//template <class T, class Mesh>
-//void Foam::fvMeshDistribute::saveBoundaryFields
-//(
-//    PtrList<FieldField<fvsPatchField, T> >& bflds
-//) const
-//{
-//    typedef const GeometricField<T, fvsPatchField, Mesh> fldType;
-
-//    const HashTable<fldType*> flds
-//    (
-//        mesh_.objectRegistry::lookupClass<fldType>()
-//    );
-
-//    bflds.setSize(flds.size());
-
-//    label i = 0;
-
-//    forAllConstIter (typename HashTable<const fldType*>, flds, iter)
-//    {
-//        const fldType& fld = *iter();
-
-//        bflds.set(i, fld.boundaryField().clone().ptr());
-
-//        i++;
-//    }
-//}
-
-
 template<class T>
 void Foam::multiRegionSystem::assembleAndSolveBlockMatrix
 (
@@ -69,11 +40,11 @@ void Foam::multiRegionSystem::assembleAndSolveBlockMatrix
     word fldName
 ) const
 {
+    // get number of coupled fields per field name
     label nEqns = 0;
 
     forAll (flds, fldI)
     {
-//        using fvM = fvMatrix<T>;
         if(flds[fldI].name() == fldName)
         {
             nEqns++;
@@ -82,12 +53,14 @@ void Foam::multiRegionSystem::assembleAndSolveBlockMatrix
 
     Info << "Number of coupled fields : " << nEqns << endl;
 
+    // assemble and solve block matrix system
     coupledFvScalarMatrix coupledEqns(nEqns);
 
     forAll (flds, fldI)
     {
         const fvMatrix<T>& eqn = 
-            flds[fldI].mesh().objectRegistry::lookupObject<IOReferencer<fvMatrix<T> > >
+            flds[fldI].mesh()
+            .objectRegistry::lookupObject<IOReferencer<fvMatrix<T> > >
             (
                 fldName + "Eqn"
             )();
@@ -99,13 +72,63 @@ void Foam::multiRegionSystem::assembleAndSolveBlockMatrix
 
         // coupledEqns.set(fldI, eqn);
 
-        coupledEqns.set(fldI, &const_cast<fvMatrix<T>& >(eqn)); //! check
-
-        // fvMatrix<T>& eqnRef = const_cast<fvMatrix<T>& >(eqn);
-        // coupledEqns.set(fldI, eqnRef);
+        coupledEqns.set(fldI, &const_cast<fvMatrix<T>& >(eqn));
     }
 
     coupledEqns.solve(mesh_.solutionDict().solver(fldName + "coupled"));
+}
+
+template<class T>
+void Foam::multiRegionSystem::assembleAndSolveEqns
+(
+    PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
+    regionTypeList& regions,
+    word fldName
+) const
+{
+    // assemble and solve all matrices
+    forAll (regions, regI) // go through all regions
+    {
+        fvMatrix<T>& eqn =
+            regions[regI].getCoupledEqn<T>
+            (
+                fldName + regions[regI].name() + "Eqn"
+            );
+
+        Info<< "Solving for " << eqn.psi().name() 
+            << " in " << regions()[regI].name()
+            << endl;
+
+        eqn.relax();
+        eqn.solve();
+    }
+
+//    forAll (flds, fldI)
+//    {
+//        if
+//        (
+//            flds[fldI].mesh()
+//            .objectRegistry::foundObject<IOReferencer<fvMatrix<T> > >
+//            (
+//                fldName + "Eqn"
+//            )
+//        )
+//        {
+//        const fvMatrix<T>& eqn = 
+//            flds[fldI].mesh()
+//            .objectRegistry::lookupObject<IOReferencer<fvMatrix<T> > >
+//            (
+//                fldName + "Eqn"
+//            )();
+
+//        fvMatrix<T>& eqnRef = const_cast<fvMatrix<T>& >(eqn);
+
+//        Info << "Solving for " << eqnRef.psi().name() << endl;
+
+////        eqnRef.relax();
+////        eqnRef.solve();
+//        }
+//    }
 }
 
 template<class T>
@@ -196,6 +219,11 @@ Foam::multiRegionSystem::multiRegionSystem
     regions_(),
     interfaces_(),
 
+    scalarFlds_(0),
+    vectorFlds_(0),
+    symmTensorFlds_(0),
+    tensorFlds_(0),
+
     maxCoupleIter_
     (
         this->subDict("partitionedCoupling")
@@ -245,429 +273,130 @@ void Foam::multiRegionSystem::setRDeltaT()
 
 void Foam::multiRegionSystem::solve()
 {
-    //- solve for regions' physics
+    // Solve for regions' physics
     regions_->solveRegion();
 
+    // Set coupled equations
+    regions_->setCoupledEqns();
 
-    //- solve region-region coupled (monolithic)
+    // Solve region-region coupling (partitioned)
 
-    // Info << interfaces_->partitionedCoupledFields() << endl;
+//    forAll (regions(), regI) // go through all regions
+//    {
+//        fvMatrix<scalar>& TEqn =
+//            regions()[regI].getCoupledEqn<scalar>
+//            (
+//                "T" + regions()[regI].name() + "Eqn"
+//            );
 
-    interfaces_->attach();
+//        Info<< "Solving for " << TEqn.psi().name() 
+//            << " in " << regions()[regI].name()
+//            << endl;
 
-    // Get unique list of coupled field names
-    hashedWordList fldNames;
+//        TEqn.relax();
+//        TEqn.solve();
+//    }
+
+    //- get unique list of coupled field names
+    hashedWordList pcfldNames;
 
     forAllConstIter(fieldsTable, interfaces_->partitionedCoupledFields(), iter)
     {
-        // Info << iter() << endl;
-
         forAll(iter(), fldNameI)
         {
             word fldName = iter()[fldNameI];
 
-            if (!fldNames.contains(fldName))
+            if (!pcfldNames.contains(fldName))
             {
-                fldNames.append(fldName);
+                pcfldNames.append(fldName);
             }
         }
     }
 
-    Info << "List of coupled field names : " << fldNames << endl;
+    Info<< "List of partitioned-coupled field names : " 
+        << pcfldNames << endl;
 
-    // Assemble coupled fields by type
-    PtrList<volScalarField> scalarFlds(0);
-    PtrList<volVectorField> vectorFlds(0);
-    PtrList<volSphericalTensorField> sphericalTensorFlds(0);
-    PtrList<volSymmTensorField> symmTensorFlds(0);
-    PtrList<volTensorField> tensorFlds(0);
+    //- assemble coupled fields by type
+    scalarFlds_.clear();
+    vectorFlds_.clear();
+    symmTensorFlds_.clear();
+    tensorFlds_.clear();
 
-    assembleCoupledFields<scalar>(scalarFlds, regions(), fldNames);
+    assembleCoupledFields<scalar>(scalarFlds_, regions(), pcfldNames);
+    assembleCoupledFields<vector>(vectorFlds_, regions(), pcfldNames);
+    assembleCoupledFields<tensor>(tensorFlds_, regions(), pcfldNames);
+    assembleCoupledFields<symmTensor>(symmTensorFlds_, regions(), pcfldNames);
 
-    // Assemble and solve coupled block-matrix systems
-    forAll (fldNames, fldI)
+    //- assemble and solve set of coupled equation (partitioned)
+    forAll (pcfldNames, fldI)
     {
-        word fldName = fldNames[fldI];
+        word fldName = pcfldNames[fldI];
 
-        assembleAndSolveBlockMatrix<scalar>(scalarFlds, fldName);
+        assembleAndSolveEqns<scalar>(scalarFlds_, regions(), fldName);
+//        assembleAndSolveEqns<vector>(vectorFlds_, regions(), fldName);
+//        assembleAndSolveEqns<tensor>(tensorFlds_, regions(), fldName);
+//        assembleAndSolveEqns<symmTensor>(symmTensorFlds_, regions(), fldName);
     }
 
 
+//    // Solve region-region coupling (monolithic)
+//    interfaces_->attach();
 
+//    //- get unique list of coupled field names
+//    hashedWordList mcfldNames;
 
-
-
-
-
-
-
-////    labelList Ncflds(fldNames.size(), 0);
-////    DynamicList<word> Tclfds;
-
-//    const label nVolFieldTypes = 5;
-//    const word volFieldTypes[] =
+//    forAllConstIter(fieldsTable, interfaces_->monolithicCoupledFields(), iter)
 //    {
-//        volScalarField::typeName,
-//        volVectorField::typeName,
-//        volSphericalTensorField::typeName,
-//        volSymmTensorField::typeName,
-//        volTensorField::typeName
-//    };
+//        // Info << iter() << endl;
 
-//    label nScalarFields = 0;
-//    label nVectorFlds = 0;
-//    label nSphericalTensorFlds = 0;
-//    label nSymmTensorFlds = 0;
-//    label nTensorFlds = 0;
-
-//    PtrList<volScalarField> scalarFlds(0);
-//    PtrList<volVectorField> vectorFlds(0);
-//    PtrList<volSphericalTensorField> sphericalTensorFlds(0);
-//    PtrList<volSymmTensorField> symmTensorFlds(0);
-//    PtrList<volTensorField> tensorFlds(0);
-
-//    forAll (regions(), regI) // go through all regions
-//    {
-//        // get list of all objects registered to region
-//        IOobjectList objects
-//        (
-//            regions()[regI],
-//            "0"
-////            regions()[regI].time().timeName()
-//        );
-
-//        for (label i=0; i<nVolFieldTypes; i++)
+//        forAll(iter(), fldNameI)
 //        {
-//            // Search list of field objects for wanted type
-//            IOobjectList volTypeObjects = 
-//                objects.lookupClass(volFieldTypes[i]);
+//            word fldName = iter()[fldNameI];
 
-//            for
-//            (
-//                IOobjectList::iterator iter = volTypeObjects.begin();
-//                iter != volTypeObjects.end();
-//                ++iter
-//            )
+//            if (!mcfldNames.contains(fldName))
 //            {
-//                if
-//                (
-//                    // make sure to pick up only coupled flds of a type
-//                    fldNames.contains(iter()->name())
-//                 && volFieldTypes[i] == volScalarField::typeName
-//                )
-//                {
-//                    const volScalarField& fld =
-//                        regions()[regI].thisDb().lookupObject
-//                        <volScalarField>
-//                        (
-//                            iter()->name()
-//                        );
-
-//                    scalarFlds.setSize(scalarFlds.size() + 1);
-
-//                    scalarFlds.set
-//                    (
-//                        nScalarFields,
-//                        fld
-//                    );
-
-//                    nScalarFields++;
-
-//                    Info<< "Coupled field type : " << volFieldTypes[i]
-//                        << ", name : " << iter()->name()
-//                        << endl;
-//                }
+//                mcfldNames.append(fldName);
 //            }
 //        }
 //    }
 
+//    Info<< "List of monolithic-coupled field names : " 
+//        << mcfldNames << endl;
 
-//    forAll (fldNames, fldI)
+//    //- assemble coupled fields by type
+//    scalarFlds_.clear();
+//    vectorFlds_.clear();
+//    symmTensorFlds_.clear();
+//    tensorFlds_.clear();
+
+//    assembleCoupledFields<scalar>(scalarFlds_, regions(), mcfldNames);
+//    assembleCoupledFields<vector>(vectorFlds_, regions(), mcfldNames);
+//    assembleCoupledFields<tensor>(tensorFlds_, regions(), mcfldNames);
+//    assembleCoupledFields<symmTensor>(symmTensorFlds_, regions(), mcfldNames);
+
+//    //- assemble and solve coupled block-matrix systems
+//    forAll (mcfldNames, fldI)
 //    {
-//        word fldName = fldNames[fldI];
+//        word fldName = mcfldNames[fldI];
 
-////        forAll (regions(), regI) // go through all regions
-////        {
-
-//////            for
-//////            (
-//////                IOobjectList::iterator iter = objects.begin();
-//////                iter != objects.end();
-//////                ++iter
-//////            )
-//////            {
-//////    //            if (iter()->psi().typeName() == volScalarField::typeName)
-//////    //            {
-//////    //                Info << "Eqn type : fvScalarMatrix" << endl; 
-//////    //            }
-//////            }
-
-////        }
-
-
-//        //-- get number of coupled equations by name
-//        label nScalarEqns = 0;
-////        IOobjectList eqns(0);
-
-//        forAll (regions(), regI) // go through all regions
-//        {
-//            if
-//            (
-//                regions()[regI].foundObject<volScalarField>
-//                (
-//                    fldNames[fldI]
-//                )
-//            )
-//            {
-//                nScalarEqns++;
-//            }
-
-//        }
-
-//        //-- assemble block-matrix system
-//        PtrList<fvScalarMatrix> scalarEqns(nScalarEqns);
-
-//        label i = 0;
-
-//        forAll (regions(), regI) // go through all regions
-//        {
-//            if
-//            (
-//                regions()[regI].foundObject<regIOobject>
-//                (
-//                    fldNames[fldI] + "Eqn"
-//                )
-//            )
-//            {
-//                const fvScalarMatrix& eqn =
-//                    regions()[regI].thisDb().lookupObject
-//                    <IOReferencer<fvScalarMatrix> >
-//                    (
-//                        fldNames[fldI] + "Eqn"
-//                    )();
-
-//                scalarEqns.set
-//                (
-//                    i,
-//                    eqn
-//                );
-
-//                i++;
-
-//                Info<< "Number of coupled matrices : " 
-//                    << scalarEqns.size() << endl;
-
-////                const regIOobject& eqn = 
-////                    regions()[regI].thisDb().lookupObject<regIOobject>
-////                    (
-////                        fldNames[fldI] + "Eqn"
-////                    );
-
-////                eqns.add(const_cast<regIOobject&>(eqn));
-
-////                Info << "Governing Eqns : " << eqns.toc() << endl;
-//            }
-//        }
-
-//        if (nScalarEqns =! i)
-//        {
-//            // Error
-//        }
-
-
-//        // ...
-
-
-
-//        for
-//        (
-//            IOobjectList::iterator iter = eqns.begin();
-//            iter != eqns.end();
-//            ++iter
-//        )
-//        {
-//            Info << iter()->name() << endl;
-////            if (iter()->psi().typeName() == volScalarField::typeName)
-////            {
-////                Info << "Eqn type : fvScalarMatrix" << endl; 
-////            }
-//        }
+//        assembleAndSolveBlockMatrix<scalar>(scalarFlds_, fldName);
+//        assembleAndSolveBlockMatrix<vector>(vectorFlds_, fldName);
+//        assembleAndSolveBlockMatrix<tensor>(tensorFlds_, fldName);
+//        assembleAndSolveBlockMatrix<symmTensor>(symmTensorFlds_, fldName);
 //    }
 
-
-
-
-
-
-
-//    forAll (fldNames, fldI)
-//    {
-//        word fldName = fldNames[fldI];
-
-//        IOobjectList eqns(0);
-
-//        forAll (regions(), regI) // go through all regions
-//        {
-//            //! src/foam/fields/ReadFields
-
-//            // get list of all objects registered to region
-////            IOobjectList objects
-////            (
-////                regions()[regI],
-////                "0"
-//////                regions()[regI].time().timeName()
-////            );
-
-////            Info << objects.names() << endl;
-
-
-//            if
-//            (
-//                regions()[regI].foundObject<regIOobject>
-//                (
-//                    fldNames[fldI] + "Eqn"
-//                )
-//            )
-//            {
-//                Info << "Found!" << endl;
-
-////                const fvScalarMatrix& eqn =
-////                    regions()[regI].thisDb().lookupObject
-////                    <IOReferencer<fvScalarMatrix> >
-////                    (
-////                        fldNames[fldI] + "Eqn"
-////                    )();
-
-////                Info << objects.names() << endl;
-
-////                fvScalarMatrix& eqnPtr = const_cast<fvScalarMatrix&>(eqn);
-////                forAll (objects, objI)
-////                {
-////                    if (objects.names()[objI] == fldNames[fldI])
-////                    {
-////                        const fvScalarMatrix& eqn =
-////                            regions()[regI].thisDb().lookupObject
-////                            <IOReferencer<fvScalarMatrix> >
-////                            (
-////                                fldNames[fldI] + "Eqn"
-////                            )();
-
-//                        const regIOobject& eqn = 
-//                            regions()[regI].thisDb().lookupObject<regIOobject>
-//                            (
-//                                fldNames[fldI] + "Eqn"
-//                            );
-
-//                        eqns.add(const_cast<regIOobject&>(eqn));
-////                    }
-////                }
-
-//                Info << "eqns : " << eqns.toc() << endl;
-//            }
-
-////            for (label i=0; i<nVolFieldTypes; i++)
-////            {
-////                // Search list of objects for wanted type
-////                IOobjectList volTypeObjects = 
-////                    objects.lookupClass(volFieldTypes[i]);
-
-////                Info << "field type : " << volTypeObjects.names() << endl;
-
-////                Info << "vol field type : " << volFieldTypes[i] << endl;
-
-//////                const IOobject& eqn = *objects[(fldI + "Eqn")];
-
-//////                const regIOobject& sEqn = 
-//////                    regions()[regI].lookupObject<regIOobject>
-//////                    ("TEqn");
-
-////                if
-////                (
-////                    regions()[regI].foundObject<regIOobject>
-////                    (
-////                        fldNames[fldI] + "Eqn"
-////                    )
-////                )
-////                {
-////                    Info << "Found!" << endl;
-
-////                    const fvScalarMatrix& eqn =
-////                        regions()[regI].thisDb().lookupObject
-////                        <IOReferencer<fvScalarMatrix> >
-////                        (
-////                            fldNames[fldI] + "Eqn"
-////                        )();
-
-////                    //fvScalarMatrix& eqnPtr = const_cast<fvScalarMatrix&>(eqn);
-////                }
-////            }
-//        }
-//    }
-
-//    Info << "Number of coupled Fields : " << Ncflds << endl;
-
-    //- assemble matrix systems
-
-
-//    coupledFvScalarMatrix scalarEqns(NEqns);
-
-//    forAllConstIter(fieldsTable, interfaces_->partitionedCoupledFields(), iter)
-//    {
-//        forAll(iter(), cfldI)
-//        {
-//            // Info << iter() << endl;
-
-//            forAll(iter(), fldNameI)
-//            {
-//                word fldName = iter()[fldNameI];
-
-//                forAll(regions(), regI)
-//                {
-//                    if (regions()[regI].foundObject<volScalarField>(fldName))
-//                    {
-//                        Info<< "Found field " << fldName
-//                            << " in " << regions()[regI].name()
-//                            << " for monolithic coupling"
-//                            << endl;
-
-//                        NEqns++;
-//                        // scalarEqns.set
-//                        // (
-//                        //     regI, 
-//                        //     regions()[regI].coupledScalarEquations(fldName)
-//                        // );
-//                    }
-//                    // TODO: Sanity check
-//                    // else
-//                    // {
-//                    //     forAll(interfaces(), intI)
-//                    //     {
-//                    //         FatalError << "Coupling field " << fldName
-//                    //             << " not found"
-//                    //             << exit(FatalError);
-//                    //     }
-//                    // }
-//                }
-
-//                // scalarEqns.solve
-//                // (
-//                //     mesh_.solutionDict().solver(fldNameI + "coupled")
-//                // );
-//            }
-//        }
-//    }
-
-
-    // interfaces_->detach();
+//    // interfaces_->detach();
 }
 
-void Foam::multiRegionSystem::solveCoupledPartitioned()
+void Foam::multiRegionSystem::setCoupledEqns()
 {
+    regions_->setCoupledEqns();
+
     //- solve partitioned inter-region coupling
-    for (int coupleIter=1; coupleIter<=maxCoupleIter_; coupleIter++)
-    {
-        regions_->solveCoupledPartitioned();
-    }
+//    for (int coupleIter=1; coupleIter<=maxCoupleIter_; coupleIter++)
+//    {
+
+//    }
 }
 
 

@@ -41,6 +41,8 @@ SourceFiles
 #include "volFields.H"
 #include "fvMesh.H"
 #include "fvMatrix.H"
+#include "HashPtrTable.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -72,6 +74,30 @@ protected:
         const fvMesh& mesh_;
 
         const IOdictionary dict_;
+
+        //- equation-equation coupling
+//        template<class Type>
+//        struct eqnTable
+//        {
+//            HashPtrTable<fvMatrix<Type> > table;
+//        };
+
+//        eqnTable<scalar> fvScalarMatrices;
+//        eqnTable<vector> fvVectorMatrices;
+//        eqnTable<symmTensor> fvSymmTensorMatrices;
+//        eqnTable<tensor> fvTensorMatrices;
+
+        HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
+
+//        template<class Type>
+//        struct eqnTable;
+
+//        template<> 
+//        struct eqnTable<scalar>
+//        {
+//            HashPtrTable<fvMatrix<scalar> > table;
+//        };
+
 
 public:
 
@@ -127,7 +153,76 @@ public:
 
         virtual void solveRegion() = 0;
 
-        virtual void solveCoupledPartitioned() = 0;
+        virtual void setCoupledEqns() = 0;
+
+//        virtual fvScalarMatrix& getCoupledEqn(word name) = 0;
+
+//        template <class Type>
+//        fvMatrix<Type>& getCoupledEqn
+//        (
+//            word name
+//        );
+
+        template<class Type>
+        fvMatrix<Type>& getCoupledEqn
+        (
+            word name
+        )
+        {
+            //TODO: use enum and switch/case
+
+            if (typeid(Type).name() == typeid(scalar).name())
+            {
+                if (!fvScalarMatrices.found(name))
+                {
+                    FatalErrorIn("transportTemperature::getCoupledEqn")
+                        << "Equation " << name << " does not exist."
+                        << abort(FatalError);
+                }
+
+                return *fvScalarMatrices[name];
+            }
+//            else if (typeid(Type).name() == typeid(vector).name())
+//            {
+//                if (!fvVectorMatrices.table.found(name))
+//                {
+//                    FatalErrorIn("transportTemperature::getCoupledEqn")
+//                        << "Equation " << name << " does not exist."
+//                        << abort(FatalError);
+//                }
+
+//                return *fvVectorMatrices.table[name];
+//            }
+//            else if (typeid(Type).name() == typeid(symmTensor).name())
+//            {
+//                if (!fvSymmTensorMatrices.table.found(name))
+//                {
+//                    FatalErrorIn("transportTemperature::getCoupledEqn")
+//                        << "Equation " << name << " does not exist."
+//                        << abort(FatalError);
+//                }
+
+//                return *fvSymmTensorMatrices.table[name];
+//            }            
+//            else if (typeid(Type).name() == typeid(tensor).name())
+//            {
+//                if (!fvTensorMatrices.table.found(name))
+//                {
+//                    FatalErrorIn("transportTemperature::getCoupledEqn")
+//                        << "Equation " << name << " does not exist."
+//                        << abort(FatalError);
+//                }
+
+//                return *fvTensorMatrices.table[name];
+//            }
+            else
+            {
+                FatalErrorIn("transportTemperature::getCoupledEqn")
+                    << "Equation type not supported"
+                    << abort(FatalError);
+            }
+        }
+
 
 //        template<class Type>
 //        void regCoupledEqn

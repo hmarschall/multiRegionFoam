@@ -82,6 +82,12 @@ class multiRegionSystem
         //- list of region interfaces
         autoPtr<regionInterfaceList> interfaces_;
 
+        //- PtrLists of finite volume fields
+        PtrList<volScalarField> scalarFlds_;
+        PtrList<volVectorField> vectorFlds_;
+        PtrList<volSymmTensorField> symmTensorFlds_;
+        PtrList<volTensorField> tensorFlds_;
+
         //- Maximum coupling iterations (partitioned)
         label maxCoupleIter_;
 
@@ -103,6 +109,21 @@ class multiRegionSystem
             word fldName
         ) const;
 
+        template<class T>
+        void assembleAndSolveEqns
+        (
+            PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
+            regionTypeList& regions,
+            word fldName
+        ) const;
+
+protected:
+
+        friend regionTypeList;
+
+        friend regionType;
+
+
 public:
 
     // Constructors
@@ -122,7 +143,7 @@ public:
 
         void solve();
 
-        void solveCoupledPartitioned();
+        void setCoupledEqns();
 
         void setRDeltaT();
 
