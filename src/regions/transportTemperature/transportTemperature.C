@@ -28,8 +28,6 @@ License
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
 
-#include "simpleControl.H"
-
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -166,95 +164,11 @@ void Foam::regionTypes::transportTemperature::setCoupledEqns()
         T_.name() + this->name() + "Eqn",
         new fvScalarMatrix(TEqn)
     );
-
-//    TEqn_.relax();
-//    TEqn_.solve();
-
-
-//    TEqnPtr_ =
-//        new IOReferencer<fvScalarMatrix>
-//        (
-//            IOobject
-//            (
-//                T_.name() + "Eqn",
-//                this->time().timeName(),
-//                *this,
-//                IOobject::NO_READ,  /*must be NO_READ*/
-//                IOobject::NO_WRITE  /*must be NO_WRITE*/
-//            ),
-//            &TEqn_
-////            solidInterface::New(solIntType, sigma.mesh(), *this).ptr()
-//        );
-
-//    regCoupledEqn(TEqn_);
-
-//    TEqn.relax();
-//    TEqn.solve();
-
-//    TEqnPtr_ = new fvScalarMatrix
-//    (
-//        fvm::ddt(T_)
-//      + fvm::div(phi_, T_)
-//     ==
-//        fvm::laplacian(alpha, T_)
-//    );
-
-//    TEqnPtr_->solve();
-
-//    regCoupledEqn(*TEqnPtr_);
 }
 
 void Foam::regionTypes::transportTemperature::solveRegion()
 {
     // do nothing, add as required
-
-//    Info << nl << "Solving for temperature in " << regionName_ << endl;
-//    simpleControl simpleControlRegion(*this);
-
-//    while (simpleControlRegion.correctNonOrthogonal())
-//    {
-//        TEqnPtr_->relax();
-//        TEqnPtr_->solve();
-//    }
 }
-
-//template<class Type>
-//void Foam::regionTypes::transportTemperature::regCoupledEqn
-//(
-//    fvMatrix<Type>& fvm
-////    const DimensionedField<Type, volMesh>& psi
-//)
-//{
-//    // checkin to object registry if not already present
-////    if
-////    (
-////       !(
-////            this->thisDb().foundObject<IOReferencer<fvMatrix<Type> > >
-////            (
-////                fvm.psi().name() + "Eqn"
-////            )
-////        )
-////    )
-//    {
-//        IOReferencer<fvMatrix<Type> >* fvmRef =
-//        new IOReferencer<fvMatrix<Type> >
-//        (
-//            IOobject
-//            (
-//                fvm.psi().name() + "Eqn",
-//                this->time().timeName(),
-//                *this,
-//                IOobject::NO_READ,  /*must be NO_READ*/
-//                IOobject::NO_WRITE  /*must be NO_WRITE*/
-//            ),
-//            &fvm
-////            &(const_cast<fvMatrix<Type>& >(fvm))
-//        );
-
-//        Info<< "Registered " << fvmRef->name() 
-//            << " from region " << this->name()
-//            << " to object registry" << nl << endl;
-//    }
-//}
 
 // ************************************************************************* //

@@ -222,16 +222,6 @@ public:
                     << abort(FatalError);
             }
         }
-
-
-//        template<class Type>
-//        void regCoupledEqn
-//        (
-//            const fvMatrix<Type>& fvm,
-//            const fvMesh& mesh
-//        );
-
-        // virtual tmp<fvScalarMatrix> coupledFvScalarMatrix() const;
 };
 
 

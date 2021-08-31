@@ -30,6 +30,8 @@ License
 #include "HashPtrTable.H"
 #include "IOobjectList.H"
 
+#include "simpleControl.H"
+
 
 // * * * * * * * * * * * * * * * Private functions * * * * * * * * * * * * * //
 
@@ -96,39 +98,17 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             );
 
         Info<< "Solving for " << eqn.psi().name() 
-            << " in " << regions()[regI].name()
+            << " in " << regions[regI].name()
             << endl;
 
-        eqn.relax();
-        eqn.solve();
+        simpleControl simpleControlRegion(regions[regI]);
+
+        while (simpleControlRegion.correctNonOrthogonal())
+        {
+            eqn.relax();
+            eqn.solve();
+        }
     }
-
-//    forAll (flds, fldI)
-//    {
-//        if
-//        (
-//            flds[fldI].mesh()
-//            .objectRegistry::foundObject<IOReferencer<fvMatrix<T> > >
-//            (
-//                fldName + "Eqn"
-//            )
-//        )
-//        {
-//        const fvMatrix<T>& eqn = 
-//            flds[fldI].mesh()
-//            .objectRegistry::lookupObject<IOReferencer<fvMatrix<T> > >
-//            (
-//                fldName + "Eqn"
-//            )();
-
-//        fvMatrix<T>& eqnRef = const_cast<fvMatrix<T>& >(eqn);
-
-//        Info << "Solving for " << eqnRef.psi().name() << endl;
-
-////        eqnRef.relax();
-////        eqnRef.solve();
-//        }
-//    }
 }
 
 template<class T>
@@ -186,10 +166,10 @@ void Foam::multiRegionSystem::assembleCoupledFields
 
                 nFlds++;
 
-                Info<< "Coupled field type : " 
-                    << GeometricField<T, fvPatchField, volMesh>::typeName
-                    << ", name : " << iter()->name()
-                    << endl;
+//                Info<< "Coupled field type : " 
+//                    << GeometricField<T, fvPatchField, volMesh>::typeName
+//                    << ", name : " << iter()->name()
+//                    << endl;
             }
         }
     }
@@ -281,22 +261,6 @@ void Foam::multiRegionSystem::solve()
 
     // Solve region-region coupling (partitioned)
 
-//    forAll (regions(), regI) // go through all regions
-//    {
-//        fvMatrix<scalar>& TEqn =
-//            regions()[regI].getCoupledEqn<scalar>
-//            (
-//                "T" + regions()[regI].name() + "Eqn"
-//            );
-
-//        Info<< "Solving for " << TEqn.psi().name() 
-//            << " in " << regions()[regI].name()
-//            << endl;
-
-//        TEqn.relax();
-//        TEqn.solve();
-//    }
-
     //- get unique list of coupled field names
     hashedWordList pcfldNames;
 
@@ -313,8 +277,8 @@ void Foam::multiRegionSystem::solve()
         }
     }
 
-    Info<< "List of partitioned-coupled field names : " 
-        << pcfldNames << endl;
+//    Info<< "List of partitioned-coupled field names : " 
+//        << pcfldNames << endl;
 
     //- assemble coupled fields by type
     scalarFlds_.clear();
@@ -332,10 +296,14 @@ void Foam::multiRegionSystem::solve()
     {
         word fldName = pcfldNames[fldI];
 
-        assembleAndSolveEqns<scalar>(scalarFlds_, regions(), fldName);
-//        assembleAndSolveEqns<vector>(vectorFlds_, regions(), fldName);
-//        assembleAndSolveEqns<tensor>(tensorFlds_, regions(), fldName);
-//        assembleAndSolveEqns<symmTensor>(symmTensorFlds_, regions(), fldName);
+        for (int coupleIter=1; coupleIter<=maxCoupleIter_; coupleIter++)
+        {
+            assembleAndSolveEqns<scalar>(scalarFlds_, regions(), fldName);
+        }
+//            assembleAndSolveEqns<vector>(vectorFlds_, regions(), fldName);
+//            assembleAndSolveEqns<tensor>(tensorFlds_, regions(), fldName);
+//            assembleAndSolveEqns<symmTensor>
+//                (symmTensorFlds_, regions(), fldName);
     }
 
 
@@ -391,12 +359,6 @@ void Foam::multiRegionSystem::solve()
 void Foam::multiRegionSystem::setCoupledEqns()
 {
     regions_->setCoupledEqns();
-
-    //- solve partitioned inter-region coupling
-//    for (int coupleIter=1; coupleIter<=maxCoupleIter_; coupleIter++)
-//    {
-
-//    }
 }
 
 
