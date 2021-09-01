@@ -55,8 +55,4 @@ Foam::autoPtr<Foam::regionType> Foam::regionType::New
     return cstrIter()(mesh, name);
 }
 
-#ifdef NoRepository
-#   include "regionTypeTemplates.C"
-#endif
-
 // ************************************************************************* //

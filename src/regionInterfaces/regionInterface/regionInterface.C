@@ -273,6 +273,7 @@ Foam::regionInterface::regionInterface
 Foam::regionInterface::~regionInterface()
 {
 //    delete ggiInterpolatePtr_;
+//    delete ggiInterpolatorPtr_;
     deleteDemandDrivenData(ggiInterpolatePtr_);
     deleteDemandDrivenData(ggiInterpolatorPtr_);
     deleteDemandDrivenData(currentAZonePatchPtr_);
@@ -375,14 +376,14 @@ void Foam::regionInterface::updateInterpolatorAndGlobalPatches()
 
 void Foam::regionInterface::attach()
 {
-    if (attached_)
-    {
-        FatalErrorIn
-        (
-            "void Foam::regionInterface::attach()"
-        )   << "Attempt to attach. Patch already in attached mode."
-            << abort(FatalError);
-    }
+//    if (attached_)
+//    {
+//        FatalErrorIn
+//        (
+//            "void Foam::regionInterface::attach()"
+//        )   << "Attempt to attach. Patch already in attached mode."
+//            << abort(FatalError);
+//    }
 
     const polyPatchList& patches = meshA().boundaryMesh();
 
@@ -404,14 +405,14 @@ void Foam::regionInterface::attach()
 
 void Foam::regionInterface::detach()
 {
-    if (!attached_)
-    {
-        FatalErrorIn
-        (
-            "void Foam::regionInterface::detach()"
-        )   << "Attempt to detach. Patch already in detached mode."
-            << abort(FatalError);
-    }
+//    if (!attached_)
+//    {
+//        FatalErrorIn
+//        (
+//            "void Foam::regionInterface::detach()"
+//        )   << "Attempt to detach. Patch already in detached mode."
+//            << abort(FatalError);
+//    }
 
     const polyPatchList& patches = meshA().boundaryMesh();
 

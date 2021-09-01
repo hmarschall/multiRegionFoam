@@ -66,12 +66,12 @@ class multiRegionSystem
 {
     // Private data
 
-        typedef
-            HashTable
-            <
-                wordList, interfaceKey, interfaceKey::hash
-            >
-            fieldsTable;
+//        typedef
+//            HashTable
+//            <
+//                wordList, interfaceKey, interfaceKey::hash
+//            >
+//            fieldsTable;
 
         //- Reference to the mesh
         const fvMesh& mesh_;
@@ -82,11 +82,16 @@ class multiRegionSystem
         //- list of region interfaces
         autoPtr<regionInterfaceList> interfaces_;
 
-        //- PtrLists of finite volume fields
-        PtrList<volScalarField> scalarFlds_;
-        PtrList<volVectorField> vectorFlds_;
-        PtrList<volSymmTensorField> symmTensorFlds_;
-        PtrList<volTensorField> tensorFlds_;
+        //- Lists of PtrLists of coupled finite volume fields
+        //  per coupling method
+        List<PtrList<volScalarField> > scalarFlds_;
+        List<PtrList<volVectorField> > vectorFlds_;
+        List<PtrList<volSymmTensorField> > symmTensorFlds_;
+        List<PtrList<volTensorField> > tensorFlds_;
+
+        //- List of unique lists of coupled field names
+        //  per coupling method
+        List<hashedWordList> fldNames_;
 
         //- Maximum coupling iterations (partitioned)
         label maxCoupleIter_;
@@ -97,9 +102,8 @@ class multiRegionSystem
         template<class T>
         void assembleCoupledFields
         (
-            PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
-            regionTypeList& regions,
-            const hashedWordList& fldNames
+            List<PtrList<GeometricField<T, fvPatchField, volMesh> > >& flds,
+            const List<hashedWordList>& fldNms
         ) const;
 
         template<class T>
@@ -112,8 +116,6 @@ class multiRegionSystem
         template<class T>
         void assembleAndSolveEqns
         (
-            PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
-            regionTypeList& regions,
             word fldName
         ) const;
 
@@ -122,7 +124,6 @@ protected:
         friend regionTypeList;
 
         friend regionType;
-
 
 public:
 
@@ -134,6 +135,16 @@ public:
 
     //- Destructor
     virtual ~multiRegionSystem();
+
+
+    //- Coupling options
+    enum couplingMethods
+    {
+        partitioned,
+        coupled
+    };
+
+    static const NamedEnum<couplingMethods, 2> couplingMethodsNames_;
 
 
     // Member Functions

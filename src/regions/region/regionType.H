@@ -70,39 +70,18 @@ public:
 
 protected:
 
+    // Protected data
+
         //- mesh
         const fvMesh& mesh_;
 
         const IOdictionary dict_;
 
-            HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
-            HashPtrTable<fvMatrix<vector> > fvVectorMatrices;
-            HashPtrTable<fvMatrix<symmTensor> > fvSymmTensorMatrices;
-            HashPtrTable<fvMatrix<tensor> > fvTensorMatrices;
-
-//        //- equation-equation coupling
-//        struct eqnTable {
-
-//            // equation tables
-//            HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
-//            HashPtrTable<fvMatrix<vector> > fvVectorMatrices;
-//            HashPtrTable<fvMatrix<symmTensor> > fvSymmTensorMatrices;
-//            HashPtrTable<fvMatrix<tensor> > fvTensorMatrices;
-
-////            // Get a ref to the fvMatrix 
-////            template<class T>
-////            fvMatrix<T>& getCoupledEqn
-////            (
-////                word name
-////            );
-//        };
-
-//        // Get a ref to the fvMatrix 
-//        template<class T>
-//        fvMatrix<T>& getCoupledEqn
-//        (
-//            word name
-//        );
+        //- coupled governing equations
+        HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
+        HashPtrTable<fvMatrix<vector> > fvVectorMatrices;
+        HashPtrTable<fvMatrix<symmTensor> > fvSymmTensorMatrices;
+        HashPtrTable<fvMatrix<tensor> > fvTensorMatrices;
 
 public:
 
@@ -173,9 +152,6 @@ public:
 
 } // End namespace Foam
 
-//#ifdef NoRepository
-//#   include "regionTypeTemplates.C"
-//#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
