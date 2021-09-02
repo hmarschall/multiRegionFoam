@@ -1,0 +1,53 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.3                                   |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           volScalarField;
+    object          T;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 300;
+
+boundaryField
+{
+    top
+    {
+        type                    chtRcTemperature;
+        radiation               off;
+        K                       kS;
+        remoteField             T;
+        value                   $internalField;
+    }
+    bottom
+    {
+        type                    fixedValue;
+		value					uniform 300;
+    }
+    left
+    {
+        type            		zeroGradient;
+    }
+    right
+    {
+        type            		zeroGradient;
+    }
+    frontAndBack
+    {
+        type            		empty;
+    }
+}
+
+// ************************************************************************* //
