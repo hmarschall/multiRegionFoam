@@ -24,43 +24,45 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "regionCoupleHeatFluxFvPatchScalarField.H"
+#include "regionCoupleFluxFvPatchScalarField.H"
 #include "addToRunTimeSelectionTable.H"
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
-#include "regionCoupleTemperatureFvPatchScalarField.H"
+#include "regionCoupleJumpFvPatchScalarField.H"
 #include "patchToPatchInterpolation.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::regionCoupleHeatFluxFvPatchScalarField::
-regionCoupleHeatFluxFvPatchScalarField
+Foam::regionCoupleFluxFvPatchScalarField::
+regionCoupleFluxFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
     fixedGradientFvPatchScalarField(p, iF),
-    coupleManager_(p)
+    coupleManager_(p),
+    kName_("none")
 {}
 
 
-Foam::regionCoupleHeatFluxFvPatchScalarField::
-regionCoupleHeatFluxFvPatchScalarField
+Foam::regionCoupleFluxFvPatchScalarField::
+regionCoupleFluxFvPatchScalarField
 (
-    const regionCoupleHeatFluxFvPatchScalarField& ptf,
+    const regionCoupleFluxFvPatchScalarField& ptf,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
     fixedGradientFvPatchScalarField(ptf, p, iF, mapper),
-    coupleManager_(ptf.coupleManager_)
+    coupleManager_(ptf.coupleManager_),
+    kName_(ptf.kName_)
 {}
 
 
-Foam::regionCoupleHeatFluxFvPatchScalarField::
-regionCoupleHeatFluxFvPatchScalarField
+Foam::regionCoupleFluxFvPatchScalarField::
+regionCoupleFluxFvPatchScalarField
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
@@ -68,7 +70,8 @@ regionCoupleHeatFluxFvPatchScalarField
 )
 :
     fixedGradientFvPatchScalarField(p, iF),
-    coupleManager_(p, dict)
+    coupleManager_(p, dict),
+    kName_(dict.lookup("k"))
 {
     if (dict.found("value"))
     {
@@ -84,22 +87,23 @@ regionCoupleHeatFluxFvPatchScalarField
 }
 
 
-Foam::regionCoupleHeatFluxFvPatchScalarField::
-regionCoupleHeatFluxFvPatchScalarField
+Foam::regionCoupleFluxFvPatchScalarField::
+regionCoupleFluxFvPatchScalarField
 (
-    const regionCoupleHeatFluxFvPatchScalarField& whftcsf,
+    const regionCoupleFluxFvPatchScalarField& whftcsf,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
     fixedGradientFvPatchScalarField(whftcsf, iF),
-    coupleManager_(whftcsf.coupleManager_)
+    coupleManager_(whftcsf.coupleManager_),
+    kName_(whftcsf.kName_)
 {}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 //- Update the patch field coefficients
-void Foam::regionCoupleHeatFluxFvPatchScalarField::updateCoeffs()
+void Foam::regionCoupleFluxFvPatchScalarField::updateCoeffs()
 {
     if (updated())
     {
@@ -109,25 +113,23 @@ void Foam::regionCoupleHeatFluxFvPatchScalarField::updateCoeffs()
     // Calculate interpolated patch flux
     const polyPatch& ownPatch = patch().patch();
     const polyPatch& nbrPatch = coupleManager_.neighbourPatch().patch();
-    const fvPatchField<scalar>& Tnbr = coupleManager_.neighbourPatchField<scalar>();
+    const fvPatchField<scalar>& psiNbr = coupleManager_.neighbourPatchField<scalar>();
 
     patchToPatchInterpolation interpolator(nbrPatch, ownPatch);
 
-    scalarField qNbr2own =
+    scalarField jNbr2Own =
         interpolator.faceInterpolate
         (
-            refCast<const regionCoupleTemperatureFvPatchScalarField>
-            (Tnbr).flux()
+            refCast<const regionCoupleJumpFvPatchScalarField>
+            (psiNbr).flux()
         );
 
-    // Lookup transport properties
-    const dictionary& transportProperties =
-        db().lookupObject<IOdictionary>("transportProperties");
-
-    dimensionedScalar k(transportProperties.lookup("k"));
+    // Lookup diffusivity field
+    const fvPatchScalarField& kpf =
+	lookupPatchField<volScalarField, scalar>(kName_);
 
     // Enforce flux matching
-    gradient() = (qNbr2own/k.value())*(-1);
+    gradient() = (jNbr2Own/kpf)*(-1);
 
     fixedGradientFvPatchScalarField::updateCoeffs();
 }
@@ -135,36 +137,34 @@ void Foam::regionCoupleHeatFluxFvPatchScalarField::updateCoeffs()
 
 //- Return the maximum normalized coupled patch residual
 Foam::scalar
-Foam::regionCoupleHeatFluxFvPatchScalarField::maxResidual() const
+Foam::regionCoupleFluxFvPatchScalarField::maxResidual() const
 {
     // Calculate interpolated patch flux
     const polyPatch& ownPatch = patch().patch();
     const polyPatch& nbrPatch = coupleManager_.neighbourPatch().patch();
-    const fvPatchField<scalar>& Tnbr = coupleManager_.neighbourPatchField<scalar>();
+    const fvPatchField<scalar>& psiNbr = coupleManager_.neighbourPatchField<scalar>();
 
     patchToPatchInterpolation interpolator(nbrPatch, ownPatch);
 
-    scalarField qNbr2own =
+    scalarField jNbr2Own =
         interpolator.faceInterpolate
         (
-            refCast<const regionCoupleTemperatureFvPatchScalarField>
-            (Tnbr).flux()
+            refCast<const regionCoupleJumpFvPatchScalarField>
+            (psiNbr).flux()
         );
 
-    // Lookup transport properties
-    const dictionary& transportProperties =
-        db().lookupObject<IOdictionary>("transportProperties");
-
-    dimensionedScalar k(transportProperties.lookup("k"));
+    // Lookup diffusivity field
+    const fvPatchScalarField& kpf =
+	lookupPatchField<volScalarField, scalar>(kName_);
 
     // Calculate the maximum normalized residual
-    const fvPatchScalarField& Town = *this;
-    const scalarField& qOwn = k.value()*Town.snGrad();
+    const fvPatchScalarField& psiOwn = *this;
+    const scalarField& jOwn = kpf*psiOwn.snGrad();
     scalar residual =
         gMax
         (
-            mag(mag(qOwn) - mag(qNbr2own))/
-            max(min(gMax(mag(qOwn)),gMax(mag(qNbr2own))), SMALL)
+            mag(mag(jOwn) - mag(jNbr2Own))/
+            max(min(gMax(mag(jOwn)),gMax(mag(jNbr2Own))), SMALL)
         );
 
     return residual;
@@ -172,13 +172,14 @@ Foam::regionCoupleHeatFluxFvPatchScalarField::maxResidual() const
 
 
 //- Write
-void Foam::regionCoupleHeatFluxFvPatchScalarField::write
+void Foam::regionCoupleFluxFvPatchScalarField::write
 (
     Ostream& os
 ) const
 {
     fvPatchScalarField::write(os);
     coupleManager_.writeEntries(os);
+    writeEntry("k", os);
     writeEntry("value", os);
 }
 
@@ -191,7 +192,7 @@ namespace Foam
 makePatchTypeField
 (
     fvPatchScalarField,
-    regionCoupleHeatFluxFvPatchScalarField
+    regionCoupleFluxFvPatchScalarField
 );
 
 } // End namespace Foam
