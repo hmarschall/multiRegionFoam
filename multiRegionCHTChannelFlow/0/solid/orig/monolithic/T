@@ -27,7 +27,7 @@ boundaryField
     {
         type                    chtRcTemperature;
         radiation               off;
-        K                       kS;
+        K                       k;
         remoteField             T;
         value                   $internalField;
     }

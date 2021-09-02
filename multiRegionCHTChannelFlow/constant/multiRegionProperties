@@ -21,15 +21,15 @@ regions
 );
 
 partitionedTypeRegionInterfaces
+();
+
+monolithicTypeRegionInterfaces
 (
     fluidSolid 
     (
         (((fluid bottom)(solid top)) (T))
     )
 );
-
-monolithicTypeRegionInterfaces
-();
 
 partitionedCoupling
 {
