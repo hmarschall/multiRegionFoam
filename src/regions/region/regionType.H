@@ -59,14 +59,6 @@ class regionType
 :
     public fvMesh
 {
-public:
-
-    typedef
-        HashTable
-        <
-            Foam::tmp<Foam::fvScalarMatrix>, word, word::hash
-        >
-        coupledScalarEqns;
 
 protected:
 

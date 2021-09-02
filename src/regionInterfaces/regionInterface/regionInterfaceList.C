@@ -40,8 +40,8 @@ Foam::regionInterfaceList::regionInterfaceList
     monolithicCoupledFields_(),
     partitionedCoupledFields_(),
     mesh_(mesh),
-    monolithicTypeInterfaces_(mesh.time(), "monolithic"),
-    partitionedTypeInterfaces_(mesh.time(), "partitioned"),
+    monolithicTypeInterfaces_(mesh_.time(), "monolithic"),
+    partitionedTypeInterfaces_(mesh_.time(), "partitioned"),
     pcFldNames_(),
     mcFldNames_()
 {
@@ -148,7 +148,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
                 );
 
             const fvPatch& secondPatch = 
-                firstRegion.boundary()[secondPatchID];
+                secondRegion.boundary()[secondPatchID];
 
             this->set
             (
@@ -273,6 +273,9 @@ void Foam::regionInterfaceList::attach()
    forAll(*this, i)
    {
        this->operator[](i).attach();
+
+//       Info << "*** patchA :" << this->operator[](i).patchName() << endl;
+//       Info << "*** patchB :" << this->operator[](i).patchBName() << endl;
    }
 }
 

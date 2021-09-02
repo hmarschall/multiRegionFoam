@@ -64,24 +64,21 @@ class conductTemperature
         //- transport properties dictionary 
         IOdictionary transportProperties_;
 
-        //- thermal conductivity
-        dimensionedScalar k_;
-
         //- specific heat
         dimensionedScalar cv_;
 
         //- density
         dimensionedScalar rho_;
 
+        //- thermal conductivity
+        autoPtr<volScalarField> k_;
+
 protected:
 
         //- temperature
-        volScalarField T_;
+//        volScalarField T_;
 
-        //- equation-equation coupling
-//        HashPtrTable<fvScalarMatrix> eqns_;
-
-//        IOReferencer<fvScalarMatrix>* TEqnPtr_;
+        autoPtr<volScalarField> T_;
 
 public:
 
@@ -104,12 +101,12 @@ public:
         // Access
         const volScalarField& T() const
         {
-            return T_;
+            return T_();
         }
 
         volScalarField& T()
         {
-            return T_;
+            return T_();
         }
 
         virtual bool active() const

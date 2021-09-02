@@ -242,7 +242,8 @@ Foam::regionInterface::regionInterface
 //    regionBName_(meshB_.name()),
     patchName_(patch_.name()),
     patchBName_(patchB_.name()),
-    attached_(false),
+    attachedA_(false),
+    attachedB_(false),
     interpolatorUpdateFrequency_
     (
         multiRegionProperties_.lookupOrDefault<int>("interpolatorUpdateFrequency", 0)
@@ -266,6 +267,34 @@ Foam::regionInterface::regionInterface
 {
     // Create global patches
     makeGlobalPatches();
+
+    // Get initial state of coupled patches on A/B side
+    const polyPatchList& patchesA = meshA().boundaryMesh();
+    const polyPatchList& patchesB = meshB().boundaryMesh();
+
+    if (isType<regionCouplePolyPatch>(patchesA[patchAID()]))
+    {
+        const regionCouplePolyPatch& rcp =
+            refCast<const regionCouplePolyPatch>(patchesA[patchAID()]);
+
+            // Check if coupled
+            if (rcp.coupled())
+            {
+                attachedA_ = true;
+            }
+    }
+
+    if (isType<regionCouplePolyPatch>(patchesB[patchBID()]))
+    {
+        const regionCouplePolyPatch& rcp =
+            refCast<const regionCouplePolyPatch>(patchesB[patchBID()]);
+
+            // Check if coupled
+            if (rcp.coupled())
+            {
+                attachedB_ = true;
+            }
+    }
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -376,60 +405,116 @@ void Foam::regionInterface::updateInterpolatorAndGlobalPatches()
 
 void Foam::regionInterface::attach()
 {
-//    if (attached_)
+//    Info << "attach() : " << "meshA = " << meshA().name() << endl;
+//    Info << "attach() : " << "meshB = " << meshB().name() << endl;
+
+//    if (attachedA_ && attachedB_)
 //    {
 //        FatalErrorIn
 //        (
 //            "void Foam::regionInterface::attach()"
-//        )   << "Attempt to attach. Patch already in attached mode."
+//        )   << "Attempt to attach. Patches already in attached mode."
 //            << abort(FatalError);
 //    }
 
-    const polyPatchList& patches = meshA().boundaryMesh();
-
-    if (isType<regionCouplePolyPatch>(patches[patchAID()]))
+    if (!attachedA_)
     {
-        const regionCouplePolyPatch& rcp =
-            refCast<const regionCouplePolyPatch>(patches[patchAID()]);
+        fvMesh& mesh = const_cast<fvMesh&>(meshA());
 
-        // Attach it here
-        attached_ = true;
-        rcp.attach();
+        const polyPatchList& patches = mesh.boundaryMesh();
+
+        if (isType<regionCouplePolyPatch>(patches[patchAID()]))
+        {
+            const regionCouplePolyPatch& rcp =
+                refCast<const regionCouplePolyPatch>(patches[patchAID()]);
+
+            // Attach it here
+            attachedA_ = true;
+            if (rcp.master()) rcp.attach();
+        }
+
+        // Force recalculation of weights
+        mesh.surfaceInterpolation::movePoints();
     }
 
-    // Force recalculation of weights
-    fvMesh& mesh = const_cast<fvMesh&>(meshA());
+    if (!attachedB_)
+    {
+        fvMesh& mesh = const_cast<fvMesh&>(meshB());
 
-    mesh.surfaceInterpolation::movePoints();
+        const polyPatchList& patches = mesh.boundaryMesh();
+
+        if (isType<regionCouplePolyPatch>(patches[patchBID()]))
+        {
+            const regionCouplePolyPatch& rcp =
+                refCast<const regionCouplePolyPatch>(patches[patchBID()]);
+
+            // Attach it here
+            attachedB_ = true;
+            if (rcp.master()) rcp.attach();
+        }
+
+        // Force recalculation of weights
+        mesh.surfaceInterpolation::movePoints();
+    }
 }
 
 void Foam::regionInterface::detach()
 {
-//    if (!attached_)
+//    Info << "detach() : " << "meshA = " << meshA().name() << endl;
+//    Info << " patch name A = " << patchName() << endl;
+
+//    Info << "detach() : " << "meshB = " << meshB().name() << endl;
+//    Info << " patch name B = " << patchBName() << endl;
+
+
+//    if (!attachedA_ && !attachedB_)
 //    {
 //        FatalErrorIn
 //        (
 //            "void Foam::regionInterface::detach()"
-//        )   << "Attempt to detach. Patch already in detached mode."
+//        )   << "Attempt to detach. Patches already in detached mode."
 //            << abort(FatalError);
 //    }
 
-    const polyPatchList& patches = meshA().boundaryMesh();
-
-    if (isType<regionCouplePolyPatch>(patches[patchAID()]))
+    if (attachedA_)
     {
-        const regionCouplePolyPatch& rcp =
-            refCast<const regionCouplePolyPatch>(patches[patchAID()]);
+        fvMesh& mesh = const_cast<fvMesh&>(meshA());
 
-        // Detach it here
-        attached_ = false;
-        rcp.detach();
+        const polyPatchList& patches = mesh.boundaryMesh();
+
+        if (isType<regionCouplePolyPatch>(patches[patchAID()]))
+        {
+            const regionCouplePolyPatch& rcp =
+                refCast<const regionCouplePolyPatch>(patches[patchAID()]);
+
+            // Detach it here
+            attachedA_ = false;
+            if (rcp.master()) rcp.detach();
+        }
+
+        // Force recalculation of weights
+        mesh.surfaceInterpolation::movePoints();
     }
 
-    // Force recalculation of weights
-    fvMesh& mesh = const_cast<fvMesh&>(meshA());
+    if (attachedB_)
+    {
+        fvMesh& mesh = const_cast<fvMesh&>(meshB());
 
-    mesh.surfaceInterpolation::movePoints();
+        const polyPatchList& patches = mesh.boundaryMesh();
+
+        if (isType<regionCouplePolyPatch>(patches[patchBID()]))
+        {
+            const regionCouplePolyPatch& rcp =
+                refCast<const regionCouplePolyPatch>(patches[patchBID()]);
+
+            // Detach it here
+            attachedB_ = false;
+            if (rcp.master()) rcp.detach();
+        }
+
+        // Force recalculation of weights
+        mesh.surfaceInterpolation::movePoints();
+    }
 }
 
 const Foam::GGIInterpolation<standAlonePatch, standAlonePatch>&

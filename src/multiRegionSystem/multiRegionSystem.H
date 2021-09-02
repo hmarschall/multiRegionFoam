@@ -66,13 +66,6 @@ class multiRegionSystem
 {
     // Private data
 
-//        typedef
-//            HashTable
-//            <
-//                wordList, interfaceKey, interfaceKey::hash
-//            >
-//            fieldsTable;
-
         //- Reference to the mesh
         const fvMesh& mesh_;
 
@@ -107,7 +100,7 @@ class multiRegionSystem
         ) const;
 
         template<class T>
-        void assembleAndSolveBlockMatrix
+        void assembleAndSolveCoupledMatrix
         (
             PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
             word fldName

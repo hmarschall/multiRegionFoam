@@ -70,30 +70,81 @@ Foam::regionTypes::conductTemperature::conductTemperature
             IOobject::NO_WRITE
         )
     ),
-    k_(transportProperties_.lookup("k")),
     cv_(transportProperties_.lookup("cv")),
     rho_(transportProperties_.lookup("rho")),
-    T_
+
+//    k_
+//    (
+//        IOobject
+//        (
+//            "k",
+//            this->time().timeName(),
+//            *this,
+//            IOobject::READ_IF_PRESENT,
+////            IOobject::MUST_READ,
+//            IOobject::NO_WRITE
+//        ),
+//        *this,
+//        dimensionedScalar(transportProperties_.lookup("k"))
+//    ),
+//    T_
+//    (
+//        IOobject
+//        (
+//            "T",
+//            this->time().timeName(),
+//            *this,
+//            IOobject::NO_READ,
+//            IOobject::NO_WRITE
+//        ),
+//        *this,
+//        dimensionedScalar("T0", dimTemperature, pTraits<scalar>::zero),
+//        zeroGradientFvPatchScalarField::typeName
+//    ),
+    k_(nullptr),
+    T_(nullptr)
+{
+    k_.reset
     (
-        IOobject
+        new volScalarField
         (
-            "T",
-            this->time().timeName(),
+            IOobject
+            (
+                "k",
+                this->time().timeName(),
+                *this,
+                IOobject::READ_IF_PRESENT,
+                IOobject::NO_WRITE
+            ),
             *this,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        *this
-    )
-{}
+            dimensionedScalar(transportProperties_.lookup("k"))
+        )
+    );
+
+    T_.reset
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "T",
+                this->time().timeName(),
+                *this,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            *this
+        )
+    );
+
+    k_() = dimensionedScalar(transportProperties_.lookup("k"));
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::regionTypes::conductTemperature::~conductTemperature()
-{
-//    delete TEqnPtr_;
-}
+{}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
@@ -113,14 +164,14 @@ void Foam::regionTypes::conductTemperature::setCoupledEqns()
 {
     fvScalarMatrix TEqn =
     (
-        fvm::ddt(rho_*cv_, T_)
+        fvm::ddt(rho_*cv_, T_())
      ==
-        fvm::laplacian(k_, T_, "laplacian(k,T)")
+        fvm::laplacian(k_(), T_(), "laplacian(k,T)")
     );
 
     fvScalarMatrices.set
     (
-        T_.name() + this->name() + "Eqn",
+        T_().name() + this->name() + "Eqn",
         new fvScalarMatrix(TEqn)
     );
 }

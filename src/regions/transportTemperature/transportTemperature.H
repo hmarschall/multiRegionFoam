@@ -79,10 +79,17 @@ class transportTemperature
         //- density
         dimensionedScalar rho_;
 
+        //- thermal diffusivity
+//        volScalarField alpha_;
+
+        autoPtr<volScalarField> alpha_;
+
 protected:
 
         //- temperature
-        volScalarField T_;
+//        volScalarField T_;
+
+        autoPtr<volScalarField> T_;
 
 public:
 
@@ -105,12 +112,12 @@ public:
         // Access
         const volScalarField& T() const
         {
-            return T_;
+            return T_();
         }
 
         volScalarField& T()
         {
-            return T_;
+            return T_();
         }
 
         virtual bool active() const

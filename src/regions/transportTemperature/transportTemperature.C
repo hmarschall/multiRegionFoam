@@ -98,19 +98,71 @@ Foam::regionTypes::transportTemperature::transportTemperature
     k_(transportProperties_.lookup("k")),
     cp_(transportProperties_.lookup("cp")),
     rho_(transportProperties_.lookup("rho")),
-    T_
+
+//    alpha_
+//    (
+//        IOobject
+//        (
+//            "alpha",
+//            this->time().timeName(),
+//            *this,
+//            IOobject::READ_IF_PRESENT,
+////            IOobject::MUST_READ,
+//            IOobject::NO_WRITE
+//        ),
+//        *this,
+//        k_/(rho_*cp_)
+//    ),
+//    T_
+//    (
+//        IOobject
+//        (
+//            "T",
+//            this->time().timeName(),
+//            *this,
+//            IOobject::MUST_READ,
+//            IOobject::AUTO_WRITE
+//        ),
+//        *this
+//    )
+    alpha_(nullptr),
+    T_(nullptr)
+{
+    alpha_.reset
     (
-        IOobject
+        new volScalarField
         (
-            "T",
-            this->time().timeName(),
+            IOobject
+            (
+                "alpha",
+                this->time().timeName(),
+                *this,
+                IOobject::READ_IF_PRESENT,
+                IOobject::NO_WRITE
+            ),
             *this,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        *this
-    )
-{}
+            k_/(rho_*cp_)
+        )
+    );
+
+    T_.reset
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "T",
+                this->time().timeName(),
+                *this,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            *this
+        )
+    );
+
+    alpha_() = k_/(rho_*cp_);
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -134,22 +186,26 @@ void Foam::regionTypes::transportTemperature::setRDeltaT()
 
 void Foam::regionTypes::transportTemperature::setCoupledEqns()
 {
-    dimensionedScalar alpha = k_/(rho_*cp_);
-
     fvScalarMatrix TEqn =
     (
-        fvm::ddt(T_)
-      + fvm::div(phi_, T_)
+        fvm::ddt(T_())
+      + fvm::div(phi_, T_())
      ==
-        fvm::laplacian(alpha, T_)
+        fvm::laplacian(alpha_(), T_())
     );
 
     fvScalarMatrices.set
     (
-        T_.name() + this->name() + "Eqn",
+        T_().name() + this->name() + "Eqn",
         new fvScalarMatrix(TEqn)
     );
 }
+
+// TODO:
+//void Foam::regionTypes::transportTemperature::updateField()
+//{
+//    phi_ -= (fvScalarMatrices[p_.name() + this->name() + "Eqn"]).flux();
+//}
 
 void Foam::regionTypes::transportTemperature::solveRegion()
 {

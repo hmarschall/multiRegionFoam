@@ -58,7 +58,7 @@ const Foam::NamedEnum
 // * * * * * * * * * * * * * * * Private functions * * * * * * * * * * * * * //
 
 template<class T>
-void Foam::multiRegionSystem::assembleAndSolveBlockMatrix
+void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
 (
     PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
     word fldName
@@ -75,8 +75,10 @@ void Foam::multiRegionSystem::assembleAndSolveBlockMatrix
         }
     }
 
-    Info<< fldName << ": "
-        << "Number of coupled fields : " << nEqns << endl;
+    if (nEqns == 0) return;
+
+    // Info<< fldName << ": "
+    //    << "Number of coupled fields : " << nEqns << endl;
 
     // assemble and solve block matrix system
     coupledFvMatrix<T> coupledEqns(nEqns);
@@ -111,7 +113,7 @@ void Foam::multiRegionSystem::assembleAndSolveBlockMatrix
         coupledEqns.set(regI, &eqn);
     }
 
-    coupledEqns.solve(mesh_.solutionDict().solver(fldName + "coupled"));
+    coupledEqns.solve(regions_()[0].solutionDict().solver(fldName + "coupled"));
 }
 
 template<class T>
@@ -139,6 +141,30 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             continue;
         }
 
+        // It is an error to use regionCouplePolyPatch
+        // TODO: need more consistency checks:
+        //  - Is the regionCouple bc set for fldName?
+        //  - AND: Is this region adjacent to the relevant regionInterface?
+        regionType& mesh = const_cast<regionType&>(regions_()[regI]);
+
+        {
+            const polyPatchList& patches = mesh.boundaryMesh();
+
+            forAll (patches, patchI)
+            {
+                if (isType<regionCouplePolyPatch>(patches[patchI]))
+                {
+                    FatalError  << "Error: Attempt to solve partitioned " 
+                                << "with a patch of type " 
+                                << regionCouplePolyPatch::typeName
+                                << exit(FatalError);
+                }
+            }
+
+            // Force recalculation of weights
+            mesh.surfaceInterpolation::movePoints();
+        }
+
         regionType& rg = const_cast<regionType&>(regions_()[regI]);
 
         fvMatrix<T>& eqn =
@@ -152,12 +178,15 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             << " in " << rg.name()
             << endl;
 
+        // inner coupling loop
         simpleControl simpleControlRegion(rg);
 
         while (simpleControlRegion.correctNonOrthogonal())
         {
             eqn.relax();
             eqn.solve();
+
+//            rg.updateFields();
         }
     }
 }
@@ -318,11 +347,14 @@ void Foam::multiRegionSystem::setRDeltaT()
 
 void Foam::multiRegionSystem::solve()
 {
+    // Set coupled equations
+    regions_->setCoupledEqns();
+
+    interfaces_->detach();
+
     // Solve for regions' inherent physics
     regions_->solveRegion();
 
-    // Set coupled equations
-    regions_->setCoupledEqns();
 
     // Solve region-region coupling (partitioned)
     forAll (fldNames_[0], fldI)
@@ -339,6 +371,7 @@ void Foam::multiRegionSystem::solve()
         }
     }
 
+
     // Solve region-region coupling (monolithic)
     interfaces_->attach();
 
@@ -346,13 +379,11 @@ void Foam::multiRegionSystem::solve()
     {
         word fldName = fldNames_[1][fldI];
 
-        assembleAndSolveBlockMatrix<scalar>(scalarFlds_[1], fldName);
-        assembleAndSolveBlockMatrix<vector>(vectorFlds_[1], fldName);
-        assembleAndSolveBlockMatrix<tensor>(tensorFlds_[1], fldName);
-        // assembleAndSolveBlockMatrix<symmTensor>(symmTensorFlds_[1], fldName);
+        assembleAndSolveCoupledMatrix<scalar>(scalarFlds_[1], fldName);
+        assembleAndSolveCoupledMatrix<vector>(vectorFlds_[1], fldName);
+        assembleAndSolveCoupledMatrix<tensor>(tensorFlds_[1], fldName);
+        // assembleAndSolveCoupledMatrix<symmTensor>(symmTensorFlds_[1], fldName);
     }
-
-    interfaces_->detach();
 }
 
 void Foam::multiRegionSystem::setCoupledEqns()
