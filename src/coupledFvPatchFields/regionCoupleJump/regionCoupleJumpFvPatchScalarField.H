@@ -23,10 +23,10 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    regionCoupleTemperatureFvPatchScalarField
+    regionCoupleFvPatchScalarField
 
 Description
-    Region couple boundary condition for temperature. Region coupling at the 
+    Region couple jump boundary condition for size Psi. Region coupling at the 
     multi-region interface is accomplished via inverse-distance weighted scalar
     interpolation and includes the possibility of a "jump" or "resistive"
     condition across the interface (e.g., T_region1 = K*T_region2).
@@ -34,21 +34,21 @@ Description
     Example usage:
         interfacePatch
         {
-            type                    regionCoupleTemperature;
+            type                    regionCoupleJump;
             neighbourRegionName     neighbourRegion;
             neighbourPatchName      neighbourPatch;
-            neighbourFieldName      T;
-            K                       1.0E0;
+            neighbourFieldName      Psi;
+            k			    kName;
             value                   uniform 0;
         }
 
 SourceFiles
-    regionCoupleTemperatureFvPatchScalarField.C
+    regionCoupleJumpFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef regionCoupleTemperatureFvPatchScalarField_H
-#define regionCoupleTemperatureFvPatchScalarField_H
+#ifndef regionCoupleJumpFvPatchScalarField_H
+#define regionCoupleJumpFvPatchScalarField_H
 
 #include "fvPatchFields.H"
 #include "fixedValueFvPatchFields.H"
@@ -60,10 +60,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-        Class regionCoupleTemperatureFvPatchScalarField Declaration
+        Class regionCoupleJumpFvPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
 
-class regionCoupleTemperatureFvPatchScalarField
+class regionCoupleJumpFvPatchScalarField
 :
     public fixedValueFvPatchScalarField
 {
@@ -73,37 +73,37 @@ class regionCoupleTemperatureFvPatchScalarField
         coupleManager coupleManager_;
 
         //- "Jump" or "resistive" condition
-        scalar K_;
+        word kName_;
 
 
 public:
 
     //- Runtime type information
-    TypeName("regionCoupleTemperature");
+    TypeName("regionCoupleJump");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        regionCoupleTemperatureFvPatchScalarField
+        regionCoupleJumpFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        regionCoupleTemperatureFvPatchScalarField
+        regionCoupleJumpFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const dictionary&
         );
 
-        //- Construct by mapping given regionCoupleTemperatureFvPatchScalarField
+        //- Construct by mapping given regionCoupleJumpFvPatchScalarField
         //  onto a new patch
-        regionCoupleTemperatureFvPatchScalarField
+        regionCoupleJumpFvPatchScalarField
         (
-            const regionCoupleTemperatureFvPatchScalarField&,
+            const regionCoupleJumpFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
@@ -114,14 +114,14 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new regionCoupleTemperatureFvPatchScalarField(*this)
+                new regionCoupleJumpFvPatchScalarField(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        regionCoupleTemperatureFvPatchScalarField
+        regionCoupleJumpFvPatchScalarField
         (
-            const regionCoupleTemperatureFvPatchScalarField&,
+            const regionCoupleJumpFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -133,13 +133,27 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new regionCoupleTemperatureFvPatchScalarField(*this, iF)
+                new regionCoupleJumpFvPatchScalarField(*this, iF)
             );
         }
 
 
     // Member functions
 
+	// Access functions
+	//- Return kName
+	const word& kName() const
+	{
+	    return kName_;
+	}
+
+	//- Return access to kName
+	word& kName()
+	{
+	    return kName_;
+	}
+
+	// Evaluation functions
         //- Update the patch field coefficients
         virtual void updateCoeffs();
 
