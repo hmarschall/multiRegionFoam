@@ -23,30 +23,31 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    regionCoupleHeatFluxFvPatchScalarField
+    regionCoupleFluxFvPatchScalarField
 
 Description
-    Region couple boundary condition for heat flux. Region coupling at the
+    Region couple boundary condition for flux of size Psi. Region coupling at the
     multi-region interface is accomplished via patchToPatchInterpolation,
     which is non-conservative for non-conformal boundary patches.
 
     Example usage:
         interfacePatch
         {
-            type                    regionCoupleHeatFlux;
+            type                    regionCoupleFlux;
             neighbourRegionName     neighbourRegion;
             neighbourPatchName      neighbourPatch;
-            neighbourFieldName      T;
+            neighbourFieldName      Psi;
+	    k			    kName;
             value                   uniform 0;
         }
 
 SourceFiles
-    regionCoupleHeatFluxFvPatchScalarField.C
+    regionCoupleFluxFvPatchScalarField.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef regionCoupleHeatFluxFvPatchScalarField_H
-#define regionCoupleHeatFluxFvPatchScalarField_H
+#ifndef regionCoupleFluxFvPatchScalarField_H
+#define regionCoupleFluxFvPatchScalarField_H
 
 #include "fvPatchFields.H"
 #include "fixedGradientFvPatchFields.H"
@@ -58,10 +59,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-   Class regionCoupleHeatFluxFvPatchScalarField Declaration
+   Class regionCoupleFluxFvPatchScalarField Declaration
 \*---------------------------------------------------------------------------*/
 
-class regionCoupleHeatFluxFvPatchScalarField
+class regionCoupleFluxFvPatchScalarField
 :
     public fixedGradientFvPatchScalarField
 {
@@ -70,35 +71,38 @@ class regionCoupleHeatFluxFvPatchScalarField
         //- Couple manager object
         coupleManager coupleManager_;
 
+	//- Name of the diffusivity field
+	word kName_;
+
 
 public:
 
     //- Runtime type information
-    TypeName("regionCoupleHeatFlux");
+    TypeName("regionCoupleFlux");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        regionCoupleHeatFluxFvPatchScalarField
+        regionCoupleFluxFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        regionCoupleHeatFluxFvPatchScalarField
+        regionCoupleFluxFvPatchScalarField
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const dictionary&
         );
 
-        //- Construct by mapping given regionCoupleHeatFluxFvPatchScalarField
+        //- Construct by mapping given regionCoupleFluxFvPatchScalarField
         //  onto a new patch
-        regionCoupleHeatFluxFvPatchScalarField
+        regionCoupleFluxFvPatchScalarField
         (
-            const regionCoupleHeatFluxFvPatchScalarField&,
+            const regionCoupleFluxFvPatchScalarField&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
@@ -109,14 +113,14 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new regionCoupleHeatFluxFvPatchScalarField(*this)
+                new regionCoupleFluxFvPatchScalarField(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        regionCoupleHeatFluxFvPatchScalarField
+        regionCoupleFluxFvPatchScalarField
         (
-            const regionCoupleHeatFluxFvPatchScalarField&,
+            const regionCoupleFluxFvPatchScalarField&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -128,13 +132,26 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new regionCoupleHeatFluxFvPatchScalarField(*this, iF)
+                new regionCoupleFluxFvPatchScalarField(*this, iF)
             );
         }
 
-
     // Member functions
+	
+	// Access functions
+	//- Return kName
+	const word& kName() const
+	{	
+	    return kName_;
+	}
 
+	//- Return access to kName
+	word& kName()
+	{
+	   return kName_;
+	}
+
+    	// Evaluation functions
         //- Update the patch field coefficients
         virtual void updateCoeffs();
 
