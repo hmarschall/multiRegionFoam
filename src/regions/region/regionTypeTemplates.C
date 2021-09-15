@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2015 OpenFOAM Foundation
+    \\  /    A nd           | Copyright (C) 2012-2014 OpenFOAM Foundation
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -21,63 +21,81 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
+Class
+    Foam::regionTypeTemplates
+
+Description
+    Template specialisations
+
+SourceFiles
+    regionTypeTemplates.C
+
 \*---------------------------------------------------------------------------*/
 
-#include "regionType.H"
-#include "multiRegionSystem.H"
-#include "IOReferencer.H"
-
-namespace Foam
-{
-    defineTypeNameAndDebug(regionType, 0);
-    defineRunTimeSelectionTable(regionType, dictionary);
-}
-
-
-// * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-Foam::regionType::regionType
-(
-    const fvMesh& mesh,
-    const word& regionName
-)
-:
-    fvMesh
-    (
-        IOobject
-        (
-            regionName,
-            mesh.time().timeName(),
-            mesh.time(),
-            IOobject::MUST_READ
-        )
-    ),
-
-    mesh_(mesh),
-
-    dict_
-    (
-        IOobject
-        (
-            "multiRegionProperties",
-            mesh_.time().constant(),
-            mesh_.time(),
-            IOobject::MUST_READ,
-            IOobject::NO_WRITE
-        )
-    )
-{}
-
-
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::regionType::~regionType()
-{}
+#include "fvMesh.H"
+#include "fvMatrix.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#ifdef NoRepository
-#   include "regionTypeTemplates.C"
-#endif
+namespace Foam
+{
+
+template<class T>
+fvMatrix<T>& regionType::getCoupledEqn
+(
+    word name
+)
+{
+    notImplemented
+    (
+        "regionTypeTemplates.C\n"
+        "fvMatrix<T>& regionType::getCoupledEqn\n"
+        "(\n"
+        "word name\n"
+        ")\n"
+        "not implemented"
+    );    
+}
+
+template<>
+fvMatrix<scalar>& regionType::getCoupledEqn
+(
+    word name
+)
+{
+    return *fvScalarMatrices[name];
+}
+
+template<>
+fvMatrix<vector>& regionType::getCoupledEqn
+(
+    word name
+)
+{
+    return *fvVectorMatrices[name];
+}
+
+template<>
+fvMatrix<symmTensor>& regionType::getCoupledEqn
+(
+    word name
+)
+{
+    return *fvSymmTensorMatrices[name];
+}
+
+template<>
+fvMatrix<tensor>& regionType::getCoupledEqn
+(
+    word name
+)
+{
+    return *fvTensorMatrices[name];
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+} // End namespace Foam
 
 // ************************************************************************* //
