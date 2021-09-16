@@ -21,19 +21,19 @@ regions
 );
 
 partitionedTypeRegionInterfaces
+();
+
+monolithicTypeRegionInterfaces
 (
     fluidSolid 
     (
-        (((fluid bottom)(solid top)) ("T2"))
+        (((fluid bottom)(solid top)) (T))
     )
 );
 
-monolithicTypeRegionInterfaces
-();
-
 partitionedCoupling
 {
-    maxCoupleIter 10;
+    maxCoupleIter 6;
 }
 
 // ************************************************************************* //
