@@ -24,9 +24,9 @@ rho             rho [1 -3 0 0 0 0 0] 997.78;
 // Specific heat - Dimensions: J/kg-K
 cv              cv  [0 2 -2 -1 0 0 0] 4076.4;
 
-
 // Thermal conductivity - Dimensions: W/m-K
-k            	k   [1 1 -3 -1 0 0 0] 100;
+kSolid            	kSolid [1 1 -3 -1 0 0 0] 100;
+
 
 
 // ************************************************************************* //
