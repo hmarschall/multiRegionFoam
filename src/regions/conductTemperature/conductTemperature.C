@@ -70,8 +70,32 @@ Foam::regionTypes::conductTemperature::conductTemperature
             IOobject::NO_WRITE
         )
     ),
-    cv_(transportProperties_.lookup("cv")),
-    rho_(transportProperties_.lookup("rho")),
+    cv_
+    (
+        IOobject
+        (
+            "cv",
+            this->time().timeName(),
+            *this,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        *this,
+        dimensionedScalar(transportProperties_.lookup("cv"))
+    ),
+    rho_
+    (
+        IOobject
+        (
+            "rho",
+            this->time().timeName(),
+            *this,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        *this,
+        dimensionedScalar(transportProperties_.lookup("rho"))
+    ),
 
 //    k_
 //    (
@@ -102,6 +126,7 @@ Foam::regionTypes::conductTemperature::conductTemperature
 //        zeroGradientFvPatchScalarField::typeName
 //    ),
     k_(nullptr),
+    kSolid_(nullptr),
     T_(nullptr)
 {
     k_.reset
@@ -117,7 +142,24 @@ Foam::regionTypes::conductTemperature::conductTemperature
                 IOobject::NO_WRITE
             ),
             *this,
-            dimensionedScalar(transportProperties_.lookup("k"))
+            dimensionedScalar("k", dimensionSet(0,2,-1,0,0,0,0), 0)
+        )
+    );
+
+    kSolid_.reset
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "kSolid",
+                this->time().timeName(),
+                *this,
+                IOobject::READ_IF_PRESENT,
+                IOobject::NO_WRITE
+            ),
+            *this,
+            dimensionedScalar(transportProperties_.lookup("kSolid"))
         )
     );
 
@@ -137,7 +179,7 @@ Foam::regionTypes::conductTemperature::conductTemperature
         )
     );
 
-    k_() = dimensionedScalar(transportProperties_.lookup("k"));
+    k_() = kSolid_()/(rho_*cv_);
 }
 
 
@@ -166,7 +208,7 @@ void Foam::regionTypes::conductTemperature::setCoupledEqns()
     (
         fvm::ddt(rho_*cv_, T_())
      ==
-        fvm::laplacian(k_(), T_(), "laplacian(k,T)")
+        fvm::laplacian(kSolid_(), T_(), "laplacian(k,T)")
     );
 
     fvScalarMatrices.set

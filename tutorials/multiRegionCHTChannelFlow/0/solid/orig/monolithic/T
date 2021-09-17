@@ -16,6 +16,7 @@ FoamFile
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+// solid region
 
 dimensions      [0 0 0 1 0 0 0];
 
@@ -28,7 +29,7 @@ boundaryField
         type                    chtRcTemperature;
         radiation               off;
         K                       k;
-        remoteField             T;
+        remoteField             T;      // this is simply the field on the other side to couple with
         value                   $internalField;
     }
     bottom
