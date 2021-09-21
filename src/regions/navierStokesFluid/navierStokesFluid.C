@@ -22,15 +22,12 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-
         
 #include "fvCFD.H"
 #include "faCFD.H"
 #include "navierStokesFluid.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
-
-#include "simpleControl.H"
 
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -86,8 +83,6 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
 			IOobject::READ_IF_PRESENT,
 			IOobject::AUTO_WRITE
 		),
-		//*this,
-        //dimensionedScalar("phi", dimVelocity*dimArea, 0.)
 		linearInterpolate(U_) & (*this).Sf()    
     ),
     p_
@@ -110,8 +105,6 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
             "transportProperties",
             this->time().constant(),
             *this,
-//            this->time().timeName(),
-//            *this,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -297,97 +290,22 @@ void Foam::regionTypes::navierStokesFluid::setRDeltaT()
 }
 
 
+void Foam::regionTypes::navierStokesFluid::setCoupledEqns()
+{
+    //U-p
+}
+
+
+// TODO:
+//void Foam::regionTypes::transportTemperature::updateField()
+//{
+//    phi_ -= (fvScalarMatrices[p_.name() + this->name() + "Eqn"]).flux();
+//}
+
+
 void Foam::regionTypes::navierStokesFluid::solveRegion()
 {
     // do nothing, add as required
 }
-
-void Foam::regionTypes::navierStokesFluid::solveCoupledPartitioned()
-{
-
-/*
-    // --- SIMPLEC loop
-    label oCorr = 0;
-    do
-    {
-        // Make the fluxes relative
-        phi -= fvc::meshPhi(rho, U);
-
-#       include "CourantNo.H"
-
-        //U.storePrevIter();
-    
-        // Convection-diffusion matrix
-        fvVectorMatrix HUEqn
-        (
-            fvm::div(fvc::interpolate(rho_)*phi_, U_, "div(phi_,U_)")
-          - fvm::laplacian(mu_, U_)
-        );
-
-        // Time derivative matrix
-        fvVectorMatrix ddtUEqn(fvm::ddt(rho_, U_)); 
-        
-        // solve momentum equation
-        solve(ddtUEqn + HUEqn == -gradp_);  
-        
-        // --- PISO loop
-            label corr = 0;
-            do
-            {
-                //p.storePrevIter();
-                
-                
-                
-                //- Non-orthogonal pressure corrector loop 
-                
-                
-                
-#               include "movingMeshContinuityErrs.H"                
-
-                corr++;
-            } while (innerResidual > innerTolerance && corr < nCorr); 
-            
-            
-#           include "surfaceContinuityErrs.H"
-
-#           include "updateSf.H"
-#           include "updateUf.H"
-
-            // Check convergence
-#           include "checkPIMPLEResidualConvergence.H"
-
-            oCorr++;
-
-        } while (!outerLoopConverged); //- end SIMPLEC loop 
-*/                          
-}
-
-
-
-/*
-{
-    Info << nl << "Solving ... in " << regionName_ << endl;
-    simpleControl simpleControlRegion(*this);
-
-    dimensionedScalar alpha = k_/(rho_*cp_);
-
-    while (simpleControlRegion.correctNonOrthogonal())
-    {
-        tmp<fvScalarMatrix> TEqn
-        (
-            fvm::ddt(T_)
-          + fvm::div(phi_, T_)
-         ==
-            fvm::laplacian(alpha, T_)
-        );
-
-        TEqn->relax();
-
-        TEqn->solve();
-    }
-}
-*/
-
-
 
 // ************************************************************************* //

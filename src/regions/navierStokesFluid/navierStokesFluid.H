@@ -37,6 +37,8 @@ SourceFiles
 #include "multiRegionSystem.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "IOReferencer.H"
+#include "HashPtrTable.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -155,9 +157,7 @@ public:
 
         virtual void solveRegion();
 
-        virtual void solveCoupledPartitioned();
-
-        // virtual tmp<fvScalarMatrix> coupledFvScalarMatrix() const;
+        virtual void setCoupledEqns();
 };
 
 
