@@ -25,6 +25,7 @@ License
 
 #include "regionType.H"
 #include "multiRegionSystem.H"
+#include "IOReferencer.H"
 
 namespace Foam
 {
@@ -59,17 +60,12 @@ Foam::regionType::regionType
         (
             "multiRegionProperties",
             mesh_.time().constant(),
-//            this->time().constant(),
             mesh_.time(),
-//            *this,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
     )
-{
-    // fileName regionConst = fileName(mesh_.time().caseConstant()/this->name());
-    // fileName& regionConst = const_cast<fileName&>(mesh_.time().caseConstant());
-}
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -77,5 +73,11 @@ Foam::regionType::regionType
 Foam::regionType::~regionType()
 {}
 
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#ifdef NoRepository
+#   include "regionTypeTemplates.C"
+#endif
 
 // ************************************************************************* //

@@ -54,4 +54,5 @@ Foam::autoPtr<Foam::regionType> Foam::regionType::New
 
     return cstrIter()(mesh, name);
 }
+
 // ************************************************************************* //

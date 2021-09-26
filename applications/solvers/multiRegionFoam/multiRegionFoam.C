@@ -36,6 +36,7 @@ Description
 #include "pimpleControl.H"
 //#include "localEulerDdtScheme.H"
 
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 int main(int argc, char *argv[])
@@ -80,7 +81,7 @@ int main(int argc, char *argv[])
 
         multiRegion.solve();
 
-        multiRegion.solveCoupledPartitioned();
+        // multiRegion.solveCoupledPartitioned();
 
         runTime.write();
 

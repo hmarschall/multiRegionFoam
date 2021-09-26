@@ -34,11 +34,15 @@ SourceFiles
 
 #include "IOdictionary.H"
 #include "dimensionedScalar.H"
-#include "volFields.H"
-#include "fvMesh.H"
+
 #include "Map.H"
 #include "runTimeSelectionTables.H"
+
+#include "volFields.H"
+#include "fvMesh.H"
 #include "fvMatrix.H"
+#include "HashPtrTable.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -55,21 +59,21 @@ class regionType
 :
     public fvMesh
 {
-public:
-
-    typedef
-        HashTable
-        <
-            Foam::tmp<Foam::fvScalarMatrix>, word, word::hash
-        >
-        coupledScalarEqns;
 
 protected:
+
+    // Protected data
 
         //- mesh
         const fvMesh& mesh_;
 
         const IOdictionary dict_;
+
+        //- coupled governing equations
+        HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
+        HashPtrTable<fvMatrix<vector> > fvVectorMatrices;
+        HashPtrTable<fvMatrix<symmTensor> > fvSymmTensorMatrices;
+        HashPtrTable<fvMatrix<tensor> > fvTensorMatrices;
 
 public:
 
@@ -125,15 +129,21 @@ public:
 
         virtual void solveRegion() = 0;
 
-        virtual void solveCoupledPartitioned() = 0;
+        virtual void setCoupledEqns() = 0;
 
-        // virtual tmp<fvScalarMatrix> coupledFvScalarMatrix() const;
+        // Get a ref to the fvMatrix 
+        template<class T>
+        fvMatrix<T>& getCoupledEqn
+        (
+            word name
+        );
+
 };
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

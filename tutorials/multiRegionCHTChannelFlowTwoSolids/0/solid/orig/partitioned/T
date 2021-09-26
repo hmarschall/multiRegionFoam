@@ -33,8 +33,11 @@ boundaryField
     }
     bottom
     {
-        type                    fixedValue;
-		value					uniform 300;
+       type                     regionCoupleHeatFlux;
+       neighbourRegionName      support;
+       neighbourPatchName       top;
+       neighbourFieldName       T;
+       value                    $internalField;
     }
     left
     {

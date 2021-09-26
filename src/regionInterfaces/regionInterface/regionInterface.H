@@ -103,7 +103,9 @@ class regionInterface
         word patchBName_;
 
         //- Swicth : attached/detached state of mesh interface
-        Switch attached_;
+        Switch attachedA_;
+
+        Switch attachedB_;
 
         //- Interpolator update frequency
         label interpolatorUpdateFrequency_;

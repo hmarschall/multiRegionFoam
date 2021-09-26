@@ -96,7 +96,7 @@ public:
 
         void solveRegion();
 
-        void solveCoupledPartitioned();
+        void setCoupledEqns();
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
