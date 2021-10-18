@@ -66,11 +66,11 @@ class navierStokesFluid
         word regionName_;
 
         //- transport
-        volVectorField U_;
+        //volVectorField U_;
 
         surfaceScalarField phi_;            
 
-        volScalarField p_;
+        //volScalarField p_;
         
         //- transport properties dictionary 
         IOdictionary transportProperties_;
@@ -116,7 +116,12 @@ class navierStokesFluid
         wordList pcorrTypes_;
         
         volScalarField pcorr_;
-        
+
+protected:
+
+        autoPtr<volVectorField> U_;
+               
+        autoPtr<volScalarField> p_;        
 public:
 
     TypeName("navierStokesFluid");
@@ -136,14 +141,24 @@ public:
     // Member Functions
 
         // Access
-        const volScalarField& T() const
+        const volVectorField& U() const
         {
-            return T_;
+            return U_();
         }
 
-        volScalarField& T()
+        const volScalarField& p() const
         {
-            return T_;
+            return p_();
+        }        
+
+        volVectorField& U()
+        {
+            return U_();
+        }
+
+        volScalarField& p()
+        {
+            return p_();
         }
 
         virtual bool active() const

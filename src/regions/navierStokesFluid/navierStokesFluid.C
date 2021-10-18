@@ -61,18 +61,22 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
     
     regionName_(regionName),
 
-    U_
-    (
-        IOobject
-        (
-            "U",
-            this->time().timeName(),
-            *this,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        *this
-    ),
+// coupled fields changed to ptr
+    U_(nullptr), 
+    p_(nullptr),  
+    
+//    U_
+//    (
+//        IOobject
+//        (
+//            "U",
+//            this->time().timeName(),
+//            *this,
+//            IOobject::MUST_READ,
+//            IOobject::AUTO_WRITE
+//        ),
+//        *this
+//    ),
     phi_
     (
 		IOobject
@@ -83,20 +87,20 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
 			IOobject::READ_IF_PRESENT,
 			IOobject::AUTO_WRITE
 		),
-		linearInterpolate(U_) & (*this).Sf()    
+		linearInterpolate(U_()) & (*this).Sf()    
     ),
-    p_
-    (
-		IOobject
-		(
-			"p",
-            this->time().timeName(),
-            *this,
-			IOobject::MUST_READ,
-			IOobject::AUTO_WRITE
-		),
-		*this   
-    ),
+//    p_
+//    (
+//		IOobject
+//		(
+//			"p",
+//            this->time().timeName(),
+//            *this,
+//			IOobject::MUST_READ,
+//			IOobject::AUTO_WRITE
+//		),
+//		*this   
+//    ),
     
     transportProperties_
     (
@@ -217,7 +221,7 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
 			IOobject::NO_READ,
             IOobject::NO_WRITE
 		),
-		fvc::grad(p_)   
+		fvc::grad(p_())   
     ), 
     gradU_
     (
@@ -229,11 +233,11 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
 			IOobject::NO_READ,
             IOobject::NO_WRITE
 		),
-		fvc::grad(U_) 
+		fvc::grad(U_()) 
     ), 
     pcorrTypes_
     (
-        p_.boundaryField().size(),
+        p_().boundaryField().size(),
         zeroGradientFvPatchScalarField::typeName
     ),   
     pcorr_
@@ -247,29 +251,63 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
             IOobject::NO_WRITE
         ),
         *this,
-        dimensionedScalar("pcorr", p_.dimensions(), 0.0),
+        dimensionedScalar("pcorr", p_().dimensions(), 0.0),
         pcorrTypes_
     )
+
+{
+
+    U_.reset
+    (
+         new volVectorField
+         (
+             IOobject
+            (
+                "U",
+                this->time().timeName(),
+                *this,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            *this
+         )
+    ); 
     
+    p_.reset
+    (
+         new volScalarField
+         (
+             IOobject
+            (
+                "p",
+                this->time().timeName(),
+                *this,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            *this
+         )
+    ); 
+      
+    // from createFields.H     
+    for (label i = 0; i<p_().boundaryField().size(); i++)
+        {
+            if (p_().boundaryField()[i].fixesValue())
+            {
+                pcorrTypes_[i] = fixedValueFvPatchScalarField::typeName;
+            }
+        };
+      
+}  
+
 // left from createFields    
 //#   include "createUf.H"
 //#   include "createSf.H"
 //#   include "setRefCell.H"
 //#   include "setFluxRequired.H" 
      
-/*    
-for (label i = 0; i<p.boundaryField().size(); i++)
-    {
-        if (p.boundaryField()[i].fixesValue())
-        {
-            pcorrTypes[i] = fixedValueFvPatchScalarField::typeName;
-        }
-    },
-*/  
 //gradp.checkIn(), 
 //gradU.checkIn(),     
-
-{}  
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
