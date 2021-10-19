@@ -179,4 +179,12 @@ void Foam::regionTypeList::setCoupledEqns()
     }
 }
 
+void Foam::regionTypeList::updateFields()
+{
+    forAll(*this, i)
+    {
+        this->operator[](i).updateFields();
+    }
+}
+
 // ************************************************************************* //

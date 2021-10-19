@@ -470,10 +470,11 @@ void Foam::regionTypes::navierStokesFluid::setCoupledEqns()
 
 
 // TODO:
-//void Foam::regionTypes::transportTemperature::updateField()
-//{
-//    phi_ -= (fvScalarMatrices[p_.name() + this->name() + "Eqn"]).flux();
-//}
+void Foam::regionTypes::navierStokesFluid::updateFields()
+{
+    phi_ = phiHbyA_ 
+           - (fvScalarMatrices[p_().name() + this->name() + "Eqn"])->flux();
+}
 
 
 void Foam::regionTypes::navierStokesFluid::solveRegion()

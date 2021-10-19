@@ -186,6 +186,8 @@ public:
         virtual void solveRegion();
 
         virtual void setCoupledEqns();
+        
+        virtual void updateFields();
 };
 
 

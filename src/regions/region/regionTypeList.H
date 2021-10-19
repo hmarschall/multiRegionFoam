@@ -97,6 +97,8 @@ public:
         void solveRegion();
 
         void setCoupledEqns();
+        
+        void updateFields();
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

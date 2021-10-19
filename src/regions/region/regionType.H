@@ -130,6 +130,8 @@ public:
         virtual void solveRegion() = 0;
 
         virtual void setCoupledEqns() = 0;
+        
+        virtual void updateFields() = 0;
 
         // Get a ref to the fvMatrix 
         template<class T>
