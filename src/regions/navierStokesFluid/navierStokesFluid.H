@@ -107,6 +107,16 @@ class navierStokesFluid
         
         volVectorField HU_;
         
+        volVectorField HbyA_;
+        
+        surfaceScalarField phiHbyA_;
+        
+        tmp<volScalarField> AtU_;
+
+        surfaceScalarField AtUf_;
+        
+        surfaceScalarField AUf_;
+        
         //- gradients
         volVectorField gradp_;
         
@@ -116,6 +126,9 @@ class navierStokesFluid
         wordList pcorrTypes_;
         
         volScalarField pcorr_;
+        
+        //- Under-relaxation factor
+        const scalar UUrf_;
 
 protected:
 

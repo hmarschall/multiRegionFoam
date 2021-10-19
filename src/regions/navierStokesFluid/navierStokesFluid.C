@@ -29,7 +29,6 @@ License
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
 
-
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
@@ -77,18 +76,6 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
 //        ),
 //        *this
 //    ),
-    phi_
-    (
-		IOobject
-		(
-			"phi",
-            this->time().timeName(),
-            *this,
-			IOobject::READ_IF_PRESENT,
-			IOobject::AUTO_WRITE
-		),
-		linearInterpolate(U_()) & (*this).Sf()    
-    ),
 //    p_
 //    (
 //		IOobject
@@ -211,6 +198,44 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         dimMass/sqr(dimLength*dimTime),
         zeroGradientFvPatchVectorField::typeName
     ),
+    
+// from pEqn.H -----------------------------------------------------------------
+    phiHbyA_
+    (
+        "phiHbyA",
+        (
+            (fvc::interpolate(HU_)/fvc::interpolate(AU_))
+            & this->Sf()
+        )
+    ),
+    AtU_(AU_),
+    AtUf_("AtUf", fvc::interpolate(AtU_)),
+    AUf_("AUf", fvc::interpolate(AU_)),   
+//------------------------------------------------------------------------------
+
+// Fields below depend on U_ or p_ which are nullptr and not set yet -----------
+// this yields nullptr error when running a case (change these to ptr also?)
+    phi_
+    (
+		IOobject
+		(
+			"phi",
+            this->time().timeName(),
+            *this,
+			IOobject::READ_IF_PRESENT,
+			IOobject::AUTO_WRITE
+		),
+		linearInterpolate(U_()) & (*this).Sf()    
+    ),
+    
+    HbyA_("HbyA", U_()), // from pEqn.H 
+    
+    UUrf_ // from UEqn.H 
+    ( 
+        this->solutionDict().subDict("relaxationFactors")
+        .lookupOrDefault<scalar>(U_().name(), 1)   
+    ), 
+    
     gradp_
     (
 		IOobject
@@ -254,6 +279,7 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         dimensionedScalar("pcorr", p_().dimensions(), 0.0),
         pcorrTypes_
     )
+//------------------------------------------------------------------------------
 
 {
 
@@ -330,7 +356,116 @@ void Foam::regionTypes::navierStokesFluid::setRDeltaT()
 
 void Foam::regionTypes::navierStokesFluid::setCoupledEqns()
 {
-    //U-p
+// from UEqn.H 
+    // Momentum equation
+    fvVectorMatrix UEqn = 
+    (
+        fvm::div(fvc::interpolate(rho_)*phi_, U_(), "div(phi,U)")
+      - fvm::laplacian(mu_, U_())
+      + fvm::ddt(rho_, U_())
+      ==
+      -gradp_
+    );     
+    
+    // Ignored for now:
+    // Save source and boundaryCoeffs
+    // vectorField S0 = UEqn.source();
+    // FieldField<Field, vector> B0 = UEqn.boundaryCoeffs();
+
+    UEqn.relax(UUrf_);
+    
+    fvVectorMatrices.set
+    (
+        U_().name() + this->name() + "Eqn", 
+        new fvVectorMatrix(UEqn)
+    );
+       
+    // Ignored for now:
+    // Reset equation to ensure relaxation parameter 
+    // is not causing problems with time consistency
+    // UEqn = (ddtUEqn + HUEqn);
+    // UEqn.source() = S0;
+    // UEqn.boundaryCoeffs() = B0;
+
+    
+// from pEqn.H 
+    // check: UEqn and U_() are called here before or after solving 
+    // the momentum equation #361
+    // check: U.storePrevIter() & p.storePrevIter() in interTrackFoam 
+    // also U_().prevIter() used in momentum corrector #463
+    
+    AU_ = UEqn.A();
+    HU_ = UEqn.H();
+    HbyA_ = HU_/AU_;    
+    phiHbyA_ += fvc::ddtPhiCorr((1.0/AU_)(), rho_, U_(), phiHbyA_);
+    AtU_ = max(AU_ - UEqn.H1(), 0.1*AU_);
+    phiHbyA_ += (1.0/AtUf_ - 1.0/AUf_)*fvc::snGrad(p_())*this->magSf();
+    HbyA_ -= (1.0/AU_ - 1.0/AtU_)*gradp_;
+
+    forAll(phiHbyA_.boundaryField(), patchI)
+    {
+        if
+        (
+            !p_().boundaryField()[patchI].fixesValue()
+         && isA<zeroGradientFvPatchVectorField>
+            (
+                U_().boundaryField()[patchI]
+            )
+        )
+        {
+            phiHbyA_.boundaryField()[patchI] =
+            (
+                U_().boundaryField()[patchI]
+                & this->Sf().boundaryField()[patchI]
+            );
+        }
+    }
+    
+    fvScalarMatrix pEqn
+    (
+        fvm::laplacian(1.0/AtUf_, p_()) == fvc::div(phiHbyA_)
+    );
+   
+    // check: setting pRefCell and pRefValue for #439
+    // in icoFoam: 
+        // label pRefCell = 0;
+        // scalar pRefValue = 0.0;  
+    
+    // in surfaceTrackingFoam:
+        // #include "setReference.H" 
+        // also needs #include "setRefCell.H" 
+        // but this gives error "interface not decalred"
+
+    // pEqn.setReference(pRefCell, pRefValue);
+
+    fvScalarMatrices.set
+    (
+        p_().name() + this->name() + "Eqn",
+        new fvScalarMatrix(pEqn)
+    ); 
+
+    // Ignored  (should be in multiRegionSystem?)  
+    //    innerResidual = pEqn.solve().initialResidual();
+
+    //    if ( nonOrth == 0 && corr == 0 )
+    //    {
+    //        residualPressure = innerResidual;
+    //    }   
+ 
+// check: the below belong here or updateField() 
+    //- Pressure relaxation
+    p_().relax();
+
+    //- Update of pressure gradient
+    gradp_ = fvc::grad(p_());
+
+    //- Momentum corrector
+    U_() = UUrf_*(HbyA_ - 1.0/AtU_*gradp_ + (1 - UUrf_)*U_().prevIter());
+
+    U_().correctBoundaryConditions();
+
+    //- Update of velocity gradient
+    gradU_ = fvc::grad(U_());
 }
 
 
