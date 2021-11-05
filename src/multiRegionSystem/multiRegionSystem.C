@@ -28,10 +28,233 @@ License
 
 #include "multiRegionSystem.H"
 #include "HashPtrTable.H"
-#include "regionTypeList.H"
-#include "regionInterfaceList.H"
+#include "IOobjectList.H"
+
+#include "simpleControl.H"
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+namespace Foam
+{
+    template<>
+    const char* Foam::NamedEnum
+    <
+        Foam::multiRegionSystem::couplingMethods,
+        2
+    >::names[] =
+    {
+        "partitioned",
+        "coupled"
+    };
+}
+
+const Foam::NamedEnum
+<
+    Foam::multiRegionSystem::couplingMethods,
+    2
+> Foam::multiRegionSystem::couplingMethodsNames_;
+
 
 // * * * * * * * * * * * * * * * Private functions * * * * * * * * * * * * * //
+
+template<class T>
+void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
+(
+    PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
+    word fldName
+) const
+{
+    // get number of coupled fields per field name
+    label nEqns = 0;
+
+    forAll (flds, fldI)
+    {
+        if(flds[fldI].name() == fldName)
+        {
+            nEqns++;
+        }
+    }
+
+    if (nEqns == 0) return;
+
+    // Info<< fldName << ": "
+    //    << "Number of coupled fields : " << nEqns << endl;
+
+    // assemble and solve block matrix system
+    coupledFvMatrix<T> coupledEqns(nEqns);
+
+    // assemble and solve all matrices one-by-one
+    forAll (regions_(), regI)
+    {
+        // Check if coupled field is registered to region 
+        // and if it is of correct type
+        if
+        (
+            !(
+                regions_()[regI].thisDb().foundObject
+                <GeometricField<T, fvPatchField, volMesh> >
+                (
+                    fldName
+                )
+            )
+        )
+        {
+            continue;
+        }
+
+        regionType& rg = const_cast<regionType&>(regions_()[regI]);
+
+        fvMatrix<T>& eqn =
+            rg.getCoupledEqn<T>
+            (
+                fldName + rg.name() + "Eqn"
+            );
+
+        coupledEqns.set(regI, &eqn);
+    }
+
+    coupledEqns.solve(regions_()[0].solutionDict().solver(fldName + "coupled"));
+}
+
+template<class T>
+void Foam::multiRegionSystem::assembleAndSolveEqns
+(
+    word fldName
+) const
+{
+    // assemble and solve all matrices one-by-one
+    forAll (regions_(), regI)
+    {
+        // Check if coupled field is registered to region 
+        // and if it is of correct type
+        if
+        (
+            !(
+                regions_()[regI].thisDb().foundObject
+                <GeometricField<T, fvPatchField, volMesh> >
+                (
+                    fldName
+                )
+            )
+        )
+        {
+            continue;
+        }
+
+        // It is an error to use regionCouplePolyPatch
+        // TODO: need more consistency checks:
+        //  - Is the regionCouple bc set for fldName?
+        //  - AND: Is this region adjacent to the relevant regionInterface?
+        regionType& mesh = const_cast<regionType&>(regions_()[regI]);
+
+        {
+            const polyPatchList& patches = mesh.boundaryMesh();
+
+            forAll (patches, patchI)
+            {
+                if (isType<regionCouplePolyPatch>(patches[patchI]))
+                {
+                    FatalError  << "Error: Attempt to solve partitioned " 
+                                << "with a patch of type " 
+                                << regionCouplePolyPatch::typeName
+                                << exit(FatalError);
+                }
+            }
+
+            // Force recalculation of weights
+            mesh.surfaceInterpolation::movePoints();
+        }
+
+        regionType& rg = const_cast<regionType&>(regions_()[regI]);
+
+        fvMatrix<T>& eqn =
+            rg.getCoupledEqn<T>
+            (
+                fldName + rg.name() + "Eqn"
+            );
+
+        Info<< nl 
+            << "Solving for " << eqn.psi().name() 
+            << " in " << rg.name()
+            << endl;
+
+        // inner coupling loop
+        simpleControl simpleControlRegion(rg);
+
+        while (simpleControlRegion.correctNonOrthogonal())
+        {
+            eqn.relax();
+            eqn.solve();
+
+            rg.updateFields();
+        }
+    }
+}
+
+template<class T>
+void Foam::multiRegionSystem::assembleCoupledFields
+(
+    List<PtrList<GeometricField<T, fvPatchField, volMesh> > >& flds,
+    const List<hashedWordList>& fldNms
+) const
+{
+//    label npcFlds = 0;
+//    label nmcFlds = 0;
+    label n = 0;
+
+    forAll (couplingMethodsNames_, cplI)
+    {
+        n = 0;
+
+        forAll (regions_(), regI) // go through all regions
+        {
+            // get list of all objects registered to region
+            IOobjectList objects
+            (
+                regions_()[regI],
+                "0"
+            );
+
+            // get list of field objects of requested type
+            IOobjectList volTypeObjects = 
+                objects.lookupClass
+                (
+                    GeometricField<T, fvPatchField, volMesh>::typeName
+                );
+
+            for
+            (
+                IOobjectList::iterator iter = volTypeObjects.begin();
+                iter != volTypeObjects.end();
+                ++iter
+            )
+            {
+                if
+                (
+                    fldNms[cplI].contains(iter()->name())
+                )
+                {
+                    const GeometricField<T, fvPatchField, volMesh>& fld =
+                        regions_()[regI].thisDb().lookupObject
+                        <GeometricField<T, fvPatchField, volMesh> >
+                        (
+                            iter()->name()
+                        );
+
+                    flds[cplI].setSize(flds[cplI].size() + 1);
+
+                    flds[cplI].set(n, fld);
+
+                    n++;
+
+                    // Info<< "Name of coupled field in region "
+                    //    << regions_()[regI].name() << " : " 
+                    //    << iter()->name() << endl;
+                }
+            }
+        }
+    } // end cpl methods
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -57,6 +280,13 @@ Foam::multiRegionSystem::multiRegionSystem
     regions_(),
     interfaces_(),
 
+    scalarFlds_(2),
+    vectorFlds_(2),
+    symmTensorFlds_(2),
+    tensorFlds_(2),
+
+    fldNames_(2),
+
     maxCoupleIter_
     (
         this->subDict("partitionedCoupling")
@@ -80,6 +310,17 @@ Foam::multiRegionSystem::multiRegionSystem
             mesh_
         )
     );
+
+    //- set unique list of coupled field names
+    //  (0 = partitioned, 1 = monolithic)
+    fldNames_[0] = interfaces_->pcFldNames();
+    fldNames_[1] = interfaces_->mcFldNames();
+
+    //- assemble list of coupled fields
+    assembleCoupledFields<scalar>(scalarFlds_, fldNames_);
+    assembleCoupledFields<vector>(vectorFlds_, fldNames_);
+    assembleCoupledFields<tensor>(tensorFlds_, fldNames_);
+    assembleCoupledFields<symmTensor>(symmTensorFlds_, fldNames_);
 }
 
 
@@ -106,86 +347,48 @@ void Foam::multiRegionSystem::setRDeltaT()
 
 void Foam::multiRegionSystem::solve()
 {
-    //- solve for regions' physics
+    // Set coupled equations
+    regions_->setCoupledEqns();
+
+    interfaces_->detach();
+
+    // Solve for regions' inherent physics
     regions_->solveRegion();
 
-    //- solve region-region coupled (monolithic)
 
-    // Info << interfaces_->partitionedCoupledFields() << endl;
-
-    typedef
-        HashTable
-        <
-            wordList, interfaceKey, interfaceKey::hash
-        >
-        fieldsTable;
-
-    interfaces_->attach();
-
-    // solve for monolithically coupled transport equations
-
-    //- determine size
-    label NEqns = 2;
-    coupledFvScalarMatrix scalarEqns(NEqns);
-
-    // word fldName = "T";
-
-    //- assemble matrix systems
-
-    forAllConstIter(fieldsTable, interfaces_->partitionedCoupledFields(), iter)
+    // Solve region-region coupling (partitioned)
+    forAll (fldNames_[0], fldI)
     {
-        forAll(iter(), cfldI)
+        word fldName = fldNames_[0][fldI];
+
+        // outer coupling loop
+        for (int coupleIter=1; coupleIter<=maxCoupleIter_; coupleIter++)
         {
-            // Info << iter() << endl;
-
-            forAll(iter(), fldNameI)
-            {
-                word fldName = iter()[fldNameI];
-
-                forAll(regions(), regI)
-                {
-                    if (regions()[regI].foundObject<volScalarField>(fldName))
-                    {
-                        Info<< "Found field " << fldName
-                            << " in " << regions()[regI].name()
-                            << " for monolithic coupling"
-                            << endl;
-                        // scalarEqns.set
-                        // (
-                        //     regI, 
-                        //     regions()[regI].coupledScalarEquations(fldName)
-                        // );
-                    }
-                    // TODO: Sanity check
-                    // else
-                    // {
-                    //     forAll(interfaces(), intI)
-                    //     {
-                    //         FatalError << "Coupling field " << fldName
-                    //             << " not found"
-                    //             << exit(FatalError);
-                    //     }
-                    // }
-                }
-
-                // scalarEqns.solve
-                // (
-                //     mesh_.solutionDict().solver(fldNameI + "coupled")
-                // );
-            }
+            assembleAndSolveEqns<scalar>(fldName);
+            assembleAndSolveEqns<vector>(fldName);
+            assembleAndSolveEqns<tensor>(fldName);
+            // assembleAndSolveEqns<symmTensor>(fldName);
         }
     }
 
-    // interfaces_->detach();
+
+    // Solve region-region coupling (monolithic)
+    interfaces_->attach();
+
+    forAll (fldNames_[1], fldI)
+    {
+        word fldName = fldNames_[1][fldI];
+
+        assembleAndSolveCoupledMatrix<scalar>(scalarFlds_[1], fldName);
+        assembleAndSolveCoupledMatrix<vector>(vectorFlds_[1], fldName);
+        assembleAndSolveCoupledMatrix<tensor>(tensorFlds_[1], fldName);
+        // assembleAndSolveCoupledMatrix<symmTensor>(symmTensorFlds_[1], fldName);
+    }
 }
 
-void Foam::multiRegionSystem::solveCoupledPartitioned()
+void Foam::multiRegionSystem::setCoupledEqns()
 {
-    //- solve partitioned inter-region coupling
-    for (int coupleIter=1; coupleIter<=maxCoupleIter_; coupleIter++)
-    {
-        regions_->solveCoupledPartitioned();
-    }
+    regions_->setCoupledEqns();
 }
 
 

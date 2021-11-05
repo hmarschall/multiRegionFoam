@@ -36,6 +36,9 @@ SourceFiles
 #include "dimensionedScalar.H"
 #include "multiRegionSystem.H"
 #include "volFields.H"
+#include "IOReferencer.H"
+#include "HashPtrTable.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,17 +55,6 @@ class conductTemperature
 :
     public regionType
 {
-public:
-
-    typedef
-        HashTable
-        <
-            Foam::tmp<Foam::fvScalarMatrix>, word, word::hash
-        >
-        coupledScalarEqns;
-
-private:
-
         //- mesh
         const fvMesh& mesh_;
 
@@ -72,20 +64,21 @@ private:
         //- transport properties dictionary 
         IOdictionary transportProperties_;
 
-        //- thermal conductivity
-        dimensionedScalar k_;
-
         //- specific heat
         dimensionedScalar cv_;
 
         //- density
         dimensionedScalar rho_;
 
-        //- temperature
-        volScalarField T_;
+        //- thermal conductivity
+        autoPtr<volScalarField> k_;
 
-        //- table of coupled equations
-        coupledScalarEqns coupledScalarEqnsTable_;
+protected:
+
+        //- temperature
+//        volScalarField T_;
+
+        autoPtr<volScalarField> T_;
 
 public:
 
@@ -108,12 +101,12 @@ public:
         // Access
         const volScalarField& T() const
         {
-            return T_;
+            return T_();
         }
 
         volScalarField& T()
         {
-            return T_;
+            return T_();
         }
 
         virtual bool active() const
@@ -121,17 +114,15 @@ public:
             return true;
         }
 
-        // coupledScalarEqns coupledScalarEqnsTable() const;
-
         virtual void correct();
 
         virtual void setRDeltaT();
 
         virtual void solveRegion();
 
-        virtual void solveCoupledPartitioned();
-
-        // virtual tmp<fvScalarMatrix> coupledFvScalarMatrix() const;
+        virtual void setCoupledEqns();
+        
+        virtual void updateFields();
 };
 
 

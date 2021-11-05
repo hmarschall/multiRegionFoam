@@ -34,12 +34,18 @@ SourceFiles
 #ifndef multiRegionSystem_H
 #define multiRegionSystem_H
 
+#include "IOReferencer.H"
 #include "IOdictionary.H"
+#include "hashedWordList.H"
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 
 #include "fvMatrix.H"
+
+#include "regionTypeList.H"
+#include "regionInterfaceList.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -69,8 +75,48 @@ class multiRegionSystem
         //- list of region interfaces
         autoPtr<regionInterfaceList> interfaces_;
 
+        //- Lists of PtrLists of coupled finite volume fields
+        //  per coupling method
+        List<PtrList<volScalarField> > scalarFlds_;
+        List<PtrList<volVectorField> > vectorFlds_;
+        List<PtrList<volSymmTensorField> > symmTensorFlds_;
+        List<PtrList<volTensorField> > tensorFlds_;
+
+        //- List of unique lists of coupled field names
+        //  per coupling method
+        List<hashedWordList> fldNames_;
+
         //- Maximum coupling iterations (partitioned)
         label maxCoupleIter_;
+
+    // Private member functions
+
+        //- assemble and solve blockMatrix system
+        template<class T>
+        void assembleCoupledFields
+        (
+            List<PtrList<GeometricField<T, fvPatchField, volMesh> > >& flds,
+            const List<hashedWordList>& fldNms
+        ) const;
+
+        template<class T>
+        void assembleAndSolveCoupledMatrix
+        (
+            PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
+            word fldName
+        ) const;
+
+        template<class T>
+        void assembleAndSolveEqns
+        (
+            word fldName
+        ) const;
+
+protected:
+
+        friend regionTypeList;
+
+        friend regionType;
 
 public:
 
@@ -84,6 +130,16 @@ public:
     virtual ~multiRegionSystem();
 
 
+    //- Coupling options
+    enum couplingMethods
+    {
+        partitioned,
+        coupled
+    };
+
+    static const NamedEnum<couplingMethods, 2> couplingMethodsNames_;
+
+
     // Member Functions
 
         // Correct
@@ -91,9 +147,11 @@ public:
 
         void solve();
 
-        void solveCoupledPartitioned();
+        void setCoupledEqns();
 
         void setRDeltaT();
+        
+        void updateFields();
 
         // Access
 

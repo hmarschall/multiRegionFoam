@@ -40,8 +40,10 @@ Foam::regionInterfaceList::regionInterfaceList
     monolithicCoupledFields_(),
     partitionedCoupledFields_(),
     mesh_(mesh),
-    monolithicTypeInterfaces_(mesh.time(), "monolithic"),
-    partitionedTypeInterfaces_(mesh.time(), "partitioned")
+    monolithicTypeInterfaces_(mesh_.time(), "monolithic"),
+    partitionedTypeInterfaces_(mesh_.time(), "partitioned"),
+    pcFldNames_(),
+    mcFldNames_()
 {
 
     if (partitionedTypeInterfaces_.size() > 0)
@@ -146,7 +148,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
                 );
 
             const fvPatch& secondPatch = 
-                firstRegion.boundary()[secondPatchID];
+                secondRegion.boundary()[secondPatchID];
 
             this->set
             (
@@ -202,6 +204,20 @@ void Foam::regionInterfaceList::setFieldNamesPartitionedCoupling
             );
         }
     }
+
+    //- get unique list of coupled field names (partitioned)
+    forAllConstIter(fieldsTable, partitionedCoupledFields(), iter)
+    {
+        forAll(iter(), fldNameI)
+        {
+            word fldName = iter()[fldNameI];
+
+            if (!pcFldNames_.contains(fldName))
+            {
+                pcFldNames_.append(fldName);
+            }
+        }
+    }
 }
 
 void Foam::regionInterfaceList::setFieldNamesMonolithicCoupling
@@ -227,7 +243,7 @@ void Foam::regionInterfaceList::setFieldNamesMonolithicCoupling
                 secondRegionPatchPair.first() + secondRegionPatchPair.second()
             );
 
-            partitionedCoupledFields_.insert
+            monolithicCoupledFields_.insert
             (
                 key,
                 interfaces[interfaceI].second()
@@ -235,7 +251,21 @@ void Foam::regionInterfaceList::setFieldNamesMonolithicCoupling
         }
     }
 
-//    Info << partitionedCoupledFields_.toc() << endl;
+    //- get unique list of coupled field names (monolithic)
+    forAllConstIter(fieldsTable, monolithicCoupledFields(), iter)
+    {
+        forAll(iter(), fldNameI)
+        {
+            word fldName = iter()[fldNameI];
+
+            if (!mcFldNames_.contains(fldName))
+            {
+                mcFldNames_.append(fldName);
+            }
+        }
+    }
+
+//    Info << monolithicCoupledFields_.toc() << endl;
 }
 
 void Foam::regionInterfaceList::attach()
@@ -243,6 +273,9 @@ void Foam::regionInterfaceList::attach()
    forAll(*this, i)
    {
        this->operator[](i).attach();
+
+//       Info << "*** patchA :" << this->operator[](i).patchName() << endl;
+//       Info << "*** patchB :" << this->operator[](i).patchBName() << endl;
    }
 }
 

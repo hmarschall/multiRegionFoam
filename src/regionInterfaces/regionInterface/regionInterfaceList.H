@@ -38,6 +38,7 @@ SourceFiles
 #include "Tuple2.H"
 #include "fvMesh.H"
 #include "dictionary.H"
+#include "hashedWordList.H"
 #include "regionInterfaceProperties.H"
 #include "regionInterface.H"
 
@@ -61,14 +62,7 @@ public:
         <
             wordList, interfaceKey, interfaceKey::hash
         >
-        monolithicFieldsTable;
-
-    typedef
-        HashTable
-        <
-            wordList, interfaceKey, interfaceKey::hash
-        >
-        partitionedFieldsTable;
+        fieldsTable;
 
 private:
 
@@ -76,9 +70,9 @@ private:
 
     wordList interfaceNames_;
 
-    monolithicFieldsTable monolithicCoupledFields_;
+    fieldsTable monolithicCoupledFields_;
 
-    partitionedFieldsTable partitionedCoupledFields_;
+    fieldsTable partitionedCoupledFields_;
 
     typedef List<Tuple2<Pair<Pair<word> >, wordList> > interfaceList;
 
@@ -98,9 +92,16 @@ protected:
         //- Reference to the mesh database
         const fvMesh& mesh_;
 
+        //- Tables of coupling interfaces
         regionInterfaceProperties monolithicTypeInterfaces_;
 
         regionInterfaceProperties partitionedTypeInterfaces_;
+
+        //- Unique list of coupled field names
+        //  (p = partitioned, m = monolithic)
+        hashedWordList pcFldNames_;
+
+        hashedWordList mcFldNames_;
 
 public:
 
@@ -113,16 +114,27 @@ public:
 
     // Member Functions
 
-        //- Access field names for monolithic coupling 
-        const monolithicFieldsTable& monolithicCoupledFields()
+        //- Access field tables for monolithic coupling 
+        const fieldsTable& monolithicCoupledFields()
         {
             return monolithicCoupledFields_;
         }
 
-        //- Access field names for monolithic coupling
-        const partitionedFieldsTable& partitionedCoupledFields()
+        //- Access field tables for partitioned coupling
+        const fieldsTable& partitionedCoupledFields()
         {
             return partitionedCoupledFields_;
+        }
+
+        //- Access coupled field names
+        const hashedWordList& pcFldNames()
+        {
+            return pcFldNames_;
+        }
+
+        const hashedWordList& mcFldNames()
+        {
+            return mcFldNames_;
         }
 
         //- Return active status

@@ -27,7 +27,7 @@ boundaryField
     bottom
     {
         type            chtRcThermalDiffusivity;
-        remoteField     kS;
+        remoteField     k;
         value           uniform 1.0;
     }
     left

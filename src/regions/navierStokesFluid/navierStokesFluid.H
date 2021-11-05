@@ -37,6 +37,8 @@ SourceFiles
 #include "multiRegionSystem.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "IOReferencer.H"
+#include "HashPtrTable.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -64,11 +66,11 @@ class navierStokesFluid
         word regionName_;
 
         //- transport
-        volVectorField U_;
+        //volVectorField U_;
 
         surfaceScalarField phi_;            
 
-        volScalarField p_;
+        //volScalarField p_;
         
         //- transport properties dictionary 
         IOdictionary transportProperties_;
@@ -105,6 +107,16 @@ class navierStokesFluid
         
         volVectorField HU_;
         
+        volVectorField HbyA_;
+        
+        surfaceScalarField phiHbyA_;
+        
+        tmp<volScalarField> AtU_;
+
+        surfaceScalarField AtUf_;
+        
+        surfaceScalarField AUf_;
+        
         //- gradients
         volVectorField gradp_;
         
@@ -115,6 +127,14 @@ class navierStokesFluid
         
         volScalarField pcorr_;
         
+        //- Under-relaxation factor
+        const scalar UUrf_;
+
+protected:
+
+        autoPtr<volVectorField> U_;
+               
+        autoPtr<volScalarField> p_;        
 public:
 
     TypeName("navierStokesFluid");
@@ -134,14 +154,24 @@ public:
     // Member Functions
 
         // Access
-        const volScalarField& T() const
+        const volVectorField& U() const
         {
-            return T_;
+            return U_();
         }
 
-        volScalarField& T()
+        const volScalarField& p() const
         {
-            return T_;
+            return p_();
+        }        
+
+        volVectorField& U()
+        {
+            return U_();
+        }
+
+        volScalarField& p()
+        {
+            return p_();
         }
 
         virtual bool active() const
@@ -155,9 +185,9 @@ public:
 
         virtual void solveRegion();
 
-        virtual void solveCoupledPartitioned();
-
-        // virtual tmp<fvScalarMatrix> coupledFvScalarMatrix() const;
+        virtual void setCoupledEqns();
+        
+        virtual void updateFields();
 };
 
 

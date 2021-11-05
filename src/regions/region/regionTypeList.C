@@ -26,6 +26,7 @@ License
 #include "regionTypeList.H"
 #include "volFields.H"
 #include "IOdictionary.H"
+#include "regionCouplePolyPatch.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -116,6 +117,31 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
             }
         }
     }
+
+    // attach patches of regionCouplePolyPatch type
+    forAll(*this, i)
+    {
+        regionType& mesh = const_cast<regionType&>(this->operator[](i));
+
+        {
+            const polyPatchList& patches = mesh.boundaryMesh();
+
+            forAll (patches, patchI)
+            {
+                if (isType<regionCouplePolyPatch>(patches[patchI]))
+                {
+                    const regionCouplePolyPatch& rcp =
+                        refCast<const regionCouplePolyPatch>(patches[patchI]);
+
+                    // Attach it here, if slave
+                    if (!rcp.master()) rcp.attach();
+                }
+            }
+
+            // Force recalculation of weights
+            mesh.surfaceInterpolation::movePoints();
+        }
+    }
 }
 
 
@@ -145,11 +171,19 @@ void Foam::regionTypeList::solveRegion()
     }
 }
 
-void Foam::regionTypeList::solveCoupledPartitioned()
+void Foam::regionTypeList::setCoupledEqns()
 {
     forAll(*this, i)
     {
-        this->operator[](i).solveCoupledPartitioned();
+        this->operator[](i).setCoupledEqns();
+    }
+}
+
+void Foam::regionTypeList::updateFields()
+{
+    forAll(*this, i)
+    {
+        this->operator[](i).updateFields();
     }
 }
 

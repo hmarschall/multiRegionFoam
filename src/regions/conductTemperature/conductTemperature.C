@@ -28,8 +28,6 @@ License
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
 
-#include "simpleControl.H"
-
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -68,29 +66,79 @@ Foam::regionTypes::conductTemperature::conductTemperature
             "transportProperties",
             this->time().constant(),
             *this,
-//            this->time().timeName(),
-//            *this,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
     ),
-    k_(transportProperties_.lookup("k")),
     cv_(transportProperties_.lookup("cv")),
     rho_(transportProperties_.lookup("rho")),
-    T_
+
+//    k_
+//    (
+//        IOobject
+//        (
+//            "k",
+//            this->time().timeName(),
+//            *this,
+//            IOobject::READ_IF_PRESENT,
+////            IOobject::MUST_READ,
+//            IOobject::NO_WRITE
+//        ),
+//        *this,
+//        dimensionedScalar(transportProperties_.lookup("k"))
+//    ),
+//    T_
+//    (
+//        IOobject
+//        (
+//            "T",
+//            this->time().timeName(),
+//            *this,
+//            IOobject::NO_READ,
+//            IOobject::NO_WRITE
+//        ),
+//        *this,
+//        dimensionedScalar("T0", dimTemperature, pTraits<scalar>::zero),
+//        zeroGradientFvPatchScalarField::typeName
+//    ),
+    k_(nullptr),
+    T_(nullptr)
+{
+    k_.reset
     (
-        IOobject
+        new volScalarField
         (
-            "T",
-            this->time().timeName(),
+            IOobject
+            (
+                "k",
+                this->time().timeName(),
+                *this,
+                IOobject::READ_IF_PRESENT,
+                IOobject::NO_WRITE
+            ),
             *this,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        *this
-    ),
-    coupledScalarEqnsTable_()
-{}
+            dimensionedScalar(transportProperties_.lookup("k"))
+        )
+    );
+
+    T_.reset
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "T",
+                this->time().timeName(),
+                *this,
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            *this
+        )
+    );
+
+    k_() = dimensionedScalar(transportProperties_.lookup("k"));
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -112,53 +160,31 @@ void Foam::regionTypes::conductTemperature::setRDeltaT()
 }
 
 
-void Foam::regionTypes::conductTemperature::solveRegion()
+void Foam::regionTypes::conductTemperature::setCoupledEqns()
+{
+    fvScalarMatrix TEqn =
+    (
+        fvm::ddt(rho_*cv_, T_())
+     ==
+        fvm::laplacian(k_(), T_(), "laplacian(k,T)")
+    );
+
+    fvScalarMatrices.set
+    (
+        T_().name() + this->name() + "Eqn",
+        new fvScalarMatrix(TEqn)
+    );
+}
+
+void Foam::regionTypes::conductTemperature::updateFields()
 {
     // do nothing, add as required
 }
 
-void Foam::regionTypes::conductTemperature::solveCoupledPartitioned()
+void Foam::regionTypes::conductTemperature::solveRegion()
 {
-    Info << nl << "Solving for temperature in " << regionName_ << endl;
-    simpleControl simpleControlRegion(*this);
-
-    while (simpleControlRegion.correctNonOrthogonal())
-    {
-        tmp<fvScalarMatrix> TEqn
-        (
-            fvm::ddt(rho_*cv_, T_)
-         ==
-            fvm::laplacian(k_, T_, "laplacian(k,T)")
-        );
-
-        TEqn->relax();
-
-        TEqn->solve();
-    }
+    // do nothing, add as required
 }
-
-// HashTable
-// <
-//     Foam::tmp<Foam::fvScalarMatrix>, word, word::hash
-// >
-// Foam::regionTypes::conductTemperature::coupledScalarEqnsTable() const
-// {
-//     return coupledScalarEqnsTable_;
-// }
-
-// tmp<fvScalarMatrix> 
-// Foam::regionTypes::conductTemperature::coupledFvScalarMatrix() const
-// {
-//     return tmp<fvScalarMatrix>
-//     (
-//         new fvScalarMatrix
-//         (
-//             fvm::ddt(rho_*cv_, T_)
-//          ==
-//             fvm::laplacian(k_, T_, "laplacian(k,T)")
-//         )
-//     );
-// }
 
 
 // ************************************************************************* //
