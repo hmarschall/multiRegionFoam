@@ -43,6 +43,8 @@ SourceFiles
 #include "fvMatrix.H"
 #include "HashPtrTable.H"
 
+#include "mergePolyMesh.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -66,8 +68,6 @@ protected:
 
         //- mesh
         const fvMesh& mesh_;
-
-        const IOdictionary dict_;
 
         //- coupled governing equations
         HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
@@ -121,8 +121,6 @@ public:
             return true;
         }
 
-        // virtual coupledScalarEqns coupledScalarEqnsTable() const;
-
         virtual void correct() = 0;
 
         virtual void setRDeltaT() = 0;
@@ -139,6 +137,13 @@ public:
         (
             word name
         );
+
+        // Get a ref to the fields 
+        template<class T>
+        const T& getObject(const word& name);
+
+        template<class T>
+        T& getObject(const word& name);
 
 };
 

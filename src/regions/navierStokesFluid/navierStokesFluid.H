@@ -78,19 +78,10 @@ class navierStokesFluid
         //- surface Properties dictionary
         IOdictionary surfaceProperties_;
 
-        //- thermal conductivity
-        dimensionedScalar k_;
-
-        //- specific heat
-        dimensionedScalar cp_;
-
         //- density
         dimensionedScalar rhoFluid_;
         
         volScalarField rho_;
-        
-        //- temperature
-        volScalarField T_;
         
         //- viscosity
         dimensionedScalar muFluid_;
@@ -106,16 +97,8 @@ class navierStokesFluid
         volScalarField AU_;
         
         volVectorField HU_;
-        
-        volVectorField HbyA_;
-        
-        surfaceScalarField phiHbyA_;
-        
-        tmp<volScalarField> AtU_;
 
-        surfaceScalarField AtUf_;
-        
-        surfaceScalarField AUf_;
+        surfaceScalarField phiHbyA_;
         
         //- gradients
         volVectorField gradp_;
@@ -172,6 +155,25 @@ public:
         volScalarField& p()
         {
             return p_();
+        }
+
+        // Access by name
+        template<class T>
+        const T& getObject(const word& name)
+        {
+            return
+            (
+                this->thisDb().lookupObject<T>(name)
+            );
+        }
+
+        template<class T>
+        T& getObject(const word& name)
+        {
+            return
+            (
+                const_cast<const T&>(this->thisDb().lookupObject<T>(name))
+            );
         }
 
         virtual bool active() const

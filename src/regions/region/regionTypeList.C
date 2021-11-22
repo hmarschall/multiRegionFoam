@@ -36,6 +36,31 @@ Foam::regionTypeList::regionTypeList
 )
 :
     PtrList<regionType>(),
+    superMeshPtr_
+    (
+        new fvMesh
+        (
+            Foam::IOobject
+            (
+                mesh.name(),
+                mesh.time().timeName(),
+                mesh.time(),
+                Foam::IOobject::MUST_READ
+            )
+        )
+    ),
+    dict_
+    (
+        IOobject
+        (
+            "multiRegionProperties",
+            mesh.time().constant(),
+            mesh.time(),
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    ),
+    superMeshRegions_(dict_.lookup("superMeshRegions")),
     mesh_(mesh),
     region_(mesh.time())
 {
@@ -52,6 +77,85 @@ Foam::regionTypeList::~regionTypeList()
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
+
+const Foam::fvMesh& Foam::regionTypeList::superMesh()
+{
+    mergePolyMesh seedMesh(superMeshPtr_);
+
+    hashedWordList superMeshRegionNames;
+
+    forAllConstIter(HashTable<wordList>, superMeshRegions_, iter)
+    {
+        const wordList& regions = iter();
+
+        forAll(regions, regionI)
+        {
+            if (!superMeshRegionNames.contains(regions[regionI]))
+            {
+                superMeshRegionNames.append(regions[regionI]);
+            }
+        }
+    }
+
+    forAll(*this, i)
+    {
+        regionType& meshToAdd = const_cast<regionType&>(this->operator[](i));
+
+        if 
+        (
+            superMeshRegionNames.contains(meshToAdd.name())
+         && meshToAdd.name() != mesh_.name() //since created from this mesh
+        )
+        {
+            seedMesh.addMesh(meshToAdd);
+            seedMesh.merge();
+        }
+    }
+
+    // Make a copy of the current mesh components as they will be transferred
+    // to the mesh
+    pointField pointsCopy = seedMesh.allPoints();
+    faceList facesCopy = seedMesh.faces();
+    labelList allOwnerCopy = seedMesh.faceOwner();
+    labelList allNeighbourCopy = seedMesh.faceNeighbour();
+
+    // Create the super-mesh
+    superMeshPtr_.reset
+    (
+        new fvMesh
+        (
+            IOobject
+            (
+                "superMesh",
+                mesh_.time().timeName(),
+                mesh_.time(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            xferMove(pointsCopy),
+            xferMove(facesCopy),
+            xferMove(allOwnerCopy),
+            xferMove(allNeighbourCopy)
+        )
+    );
+
+    // Add the boundary patches by copy the current mesh boundary
+    List<polyPatch*> meshBoundary(seedMesh.boundaryMesh().size());
+    forAll(seedMesh.boundaryMesh(), patchI)
+    {
+        meshBoundary[patchI] =
+            seedMesh.boundaryMesh()[patchI].clone
+            (
+                superMeshPtr_().boundaryMesh(),
+                patchI,
+                seedMesh.boundaryMesh()[patchI].size(),
+                seedMesh.boundaryMesh()[patchI].start()
+            ).ptr();
+    }
+    superMeshPtr_().addFvPatches(meshBoundary);
+
+    return superMeshPtr_;
+}
 
 bool Foam::regionTypeList::active(const bool warn) const
 {

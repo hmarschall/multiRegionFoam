@@ -36,7 +36,9 @@ SourceFiles
 #define regionTypeList_H
 
 #include "fvMesh.H"
+#include "mergePolyMesh.H"
 #include "dictionary.H"
+#include "hashedWordList.H"
 #include "regionProperties.H"
 #include "regionType.H"
 
@@ -54,6 +56,17 @@ class regionTypeList
     public PtrList<regionType>
 {
 private:
+
+    // Private Data
+
+        //- super-mesh spanning across regions
+        autoPtr<fvMesh> superMeshPtr_;
+
+        //- dictionary
+        const IOdictionary dict_;
+
+        //- meshes to build super-mesh from
+        HashTable<wordList> superMeshRegions_;
 
     // Private Member Functions
 
@@ -84,20 +97,28 @@ public:
 
     // Member Functions
 
+        //- Return super mesh
+        const fvMesh& superMesh();
+
         //- Return active status
         bool active(const bool active = false) const;
 
         //- Reset the source list
         void reset(const regionProperties& region);
 
+        //- Correct model properties
         void correct();
 
+        //- Set reverse time step
         void setRDeltaT();
 
+        //- Solve region-inherent physics
         void solveRegion();
 
+        //- Set equations for coupled solution
         void setCoupledEqns();
-        
+
+        //- Update fields after solution
         void updateFields();
 };
 

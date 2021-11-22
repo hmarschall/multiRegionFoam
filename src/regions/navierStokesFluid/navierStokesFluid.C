@@ -28,6 +28,7 @@ License
 #include "navierStokesFluid.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
+#include "pimpleControl.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -60,7 +61,7 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
     
     regionName_(regionName),
 
-// coupled fields changed to ptr
+    //! coupled fields changed to ptr
     U_(nullptr), 
     p_(nullptr),  
     
@@ -100,22 +101,8 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
             IOobject::NO_WRITE
         )
     ),
-    k_(transportProperties_.lookup("k")),
-    cp_(transportProperties_.lookup("cp")),
     rhoFluid_(transportProperties_.lookup("rhoFluid")),
     muFluid_(transportProperties_.lookup("muFluid")),
-    T_
-    (
-        IOobject
-        (
-            "T",
-            this->time().timeName(),
-            *this,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        *this
-    ),
     mu_
     (
         IOobject
@@ -198,8 +185,6 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         dimMass/sqr(dimLength*dimTime),
         zeroGradientFvPatchVectorField::typeName
     ),
-    
-// from pEqn.H -----------------------------------------------------------------
     phiHbyA_
     (
         "phiHbyA",
@@ -208,10 +193,6 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
             & this->Sf()
         )
     ),
-    AtU_(AU_),
-    AtUf_("AtUf", fvc::interpolate(AtU_)),
-    AUf_("AUf", fvc::interpolate(AU_)),   
-//------------------------------------------------------------------------------
 
 // Fields below depend on U_ or p_ which are nullptr and not set yet -----------
 // this yields nullptr error when running a case (change these to ptr also?)
@@ -227,8 +208,6 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
 		),
 		linearInterpolate(U_()) & (*this).Sf()    
     ),
-    
-    HbyA_("HbyA", U_()), // from pEqn.H 
     
     UUrf_ // from UEqn.H 
     ( 
@@ -279,31 +258,29 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         dimensionedScalar("pcorr", p_().dimensions(), 0.0),
         pcorrTypes_
     )
-//------------------------------------------------------------------------------
-
 {
 
     U_.reset
     (
-         new volVectorField
-         (
-             IOobject
-            (
-                "U",
-                this->time().timeName(),
-                *this,
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            *this
-         )
+        new volVectorField
+        (
+           IOobject
+           (
+               "U",
+               this->time().timeName(),
+               *this,
+               IOobject::MUST_READ,
+               IOobject::AUTO_WRITE
+           ),
+           *this
+        )
     ); 
     
     p_.reset
     (
-         new volScalarField
-         (
-             IOobject
+        new volScalarField
+        (
+            IOobject
             (
                 "p",
                 this->time().timeName(),
@@ -312,18 +289,17 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
                 IOobject::AUTO_WRITE
             ),
             *this
-         )
-    ); 
-      
+        )
+    );
+
     // from createFields.H     
     for (label i = 0; i<p_().boundaryField().size(); i++)
+    {
+        if (p_().boundaryField()[i].fixesValue())
         {
-            if (p_().boundaryField()[i].fixesValue())
-            {
-                pcorrTypes_[i] = fixedValueFvPatchScalarField::typeName;
-            }
-        };
-      
+            pcorrTypes_[i] = fixedValueFvPatchScalarField::typeName;
+        }
+    };  
 }  
 
 // left from createFields    
@@ -356,6 +332,8 @@ void Foam::regionTypes::navierStokesFluid::setRDeltaT()
 
 void Foam::regionTypes::navierStokesFluid::setCoupledEqns()
 {
+    pimpleControl pimple(*this);
+
 // from UEqn.H 
     // Momentum equation
     fvVectorMatrix UEqn = 
@@ -365,7 +343,7 @@ void Foam::regionTypes::navierStokesFluid::setCoupledEqns()
       + fvm::ddt(rho_, U_())
       ==
       -gradp_
-    );     
+    );
     
     // Ignored for now:
     // Save source and boundaryCoeffs
@@ -388,7 +366,8 @@ void Foam::regionTypes::navierStokesFluid::setCoupledEqns()
     // UEqn.boundaryCoeffs() = B0;
 
     
-// from pEqn.H 
+    // pressure equation
+
     // check: UEqn and U_() are called here before or after solving 
     // the momentum equation #361
     // check: U.storePrevIter() & p.storePrevIter() in interTrackFoam 
@@ -396,11 +375,22 @@ void Foam::regionTypes::navierStokesFluid::setCoupledEqns()
     
     AU_ = UEqn.A();
     HU_ = UEqn.H();
-    HbyA_ = HU_/AU_;    
+
+    volVectorField HbyA("HbyA", U_());
+
+    HbyA = HU_/AU_;
+
     phiHbyA_ += fvc::ddtPhiCorr((1.0/AU_)(), rho_, U_(), phiHbyA_);
-    AtU_ = max(AU_ - UEqn.H1(), 0.1*AU_);
-    phiHbyA_ += (1.0/AtUf_ - 1.0/AUf_)*fvc::snGrad(p_())*this->magSf();
-    HbyA_ -= (1.0/AU_ - 1.0/AtU_)*gradp_;
+
+    tmp<volScalarField> AtU(AU_);
+    AtU = max(AU_ - UEqn.H1(), 0.1*AU_);
+
+    surfaceScalarField AtUf("AtUf", fvc::interpolate(AtU()));
+    surfaceScalarField AUf("AUf", fvc::interpolate(AU_));
+
+    phiHbyA_ += (1.0/AtUf - 1.0/AUf)*fvc::snGrad(p_())*this->magSf();
+
+    HbyA -= (1.0/AU_ - 1.0/AtU)*gradp_;
 
     forAll(phiHbyA_.boundaryField(), patchI)
     {
@@ -420,12 +410,14 @@ void Foam::regionTypes::navierStokesFluid::setCoupledEqns()
             );
         }
     }
-    
-    fvScalarMatrix pEqn
-    (
-        fvm::laplacian(1.0/AtUf_, p_()) == fvc::div(phiHbyA_)
-    );
-   
+
+//    while (pimple.correctNonOrthogonal())
+//    {
+        fvScalarMatrix pEqn
+        (
+            fvm::laplacian(1.0/AtUf, p_()) == fvc::div(phiHbyA_)
+        );
+//    }
     // check: setting pRefCell and pRefValue for #439
     // in icoFoam: 
         // label pRefCell = 0;
@@ -442,30 +434,30 @@ void Foam::regionTypes::navierStokesFluid::setCoupledEqns()
     (
         p_().name() + this->name() + "Eqn",
         new fvScalarMatrix(pEqn)
-    ); 
+    );
 
-    // Ignored  (should be in multiRegionSystem?)  
-    //    innerResidual = pEqn.solve().initialResidual();
+//    // Ignored  (should be in multiRegionSystem?)  
+//    //    innerResidual = pEqn.solve().initialResidual();
 
-    //    if ( nonOrth == 0 && corr == 0 )
-    //    {
-    //        residualPressure = innerResidual;
-    //    }   
- 
-// check: the below belong here or updateField() 
-    //- Pressure relaxation
-    p_().relax();
+//    //    if ( nonOrth == 0 && corr == 0 )
+//    //    {
+//    //        residualPressure = innerResidual;
+//    //    }   
+// 
+//// check: the below belong here or updateField() 
+//    //- Pressure relaxation
+//    p_().relax();
 
-    //- Update of pressure gradient
-    gradp_ = fvc::grad(p_());
+//    //- Update of pressure gradient
+//    gradp_ = fvc::grad(p_());
 
-    //- Momentum corrector
-    U_() = UUrf_*(HbyA_ - 1.0/AtU_*gradp_ + (1 - UUrf_)*U_().prevIter());
+//    //- Momentum corrector
+//    U_() = UUrf_*(HbyA - 1.0/AtU*gradp_ + (1 - UUrf_)*U_().prevIter());
 
-    U_().correctBoundaryConditions();
+//    U_().correctBoundaryConditions();
 
-    //- Update of velocity gradient
-    gradU_ = fvc::grad(U_());
+//    //- Update of velocity gradient
+//    gradU_ = fvc::grad(U_());
 }
 
 
