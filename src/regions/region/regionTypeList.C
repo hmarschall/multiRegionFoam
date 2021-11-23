@@ -178,6 +178,8 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
 {
     wordList regionNames;
 
+    label j = 0;
+
     forAllConstIter(HashTable<wordList>, rp, iter)
     {
         const wordList& regions = iter();
@@ -187,9 +189,10 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
             if (findIndex(regionNames, regions[regionI]))
             {
                 regionNames.setSize(regionNames.size()+1);
-                regionNames[regionI] = regions[regionI];
-//                regionNames.append(regions[regionI]);
+                regionNames[j] = regions[regionI];
             }
+
+            j++;
         }
     }
 
