@@ -31,6 +31,10 @@ monolithicTypeRegionInterfaces
     )
 );
 
+// Assembles a super-mesh
+superMeshRegions
+();
+
 partitionedCoupling
 {
     maxCoupleIter 6;
