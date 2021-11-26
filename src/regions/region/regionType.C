@@ -52,19 +52,7 @@ Foam::regionType::regionType
         )
     ),
 
-    mesh_(mesh),
-
-    dict_
-    (
-        IOobject
-        (
-            "multiRegionProperties",
-            mesh_.time().constant(),
-            mesh_.time(),
-            IOobject::MUST_READ,
-            IOobject::NO_WRITE
-        )
-    )
+    mesh_(mesh)
 {}
 
 
