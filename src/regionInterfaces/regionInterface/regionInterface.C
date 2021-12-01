@@ -193,7 +193,7 @@ void Foam::regionInterface::calcGgiInterpolator() const
             mag
             (
                 APatchFaceCentres
-              - meshA().boundaryMesh()[patch().index()].faceCentres()
+              - meshA().boundaryMesh()[patchA().index()].faceCentres()
             )
         );
 
@@ -218,7 +218,7 @@ Foam::regionInterface::regionInterface
 (
 //    const word& type,
     const Time& runTime,
-    const fvPatch& patch,
+    const fvPatch& patchA,
     const fvPatch& patchB
 )
 :
@@ -233,14 +233,14 @@ Foam::regionInterface::regionInterface
             IOobject::NO_WRITE
         )
     ),
-    interfaceKey(patch.name(), patchB.name()),
+    interfaceKey(patchA.name(), patchB.name()),
     runTime_(runTime),
-    patch_(patch),
+    patchA_(patchA),
     patchB_(patchB),
-    meshA_(patch_.boundaryMesh().mesh()),
+    meshA_(patchA_.boundaryMesh().mesh()),
     meshB_(patchB_.boundaryMesh().mesh()),
 //    regionBName_(meshB_.name()),
-    patchName_(patch_.name()),
+    patchAName_(patchA_.name()),
     patchBName_(patchB_.name()),
     attachedA_(false),
     attachedB_(false),
@@ -327,7 +327,7 @@ void Foam::regionInterface::makeGlobalPatches() const
             << "Pointer already set!" << abort(FatalError);
     }
 
-    globalPatchAPtr_.set(new globalPolyPatch(patchName(), meshA()));
+    globalPatchAPtr_.set(new globalPolyPatch(patchAName(), meshA()));
     globalPatchBPtr_.set(new globalPolyPatch(patchBName(), meshB()));
 }
 
@@ -461,7 +461,7 @@ void Foam::regionInterface::attach()
 void Foam::regionInterface::detach()
 {
 //    Info << "detach() : " << "meshA = " << meshA().name() << endl;
-//    Info << " patch name A = " << patchName() << endl;
+//    Info << " patch name A = " << patchAName() << endl;
 
 //    Info << "detach() : " << "meshB = " << meshB().name() << endl;
 //    Info << " patch name B = " << patchBName() << endl;
