@@ -19,6 +19,8 @@ $(interfaces)/regionInterface.C
 $(interfaces)/regionInterfaceList.C
 $(interfaces)/newRegionInterface.C
 
+../regionInterfaces/fluidFluid/fluidFluid.C
+
 multiRegionSystem.C
 
 LIB = $(FOAM_USER_LIBBIN)/libmultiRegionSystem

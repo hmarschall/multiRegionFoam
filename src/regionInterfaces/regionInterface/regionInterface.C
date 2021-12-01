@@ -226,7 +226,8 @@ Foam::regionInterface::regionInterface
     (
         IOobject
         (
-            "multiRegionProperties",
+            patchA.boundaryMesh().mesh().name() + patchA.name() 
+            + patchB.boundaryMesh().mesh().name() + patchB.name(),
             runTime.constant(),
             runTime,
             IOobject::MUST_READ,

@@ -153,7 +153,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
             this->set
             (
                 index_++,
-                new regionInterface
+                regionInterface::New
                 (
                     mesh_.time(),
                     firstPatch,
