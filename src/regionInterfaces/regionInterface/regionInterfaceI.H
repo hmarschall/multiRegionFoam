@@ -24,9 +24,9 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-inline const Foam::fvPatch& Foam::regionInterface::patch() const
+inline const Foam::fvPatch& Foam::regionInterface::patchA() const
 {
-    return patch_;
+    return patchA_;
 };
 
 
@@ -35,9 +35,9 @@ inline const Foam::word& Foam::regionInterface::regionBName() const
     return regionBName_;
 };
 
-inline const Foam::word& Foam::regionInterface::patchName() const
+inline const Foam::word& Foam::regionInterface::patchAName() const
 {
-    return patchName_;
+    return patchAName_;
 };
 
 inline const Foam::word& Foam::regionInterface::patchBName() const

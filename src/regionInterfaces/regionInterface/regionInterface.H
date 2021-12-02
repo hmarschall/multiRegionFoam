@@ -83,7 +83,7 @@ class regionInterface
         const Time& runTime_;
 
         //- Reference to the fvPatches
-        const fvPatch& patch_;
+        const fvPatch& patchA_;
 
         const fvPatch& patchB_;
 
@@ -97,7 +97,7 @@ class regionInterface
 //        word regionBName_;
 
         //- Name of patch on the local region
-        word patchName_;
+        word patchAName_;
 
         //- Name of patch on the region B
         word patchBName_;
@@ -177,10 +177,10 @@ public:
             IOdictionary,
             (
                 const Time& runTime,
-                const fvPatch& patch,
+                const fvPatch& patchA,
                 const fvPatch& patchB
             ),
-            (runTime, patch, patchB)
+            (runTime, patchA, patchB)
         );
 #endif
 
@@ -191,7 +191,7 @@ public:
         (
 //            const word& type,
             const Time& runTime,
-            const fvPatch& patch,
+            const fvPatch& patchA,
             const fvPatch& patchB
         );
 
@@ -202,7 +202,7 @@ public:
         static autoPtr<regionInterface> New
         (
             const Time& runTime,
-            const fvPatch& patch,
+            const fvPatch& patchA,
             const fvPatch& patchB
         );
 
@@ -245,9 +245,9 @@ public:
             virtual word name() const;
 
             //- Return a reference to the patch A
-            inline const fvPatch& patch() const
+            inline const fvPatch& patchA() const
             {
-                return patch_;
+                return patchA_;
             };
 
             //- Return a reference to the patch B
@@ -257,9 +257,9 @@ public:
             };
 
             //- Return patch names
-            inline const word& patchName() const
+            inline const word& patchAName() const
             {
-                return patchName_;
+                return patchAName_;
             };
 
             inline const word& patchBName() const
@@ -275,7 +275,7 @@ public:
 
             label patchAID() const
             {
-                return patch_.index();
+                return patchA_.index();
             }
 
 			const fvMesh& meshB() const

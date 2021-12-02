@@ -153,7 +153,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
             this->set
             (
                 index_++,
-                new regionInterface
+                regionInterface::New
                 (
                     mesh_.time(),
                     firstPatch,
@@ -274,7 +274,7 @@ void Foam::regionInterfaceList::attach()
    {
        this->operator[](i).attach();
 
-//       Info << "*** patchA :" << this->operator[](i).patchName() << endl;
+//       Info << "*** patchA :" << this->operator[](i).patchAName() << endl;
 //       Info << "*** patchB :" << this->operator[](i).patchBName() << endl;
    }
 }
