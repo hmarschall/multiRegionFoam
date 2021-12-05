@@ -53,6 +53,7 @@ SourceFiles
 //#include "volFields.H"
 //#include "fvPatchFieldMapper.H"
 #include "fvCFD.H"
+#include "faCFD.H"
 
 #include "globalPolyPatch.H"
 #include "regionCouplePolyPatch.H"
@@ -144,6 +145,20 @@ class regionInterface
         mutable autoPtr<globalPolyPatch> globalPatchAPtr_;
         //- B-side
         mutable autoPtr<globalPolyPatch> globalPatchBPtr_;
+        
+        // -----------------------------------------------
+        //- finite area mesh
+        mutable faMesh* aMeshPtr_;
+        
+        //- surface velocity field
+        mutable areaVectorField* UsPtr_;
+
+        //- interfacial curvature
+        mutable areaScalarField* KPtr_;
+
+        //- surface flux field
+        mutable edgeScalarField* phisPtr_;
+        // -----------------------------------------------
 
     // Private Member Functions
 
@@ -287,6 +302,91 @@ public:
             {
                 return patchB_.index();
             }
+            // ------------------------------------------------          
+            // return finite area mesh
+            faMesh& aMesh()
+            {
+                if (!aMeshPtr_)
+                {
+                    makeFaMesh();
+                }
+                
+                return *aMeshPtr_;
+            }
+
+            const faMesh& aMesh() const
+            {
+                if (!aMeshPtr_)
+                {
+                    makeFaMesh();
+                }
+                
+                return *aMeshPtr_;
+            }
+        
+            // return surface velocity    
+            Foam::areaVectorField& Us() 
+            {
+                if (!UsPtr_)
+                {
+                    makeUs();
+                }
+
+                return *UsPtr_;
+            }
+
+            const Foam::areaVectorField& Us() const
+            {
+                if (!UsPtr_)
+                {
+                    makeUs();
+                }
+
+                return *UsPtr_;
+            }
+
+            // return surface flux
+            edgeScalarField& Phis()
+            {
+                if (!phisPtr_)
+                {
+                    makePhis();
+                }
+
+                return *phisPtr_;
+            }
+
+            const edgeScalarField& Phis() const
+            {
+                if (!phisPtr_)
+                {
+                   makePhis();
+                }
+
+                return *phisPtr_;
+            }
+
+            // return interfacial curvature
+            Foam::areaScalarField& K()
+            {
+                if (!KPtr_)
+                {
+                    makeK();
+                }
+
+                return *KPtr_;
+            }
+
+            const Foam::areaScalarField& K() const
+            {
+                if (!KPtr_)
+                {
+                    makeK();
+                }
+
+                return *KPtr_;
+            }
+            // ------------------------------------------------          
 
 //            //- Return the name of the region B
 //            inline const word& regionBName() const;
@@ -404,6 +504,34 @@ public:
 
            //- Write entries for patches
 //           void writeEntries(Ostream& os) const;
+
+
+            // ------------------------------------------------          
+            // specific to interface type
+            virtual void makeUs() const = 0;            
+            virtual void makeK() const = 0;
+            virtual void makePhis() const = 0;
+            
+            // same for different types of interfaces
+            void makeFaMesh() const;           
+            //virtual void makeFaMesh() const;           
+            
+            // Alternative: initialization as virtual functions 
+            // then defined in regionInterface.C 
+                        
+            // const 
+            //virtual const faMesh& aMesh() const;            
+            //virtual const areaVectorField& Us() const;
+            //virtual const areaScalarField& K() const;
+            //virtual const edgeScalarField& Phis() const;                        
+            
+            // non-const 
+            //virtual faMesh& aMesh(); 
+            //virtual areaVectorField& Us();  
+            //virtual areaScalarField& K();
+            //virtual edgeScalarField& Phis();   
+            // ------------------------------------------------          
+            
 };
 
 

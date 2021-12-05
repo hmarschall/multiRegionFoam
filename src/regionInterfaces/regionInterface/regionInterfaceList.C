@@ -307,4 +307,111 @@ void Foam::regionInterfaceList::transferFaces()
 //    }
 }
 
+// ------------------------------------------------------------
+// specific to interface type
+
+void Foam::regionInterfaceList::makeUs() const
+{
+   forAll(*this, i)
+   {
+       this->operator[](i).makeUs();
+   }
+}
+
+void Foam::regionInterfaceList::makeK() const
+{
+   forAll(*this, i)
+   {
+       this->operator[](i).makeK();
+   }
+}
+
+void Foam::regionInterfaceList::makePhis() const
+{
+   forAll(*this, i)
+   {
+       this->operator[](i).makePhis();
+   }
+}
+
+// same for different types of interfaces        
+//void Foam::regionInterfaceList::makeFaMesh() const
+//{
+//   forAll(*this, i)
+//   {
+//       this->operator[](i).makeFaMesh();
+//   }
+//}
+
+// Alternative to #424-506 in regionInterface.H
+
+// const
+
+//const faMesh& Foam::regionInterfaceList::aMesh() const
+//{
+//   forAll(*this, i)
+//   {
+//       this->operator[](i).aMesh();
+//   }
+//}
+
+//const areaVectorField& Foam::regionInterfaceList::Us() const
+//{
+//   forAll(*this, i)
+//   {
+//       this->operator[](i).Us();
+//   }
+//}
+
+//const areaScalarField& Foam::regionInterfaceList::K() const
+//{
+//   forAll(*this, i)
+//   {
+//       this->operator[](i).K();
+//   }
+//}
+
+//const edgeScalarField& Foam::regionInterfaceList::Phis() const
+//{
+//   forAll(*this, i)
+//   {
+//       this->operator[](i).Phis();
+//   }
+//}
+
+
+// non-const
+
+//faMesh& Foam::regionInterfaceList::aMesh()
+//{
+//   forAll(*this, i)
+//   {
+//       this->operator[](i).aMesh();
+//   }
+//}
+
+//areaVectorField& Foam::regionInterfaceList::Us()
+//{
+//   forAll(*this, i)
+//   {
+//       this->operator[](i).Us();
+//   }
+//}
+
+//areaScalarField& Foam::regionInterfaceList::K() 
+//{
+//   forAll(*this, i)
+//   {
+//       this->operator[](i).K();
+//   }
+//}
+
+//edgeScalarField& Foam::regionInterfaceList::Phis()
+//{
+//   forAll(*this, i)
+//   {
+//       this->operator[](i).Phis();
+//   }
+//}
+
 // ************************************************************************* //
