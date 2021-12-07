@@ -54,15 +54,9 @@ class fluidFluid
 :
     public regionInterface
 {
-        const Time& runTime_;
-        const fvPatch& patchA_;
-        const fvPatch& patchB_;
-        
-        //- fvMesh A
-        const fvMesh& meshA_; 
-        
-        //- fvMesh B
-        const fvMesh& meshB_;
+        //const Time& runTime_;
+        //const fvPatch& patchA_;
+        //const fvPatch& patchB_;
 
         //- bulk velocity field        
         const volVectorField& U_;
@@ -85,7 +79,34 @@ class fluidFluid
 
         //- gravity
         dimensionedVector g_; 
+
+        //- surface velocity field 
+        mutable areaVectorField* UsPtr_;
+
+        //- interfacial curvature
+        mutable areaScalarField* KPtr_;
+
+        //- surface flux field
+        mutable edgeScalarField* phisPtr_;
         
+        //- Mass flux correction (mass flux per area), flowing from domain A 
+        // to domain B (no-outflow domain)
+		mutable scalarField massFluxCorr_;
+		
+        //- current time index
+        mutable label curTimeIndex_;
+        
+        mutable scalar initialTotalVolume_;
+        mutable scalar totalVolume_;
+        
+        //- continuity correction
+        Switch correctContinuityError_;
+
+    // Private Member Functions
+        
+        //- Clear all demand-driven data
+        void clearOut();  
+              
 public:
 
     TypeName("fluidFluid");
@@ -101,30 +122,40 @@ public:
 
     // Destructor
     virtual ~fluidFluid();
-        
-   
-    // Member Functions
+    
       
     // Access  
+    
         //- Return reference to velocity
         const volVectorField& U() const
         {
             return U_;
         }
  
-		//- Return reference to fvMesh A
-		const fvMesh& meshA() const
-		{
-			return meshA_;
-		}   
-		
-		//- Return reference to fvMesh B     
-		const fvMesh& meshB() const
-		{
-			return meshB_;
-		}     
+    // Member Functions	
     
-// virtual functions from regionInterface.H
+		//- Return constant reference to velocity field on patch
+        const vectorField& Up();
+        
+        //- Update surface velocity field
+        void updateUs();
+
+        //- Update surface velocity b.c.
+        void correctUsBoundaryConditions();
+
+        //- Update surface flux
+        void updateSurfaceFlux();
+
+        //- Update interfacial curvature field
+        void updateK();
+
+        //- Calculate interface curvature at axis
+        void calcCurvatureAxis
+        (
+            areaScalarField& K
+        );
+    
+    // virtual functions 
         
         // Update interpolator
         virtual void updateInterpolatorAndGlobalPatches(); 
@@ -133,7 +164,20 @@ public:
         virtual void attach();
 
         // Detach the mesh interface using mesh modifier
-        virtual void detach();  
+        virtual void detach(); 
+        
+        //- Create surface velocity field
+        virtual void makeUs() const;
+        
+        //- Create interfacial curvature                 
+        virtual void makeK() const;
+
+        //- Create surface flux
+        virtual void makePhis() const;
+
+
+        // Mass flux correction (mass flux per area)
+    	tmp<scalarField> massFluxCorr() const;
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

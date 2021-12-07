@@ -308,6 +308,7 @@ Foam::regionInterface::~regionInterface()
     deleteDemandDrivenData(ggiInterpolatorPtr_);
     deleteDemandDrivenData(currentAZonePatchPtr_);
     deleteDemandDrivenData(currentAZonePointsPtr_);
+    deleteDemandDrivenData(aMeshPtr_);
 }
 
 
@@ -529,6 +530,115 @@ Foam::regionInterface::ggiInterpolator() const
     return *ggiInterpolatorPtr_;
 }
 
+// ------------------------------------------------          
+// same for different types of interfaces
+void Foam::regionInterface::makeFaMesh() const
+{
+    if (aMeshPtr_)
+    {
+        FatalErrorIn("regionInterface::makeFaMesh()")
+            << "finite area mesh already exists"
+            << abort(FatalError);
+    }
+
+    aMeshPtr_ = new faMesh(meshA()); 
+}
+
+// Alternative to #305-389 in regionInterface.H
+
+// const
+        
+//const faMesh& //returns error if non-const
+//Foam::regionInterface::aMesh() const
+//{
+//    if (!aMeshPtr_)
+//    {
+//        makeFaMesh();
+//    }
+//    
+//    return *aMeshPtr_;
+//}
+
+//const areaVectorField&
+//Foam::regionInterface::Us() const
+//{
+//    if (!UsPtr_)
+//    {
+//        makeUs();
+//    }
+//
+//    return *UsPtr_;
+//}
+
+//const areaScalarField& 
+//Foam::regionInterface::K() const
+//{
+//    if (!KPtr_)
+//    {
+//        makeK();
+//    }
+//
+//    return *KPtr_;
+//}
+
+//const edgeScalarField& 
+//Foam::regionInterface::Phis() const
+//{
+//    if (!phisPtr_)
+//    {
+//        makePhis();
+//    }
+//
+//    return *phisPtr_;
+//}
+
+
+// non-const
+
+//faMesh&
+//Foam::regionInterface::aMesh() 
+//{
+//    if (!aMeshPtr_)
+//    {
+//        makeFaMesh();
+//    }
+//    
+//    return *aMeshPtr_;
+//} 
+
+//areaVectorField&
+//Foam::regionInterface::Us()
+//{
+//    if (!UsPtr_)
+//    {
+//        makeUs();
+//    }
+//
+//    return *UsPtr_;
+//} 
+
+//areaScalarField& 
+//Foam::regionInterface::K()
+//{
+//    if (!KPtr_)
+//    {
+//        makeK();
+//    }
+//
+//    return *KPtr_;
+//}
+
+//edgeScalarField& 
+//Foam::regionInterface::Phis()
+//{
+//    if (!phisPtr_)
+//   {
+//        makePhis();
+//    }
+//
+//    return *phisPtr_;
+//}      
+// ------------------------------------------------          
 
 //void Foam::regionInterface::writeEntries(Ostream& os) const
 //{
