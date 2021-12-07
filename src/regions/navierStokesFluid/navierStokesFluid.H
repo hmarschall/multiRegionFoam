@@ -66,11 +66,11 @@ class navierStokesFluid
         word regionName_;
 
         //- transport
-        //volVectorField U_;
+        volVectorField U_;
 
         surfaceScalarField phi_;            
 
-        //volScalarField p_;
+        volScalarField p_;
         
         //- transport properties dictionary 
         IOdictionary transportProperties_;
@@ -112,12 +112,25 @@ class navierStokesFluid
         
         //- Under-relaxation factor
         const scalar UUrf_;
+        
+        //- Reference pressure cell
+        label pRefCell_;
 
-protected:
+        //- Reference pressure value
+        scalar pRefValue_;
+        
+        //- residual for inner correctors
+        scalar innerResidual_;
+        
+        //- residual for pressure outer correctors
+        scalar residualPressure_;
 
-        autoPtr<volVectorField> U_;
-               
-        autoPtr<volScalarField> p_;        
+        //- Current corrector loop index
+        label corr_;
+
+        //- Current non-orthogonal corrector loop index
+        label corrNonOrtho_;
+      
 public:
 
     TypeName("navierStokesFluid");
@@ -139,22 +152,22 @@ public:
         // Access
         const volVectorField& U() const
         {
-            return U_();
+            return U_;
         }
 
         const volScalarField& p() const
         {
-            return p_();
+            return p_;
         }        
 
         volVectorField& U()
         {
-            return U_();
+            return U_;
         }
 
         volScalarField& p()
         {
-            return p_();
+            return p_;
         }
 
         // Access by name
