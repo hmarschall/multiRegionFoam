@@ -74,6 +74,18 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         ),
         *this
     ),
+    phi_
+    (
+		IOobject
+		(
+			"phi",
+            this->time().timeName(),
+            *this,
+			IOobject::READ_IF_PRESENT,
+			IOobject::AUTO_WRITE
+		),
+		linearInterpolate(U_) & (*this).Sf()    
+    ),
     p_
     (
 		IOobject
@@ -99,6 +111,19 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         )
     ),
     rhoFluid_(transportProperties_.lookup("rhoFluid")),
+    rho_
+    (
+        IOobject
+        (
+            "rho",
+            this->time().timeName(),
+            *this,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        *this,
+        rhoFluid_
+    ),
     muFluid_(transportProperties_.lookup("muFluid")),
     mu_
     (
@@ -112,19 +137,6 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         ),
         *this,
         muFluid_
-    ),
-    rho_
-    (
-        IOobject
-        (
-            "rho",
-            this->time().timeName(),
-            *this,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        *this,
-        rhoFluid_
     ),
     
     AU_
@@ -164,24 +176,6 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
             & this->Sf()
         )
     ),
-    phi_
-    (
-		IOobject
-		(
-			"phi",
-            this->time().timeName(),
-            *this,
-			IOobject::READ_IF_PRESENT,
-			IOobject::AUTO_WRITE
-		),
-		linearInterpolate(U_) & (*this).Sf()    
-    ),
-    
-    UUrf_ 
-    ( 
-        this->solutionDict().subDict("relaxationFactors")
-        .lookupOrDefault<scalar>(U_.name(), 1)   
-    ), 
              
     gradp_
     (
@@ -226,15 +220,20 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         dimensionedScalar("pcorr", p_.dimensions(), 0.0),
         pcorrTypes_
     ),
+    UUrf_ 
+    ( 
+        this->solutionDict().subDict("relaxationFactors")
+        .lookupOrDefault<scalar>(U_.name(), 1)   
+    ), 
     
     pRefCell_(0),
     pRefValue_(0),     
     
     innerResidual_(1),
     residualPressure_(1),
-    
-    corrNonOrtho_(0), 
-    corr_(0)
+
+    corr_(0),
+    corrNonOrtho_(0)
 {
     
     for (label i = 0; i<p_.boundaryField().size(); i++)
