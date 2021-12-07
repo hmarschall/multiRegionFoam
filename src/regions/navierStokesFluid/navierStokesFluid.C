@@ -110,7 +110,10 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
             IOobject::NO_WRITE
         )
     ),
-    rhoFluid_(transportProperties_.lookup("rhoFluid")),
+    rhoFluid_
+    (
+        transportProperties_.subDict(regionName_).lookup("rho")
+    ),
     rho_
     (
         IOobject
@@ -124,7 +127,10 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         *this,
         rhoFluid_
     ),
-    muFluid_(transportProperties_.lookup("muFluid")),
+    muFluid_
+    (
+        transportProperties_.subDict(regionName_).lookup("mu")
+    ),
     mu_
     (
         IOobject
