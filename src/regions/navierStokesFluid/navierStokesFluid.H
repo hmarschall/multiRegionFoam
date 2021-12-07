@@ -74,9 +74,6 @@ class navierStokesFluid
         
         //- transport properties dictionary 
         IOdictionary transportProperties_;
-        
-        //- surface Properties dictionary
-        IOdictionary surfaceProperties_;
 
         //- density
         dimensionedScalar rhoFluid_;
@@ -86,12 +83,7 @@ class navierStokesFluid
         //- viscosity
         dimensionedScalar muFluid_;
         
-        volScalarField mu_;
-        
-        //- surface tension
-        dimensionedScalar cleanSurfaceTension_;
-        
-        areaScalarField surfaceTension_;              
+        volScalarField mu_;           
         
         //- fields for poison equation for the pressure
         volScalarField AU_;

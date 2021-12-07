@@ -127,32 +127,6 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         rhoFluid_
     ),
     
-    surfaceProperties_
-    (
-        IOobject
-        (
-            "surfaceProperties",
-            this->time().constant(),
-            *this,
-            IOobject::MUST_READ,
-            IOobject::NO_WRITE
-        )
-    ),
-    cleanSurfaceTension_(surfaceProperties_.lookup("cleanSurfaceTension")),
-    surfaceTension_
-    (
-        IOobject
-        (
-            "surfaceTension",
-            this->time().timeName(),
-            *this,
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        aMesh_,   
-        cleanSurfaceTension_
-    ),
-    
     AU_
     (
         IOobject
