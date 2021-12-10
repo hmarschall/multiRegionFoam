@@ -54,6 +54,12 @@ class fluidFluid
 :
     public regionInterface
 {
+        IOdictionary transportPropertiesA_;
+
+        IOdictionary transportPropertiesB_;
+
+        IOdictionary gravitationalProperties_;
+
         //const Time& runTime_;
         //const fvPatch& patchA_;
         //const fvPatch& patchB_;
@@ -78,34 +84,7 @@ class fluidFluid
         dimensionedScalar sigma0_;
 
         //- gravity
-        dimensionedVector g_; 
-
-        //- surface velocity field 
-        mutable areaVectorField* UsPtr_;
-
-        //- interfacial curvature
-        mutable areaScalarField* KPtr_;
-
-        //- surface flux field
-        mutable edgeScalarField* phisPtr_;
-        
-        //- Mass flux correction (mass flux per area), flowing from domain A 
-        // to domain B (no-outflow domain)
-		mutable scalarField massFluxCorr_;
-		
-        //- current time index
-        mutable label curTimeIndex_;
-        
-        mutable scalar initialTotalVolume_;
-        mutable scalar totalVolume_;
-        
-        //- continuity correction
-        Switch correctContinuityError_;
-
-    // Private Member Functions
-        
-        //- Clear all demand-driven data
-        void clearOut();  
+        const dimensionedVector g_; 
               
 public:
 
@@ -121,7 +100,8 @@ public:
         );
 
     // Destructor
-    virtual ~fluidFluid();
+    virtual ~fluidFluid()
+    {}
     
       
     // Access  
@@ -157,15 +137,6 @@ public:
     
     // virtual functions 
         
-        // Update interpolator
-        virtual void updateInterpolatorAndGlobalPatches(); 
-
-        // Attach the mesh interface using mesh modifier
-        virtual void attach();
-
-        // Detach the mesh interface using mesh modifier
-        virtual void detach(); 
-        
         //- Create surface velocity field
         virtual void makeUs() const;
         
@@ -174,10 +145,6 @@ public:
 
         //- Create surface flux
         virtual void makePhis() const;
-
-
-        // Mass flux correction (mass flux per area)
-    	tmp<scalarField> massFluxCorr() const;
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

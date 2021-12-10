@@ -14,5 +14,5 @@ EXE_INC =  \
 
 LIB_LIBS = \
  -lfoam  \
- -lfiniteVolume 
- -lfiniteArea \
+ -lfiniteVolume \
+ -lfiniteArea

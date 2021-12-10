@@ -170,27 +170,14 @@ public:
         //- Interpolate/map/transfer face values
         void transferFaces();
         
-        // ----------------------------------------
-        // specific to interface type        
+        //- Interfacial transport
         void makeUs() const;
         void makeK() const;
         void makePhis() const;
         
-        // same for different types of interfaces        
+        //- Interface properties
         void makeFaMesh() const;
-                
-        // const 
-        //const faMesh& aMesh() const;      
-        //const areaVectorField& Us() const;
-        //const areaScalarField& K() const;
-        //const edgeScalarField& Phis() const;  
-                    
-        // non-const 
-        //faMesh& aMesh();
-        //areaVectorField& Us(); 
-        //areaScalarField& K();
-        //edgeScalarField& Phis();                
-        // ----------------------------------------         
+     
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

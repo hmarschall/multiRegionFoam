@@ -53,7 +53,7 @@ namespace Foam
 void Foam::regionInterface::calcCurrentAZonePatch() const
 {
     // Find global face zones
-    if (currentAZonePatchPtr_)
+    if (!currentAZonePatchPtr_.empty())
     {
         FatalErrorIn
         (
@@ -62,18 +62,20 @@ void Foam::regionInterface::calcCurrentAZonePatch() const
             << abort(FatalError);
     }
 
-    currentAZonePatchPtr_ =
+    currentAZonePatchPtr_.set
+    (
         new standAlonePatch
         (
             globalPatchA().globalPatch().localFaces(),
             currentAZonePoints()
-        );
+        )
+    );
 }
 
 void Foam::regionInterface::calcCurrentAZonePoints() const
 {
     // Find global face zones
-    if (currentAZonePointsPtr_)
+    if (!currentAZonePointsPtr_.empty())
     {
         FatalErrorIn
         (
@@ -105,14 +107,16 @@ void Foam::regionInterface::calcCurrentAZonePoints() const
 //      + globalPatchA().patchPointToGlobal(pointDisplacement);
 
     // Return current A zone points
-    currentAZonePointsPtr_ =
-        new vectorField(currentFaceZonePoints());
+    currentAZonePointsPtr_.set
+    (
+        new vectorField(currentFaceZonePoints())
+    );
 }
 
 void Foam::regionInterface::calcGgiInterpolator() const
 {
     // Create ggi interpolation
-    if (ggiInterpolatorPtr_)
+    if (ggiInterpolatorPtr_.valid())
     {
         FatalErrorIn
         (
@@ -124,12 +128,13 @@ void Foam::regionInterface::calcGgiInterpolator() const
 
     // Remove current A zone and points so that it will be re-created in the
     // deformed position
-    deleteDemandDrivenData(currentAZonePatchPtr_);
-    deleteDemandDrivenData(currentAZonePointsPtr_);
+    currentAZonePatchPtr_.clear();
+    currentAZonePointsPtr_.clear();
 
     Info<< "Create GGI zone-to-zone interpolator" << endl;
 
-    ggiInterpolatorPtr_ =
+    ggiInterpolatorPtr_.set
+    (
         new GGIInterpolation<standAlonePatch, standAlonePatch>
         (
             globalPatchB().globalPatch(),
@@ -142,12 +147,13 @@ void Foam::regionInterface::calcGgiInterpolator() const
             SMALL,
             true,           // Rescale weighting factors
             ggiInterpolation::BB_OCTREE
-        );
+        )
+    );
 
     Info<< "Checking A-to-B point interpolator" << endl;
     {
         const vectorField AZonePointsAtB =
-            ggiInterpolatorPtr_->slaveToMasterPointInterpolate
+            ggiInterpolatorPtr_().slaveToMasterPointInterpolate
             (
                 currentAZonePoints()
             );
@@ -180,7 +186,7 @@ void Foam::regionInterface::calcGgiInterpolator() const
             globalPatchB().patchFaceToGlobal(BPatchFaceCentres);
 
         const vectorField AZoneFaceCentres =
-            ggiInterpolatorPtr_->masterToSlave
+            ggiInterpolatorPtr_().masterToSlave
             (
                 BZoneFaceCentres
             );
@@ -202,13 +208,13 @@ void Foam::regionInterface::calcGgiInterpolator() const
     }
 
     Info<< "Number of uncovered master faces: "
-        << ggiInterpolatorPtr_->uncoveredMasterFaces().size() << endl;
+        << ggiInterpolatorPtr_().uncoveredMasterFaces().size() << endl;
 
     Info<< "Number of uncovered slave faces: "
-        << ggiInterpolatorPtr_ ->uncoveredSlaveFaces().size() << endl;
+        << ggiInterpolatorPtr_().uncoveredSlaveFaces().size() << endl;
 
-    ggiInterpolatorPtr_->slavePointDistanceToIntersection();
-    ggiInterpolatorPtr_->masterPointDistanceToIntersection();
+    ggiInterpolatorPtr_().slavePointDistanceToIntersection();
+    ggiInterpolatorPtr_().masterPointDistanceToIntersection();
 }
 
 
@@ -216,7 +222,6 @@ void Foam::regionInterface::calcGgiInterpolator() const
 
 Foam::regionInterface::regionInterface
 (
-//    const word& type,
     const Time& runTime,
     const fvPatch& patchA,
     const fvPatch& patchB
@@ -230,31 +235,53 @@ Foam::regionInterface::regionInterface
             + patchB.boundaryMesh().mesh().name() + patchB.name(),
             runTime.constant(),
             runTime,
-            IOobject::MUST_READ,
+            IOobject::NO_READ,
             IOobject::NO_WRITE
         )
     ),
     interfaceKey(patchA.name(), patchB.name()),
+    multiRegionProperties_
+    (
+        IOobject
+        (
+            "multiRegionProperties",
+            runTime.constant(),
+            runTime,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    ),
+    regionInterfaceProperties_
+    (
+        IOobject
+        (
+            "regionInterfaceProperties",
+            runTime.constant(),
+            runTime,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    ),
     runTime_(runTime),
     patchA_(patchA),
     patchB_(patchB),
     meshA_(patchA_.boundaryMesh().mesh()),
     meshB_(patchB_.boundaryMesh().mesh()),
-//    regionBName_(meshB_.name()),
-    patchAName_(patchA_.name()),
-    patchBName_(patchB_.name()),
     attachedA_(false),
     attachedB_(false),
     interpolatorUpdateFrequency_
     (
         multiRegionProperties_.lookupOrDefault<int>("interpolatorUpdateFrequency", 0)
     ),
-//    BFieldName_(word::null), //to be provided as function argument!!
-//    localRegion_(patch_.boundaryMesh().mesh()),
-    currentAZonePointsPtr_(NULL),
-    currentAZonePatchPtr_(NULL),
+    currentAZonePointsPtr_(),
+    currentAZonePatchPtr_(),
+    ggiInterpolatorPtr_(),
     globalPatchAPtr_(),
     globalPatchBPtr_(),
+    aMeshPtr_(),
+    UsPtr_(),
+    KPtr_(),
+    phisPtr_(),
     transferMethod_
     (
         interfaceTransferMethodNames_
@@ -296,19 +323,8 @@ Foam::regionInterface::regionInterface
                 attachedB_ = true;
             }
     }
-}
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::regionInterface::~regionInterface()
-{
-//    delete ggiInterpolatePtr_;
-//    delete ggiInterpolatorPtr_;
-    deleteDemandDrivenData(ggiInterpolatePtr_);
-    deleteDemandDrivenData(ggiInterpolatorPtr_);
-    deleteDemandDrivenData(currentAZonePatchPtr_);
-    deleteDemandDrivenData(currentAZonePointsPtr_);
-    deleteDemandDrivenData(aMeshPtr_);
+    Info << "This is the regionInterface : " << name() << endl;
 }
 
 
@@ -316,9 +332,18 @@ Foam::regionInterface::~regionInterface()
 
 Foam::word Foam::regionInterface::name() const
 {
+    word meshAName = meshA_.name();
+
+    word meshBName = meshB_.name();
+    meshBName[0] = toupper(meshBName[0]);
+
+    word name1(Pair<word>::first());
+    name1[0] = toupper(name1[0]);
+
     word name2(Pair<word>::second());
     name2[0] = toupper(name2[0]);
-    return Pair<word>::first() + name2;
+
+    return meshAName + name1 + meshBName + name2;
 }
 
 void Foam::regionInterface::makeGlobalPatches() const
@@ -329,8 +354,8 @@ void Foam::regionInterface::makeGlobalPatches() const
             << "Pointer already set!" << abort(FatalError);
     }
 
-    globalPatchAPtr_.set(new globalPolyPatch(patchAName(), meshA()));
-    globalPatchBPtr_.set(new globalPolyPatch(patchBName(), meshB()));
+    globalPatchAPtr_.set(new globalPolyPatch(patchA().name(), meshA()));
+    globalPatchBPtr_.set(new globalPolyPatch(patchB().name(), meshB()));
 }
 
 const Foam::globalPolyPatch& Foam::regionInterface::globalPatchA() const
@@ -366,30 +391,30 @@ void Foam::regionInterface::clearGlobalPatches() const
 const Foam::standAlonePatch&
 Foam::regionInterface::currentAZonePatch() const
 {
-    if (!currentAZonePatchPtr_)
+    if (currentAZonePatchPtr_.empty())
     {
         calcCurrentAZonePatch();
     }
 
-    return *currentAZonePatchPtr_;
+    return currentAZonePatchPtr_();
 }
 
 const Foam::vectorField&
 Foam::regionInterface::currentAZonePoints() const
 {
-    if (!currentAZonePointsPtr_)
+    if (currentAZonePointsPtr_.empty())
     {
         calcCurrentAZonePoints();
     }
 
-    return *currentAZonePointsPtr_;
+    return currentAZonePointsPtr_();
 }
 
 void Foam::regionInterface::updateInterpolatorAndGlobalPatches()
 {
     Info << "Updating interpolator and global patches" << endl;
 
-    if (!ggiInterpolatorPtr_)
+    if (ggiInterpolatorPtr_.empty())
     {
         ggiInterpolator();
     }
@@ -397,7 +422,7 @@ void Foam::regionInterface::updateInterpolatorAndGlobalPatches()
     {
         if (((runTime().timeIndex() - 1) % interpolatorUpdateFrequency_) == 0)
         {
-            deleteDemandDrivenData(ggiInterpolatorPtr_);
+//            deleteDemandDrivenData(ggiInterpolatorPtr_);
             clearGlobalPatches();
             makeGlobalPatches();
             ggiInterpolator();
@@ -522,123 +547,25 @@ void Foam::regionInterface::detach()
 const Foam::GGIInterpolation<standAlonePatch, standAlonePatch>&
 Foam::regionInterface::ggiInterpolator() const
 {
-    if (!ggiInterpolatorPtr_)
+    if (ggiInterpolatorPtr_.empty())
     {
         calcGgiInterpolator();
     }
 
-    return *ggiInterpolatorPtr_;
+    return ggiInterpolatorPtr_();
 }
 
-// ------------------------------------------------          
-// same for different types of interfaces
 void Foam::regionInterface::makeFaMesh() const
 {
-    if (aMeshPtr_)
+    if (!aMeshPtr_.empty())
     {
         FatalErrorIn("regionInterface::makeFaMesh()")
             << "finite area mesh already exists"
             << abort(FatalError);
     }
 
-    aMeshPtr_ = new faMesh(meshA()); 
-}
-
-// Alternative to #305-389 in regionInterface.H
-
-// const
-        
-//const faMesh& //returns error if non-const
-//Foam::regionInterface::aMesh() const
-//{
-//    if (!aMeshPtr_)
-//    {
-//        makeFaMesh();
-//    }
-//    
-//    return *aMeshPtr_;
-//}
-
-//const areaVectorField&
-//Foam::regionInterface::Us() const
-//{
-//    if (!UsPtr_)
-//    {
-//        makeUs();
-//    }
-//
-//    return *UsPtr_;
-//}
-
-//const areaScalarField& 
-//Foam::regionInterface::K() const
-//{
-//    if (!KPtr_)
-//    {
-//        makeK();
-//    }
-//
-//    return *KPtr_;
-//}
-
-//const edgeScalarField& 
-//Foam::regionInterface::Phis() const
-//{
-//    if (!phisPtr_)
-//    {
-//        makePhis();
-//    }
-//
-//    return *phisPtr_;
-//}
-
-
-// non-const
-
-//faMesh&
-//Foam::regionInterface::aMesh() 
-//{
-//    if (!aMeshPtr_)
-//    {
-//        makeFaMesh();
-//    }
-//    
-//    return *aMeshPtr_;
-//} 
-
-//areaVectorField&
-//Foam::regionInterface::Us()
-//{
-//    if (!UsPtr_)
-//    {
-//        makeUs();
-//    }
-//
-//    return *UsPtr_;
-//} 
-
-//areaScalarField& 
-//Foam::regionInterface::K()
-//{
-//    if (!KPtr_)
-//    {
-//        makeK();
-//    }
-//
-//    return *KPtr_;
-//}
-
-//edgeScalarField& 
-//Foam::regionInterface::Phis()
-//{
-//    if (!phisPtr_)
-//   {
-//        makePhis();
-//    }
-//
-//    return *phisPtr_;
-//}      
-// ------------------------------------------------          
+    aMeshPtr_.set(new faMesh(meshA())); 
+}    
 
 //void Foam::regionInterface::writeEntries(Ostream& os) const
 //{

@@ -85,7 +85,7 @@ autoPtr<regionInterface> regionInterface::New
         (
             IOobject
             (
-                "multiRegionProperties",
+                "regionInterfaceProperties",
                 runTime.constant(),
                 runTime,
                 IOobject::MUST_READ,

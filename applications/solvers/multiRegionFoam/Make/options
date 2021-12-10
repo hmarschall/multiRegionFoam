@@ -3,6 +3,7 @@ EXE_INC = \
     -Iinclude \
     -I../../../src/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/finiteArea/lnInclude \
     -I$(LIB_SRC)/dynamicMesh/lnInclude \
     -I$(LIB_SRC)/dynamicMesh/dynamicMesh/lnInclude \
     -I$(LIB_SRC)/dynamicMesh/dynamicFvMesh/lnInclude \
@@ -19,6 +20,7 @@ EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
     -lmultiRegionSystem \
     -lfiniteVolume \
+    -lfiniteArea \
     -ldynamicMesh \
     -lmeshTools \
     -lsampling

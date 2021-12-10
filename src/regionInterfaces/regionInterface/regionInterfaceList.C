@@ -265,7 +265,7 @@ void Foam::regionInterfaceList::setFieldNamesMonolithicCoupling
         }
     }
 
-//    Info << monolithicCoupledFields_.toc() << endl;
+    // Info << monolithicCoupledFields_.toc() << endl;
 }
 
 void Foam::regionInterfaceList::attach()
@@ -273,9 +273,6 @@ void Foam::regionInterfaceList::attach()
    forAll(*this, i)
    {
        this->operator[](i).attach();
-
-//       Info << "*** patchA :" << this->operator[](i).patchAName() << endl;
-//       Info << "*** patchB :" << this->operator[](i).patchBName() << endl;
    }
 }
 
@@ -307,8 +304,6 @@ void Foam::regionInterfaceList::transferFaces()
 //    }
 }
 
-// ------------------------------------------------------------
-// specific to interface type
 
 void Foam::regionInterfaceList::makeUs() const
 {
@@ -333,85 +328,5 @@ void Foam::regionInterfaceList::makePhis() const
        this->operator[](i).makePhis();
    }
 }
-
-// same for different types of interfaces        
-//void Foam::regionInterfaceList::makeFaMesh() const
-//{
-//   forAll(*this, i)
-//   {
-//       this->operator[](i).makeFaMesh();
-//   }
-//}
-
-// Alternative to #424-506 in regionInterface.H
-
-// const
-
-//const faMesh& Foam::regionInterfaceList::aMesh() const
-//{
-//   forAll(*this, i)
-//   {
-//       this->operator[](i).aMesh();
-//   }
-//}
-
-//const areaVectorField& Foam::regionInterfaceList::Us() const
-//{
-//   forAll(*this, i)
-//   {
-//       this->operator[](i).Us();
-//   }
-//}
-
-//const areaScalarField& Foam::regionInterfaceList::K() const
-//{
-//   forAll(*this, i)
-//   {
-//       this->operator[](i).K();
-//   }
-//}
-
-//const edgeScalarField& Foam::regionInterfaceList::Phis() const
-//{
-//   forAll(*this, i)
-//   {
-//       this->operator[](i).Phis();
-//   }
-//}
-
-
-// non-const
-
-//faMesh& Foam::regionInterfaceList::aMesh()
-//{
-//   forAll(*this, i)
-//   {
-//       this->operator[](i).aMesh();
-//   }
-//}
-
-//areaVectorField& Foam::regionInterfaceList::Us()
-//{
-//   forAll(*this, i)
-//   {
-//       this->operator[](i).Us();
-//   }
-//}
-
-//areaScalarField& Foam::regionInterfaceList::K() 
-//{
-//   forAll(*this, i)
-//   {
-//       this->operator[](i).K();
-//   }
-//}
-
-//edgeScalarField& Foam::regionInterfaceList::Phis()
-//{
-//   forAll(*this, i)
-//   {
-//       this->operator[](i).Phis();
-//   }
-//}
 
 // ************************************************************************* //

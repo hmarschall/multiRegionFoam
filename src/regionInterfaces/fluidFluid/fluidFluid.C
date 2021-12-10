@@ -67,7 +67,41 @@ Foam::regionInterfaces::fluidFluid::fluidFluid
     
     //patchA_(patchA),
     //patchB_(patchB),
-    
+
+    transportPropertiesA_
+    (
+        IOobject
+        (
+            "transportProperties",
+            fileName(runTime.caseConstant()/meshA().name()),
+            runTime,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    ),
+    transportPropertiesB_
+    (
+        IOobject
+        (
+            "transportProperties",
+            fileName(runTime.caseConstant()/meshB().name()),
+            runTime,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    ),
+    gravitationalProperties_
+    (
+        IOobject
+        (
+            "g",
+            runTime.constant(),
+            runTime,
+            IOobject::MUST_READ_IF_MODIFIED,
+            IOobject::NO_WRITE
+        )
+    ),
+
     U_
     (
         meshA().lookupObject<volVectorField>("U") 
@@ -78,114 +112,92 @@ Foam::regionInterfaces::fluidFluid::fluidFluid
     ),    
     rhoA_
     (
-        this->subDict(meshA().name()).lookup("rho")
+        transportPropertiesA_.lookup("rho")
     ),
     rhoB_
     (
-        this->subDict(meshB().name()).lookup("rho")
+        transportPropertiesB_.lookup("rho")
     ),
     muA_
     (
-        this->subDict(meshA().name()).lookup("mu")
+        transportPropertiesA_.lookup("mu")
     ),
     muB_
     (
-        this->subDict(meshB().name()).lookup("mu")
+        transportPropertiesB_.lookup("mu")
     ),
     sigma0_
     (
-        this->lookup("cleanSurfaceTension")
+        interfaceProperties().subDict(name()).lookup("sigma")
     ),
     g_
     (
-        this->lookup("g")
-    ),
-    
-    UsPtr_(NULL), 
-    KPtr_(NULL),
-    phisPtr_(NULL), 
-    
-    massFluxCorr_
-    (
-        meshA().boundaryMesh()[patchAID()].size(), 0
-    ),
-    correctContinuityError_
-    (
-        Switch
-        (
-            this->lookupOrDefault<Switch>("correctContinuityError", true)
-        )
-    ),
-    curTimeIndex_(0),
-    initialTotalVolume_(0.),
-    totalVolume_(0.)
+        gravitationalProperties_.lookup("g")
+    )
+{}
 
-{
-    // add
-}
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-void Foam::regionInterfaces::fluidFluid::clearOut()
-{
-    deleteDemandDrivenData(UsPtr_);
-    deleteDemandDrivenData(KPtr_);
-    deleteDemandDrivenData(phisPtr_);
-}
-
 void Foam::regionInterfaces::fluidFluid::makeK() const
 {
-    if (KPtr_)
+    if (!KPtr_.empty())
     {
         FatalErrorIn("fluidFluid::makeK()")
             << "surface curvature field already exists"
             << abort(FatalError);
     }
 
-    KPtr_ = new areaScalarField
+    KPtr_.set
     (
-        IOobject
+        new areaScalarField
         (
-            "K",
-            runTime().constant(), 
-            runTime(), 
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        aMesh(),
-        dimensioned<scalar>("K", dimless/dimLength, pTraits<scalar>::zero),
-        zeroGradientFaPatchVectorField::typeName
+            IOobject
+            (
+                "K",
+                runTime().constant(), 
+                runTime(), 
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            aMesh(),
+            dimensioned<scalar>("K", dimless/dimLength, pTraits<scalar>::zero),
+            zeroGradientFaPatchVectorField::typeName
+        )
     );
 }
 
 
 void Foam::regionInterfaces::fluidFluid::makePhis() const
 {
-    if (phisPtr_)
+    if (!phisPtr_.empty())
     {
         FatalErrorIn("fluidFluid::makePhis()")
             << "surface fluid flux already exists"
             << abort(FatalError);
     }
 
-    phisPtr_ = new edgeScalarField
+    phisPtr_.set
     (
-        IOobject
+        new edgeScalarField
         (
-            phi_.name() + "s",
-            runTime().constant(), 
-            runTime(),
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        linearEdgeInterpolate(Us()) & aMesh().Le()
+            IOobject
+            (
+                phi_.name() + "s",
+                runTime().constant(), 
+                runTime(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            linearEdgeInterpolate(Us()) & aMesh().Le()
+        )
     );
 } 
 
 
 void Foam::regionInterfaces::fluidFluid::makeUs() const
 {
-    if (UsPtr_)
+    if (!UsPtr_.empty())
     {
         FatalErrorIn("fluidFluid::makeUs()")
             << "surface velocity field already exists"
@@ -227,32 +239,27 @@ void Foam::regionInterfaces::fluidFluid::makeUs() const
                 }
             }
         }
-    }    
-    // ... lengthy code commented
+    }
     
-    UsPtr_ = new areaVectorField
+    UsPtr_.set
     (
-        IOobject
+        new areaVectorField
         (
-            U_.name() + "s",
-            runTime().constant(), 
-            runTime(), 
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        aMesh(),
-        dimensioned<vector>("Us", dimVelocity, vector::zero),
-        patchFieldTypes
-    );   
-    // ... lengthy code commented
+            IOobject
+            (
+                U_.name() + "s",
+                runTime().constant(), 
+                runTime(), 
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            aMesh(),
+            dimensioned<vector>("Us", dimVelocity, vector::zero),
+            patchFieldTypes
+        )
+    );
 }
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::regionInterfaces::fluidFluid::~fluidFluid()
-{
-    clearOut();
-}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
@@ -272,7 +279,7 @@ void Foam::regionInterfaces::fluidFluid::correctUsBoundaryConditions()
     {
         if
         (
-            (*UsPtr_).boundaryField()[patchI].type()
+            UsPtr_().boundaryField()[patchI].type()
          == calculatedFaPatchVectorField::typeName
         )
         {
@@ -367,7 +374,52 @@ void Foam::regionInterfaces::fluidFluid::calcCurvatureAxis
 
             KI[curFace] = avrK;
         }
-    // ... lengthy code commented
+//        label counter = 0;
+//        do
+//        {
+//            counter++;
+
+//            K.correctBoundaryConditions();
+//            areaVectorField gradK = fac::grad(K);
+//            vectorField& gradKI = gradK.internalField();
+
+//            const labelList& eFaces =
+//                aMesh().boundary()[patchID].edgeFaces();
+
+//            const labelListList& fFaces = aMesh().patch().faceFaces();
+
+//            const vectorField& fCentres = aMesh().areaCentres();
+
+//            forAll(eFaces, edgeI)
+//            {
+//                const label& curFace = eFaces[edgeI];
+//                const labelList& curFaceFaces = fFaces[curFace];
+
+//                scalar avrK = 0.0;
+//                label counter = 0;
+
+//                forAll(curFaceFaces, faceI)
+//                {
+//                    label index = findIndex(eFaces, curFaceFaces[faceI]);
+
+//                    if (index == -1)
+//                    {
+//                        vector dr = 
+//                            fCentres[curFace] 
+//                          - fCentres[curFaceFaces[faceI]];
+
+//                        avrK += KI[curFaceFaces[faceI]]
+//                             + (dr&gradKI[curFaceFaces[faceI]]);
+//                        counter++;
+//                    }
+//                }
+
+//                avrK /= counter;
+
+//                KI[curFace] = avrK;
+//            }
+//        }
+//        while(counter<10);
     }
 }
 
@@ -383,145 +435,6 @@ void Foam::regionInterfaces::fluidFluid::updateK()
     calcCurvatureAxis(K());
 
     K().correctBoundaryConditions();
-}
-
-
-tmp<scalarField> Foam::regionInterfaces::fluidFluid::massFluxCorr() const
-{
-    tmp<scalarField> pf(new scalarField(massFluxCorr_));
-
-    if (!correctContinuityError_ || curTimeIndex_ == runTime().timeIndex())
-    {
-        return pf;
-    }
-    else
-    {
-        initialTotalVolume_ = sum(meshA().cellVolumes()); 
-        totalVolume_ = sum(meshA().cellVolumes()); 
-
-        curTimeIndex_ = runTime().timeIndex();
-    }
-
-    scalar newTotalVolume = sum(meshA().cellVolumes()); 
-
-    Info<< "Volume: new = " << newTotalVolume << " old = " << totalVolume_
-        << " relative change = " << Foam::mag(newTotalVolume - totalVolume_) 
-        << " global error = " << scalar(1-newTotalVolume/initialTotalVolume_) 
-        << endl;
-
-    //TODO: does not work, needs further dev
-    totalVolume_ = newTotalVolume;
-    
-    // why redefining phi, U, rho
-    const surfaceScalarField& phi = 
-        meshA().objectRegistry::lookupObject<surfaceScalarField>("phi");
-        
-    const volVectorField& U = 
-        meshA().objectRegistry::lookupObject<volVectorField>("U");
-
-    const volScalarField& rho = 
-        meshA().objectRegistry::lookupObject<volScalarField>("rho");
-
-    const fvPatchScalarField& rhop = 
-        rho.boundaryField()[patchAID()];
-
-    scalar fluxCorr = 0.;
-
-    scalar massIn = 0.;
-    scalar massOut = 0.;
-
-    forAll (phi.boundaryField(), patchi)
-    {
-        const fvPatchVectorField& Up = U.boundaryField()[patchi];
-
-        const fvPatchScalarField& rhop = 
-            rho.boundaryField()[patchi];
-
-        fvsPatchScalarField& phip = const_cast<fvsPatchScalarField&>
-        (
-            phi.boundaryField()[patchi]
-        );
-
-        if 
-        (
-            !Up.coupled()
-        )
-        {
-            forAll (phip, i)
-            {
-                if (phip[i] < 0.0)
-                {
-                    massIn -= rhoA_.value()*phip[i];
-                }
-                else
-                {
-                    massOut += rhoA_.value()*phip[i];
-                }
-            }
-        }
-    }
-
-    Info << "  massIn - massOut : " << (massIn - massOut) << endl;
-
-    scalar dt = runTime().deltaT().value(); 
-
-    scalar sumV = 0.;
-    scalar sumV0 = 0.;
-    scalar sumV00 = 0.;
-
-    if (runTime().timeIndex() > 3) 
-    {
-        scalarField V = meshA().V().field(); 
-        scalarField V0 = meshA().V0().field();
-        scalarField V00 = meshA().V00().field();
-
-        sumV = gSum(V);
-        sumV0 = gSum(V0);
-        sumV00 = gSum(V00);
-
-        Info<< "  Volume continuity errors : "
-            << "volume = " << sumV
-            << ", old volume = " << sumV0
-            << ", global = " << (sumV - sumV0) << endl;
-    }
-
-    reduce(sumV, sumOp<scalar>());
-    reduce(sumV0, sumOp<scalar>());
-    reduce(sumV00, sumOp<scalar>());
-
-
-    scalarField magSf = meshA().boundary()[patchAID()].magSf(); 
-    scalar magSftot = gSum(magSf);
-    reduce(magSftot, sumOp<scalar>());
-
-    Info << "  Interfacial area : " << magSftot << endl;
-
-    scalar relax = this->lookupOrDefault<scalar>("relax", 0.1);
-
-    pf() = rhoB_.value()*(sumV - sumV0)/(dt*magSftot);
-
-    Info << "  Avrg mass flux correction : " << average(pf()) << endl;
-
-    return pf;
-}
-
-
-// virtual functions from regionInterface.H 
-// but already defined in regionIinterface.C
-
-void Foam::regionInterfaces::fluidFluid::attach() 
-{
-    // do nothing, add as required
-}
-
-void Foam::regionInterfaces::fluidFluid::detach() 
-{
-    // do nothing, add as required
-}
-
-void Foam::regionInterfaces::fluidFluid::updateInterpolatorAndGlobalPatches() 
-{
-    // do nothing, add as required
 }
 
 // ************************************************************************* //
