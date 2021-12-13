@@ -153,7 +153,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
             this->set
             (
                 index_++,
-                new regionInterface
+                regionInterface::New
                 (
                     mesh_.time(),
                     firstPatch,
@@ -265,7 +265,7 @@ void Foam::regionInterfaceList::setFieldNamesMonolithicCoupling
         }
     }
 
-//    Info << monolithicCoupledFields_.toc() << endl;
+    // Info << monolithicCoupledFields_.toc() << endl;
 }
 
 void Foam::regionInterfaceList::attach()
@@ -273,9 +273,6 @@ void Foam::regionInterfaceList::attach()
    forAll(*this, i)
    {
        this->operator[](i).attach();
-
-//       Info << "*** patchA :" << this->operator[](i).patchName() << endl;
-//       Info << "*** patchB :" << this->operator[](i).patchBName() << endl;
    }
 }
 
@@ -305,6 +302,31 @@ void Foam::regionInterfaceList::transferFaces()
 //    {
 //        this->operator[](i).transferFaces();
 //    }
+}
+
+
+void Foam::regionInterfaceList::makeUs() const
+{
+   forAll(*this, i)
+   {
+       this->operator[](i).makeUs();
+   }
+}
+
+void Foam::regionInterfaceList::makeK() const
+{
+   forAll(*this, i)
+   {
+       this->operator[](i).makeK();
+   }
+}
+
+void Foam::regionInterfaceList::makePhis() const
+{
+   forAll(*this, i)
+   {
+       this->operator[](i).makePhis();
+   }
 }
 
 // ************************************************************************* //

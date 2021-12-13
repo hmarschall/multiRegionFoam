@@ -120,6 +120,25 @@ public:
             return T_();
         }
 
+        // Access by name
+        template<class T>
+        const T& getObject(const word& name)
+        {
+            return
+            (
+                this->thisDb().lookupObject<T>(name)
+            );
+        }
+
+        template<class T>
+        T& getObject(const word& name)
+        {
+            return
+            (
+                const_cast<const T&>(this->thisDb().lookupObject<T>(name))
+            );
+        }
+
         virtual bool active() const
         {
             return true;
@@ -132,6 +151,8 @@ public:
         virtual void solveRegion();
 
         virtual void setCoupledEqns();
+        
+        virtual void updateFields();
 };
 
 

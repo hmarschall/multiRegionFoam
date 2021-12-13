@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Check for proper number of command line args.
+if [ "$#" -ne 2 ]; then
+  echo "Usage: makeLinks meshACase meshBCase"
+  exit 1
+fi
+
+echo changing into meshA directory
+cd $1/constant
+
+echo creating links
+ln -s ../../$2/constant meshB
+cd ../system
+ln -s ../../$2/system meshB
+cd ../0
+ln -s ../../$2/0 meshB
+cd ..
+
+echo creating processor links
+for proc in processor*
+do
+  cd $proc
+  cd 0
+  ln -s ../../../$2/$proc/0 meshB
+  cd ../constant
+  ln -s ../../../$2/$proc/constant meshB
+  cd ../..
+done

@@ -1,0 +1,44 @@
+#!/bin/sh
+
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+cleanFaMesh ()
+{
+    rm -rf ./constant/faMesh/faceLabels* \
+           ./constant/faMesh/faBoundary* \
+           > /dev/null 2>&1
+}
+
+cleanHistoryFolder ()
+{
+    rm -rf ./history \
+        > /dev/null 2>&1
+}
+
+cleanAuxFolders ()
+{
+    rm -rf forces \
+        > /dev/null 2>&1
+
+    rm -rf path \
+        > /dev/null 2>&1
+}
+
+cleanMesh()
+{
+    rm -rf ./constant/polyMesh/boundary \
+           ./constant/polyMesh/*.gz \
+        > /dev/null 2>&1
+}
+
+cleanHistoryFolder
+cleanTimeDirectories
+cleanFaMesh
+cleanAuxFolders
+cleanMesh
+
+rm -r faMesh
+rm -r polyMesh
+rm -r processor* 2> /dev/null
+rm -r log.* 2> /dev/null
+rm -r *.sMesh 2> /dev/null

@@ -150,6 +150,8 @@ public:
         void setCoupledEqns();
 
         void setRDeltaT();
+        
+        void updateFields();
 
         // Access
 

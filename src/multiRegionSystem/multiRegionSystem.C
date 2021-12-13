@@ -186,7 +186,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             eqn.relax();
             eqn.solve();
 
-//            rg.updateFields();
+            rg.updateFields();
         }
     }
 }
