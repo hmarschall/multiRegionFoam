@@ -116,7 +116,9 @@ public:
 
         bool update()
         {
-            bool meshChanged = this->update();
+            dynamicFvMesh& mesh = const_cast<dynamicFvMesh&>(mesh_);
+
+            bool meshChanged = mesh.update();
 
             return meshChanged;
         }
