@@ -32,7 +32,7 @@ License
 
 Foam::regionTypeList::regionTypeList
 (
-    const dynamicFvMesh& mesh
+    const Time& runTime
 )
 :
     PtrList<regionType>(),
@@ -54,15 +54,16 @@ Foam::regionTypeList::regionTypeList
         IOobject
         (
             "multiRegionProperties",
-            mesh.time().constant(),
-            mesh.time(),
+            runTime.constant(),
+            runTime,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
     ),
 //    superMeshRegions_(dict_.lookup("superMeshRegions")),
-    mesh_(mesh),
-    region_(mesh.time())
+//    mesh_(mesh),
+    runTime_(runTime),
+    region_(runTime)
 {
     reset(region_);
 
@@ -216,7 +217,7 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
                     i++,
                     regionType::New
                     (
-                        mesh_,
+                        runTime_,
                         regions[regionI],
                         modelType
                     )

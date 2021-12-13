@@ -2,7 +2,7 @@
 
 Info << "Creating multi-region system\n" << endl;
 
-multiRegionSystem multiRegion(mesh);
+multiRegionSystem multiRegion(runTime);
 
 regionTypeList& regions = multiRegion.regions();
 

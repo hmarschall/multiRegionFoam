@@ -66,8 +66,8 @@ class multiRegionSystem
 {
     // Private data
 
-        //- Reference to the mesh
-        const dynamicFvMesh& mesh_;
+        //- Reference to runTime
+        const Time& runTime_;
 
         //- lists of regions
         autoPtr<regionTypeList> regions_;
@@ -123,7 +123,7 @@ public:
     // Constructors
 
         //- Construct from dynamicFvMesh
-        multiRegionSystem(const dynamicFvMesh&);
+        multiRegionSystem(const Time& runTime);
 
 
     //- Destructor

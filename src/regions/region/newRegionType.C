@@ -29,7 +29,7 @@ License
 
 Foam::autoPtr<Foam::regionType> Foam::regionType::New
 (
-    const dynamicFvMesh& mesh,
+    const Time& runTime,
     const word& name,
     const word& modelType
 )
@@ -52,7 +52,7 @@ Foam::autoPtr<Foam::regionType> Foam::regionType::New
            << exit(FatalError);
     }
 
-    return cstrIter()(mesh, name);
+    return cstrIter()(runTime, name);
 }
 
 // ************************************************************************* //

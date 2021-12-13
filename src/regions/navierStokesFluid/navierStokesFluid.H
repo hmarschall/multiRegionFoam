@@ -55,10 +55,7 @@ namespace regionTypes
 class navierStokesFluid
 :
     public regionType
-{
-        //- mesh
-        const dynamicFvMesh& mesh_;
-        
+{       
         //- finite area mesh
         faMesh aMesh_;
 
@@ -131,7 +128,7 @@ public:
 
         navierStokesFluid
         (
-            const dynamicFvMesh& mesh,          
+            const Time& runTime,
             const word& regionName
         );
 
@@ -140,6 +137,17 @@ public:
 
 
     // Member Functions
+
+        // Update mesh
+        bool update()
+        {
+            navierStokesFluid& mesh =
+                const_cast<navierStokesFluid&>(*this);
+
+            bool meshChanged = mesh.update();
+
+            return meshChanged;
+        }
 
         // Access
         const volVectorField& U() const

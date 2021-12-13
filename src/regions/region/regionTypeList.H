@@ -68,6 +68,9 @@ private:
         //- meshes to build super-mesh from
 //        HashTable<wordList> superMeshRegions_;
 
+        //- runTime
+        const Time& runTime_;
+
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
@@ -76,13 +79,12 @@ private:
         //- Disallow default bitwise assignment
         void operator=(const regionTypeList&);
 
-
 protected:
 
     // Protected data
 
         //- Reference to the mesh database
-        const dynamicFvMesh& mesh_;
+//        const dynamicFvMesh& mesh_;
 
         regionProperties region_;
 
@@ -90,7 +92,7 @@ protected:
 public:
 
     //- Constructor
-    regionTypeList(const dynamicFvMesh& mesh);
+    regionTypeList(const Time& runTime);
 
     //- Destructor
     ~regionTypeList();

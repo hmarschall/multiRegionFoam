@@ -89,8 +89,8 @@ protected:
 
     // Protected data
 
-        //- Reference to the mesh database
-        const fvMesh& mesh_;
+        //- Reference to the database
+        const Time& runTime_;
 
         //- Tables of coupling interfaces
         regionInterfaceProperties monolithicTypeInterfaces_;
@@ -106,7 +106,7 @@ protected:
 public:
 
     // Constructor
-    regionInterfaceList(const fvMesh& mesh);
+    regionInterfaceList(const Time& runTime);
 
     // Destructor
     ~regionInterfaceList();

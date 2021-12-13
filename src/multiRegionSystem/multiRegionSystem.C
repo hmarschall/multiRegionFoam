@@ -260,7 +260,7 @@ void Foam::multiRegionSystem::assembleCoupledFields
 
 Foam::multiRegionSystem::multiRegionSystem
 (
-    const dynamicFvMesh& mesh
+    const Time& runTime
 )
 :
     IOdictionary
@@ -268,14 +268,14 @@ Foam::multiRegionSystem::multiRegionSystem
         IOobject
         (
             "multiRegionProperties",
-            mesh.time().constant(),
-            mesh,
+            runTime.constant(),
+            runTime,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
     ),
 
-    mesh_(mesh),
+    runTime_(runTime),
 
     regions_(),
     interfaces_(),
@@ -298,7 +298,7 @@ Foam::multiRegionSystem::multiRegionSystem
     (
         new regionTypeList
         (
-            mesh_
+            runTime_
         )
     );
 
@@ -307,7 +307,7 @@ Foam::multiRegionSystem::multiRegionSystem
     (
         new regionInterfaceList
         (
-            mesh_
+            runTime_
         )
     );
 
