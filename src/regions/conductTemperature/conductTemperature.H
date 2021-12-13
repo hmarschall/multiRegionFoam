@@ -65,10 +65,15 @@ class conductTemperature
         IOdictionary transportProperties_;
 
         //- specific heat
-        dimensionedScalar cv_;
+        // dimensionedScalar cv_;
+        volScalarField cv_;
 
         //- density
-        dimensionedScalar rho_;
+        // dimensionedScalar rho_;
+        volScalarField rho_;
+
+        //- thermal diffusivity
+        autoPtr<volScalarField> alpha_;
 
         //- thermal conductivity
         autoPtr<volScalarField> k_;
