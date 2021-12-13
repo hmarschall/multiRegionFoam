@@ -260,7 +260,7 @@ void Foam::multiRegionSystem::assembleCoupledFields
 
 Foam::multiRegionSystem::multiRegionSystem
 (
-    const fvMesh& mesh
+    const dynamicFvMesh& mesh
 )
 :
     IOdictionary

@@ -20,5 +20,6 @@ LIB_LIBS = \
     -lfiniteArea \
     -lcoupledLduMatrix \
     -ldynamicMesh \
+    -ldynamicFvMesh \
     -lmeshTools \
     -lconjugateHeatTransfer 

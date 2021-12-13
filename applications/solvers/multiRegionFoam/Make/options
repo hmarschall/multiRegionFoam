@@ -22,5 +22,6 @@ EXE_LIBS = \
     -lfiniteVolume \
     -lfiniteArea \
     -ldynamicMesh \
+    -ldynamicFvMesh \
     -lmeshTools \
     -lsampling
