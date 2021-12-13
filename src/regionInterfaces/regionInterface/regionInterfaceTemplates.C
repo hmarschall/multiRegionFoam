@@ -35,7 +35,7 @@ tmp<Field<Type> > Foam::regionInterface::transferFacesFromA
 ) const
 {
 //    Field<Type> toField(patch().size(), pTraits<Type>::zero);
-    tmp<Field<Type> > ttoField(new Field<Type>(patch().size()));
+    tmp<Field<Type> > ttoField(new Field<Type>(patchA().size()));
     Field<Type>& toField = ttoField();
 
     transferFacesZoneToZone
