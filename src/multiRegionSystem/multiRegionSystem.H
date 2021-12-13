@@ -37,7 +37,7 @@ SourceFiles
 #include "IOReferencer.H"
 #include "IOdictionary.H"
 #include "hashedWordList.H"
-#include "fvMesh.H"
+#include "dynamicFvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 
@@ -67,7 +67,7 @@ class multiRegionSystem
     // Private data
 
         //- Reference to the mesh
-        const fvMesh& mesh_;
+        const dynamicFvMesh& mesh_;
 
         //- lists of regions
         autoPtr<regionTypeList> regions_;
@@ -122,8 +122,8 @@ public:
 
     // Constructors
 
-        //- Construct from fvMesh
-        multiRegionSystem(const fvMesh&);
+        //- Construct from dynamicFvMesh
+        multiRegionSystem(const dynamicFvMesh&);
 
 
     //- Destructor

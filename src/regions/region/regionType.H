@@ -39,7 +39,7 @@ SourceFiles
 #include "runTimeSelectionTables.H"
 
 #include "volFields.H"
-#include "fvMesh.H"
+#include "dynamicFvMesh.H"
 #include "fvMatrix.H"
 #include "HashPtrTable.H"
 
@@ -59,7 +59,7 @@ class multiRegionSystem;
 
 class regionType
 :
-    public fvMesh
+    public dynamicFvMesh
 {
 
 protected:
@@ -67,7 +67,7 @@ protected:
     // Protected data
 
         //- mesh
-        const fvMesh& mesh_;
+        const dynamicFvMesh& mesh_;
 
         //- coupled governing equations
         HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
@@ -88,7 +88,7 @@ public:
             regionType,
             dictionary,
             (
-                const fvMesh& mesh,
+                const dynamicFvMesh& mesh,
                 const word& name
             ),
             (mesh, name)
@@ -97,7 +97,7 @@ public:
     // Constructors
         regionType
         (
-            const fvMesh& mesh,
+            const dynamicFvMesh& mesh,
             const word& name
         );
 
@@ -107,12 +107,19 @@ public:
         // Selectors
         static autoPtr<regionType> New
         (
-            const fvMesh& mesh,
+            const dynamicFvMesh& mesh,
             const word& name,
             const word& modelType
         );
 
     // Member Functions
+
+        bool update()
+        {
+            bool meshChanged = this->update();
+
+            return meshChanged;
+        }
 
         // virtual functions
 

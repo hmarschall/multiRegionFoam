@@ -57,7 +57,7 @@ class transportTemperature
     public regionType
 {
         //- mesh
-        const fvMesh& mesh_;
+        const dynamicFvMesh& mesh_;
 
         //- name
         word regionName_;
@@ -99,7 +99,7 @@ public:
 
         transportTemperature
         (
-            const fvMesh& mesh,
+            const dynamicFvMesh& mesh,
             const word& regionName
         );
 

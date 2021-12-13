@@ -57,7 +57,7 @@ class navierStokesFluid
     public regionType
 {
         //- mesh
-        const fvMesh& mesh_;
+        const dynamicFvMesh& mesh_;
         
         //- finite area mesh
         faMesh aMesh_;
@@ -131,7 +131,7 @@ public:
 
         navierStokesFluid
         (
-            const fvMesh& mesh,          
+            const dynamicFvMesh& mesh,          
             const word& regionName
         );
 

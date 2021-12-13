@@ -29,7 +29,7 @@ License
 
 Foam::autoPtr<Foam::regionType> Foam::regionType::New
 (
-    const fvMesh& mesh,
+    const dynamicFvMesh& mesh,
     const word& name,
     const word& modelType
 )
