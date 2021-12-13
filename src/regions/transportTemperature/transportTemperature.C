@@ -50,7 +50,7 @@ namespace regionTypes
 
 Foam::regionTypes::transportTemperature::transportTemperature
 (
-    const fvMesh& mesh,
+    const dynamicFvMesh& mesh,
     const word& regionName
 )
 :

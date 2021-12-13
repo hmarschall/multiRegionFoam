@@ -32,7 +32,7 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#include "fvMesh.H"
+#include "dynamicFvMesh.H"
 #include "fvMatrix.H"
 
 

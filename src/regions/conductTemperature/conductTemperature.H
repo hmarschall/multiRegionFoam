@@ -56,7 +56,7 @@ class conductTemperature
     public regionType
 {
         //- mesh
-        const fvMesh& mesh_;
+        const dynamicFvMesh& mesh_;
 
         //- name
         word regionName_;
@@ -93,7 +93,7 @@ public:
 
         conductTemperature
         (
-            const fvMesh& mesh,
+            const dynamicFvMesh& mesh,
             const word& regionName
         );
 

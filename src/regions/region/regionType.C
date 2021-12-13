@@ -37,11 +37,11 @@ namespace Foam
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 Foam::regionType::regionType
 (
-    const fvMesh& mesh,
+    const dynamicFvMesh& mesh,
     const word& regionName
 )
 :
-    fvMesh
+    dynamicFvMesh
     (
         IOobject
         (

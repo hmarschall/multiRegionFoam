@@ -35,7 +35,7 @@ SourceFiles
 #ifndef regionTypeList_H
 #define regionTypeList_H
 
-#include "fvMesh.H"
+#include "dynamicFvMesh.H"
 #include "mergePolyMesh.H"
 #include "dictionary.H"
 #include "hashedWordList.H"
@@ -60,13 +60,13 @@ private:
     // Private Data
 
         //- super-mesh spanning across regions
-        autoPtr<fvMesh> superMeshPtr_;
+//        autoPtr<dynamicFvMesh> superMeshPtr_;
 
         //- dictionary
         const IOdictionary dict_;
 
         //- meshes to build super-mesh from
-        HashTable<wordList> superMeshRegions_;
+//        HashTable<wordList> superMeshRegions_;
 
     // Private Member Functions
 
@@ -82,7 +82,7 @@ protected:
     // Protected data
 
         //- Reference to the mesh database
-        const fvMesh& mesh_;
+        const dynamicFvMesh& mesh_;
 
         regionProperties region_;
 
@@ -90,7 +90,7 @@ protected:
 public:
 
     //- Constructor
-    regionTypeList(const fvMesh& mesh);
+    regionTypeList(const dynamicFvMesh& mesh);
 
     //- Destructor
     ~regionTypeList();
@@ -98,7 +98,7 @@ public:
     // Member Functions
 
         //- Return super mesh
-        const fvMesh& superMesh();
+//        const dynamicFvMesh& superMesh();
 
         //- Return active status
         bool active(const bool active = false) const;

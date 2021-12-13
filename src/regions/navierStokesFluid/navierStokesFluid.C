@@ -52,7 +52,7 @@ namespace regionTypes
 
 Foam::regionTypes::navierStokesFluid::navierStokesFluid
 (
-    const fvMesh& mesh,
+    const dynamicFvMesh& mesh,
     const word& regionName
 )
 :
