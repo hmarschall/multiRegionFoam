@@ -37,7 +37,7 @@ namespace Foam
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 Foam::regionType::regionType
 (
-    const dynamicFvMesh& mesh,
+    const Time& runTime,
     const word& regionName
 )
 :
@@ -46,13 +46,11 @@ Foam::regionType::regionType
         IOobject
         (
             regionName,
-            mesh.time().timeName(),
-            mesh.time(),
+            runTime.timeName(),
+            runTime,
             IOobject::MUST_READ
         )
-    ),
-
-    mesh_(mesh)
+    )
 {}
 
 

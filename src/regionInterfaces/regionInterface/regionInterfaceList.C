@@ -31,7 +31,7 @@ License
 
 Foam::regionInterfaceList::regionInterfaceList
 (
-    const fvMesh& mesh
+    const Time& runTime
 )
 :
     PtrList<regionInterface>(),
@@ -39,9 +39,9 @@ Foam::regionInterfaceList::regionInterfaceList
     interfaceNames_(),
     monolithicCoupledFields_(),
     partitionedCoupledFields_(),
-    mesh_(mesh),
-    monolithicTypeInterfaces_(mesh_.time(), "monolithic"),
-    partitionedTypeInterfaces_(mesh_.time(), "partitioned"),
+    runTime_(runTime),
+    monolithicTypeInterfaces_(runTime_.time(), "monolithic"),
+    partitionedTypeInterfaces_(runTime_.time(), "partitioned"),
     pcFldNames_(),
     mcFldNames_()
 {
@@ -121,7 +121,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
                 interfaces[interfaceI].first().second();
 
             const fvMesh& firstRegion = 
-                mesh_.time().lookupObject<fvMesh>
+                runTime_.lookupObject<fvMesh>
                 (
                     firstRegionPatchPair.first()
                 );
@@ -136,7 +136,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
                 firstRegion.boundary()[firstPatchID];
 
             const fvMesh& secondRegion = 
-                mesh_.time().lookupObject<fvMesh>
+                runTime_.lookupObject<fvMesh>
                 (
                     secondRegionPatchPair.first()
                 );
@@ -155,7 +155,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
                 index_++,
                 regionInterface::New
                 (
-                    mesh_.time(),
+                    runTime_,
                     firstPatch,
                     secondPatch
                 )

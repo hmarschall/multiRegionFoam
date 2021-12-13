@@ -66,9 +66,6 @@ protected:
 
     // Protected data
 
-        //- mesh
-        const dynamicFvMesh& mesh_;
-
         //- coupled governing equations
         HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
         HashPtrTable<fvMatrix<vector> > fvVectorMatrices;
@@ -88,16 +85,16 @@ public:
             regionType,
             dictionary,
             (
-                const dynamicFvMesh& mesh,
+                const Time& runTime,
                 const word& name
             ),
-            (mesh, name)
+            (runTime, name)
         );
 
     // Constructors
         regionType
         (
-            const dynamicFvMesh& mesh,
+            const Time& runTime,
             const word& name
         );
 
@@ -107,20 +104,16 @@ public:
         // Selectors
         static autoPtr<regionType> New
         (
-            const dynamicFvMesh& mesh,
+            const Time& runTime,
             const word& name,
             const word& modelType
         );
 
     // Member Functions
 
-        bool update()
+        virtual bool update() const
         {
-            dynamicFvMesh& mesh = const_cast<dynamicFvMesh&>(mesh_);
-
-            bool meshChanged = mesh.update();
-
-            return meshChanged;
+            return false;
         }
 
         // virtual functions

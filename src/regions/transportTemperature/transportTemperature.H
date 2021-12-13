@@ -56,9 +56,6 @@ class transportTemperature
 :
     public regionType
 {
-        //- mesh
-        const dynamicFvMesh& mesh_;
-
         //- name
         word regionName_;
 
@@ -99,7 +96,7 @@ public:
 
         transportTemperature
         (
-            const dynamicFvMesh& mesh,
+            const Time& runTime,
             const word& regionName
         );
 
@@ -108,6 +105,17 @@ public:
 
 
     // Member Functions
+
+        // Update mesh
+        bool update()
+        {
+            transportTemperature& mesh = 
+                const_cast<transportTemperature&>(*this);
+
+            bool meshChanged = mesh.update();
+
+            return meshChanged;
+        }
 
         // Access
         const volScalarField& T() const
