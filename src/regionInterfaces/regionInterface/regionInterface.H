@@ -53,6 +53,7 @@ SourceFiles
 //#include "volFields.H"
 //#include "fvPatchFieldMapper.H"
 #include "fvCFD.H"
+#include "faCFD.H"
 
 #include "globalPolyPatch.H"
 #include "regionCouplePolyPatch.H"
@@ -77,13 +78,16 @@ class regionInterface
     // Private data
 
         //- multiRegion properties dictionary
-        dictionary multiRegionProperties_;
+        IOdictionary multiRegionProperties_;
+
+        //- interface properties dictionary
+        IOdictionary regionInterfaceProperties_;
 
         //- Reference to time
         const Time& runTime_;
 
         //- Reference to the fvPatches
-        const fvPatch& patch_;
+        const fvPatch& patchA_;
 
         const fvPatch& patchB_;
 
@@ -93,15 +97,6 @@ class regionInterface
         //- Reference to fvMesh B
         const fvMesh& meshB_;
 
-//        //- Name of region B
-//        word regionBName_;
-
-        //- Name of patch on the local region
-        word patchName_;
-
-        //- Name of patch on the region B
-        word patchBName_;
-
         //- Swicth : attached/detached state of mesh interface
         Switch attachedA_;
 
@@ -110,31 +105,15 @@ class regionInterface
         //- Interpolator update frequency
         label interpolatorUpdateFrequency_;
 
-//        //- Name of field on the region B
-//        word BFieldName_;
-
-//        //- Reference to the local region
-//        const fvMesh& localRegion_;
-
         //- A face zone current points
-        mutable vectorField* currentAZonePointsPtr_;
+        mutable autoPtr<vectorField> currentAZonePointsPtr_;
 
         //- A face zone primitive patch in current configuration
-        mutable standAlonePatch* currentAZonePatchPtr_;
+        mutable autoPtr<standAlonePatch> currentAZonePatchPtr_;
 
-        //- GGI interpolation
-        mutable GGIInterpolation
-        <
-            polyPatch,
-            polyPatch
-        >* ggiInterpolatePtr_;
-
-        //- GGI zone-to-zone interpolation
-        mutable GGIInterpolation
-        <
-            standAlonePatch,
-            standAlonePatch
-        >* ggiInterpolatorPtr_;
+        //- GGI interpolator between two standAlone patches
+        mutable autoPtr< GGIInterpolation<standAlonePatch, standAlonePatch> >
+            ggiInterpolatorPtr_;
 
         //- Global poly patch
         //  This is a copy of a patch which is reconstructed in full on each
@@ -144,6 +123,23 @@ class regionInterface
         mutable autoPtr<globalPolyPatch> globalPatchAPtr_;
         //- B-side
         mutable autoPtr<globalPolyPatch> globalPatchBPtr_;
+        
+        //- finite area mesh
+        mutable autoPtr<faMesh> aMeshPtr_;
+
+protected:
+
+        //- surface velocity field
+        mutable autoPtr<areaVectorField> UsPtr_;
+
+        //- interfacial curvature
+        mutable autoPtr<areaScalarField> KPtr_;
+
+        //- surface flux field
+        mutable autoPtr<edgeScalarField> phisPtr_;
+
+
+private:
 
     // Private Member Functions
 
@@ -177,10 +173,10 @@ public:
             IOdictionary,
             (
                 const Time& runTime,
-                const fvPatch& patch,
+                const fvPatch& patchA,
                 const fvPatch& patchB
             ),
-            (runTime, patch, patchB)
+            (runTime, patchA, patchB)
         );
 #endif
 
@@ -191,7 +187,7 @@ public:
         (
 //            const word& type,
             const Time& runTime,
-            const fvPatch& patch,
+            const fvPatch& patchA,
             const fvPatch& patchB
         );
 
@@ -202,14 +198,14 @@ public:
         static autoPtr<regionInterface> New
         (
             const Time& runTime,
-            const fvPatch& patch,
+            const fvPatch& patchA,
             const fvPatch& patchB
         );
 
 
     // Destructor
 
-        virtual ~regionInterface();
+        virtual ~regionInterface(){}
 
 
     // Public enumerations
@@ -235,6 +231,19 @@ public:
     // Member Functions
 
         // Access
+
+            //- Return reference to region properties
+            const IOdictionary& regionProperties()
+            {
+                return multiRegionProperties_;
+            }
+
+            //- Return reference to interface properties
+            const IOdictionary& interfaceProperties()
+            {
+                return regionInterfaceProperties_;
+            }
+
 			//- Return reference to DB
 			const Time& runTime() const
 			{
@@ -245,26 +254,15 @@ public:
             virtual word name() const;
 
             //- Return a reference to the patch A
-            inline const fvPatch& patch() const
+            inline const fvPatch& patchA() const
             {
-                return patch_;
+                return patchA_;
             };
 
             //- Return a reference to the patch B
             inline const fvPatch& patchB() const
             {
                 return patchB_;
-            };
-
-            //- Return patch names
-            inline const word& patchName() const
-            {
-                return patchName_;
-            };
-
-            inline const word& patchBName() const
-            {
-                return patchBName_;
             };
 
 			//- Return reference to fvMesh es
@@ -275,7 +273,7 @@ public:
 
             label patchAID() const
             {
-                return patch_.index();
+                return patchA_.index();
             }
 
 			const fvMesh& meshB() const
@@ -288,37 +286,89 @@ public:
                 return patchB_.index();
             }
 
-//            //- Return the name of the region B
-//            inline const word& regionBName() const;
+            //- Return reference to faMesh
+            faMesh& aMesh()
+            {
+                if (aMeshPtr_.empty())
+                {
+                    makeFaMesh();
+                }
+                
+                return aMeshPtr_();
+            }
 
-//            //- Return the name of the patch on the local region
-//            inline const word& patchName() const;
+            const faMesh& aMesh() const
+            {
+                if (aMeshPtr_.empty())
+                {
+                    makeFaMesh();
+                }
+                
+                return aMeshPtr_();
+            }
+        
+            // return surface velocity    
+            Foam::areaVectorField& Us() 
+            {
+                if (UsPtr_.empty())
+                {
+                    makeUs();
+                }
 
-//            //- Return the name of the patch on the region B
-//            inline const word& patchBName() const;
+                return UsPtr_();
+            }
 
-//            //- Return the name of the field on the region B
-//            inline const word& BFieldName() const;
+            const Foam::areaVectorField& Us() const
+            {
+                if (UsPtr_.empty())
+                {
+                    makeUs();
+                }
 
-//            //- Return a reference to the mesh B
-//            inline const fvMesh& regionB() const;
+                return UsPtr_();
+            }
 
-//            //- Return the patchB ID
-//            inline label patchBID() const;
+            // return surface flux
+            edgeScalarField& Phis()
+            {
+                if (phisPtr_.empty())
+                {
+                    makePhis();
+                }
 
-//            //- Return a reference to the patch B field
-//            template<class Type>
-//            inline const fvPatchField<Type>& patchBField() const;
+                return phisPtr_();
+            }
 
-            //- Return GGI interpolator
-//            inline const GGIInterpolation
-//            <
-//                polyPatch, polyPatch
-//            >& ggiInterpolate
-//            (
-//                const polyPatch& nbrPatch,
-//                const polyPatch& ownPatch
-//            ) const;
+            const edgeScalarField& Phis() const
+            {
+                if (phisPtr_.empty())
+                {
+                   makePhis();
+                }
+
+                return phisPtr_();
+            }
+
+            // return interfacial curvature
+            Foam::areaScalarField& K()
+            {
+                if (KPtr_.empty())
+                {
+                    makeK();
+                }
+
+                return KPtr_();
+            }
+
+            const Foam::areaScalarField& K() const
+            {
+                if (KPtr_.empty())
+                {
+                    makeK();
+                }
+
+                return KPtr_();
+            }
 
             //- Return GGI interpolator (B-to-A)
             const GGIInterpolation
@@ -390,30 +440,24 @@ public:
             //- Detach the mesh interface using mesh modifier
             virtual void detach();
 
-//            //- Return the name of the region B
-//            word& regionBName();
+            // interface-specific physics
+            void makeFaMesh() const;
 
-//            //- Return the name of the patch on the region B
-//            word& patchBName();
-
-//            //- Return the name of the field on the region B
-//            word& BFieldName();
-
+            virtual void makeUs() const = 0;
+            virtual void makeK() const = 0;
+            virtual void makePhis() const = 0;
 
         // Write
 
            //- Write entries for patches
 //           void writeEntries(Ostream& os) const;
+            
 };
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-//#include "regionInterfaceI.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

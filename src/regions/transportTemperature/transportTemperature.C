@@ -201,11 +201,10 @@ void Foam::regionTypes::transportTemperature::setCoupledEqns()
     );
 }
 
-// TODO:
-//void Foam::regionTypes::transportTemperature::updateField()
-//{
-//    phi_ -= (fvScalarMatrices[p_.name() + this->name() + "Eqn"]).flux();
-//}
+void Foam::regionTypes::transportTemperature::updateFields()
+{
+    // do nothing, add as required
+}
 
 void Foam::regionTypes::transportTemperature::solveRegion()
 {

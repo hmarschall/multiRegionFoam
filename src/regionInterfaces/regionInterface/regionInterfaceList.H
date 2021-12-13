@@ -169,6 +169,15 @@ public:
 
         //- Interpolate/map/transfer face values
         void transferFaces();
+        
+        //- Interfacial transport
+        void makeUs() const;
+        void makeK() const;
+        void makePhis() const;
+        
+        //- Interface properties
+        void makeFaMesh() const;
+     
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

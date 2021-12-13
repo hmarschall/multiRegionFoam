@@ -1,9 +1,12 @@
+mergePolyMesh.C
+
 regions = ./../regions
 $(regions)/region/regionType.C
 $(regions)/region/newRegionType.C
 $(regions)/region/regionTypeList.C
 $(regions)/conductTemperature/conductTemperature.C
 $(regions)/transportTemperature/transportTemperature.C
+$(regions)/navierStokesFluid/navierStokesFluid.C
 
 ../regionProperties/regionProperties.C
 ../regionInterfaceProperties/regionInterfaceProperties.C
@@ -15,6 +18,8 @@ $(interfaces)/interfaceKey.C
 $(interfaces)/regionInterface.C
 $(interfaces)/regionInterfaceList.C
 $(interfaces)/newRegionInterface.C
+
+../regionInterfaces/fluidFluid/fluidFluid.C
 
 multiRegionSystem.C
 

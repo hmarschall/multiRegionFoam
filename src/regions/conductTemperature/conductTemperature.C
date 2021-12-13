@@ -176,6 +176,11 @@ void Foam::regionTypes::conductTemperature::setCoupledEqns()
     );
 }
 
+void Foam::regionTypes::conductTemperature::updateFields()
+{
+    // do nothing, add as required
+}
+
 void Foam::regionTypes::conductTemperature::solveRegion()
 {
     // do nothing, add as required

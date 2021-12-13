@@ -71,7 +71,7 @@ namespace Foam
 autoPtr<regionInterface> regionInterface::New
 (
     const Time& runTime,
-    const fvPatch& patch,
+    const fvPatch& patchA,
     const fvPatch& patchB
 )
 {
@@ -85,7 +85,7 @@ autoPtr<regionInterface> regionInterface::New
         (
             IOobject
             (
-                "multiRegionProperties",
+                "regionInterfaceProperties",
                 runTime.constant(),
                 runTime,
                 IOobject::MUST_READ,
@@ -116,7 +116,7 @@ autoPtr<regionInterface> regionInterface::New
     }
 
     return autoPtr<regionInterface>
-        (cstrIter()(runTime, patch, patchB));
+        (cstrIter()(runTime, patchA, patchB));
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

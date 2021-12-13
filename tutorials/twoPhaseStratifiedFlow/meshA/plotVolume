@@ -1,0 +1,8 @@
+#!/bin/sh
+
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+rm log.checkMesh
+runApplication checkMesh -region meshB 
+pyFoamPlotWatcher.py log.checkMesh --regexp-file=regexp --write-files --solver-not-running
+python3 plotVolume.py
