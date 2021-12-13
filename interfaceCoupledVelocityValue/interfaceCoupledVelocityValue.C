@@ -37,21 +37,21 @@ License
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-const Foam::meshInterface& 
-Foam::interfaceCoupledVelocityValue::ale() const
-{
-    const fvMesh& mesh = patch().boundaryMesh().mesh();
-    const objectRegistry& obr = mesh.objectRegistry::parent();
+//const Foam::meshInterface& 
+//Foam::interfaceCoupledVelocityValue::ale() const
+//{
+//    const fvMesh& mesh = patch().boundaryMesh().mesh();
+//    const objectRegistry& obr = mesh.objectRegistry::parent();
 
-    if (!obr.foundObject<meshInterface>("aleProperties"))
-    {
-        FatalErrorIn("interfaceCoupledVelocityValue::")
-            << "meshInterface object not found but required."
-            << abort(FatalError);
-    }
+//    if (!obr.foundObject<meshInterface>("aleProperties"))
+//    {
+//        FatalErrorIn("interfaceCoupledVelocityValue::")
+//            << "meshInterface object not found but required."
+//            << abort(FatalError);
+//    }
 
-    return obr.lookupObject<meshInterface>("aleProperties");
-}
+//    return obr.lookupObject<meshInterface>("aleProperties");
+//}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -80,18 +80,18 @@ interfaceCoupledVelocityValue
         new patchCoupleManager(p)
     );
 
-    interfacePtr_.reset
-    (
-        new interfacialTransport
-        (
-//            word::null,
-            this->db().lookupObject<volVectorField>("U"),
-            this->db().lookupObject<surfaceScalarField>("phi"),
-            this->patch().name(),
-            coupleManagerPtr_->neighbourPatch().patch().boundaryMesh().mesh()
-            .lookupObject<IOdictionary>("surfaceProperties")
-        )
-    );
+//    interfacePtr_.reset
+//    (
+//        new interfacialTransport
+//        (
+////            word::null,
+//            this->db().lookupObject<volVectorField>("U"),
+//            this->db().lookupObject<surfaceScalarField>("phi"),
+//            this->patch().name(),
+//            coupleManagerPtr_->neighbourPatch().patch().boundaryMesh().mesh()
+//            .lookupObject<IOdictionary>("surfaceProperties")
+//        )
+//    );
 }
 
 
@@ -124,18 +124,18 @@ interfaceCoupledVelocityValue
         )
     );
 
-    interfacePtr_.reset
-    (
-        new interfacialTransport
-        (
-//            word::null,
-            this->db().lookupObject<volVectorField>("U"),
-            this->db().lookupObject<surfaceScalarField>("phi"),
-            this->patch().name(),
-            coupleManagerPtr_->neighbourPatch().patch().boundaryMesh().mesh()
-            .lookupObject<IOdictionary>("surfaceProperties")
-        )
-    );
+//    interfacePtr_.reset
+//    (
+//        new interfacialTransport
+//        (
+////            word::null,
+//            this->db().lookupObject<volVectorField>("U"),
+//            this->db().lookupObject<surfaceScalarField>("phi"),
+//            this->patch().name(),
+//            coupleManagerPtr_->neighbourPatch().patch().boundaryMesh().mesh()
+//            .lookupObject<IOdictionary>("surfaceProperties")
+//        )
+//    );
 }
 
 
@@ -167,18 +167,18 @@ interfaceCoupledVelocityValue
         )
     );
 
-    interfacePtr_.reset
-    (
-        new interfacialTransport
-        (
-//            word::null,
-            this->db().lookupObject<volVectorField>("U"),
-            this->db().lookupObject<surfaceScalarField>("phi"),
-            this->patch().name(),
-            coupleManagerPtr_->neighbourPatch().patch().boundaryMesh().mesh()
-            .lookupObject<IOdictionary>("surfaceProperties")
-        )
-    );
+//    interfacePtr_.reset
+//    (
+//        new interfacialTransport
+//        (
+////            word::null,
+//            this->db().lookupObject<volVectorField>("U"),
+//            this->db().lookupObject<surfaceScalarField>("phi"),
+//            this->patch().name(),
+//            coupleManagerPtr_->neighbourPatch().patch().boundaryMesh().mesh()
+//            .lookupObject<IOdictionary>("surfaceProperties")
+//        )
+//    );
 
     if (dict.found("value"))
     {
@@ -221,18 +221,18 @@ interfaceCoupledVelocityValue
         )
     );
 
-    interfacePtr_.reset
-    (
-        new interfacialTransport
-        (
-//            word::null,
-            this->db().lookupObject<volVectorField>("U"),
-            this->db().lookupObject<surfaceScalarField>("phi"),
-            this->patch().name(),
-            coupleManagerPtr_->neighbourPatch().patch().boundaryMesh().mesh()
-            .lookupObject<IOdictionary>("surfaceProperties")
-        )
-    );
+//    interfacePtr_.reset
+//    (
+//        new interfacialTransport
+//        (
+////            word::null,
+//            this->db().lookupObject<volVectorField>("U"),
+//            this->db().lookupObject<surfaceScalarField>("phi"),
+//            this->patch().name(),
+//            coupleManagerPtr_->neighbourPatch().patch().boundaryMesh().mesh()
+//            .lookupObject<IOdictionary>("surfaceProperties")
+//        )
+//    );
 }
 
 
@@ -246,123 +246,123 @@ void Foam::interfaceCoupledVelocityValue::updateCoeffs()
         return;
     }
 
-    // Calculate interpolated patch field
-    vectorField fieldNbrToOwn(patch().size(), vector::zero);
+//    // Calculate interpolated patch field
+//    vectorField fieldNbrToOwn(patch().size(), vector::zero);
 
-//    const fvMesh& mesh = patch().boundaryMesh().mesh();
-//    const objectRegistry& obr = mesh.objectRegistry::parent();
+////    const fvMesh& mesh = patch().boundaryMesh().mesh();
+////    const objectRegistry& obr = mesh.objectRegistry::parent();
 
-//    if (!obr.foundObject<meshInterface>("aleProperties"))
+////    if (!obr.foundObject<meshInterface>("aleProperties"))
+////    {
+////        FatalErrorIn("interfaceCoupledPressureValue::updateCoeffs(...)")
+////            << "meshInterface object not found but required."
+////            << abort(FatalError);
+////    }
+
+////    const meshInterface& ale =
+////        obr.lookupObject<meshInterface>("aleProperties");
+
+//    // Lookup neighbouring patch field
+//    const volVectorField& nbrField = ale().meshA().lookupObject<volVectorField>
+//        (
+//            //presume same field name as on this side
+//            this->dimensionedInternalField().name()
+//        );
+
+//    const fvPatchVectorField& nbrPatchField =
+//    (
+//        ale().patch().patchField<volVectorField, vector>(nbrField)
+//    );
+
+//    // Interpolate veclocity face values A-to-B
+//    ale().transferFacesAToB(nbrPatchField, fieldNbrToOwn);
+
+//    // Enforce flux continuity at interface
+
+//    //- Non-const access to flux on patch
+//    fvsPatchField<scalar>& patchPhiField = const_cast<fvsPatchField<scalar>& >
+//    (
+//        this->db().lookupObject<surfaceScalarField>(phiName_)
+//        .boundaryField()[this->patch().index()]
+//    );
+
+//    //- Get the flux on neighboring patch 
+//    surfaceScalarField nbrPhi =
+//        ale().meshA().lookupObject<surfaceScalarField>(phiName_);
+
+//    scalarField nbrPatchPhiField =
+//    (
+//        ale().patch().patchField<surfaceScalarField, scalar>(nbrPhi)
+//    )*(-1.); // consider outer normals pointing in opposite directions
+
+//    //- Interpolate flux face values A-to-B
+//    ale().transferFacesAToB(nbrPatchPhiField, patchPhiField);
+
+//    // Enforce fixed value condition
+//    const surfaceScalarField& phi =
+//        this->db().lookupObject<surfaceScalarField>(phiName_);
+
+////    tmp<vectorField> n = p.nf();
+////    const vectorField& Sf = p.Sf();
+
+//    if (phi.dimensions() == dimVelocity*dimArea)
 //    {
-//        FatalErrorIn("interfaceCoupledPressureValue::updateCoeffs(...)")
-//            << "meshInterface object not found but required."
-//            << abort(FatalError);
+//        operator==
+//        (
+//            *this 
+//          + relax_*
+//            (
+//                fieldNbrToOwn 
+////              + Sf*phip
+////              - n()*(n()&Up)
+////              + interfacePtr_->massFluxCorr()
+////                *(
+////                    1./interfacePtr_->rhoB()
+////                  - 1./interfacePtr_->rhoA()
+////                ).value()*patch().nf()
+//              - *this
+//            )
+//        );
 //    }
+//    else if (phi.dimensions() == dimDensity*dimVelocity*dimArea)
+//    {
+//        if (!this->db().objectRegistry::found(rhoName_))
+//        {
+//            // Rho not available, do not update
+//            return;
+//        }
+////        const fvPatchField<scalar>& rhop =
+////            lookupPatchField<volScalarField, scalar>(rhoName_);
 
-//    const meshInterface& ale =
-//        obr.lookupObject<meshInterface>("aleProperties");
-
-    // Lookup neighbouring patch field
-    const volVectorField& nbrField = ale().meshA().lookupObject<volVectorField>
-        (
-            //presume same field name as on this side
-            this->dimensionedInternalField().name()
-        );
-
-    const fvPatchVectorField& nbrPatchField =
-    (
-        ale().patch().patchField<volVectorField, vector>(nbrField)
-    );
-
-    // Interpolate veclocity face values A-to-B
-    ale().transferFacesAToB(nbrPatchField, fieldNbrToOwn);
-
-    // Enforce flux continuity at interface
-
-    //- Non-const access to flux on patch
-    fvsPatchField<scalar>& patchPhiField = const_cast<fvsPatchField<scalar>& >
-    (
-        this->db().lookupObject<surfaceScalarField>(phiName_)
-        .boundaryField()[this->patch().index()]
-    );
-
-    //- Get the flux on neighboring patch 
-    surfaceScalarField nbrPhi =
-        ale().meshA().lookupObject<surfaceScalarField>(phiName_);
-
-    scalarField nbrPatchPhiField =
-    (
-        ale().patch().patchField<surfaceScalarField, scalar>(nbrPhi)
-    )*(-1.); // consider outer normals pointing in opposite directions
-
-    //- Interpolate flux face values A-to-B
-    ale().transferFacesAToB(nbrPatchPhiField, patchPhiField);
-
-    // Enforce fixed value condition
-    const surfaceScalarField& phi =
-        this->db().lookupObject<surfaceScalarField>(phiName_);
-
-//    tmp<vectorField> n = p.nf();
-//    const vectorField& Sf = p.Sf();
-
-    if (phi.dimensions() == dimVelocity*dimArea)
-    {
-        operator==
-        (
-            *this 
-          + relax_*
-            (
-                fieldNbrToOwn 
-//              + Sf*phip
-//              - n()*(n()&Up)
-//              + interfacePtr_->massFluxCorr()
-//                *(
-//                    1./interfacePtr_->rhoB()
-//                  - 1./interfacePtr_->rhoA()
-//                ).value()*patch().nf()
-              - *this
-            )
-        );
-    }
-    else if (phi.dimensions() == dimDensity*dimVelocity*dimArea)
-    {
-        if (!this->db().objectRegistry::found(rhoName_))
-        {
-            // Rho not available, do not update
-            return;
-        }
-//        const fvPatchField<scalar>& rhop =
-//            lookupPatchField<volScalarField, scalar>(rhoName_);
-
-        operator==
-        (
-            *this 
-          + relax_*
-            (
-                fieldNbrToOwn 
-//              + Sf*phip/rhop
-//              - n()*(n()&Up)
-//              + interfacePtr_->massFluxCorr()
-//                *(
-//                    1./interfacePtr_->rhoB()
-//                  - 1./interfacePtr_->rhoA()
-//                ).value()*patch().nf()
-              - *this
-            )
-        );
-    }
-    else
-    {
-        FatalErrorIn
-        (
-            "interfaceCoupledVelocityValue::updateCoeffs()"
-        )
-            << "dimensions of phi are incorrect\n"
-            << "    on patch " << this->patch().name()
-            << " of field " << this->dimensionedInternalField().name()
-            << " in file " << this->dimensionedInternalField().objectPath()
-            << exit(FatalError);
-    }
+//        operator==
+//        (
+//            *this 
+//          + relax_*
+//            (
+//                fieldNbrToOwn 
+////              + Sf*phip/rhop
+////              - n()*(n()&Up)
+////              + interfacePtr_->massFluxCorr()
+////                *(
+////                    1./interfacePtr_->rhoB()
+////                  - 1./interfacePtr_->rhoA()
+////                ).value()*patch().nf()
+//              - *this
+//            )
+//        );
+//    }
+//    else
+//    {
+//        FatalErrorIn
+//        (
+//            "interfaceCoupledVelocityValue::updateCoeffs()"
+//        )
+//            << "dimensions of phi are incorrect\n"
+//            << "    on patch " << this->patch().name()
+//            << " of field " << this->dimensionedInternalField().name()
+//            << " in file " << this->dimensionedInternalField().objectPath()
+//            << exit(FatalError);
+//    }
 
     fixedValueFvPatchVectorField::updateCoeffs();
 }
