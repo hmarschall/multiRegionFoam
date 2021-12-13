@@ -58,8 +58,8 @@ SourceFiles
 
 #include "patchCoupleManager.H"
 //#include "interfacialTransport.H"
-#include "surfaceTracking.H"
-#include "meshInterface.H"
+//#include "surfaceTracking.H"
+//#include "meshInterface.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -107,12 +107,12 @@ class interfaceCoupledVelocityValue
         autoPtr<patchCoupleManager> coupleManagerPtr_;
 
         //- Interfacial transport
-        mutable autoPtr<interfacialTransport> interfacePtr_;
+//        mutable autoPtr<interfacialTransport> interfacePtr_;
 
     // Private functions
 
         //- Reference to meshInterface
-        const meshInterface& ale() const;
+//        const meshInterface& ale() const;
 
         //- Calc pressure jump
         tmp<vectorField> curJump() const;
