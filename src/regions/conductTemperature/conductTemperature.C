@@ -70,8 +70,32 @@ Foam::regionTypes::conductTemperature::conductTemperature
             IOobject::NO_WRITE
         )
     ),
-    cv_(transportProperties_.lookup("cv")),
-    rho_(transportProperties_.lookup("rho")),
+    cv_
+    (
+        IOobject
+        (
+            "cv",
+            this->time().timeName(),
+            *this,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        *this,
+        dimensionedScalar(transportProperties_.lookup("cv"))
+    ),
+    rho_
+    (
+        IOobject
+        (
+            "rho",
+            this->time().timeName(),
+            *this,
+            IOobject::READ_IF_PRESENT,
+            IOobject::NO_WRITE
+        ),
+        *this,
+        dimensionedScalar(transportProperties_.lookup("rho"))
+    ),
 
 //    k_
 //    (
@@ -101,9 +125,27 @@ Foam::regionTypes::conductTemperature::conductTemperature
 //        dimensionedScalar("T0", dimTemperature, pTraits<scalar>::zero),
 //        zeroGradientFvPatchScalarField::typeName
 //    ),
+    alpha_(nullptr),
     k_(nullptr),
     T_(nullptr)
 {
+    alpha_.reset
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "alpha",
+                this->time().timeName(),
+                *this,
+                IOobject::READ_IF_PRESENT,
+                IOobject::NO_WRITE
+            ),
+            *this,
+            dimensionedScalar("alpha", dimensionSet(0,2,-1,0,0,0,0), 0)
+        )
+    );
+
     k_.reset
     (
         new volScalarField
@@ -137,7 +179,7 @@ Foam::regionTypes::conductTemperature::conductTemperature
         )
     );
 
-    k_() = dimensionedScalar(transportProperties_.lookup("k"));
+    alpha_() = k_()/(rho_*cv_);
 }
 
 
