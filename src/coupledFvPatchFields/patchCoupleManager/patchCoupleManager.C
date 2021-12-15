@@ -28,6 +28,88 @@ License
 #include "OFstream.H"
 
 
+// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
+
+const Foam::regionInterface& 
+Foam::patchCoupleManager::rgInterface() const
+{
+    const fvMesh& mesh = refPatch().boundaryMesh().mesh();
+    const objectRegistry& obr = mesh.objectRegistry::parent();
+
+    word rgIntName = neighbourPatchName_ + neighbourRegionName_;
+    rgIntName += refPatch().name() + mesh.name();
+
+    word rgIntNameRev = refPatch().name() + mesh.name();
+    rgIntNameRev += neighbourPatchName_ + neighbourRegionName_;
+
+    if
+    (
+        !obr.foundObject<regionInterface>(rgIntName)
+     && !obr.foundObject<regionInterface>(rgIntNameRev)
+    )
+    {
+        FatalErrorIn("interfaceCoupledVelocityValue::")
+            << "regionInterface object not found but required."
+            << abort(FatalError);
+    } else if
+    (
+        obr.foundObject<regionInterface>(rgIntName)
+     && obr.foundObject<regionInterface>(rgIntNameRev)
+    )
+    {
+        FatalErrorIn("interfaceCoupledVelocityValue::")
+            << "regionInterface object names ambiguous:"
+            << rgIntName << " vs. " << rgIntNameRev << nl
+            << "Choose unique patch/region names."
+            << abort(FatalError);
+    }
+
+    if (obr.foundObject<regionInterface>(rgIntNameRev))
+    {
+        return obr.lookupObject<regionInterface>(rgIntNameRev);
+    }
+
+    return obr.lookupObject<regionInterface>(rgIntName);
+}
+
+const Foam::fvMesh& 
+Foam::patchCoupleManager::nbrMesh() const
+{
+    if (refPatch().name() == rgInterface().patchA().name())
+    {
+        return rgInterface().meshB();
+    }
+
+    return rgInterface().meshA();
+}
+
+const Foam::fvPatch& 
+Foam::patchCoupleManager::nbrPatch() const
+{
+    if (refPatch().name() == rgInterface().patchA().name())
+    {
+        return rgInterface().patchB();
+    }
+
+    return rgInterface().patchA();
+}
+
+template<class Type>
+Foam::tmp<Field<Type> > 
+Foam::patchCoupleManager::interpolateFromNbrField
+(
+    const Field<Type>& fromField
+) const
+{
+    if (refPatch().name() == rgInterface().patchA().name())
+    {
+        return rgInterface().transferFacesFromB(fromField);
+    }
+
+    return rgInterface().transferFacesFromA(fromField);
+}
+
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::patchCoupleManager::patchCoupleManager
@@ -36,11 +118,10 @@ Foam::patchCoupleManager::patchCoupleManager
 )
 :
     patch_(patch),
-    neighbourRegionName_("undefined-neighbourRegionName"),
-    neighbourPatchName_("undefined-neighbourPatchName"),
-    neighbourFieldName_("undefined-neighbourFieldName"),
-    localRegion_(patch_.boundaryMesh().mesh()),
-    ggiInterpolatorPtr_(NULL)
+    neighbourRegionName_(),
+    neighbourPatchName_(),
+    neighbourFieldName_(),
+    localRegion_(patch_.boundaryMesh().mesh())
 {}
 
 
@@ -54,88 +135,24 @@ Foam::patchCoupleManager::patchCoupleManager
     neighbourRegionName_(dict.lookup("neighbourRegionName")),
     neighbourPatchName_(dict.lookup("neighbourPatchName")),
     neighbourFieldName_(dict.lookup("neighbourFieldName")),
-    localRegion_(patch_.boundaryMesh().mesh()),
-    ggiInterpolatorPtr_(NULL)
+    localRegion_(patch_.boundaryMesh().mesh())
 {}
 
 
 Foam::patchCoupleManager::patchCoupleManager
 (
-    const patchCoupleManager& cm
+    const patchCoupleManager& pcm
 )
 :
-    patch_(cm.patch()),
-    neighbourRegionName_(cm.neighbourRegionName()),
-    neighbourPatchName_(cm.neighbourPatchName()),
-    neighbourFieldName_(cm.neighbourFieldName()),
-    localRegion_(patch_.boundaryMesh().mesh()),
-    ggiInterpolatorPtr_(NULL)
+    patch_(pcm.refPatch()),
+    neighbourRegionName_(pcm.neighbourRegionName()),
+    neighbourPatchName_(pcm.neighbourPatchName()),
+    neighbourFieldName_(pcm.neighbourFieldName()),
+    localRegion_(patch_.boundaryMesh().mesh())
 {}
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::patchCoupleManager::~patchCoupleManager()
-{
-    delete ggiInterpolatorPtr_;
-}
-
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-void Foam::patchCoupleManager::checkCouple() const
-{
-	Info<< "Checking coupled patch connectivity" << endl;
-	Info<< "patchName = " << patch_.name() << endl;
-    Info<< "neighbourRegionName = " << neighbourRegionName_ << endl;
-    Info<< "neighbourPatchName = " << neighbourPatchName_ << endl;
-    Info<< "neighbourFieldName = " << neighbourFieldName_ << endl;
-
-    const fvPatch& nPatch = neighbourPatch();
-
-    if (patch_.size() != nPatch.size())
-    {
-        FatalErrorIn("Foam::patchCoupleManager::checkCouple()")
-            << "Unequal patch sizes:" << nl
-            << "    patch (size) = " << patch_.name()
-            << "(" << patch_.size() << ")" << nl
-            << "    neighbour patch (size) = "
-            << nPatch.name() << "(" << patch_.size() << ")" << nl
-            << abort(FatalError);
-    }
-}
-
-
-void Foam::patchCoupleManager::coupleToObj() const
-{
-    const fvPatch& nPatch = neighbourPatch();
-
-    OFstream obj
-        (
-             patch_.name() + "_to_" + nPatch.name() + "_couple.obj"
-        );
-    const vectorField& c1 = patch_.Cf();
-    const vectorField& c2 = neighbourPatch().Cf();
-
-    if (c1.size() != c2.size())
-    {
-        FatalErrorIn("patchCoupleManager::coupleToObj() const")
-            << "Coupled patches are of unequal size:" << nl
-            << "    patch (size)  = " << patch_.name()
-            << "(" << patch_.size() <<  ")" << nl
-            << "    neighbour patch (size) = " << nPatch.name()
-            << "(" << nPatch.size() <<  ")" << nl
-            << abort(FatalError);
-    }
-
-    forAll(c1, i)
-    {
-        obj << "v " << c1[i].x() << " " << c1[i].y() << " " << c1[i].z() << nl
-            << "v " << c2[i].x() << " " << c2[i].y() << " " << c2[i].z() << nl
-            << "l " << (2*i + 1) << " " << (2*i + 2) << endl;
-    }
-}
-
 
 void Foam::patchCoupleManager::writeEntries(Ostream& os) const
 {
