@@ -236,13 +236,10 @@ void Foam::interfaceCoupledVelocityValue::updateCoeffs()
             this->dimensionedInternalField().name()
         );
 
-    const fvPatchVectorField& nbrPatchField =
-    (
-        nbrPatch().patchField<volVectorField, vector>(nbrField)
-    );
-
-    // Interpolate veclocity face values A-to-B
-    rgInterface().transferFacesAToB(nbrPatchField, fieldNbrToOwn);
+    fieldNbrToOwn = interpolateFromNbrField<vector>
+        (
+            nbrPatch().patchField<volVectorField, vector>(nbrField)
+        );
 
     // Enforce flux continuity at interface
 
@@ -257,13 +254,10 @@ void Foam::interfaceCoupledVelocityValue::updateCoeffs()
     surfaceScalarField nbrPhi =
         nbrMesh().lookupObject<surfaceScalarField>(phiName_);
 
-    scalarField nbrPatchPhiField =
-    (
-        nbrPatch().patchField<surfaceScalarField, scalar>(nbrPhi)
-    )*(-1.); // consider outer normals pointing in opposite directions
-
-    //- Interpolate flux face values A-to-B
-    rgInterface().transferFacesAToB(nbrPatchPhiField, patchPhiField);
+    patchPhiField = interpolateFromNbrField<scalar>
+        (
+            nbrPatch().patchField<surfaceScalarField, scalar>(nbrPhi)
+        )*(-1.); // consider outer normals pointing in opposite directions
 
     // Enforce fixed value condition
     operator==
