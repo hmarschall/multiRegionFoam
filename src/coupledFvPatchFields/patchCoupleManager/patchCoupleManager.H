@@ -26,8 +26,10 @@ Class
     patchCoupleManager
 
 Description
-    Object to handle the coupling of region patches. It can be queried to
-    return the neighbour information.
+    Helper class to handle the coupling of region patches.
+    Deployment with the regionInterface class within the unified 
+    multi-region coupling framework. It can be queried to return
+    the neighbour information and data.
 
 SourceFiles
     patchCoupleManager.C
@@ -38,20 +40,7 @@ SourceFiles
 #define patchCoupleManager_H
 
 #include "Ostream.H"
-#include "IOdictionary.H"
-#include "fvPatch.H"
-#include "fvMesh.H"
-#include "foamTime.H"
-
-//#include "volFields.H"
-//#include "primitivePatchInterpolation.H"
-#include "fvPatchFields.H"
-#include "volFields.H"
-#include "fvPatchFieldMapper.H"
-
-#include "fvCFD.H"
-#include "ggiInterpolation.H"
-//#include "GGIInterpolationTemplate.H"
+#include "regionInterface.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -81,20 +70,31 @@ class patchCoupleManager
         //- Reference to the local region
         const fvMesh& localRegion_;
 
-        //- GGI interpolation
-        mutable GGIInterpolation
-        <
-            polyPatch,
-            polyPatch
-        >* ggiInterpolatorPtr_;
-
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
-//        patchCoupleManager(const patchCoupleManager&);
+        // patchCoupleManager(const patchCoupleManager&);
 
         //- Disallow default bitwise assignment
         void operator=(const patchCoupleManager&);
+
+protected:
+
+        //- Reference to meshInterface
+        const regionInterface& rgInterface() const;
+
+        //- Reference to neighbour mesh
+        const fvMesh& nbrMesh() const;
+
+        //- Reference to neighbour patch
+        const fvPatch& nbrPatch() const;
+
+        //- Interpolate from neighbour patch values
+        template<class Type>
+        tmp<Field<Type> > interpolateFromNbrField
+        (
+            const Field<Type>& fromField
+        ) const;
 
 public:
 
@@ -107,7 +107,7 @@ public:
         patchCoupleManager(const fvPatch& patch, const dictionary& dict);
 
         //- Copy constructor
-        patchCoupleManager(const patchCoupleManager& cm);
+        patchCoupleManager(const patchCoupleManager& pcm);
 
 
     // Destructor
@@ -120,7 +120,7 @@ public:
         // Access
 
             //- Return a reference to the local patch
-            inline const fvPatch& patch() const;
+            inline const fvPatch& refPatch() const;
 
             //- Return the name of the neighbour region
             inline const word& neighbourRegionName() const;
@@ -143,19 +143,6 @@ public:
             //- Return a reference to the neighbour patch field
             template<class Type>
             inline const fvPatchField<Type>& neighbourPatchField() const;
-
-            //- Check that the couple is valid
-            void checkCouple() const;
-
-            //- Return GGI interpolator
-            inline const GGIInterpolation
-            <
-                polyPatch, polyPatch
-            >& ggiInterpolator
-            (
-                const polyPatch& nbrPatch,
-                const polyPatch& ownPatch
-            ) const;
 
 
         // Edit

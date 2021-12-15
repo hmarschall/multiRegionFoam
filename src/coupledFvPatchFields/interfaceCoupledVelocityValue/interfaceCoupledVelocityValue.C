@@ -26,95 +26,9 @@ License
 
 #include "interfaceCoupledVelocityValue.H"
 #include "addToRunTimeSelectionTable.H"
-#include "fvPatchFieldMapper.H"
 #include "volFields.H"
 #include "mathematicalConstants.H"
 #include "fvCFD.H"
-#include "ggiInterpolation.H"
-
-#include "backwardDdtScheme.H"
-
-
-// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
-
-const Foam::regionInterface& 
-Foam::interfaceCoupledVelocityValue::rgInterface() const
-{
-    const fvMesh& mesh = patch().boundaryMesh().mesh();
-    const objectRegistry& obr = mesh.objectRegistry::parent();
-
-    word rgIntName = neighbourPatchName_ + neighbourRegionName_;
-    rgIntName += this->patch().name() + mesh.name();
-
-    word rgIntNameRev = this->patch().name() + mesh.name();
-    rgIntNameRev += neighbourPatchName_ + neighbourRegionName_;
-
-    if
-    (
-        !obr.foundObject<regionInterface>(rgIntName)
-     && !obr.foundObject<regionInterface>(rgIntNameRev)
-    )
-    {
-        FatalErrorIn("interfaceCoupledVelocityValue::")
-            << "regionInterface object not found but required."
-            << abort(FatalError);
-    } else if
-    (
-        obr.foundObject<regionInterface>(rgIntName)
-     && obr.foundObject<regionInterface>(rgIntNameRev)
-    )
-    {
-        FatalErrorIn("interfaceCoupledVelocityValue::")
-            << "regionInterface object names ambiguous:"
-            << rgIntName << " vs. " << rgIntNameRev << nl
-            << "Choose unique patch/region names."
-            << abort(FatalError);
-    }
-
-    if (obr.foundObject<regionInterface>(rgIntNameRev))
-    {
-        return obr.lookupObject<regionInterface>(rgIntNameRev);
-    }
-
-    return obr.lookupObject<regionInterface>(rgIntName);
-}
-
-const Foam::fvMesh& 
-Foam::interfaceCoupledVelocityValue::nbrMesh() const
-{
-    if (this->patch().name() == rgInterface().patchA().name())
-    {
-        return rgInterface().meshB();
-    }
-
-    return rgInterface().meshA();
-}
-
-const Foam::fvPatch& 
-Foam::interfaceCoupledVelocityValue::nbrPatch() const
-{
-    if (this->patch().name() == rgInterface().patchA().name())
-    {
-        return rgInterface().patchB();
-    }
-
-    return rgInterface().patchA();
-}
-
-template<class Type>
-Foam::tmp<Field<Type> > 
-Foam::interfaceCoupledVelocityValue::interpolateFromNbrField
-(
-    const Field<Type>& fromField
-) const
-{
-    if (this->patch().name() == rgInterface().patchA().name())
-    {
-        return rgInterface().transferFacesFromB(fromField);
-    }
-
-    return rgInterface().transferFacesFromA(fromField);
-}
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -127,6 +41,7 @@ interfaceCoupledVelocityValue
 )
 :
     fixedValueFvPatchVectorField(p, iF),
+    patchCoupleManager(p),
     kName_("k"),
     relax_(1.0),
     neighbourRegionName_(),
@@ -148,6 +63,7 @@ interfaceCoupledVelocityValue
 )
 :
     fixedValueFvPatchVectorField(ptf, p, iF, mapper),
+    patchCoupleManager(p),
     kName_(ptf.kName_),
     relax_(ptf.relax_),
     neighbourRegionName_(ptf.neighbourRegionName_),
@@ -168,6 +84,7 @@ interfaceCoupledVelocityValue
 )
 :
     fixedValueFvPatchVectorField(p, iF),
+    patchCoupleManager(p, dict),
     kName_(dict.lookupOrDefault<word>("k", word::null)),
     relax_(dict.lookupOrDefault<scalar>("relax",1.0)),
     neighbourRegionName_
@@ -205,6 +122,7 @@ interfaceCoupledVelocityValue
 )
 :
     fixedValueFvPatchVectorField(icvv, iF),
+    patchCoupleManager(icvv),
     kName_(icvv.kName_),
     relax_(icvv.relax_),
     neighbourRegionName_(icvv.neighbourRegionName_),
@@ -254,6 +172,7 @@ void Foam::interfaceCoupledVelocityValue::updateCoeffs()
     surfaceScalarField nbrPhi =
         nbrMesh().lookupObject<surfaceScalarField>(phiName_);
 
+    //- Impose interpolated flux field
     patchPhiField = interpolateFromNbrField<scalar>
         (
             nbrPatch().patchField<surfaceScalarField, scalar>(nbrPhi)
@@ -430,7 +349,6 @@ Foam::scalarField Foam::interfaceCoupledVelocityValue::residual() const
         (
             nbrPatch().patchField<volVectorField, vector>(nbrField)
         );
-
 
     // Get the fluxes
     const fvsPatchField<scalar>& phip =
