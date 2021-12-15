@@ -13,6 +13,7 @@ $(regions)/conductTemperature/conductTemperature.C
 $(regions)/transportTemperature/transportTemperature.C
 $(regions)/navierStokesFluid/navierStokesFluid.C
 $(regions)/gasDiffusionLayer/gasDiffusionLayer.C
+$(regions)/ionomer/ionomer.C
 
 ../regionProperties/regionProperties.C
 ../regionInterfaceProperties/regionInterfaceProperties.C
