@@ -1,12 +1,8 @@
-boundaryConditions = ./
+patchCoupleManager/patchCoupleManager.C
 
+boundaryConditions = ./
 $(boundaryConditions)/interfaceCoupledVelocityValue/interfaceCoupledVelocityValue.C
 
-$(boundaryConditions)/coupledInterfaceFvPatchFields/coupledInterfaceFvPatchField/coupledInterfaceFvPatchFields.C
-
-$(boundaryConditions)/coupledInterfaceFvPatchFields/coupledInterfaceVelocityValueFvPatchField/coupledInterfaceVelocityValueFvPatchField.C
-
-patchCoupleManager/patchCoupleManager.C
 
 LIB = $(FOAM_USER_LIBBIN)/libcoupledFvPatchBCs
 
