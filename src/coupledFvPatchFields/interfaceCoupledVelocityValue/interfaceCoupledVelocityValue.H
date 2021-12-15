@@ -60,6 +60,7 @@ SourceFiles
 #include "fvPatchFields.H"
 #include "fixedValueFvPatchFields.H"
 #include "regionInterface.H"
+#include "patchCoupleManager.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -72,7 +73,8 @@ namespace Foam
 
 class interfaceCoupledVelocityValue
 :
-    public fixedValueFvPatchVectorField //fixedValueFvPatchVectorField
+    public fixedValueFvPatchVectorField,
+    public patchCoupleManager
 {
     // Private data
 
@@ -99,27 +101,6 @@ class interfaceCoupledVelocityValue
         //- Second order accuracy correction
         Switch secondOrder_;
 
-
-    // Private functions
-
-        //- Reference to meshInterface
-        const regionInterface& rgInterface() const;
-
-        //- Reference to neighbour mesh
-        const fvMesh& nbrMesh() const;
-
-        //- Reference to neighbour patch
-        const fvPatch& nbrPatch() const;
-
-        //- Neighbour patch values
-        template<class Type>
-        tmp<Field<Type> > interpolateFromNbrField
-        (
-            const Field<Type>& fromField
-        ) const;
-
-        //- Calc pressure jump
-        tmp<vectorField> curJump() const;
 
 public:
 
