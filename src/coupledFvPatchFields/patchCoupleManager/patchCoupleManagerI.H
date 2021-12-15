@@ -24,7 +24,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-inline const Foam::fvPatch& Foam::patchCoupleManager::patch() const
+inline const Foam::fvPatch& Foam::patchCoupleManager::refPatch() const
 {
     return patch_;
 };
@@ -87,53 +87,6 @@ inline Foam::word& Foam::patchCoupleManager::neighbourPatchName()
 {
     return neighbourPatchName_;
 };
-
-
-inline Foam::word& Foam::patchCoupleManager::neighbourFieldName()
-{
-    return neighbourFieldName_;
-};
-
-inline const Foam::GGIInterpolation<polyPatch, polyPatch>&
-Foam::patchCoupleManager::ggiInterpolator
-(
-    const polyPatch& nbrPatch,
-    const polyPatch& ownPatch
-) const
-{
-    if (!ggiInterpolatorPtr_)
-    {
-        ggiInterpolatorPtr_ =
-            new GGIInterpolation<polyPatch, polyPatch>
-            (
-                nbrPatch,
-                ownPatch,
-                tensorField(0),
-                tensorField(0),
-                vectorField(0), // Slave-to-master separation. Bug fix
-                true,           // Patch data is complete on all processors
-                SMALL,          // Non-overlapping face tolerances
-                SMALL,
-                true,           // Rescale weighting factors
-                ggiInterpolation::BB_OCTREE
-            );
-//            (
-//                nbrPatch,
-//                ownPatch,
-//                tensorField(0),
-//                tensorField(0),
-//                vectorField(0), // Slave-to-master separation. Bug fix
-//                true,           // Patch data is complete on all processors
-//                0,              // Non-overlapping face tolerances
-//                0,
-//                true,           // Rescale weighting factors
-//                ggiInterpolation::BB_OCTREE
-////                ggiInterpolation::AABB
-//            );
-    }
-
-    return *ggiInterpolatorPtr_;
-}
 
 
 // ************************************************************************* //
