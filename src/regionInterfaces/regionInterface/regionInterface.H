@@ -429,6 +429,12 @@ public:
                 const Field<Type>& fromField
             ) const;
 
+            template<class Type>
+            tmp<Field<Type> > transferFacesFromB
+            (
+                const Field<Type>& fromField
+            ) const;
+
         // Edit
 
             //- Update interpolator
