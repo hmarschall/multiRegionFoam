@@ -14,6 +14,7 @@ $(regions)/transportTemperature/transportTemperature.C
 $(regions)/navierStokesFluid/navierStokesFluid.C
 $(regions)/gasDiffusionLayer/gasDiffusionLayer.C
 $(regions)/ionomer/ionomer.C
+$(regions)/catalystLayer/catalystLayer.C
 
 ../regionProperties/regionProperties.C
 ../regionInterfaceProperties/regionInterfaceProperties.C
