@@ -53,6 +53,30 @@ tmp<Field<Type> > Foam::regionInterface::transferFacesFromA
 }
 
 template<class Type>
+tmp<Field<Type> > Foam::regionInterface::transferFacesFromB
+(
+    const Field<Type>& fromField
+) const
+{
+    tmp<Field<Type> > ttoField(new Field<Type>(patchB().size()));
+    Field<Type>& toField = ttoField();
+
+    transferFacesZoneToZone
+    (
+        meshB().name(),                     // from region name
+        meshA().name(),                     // to region name
+        globalPatchB().globalPatch(),       // from zone
+        globalPatchA().globalPatch(),       // to zone
+        fromField,                          // from field
+        toField                             // to field
+    );
+
+//    return tmp<Field<Type> >(toField);
+    return ttoField;
+}
+
+
+template<class Type>
 void Foam::regionInterface::transferFacesAToB
 (
     const Field<Type>& fromField,
