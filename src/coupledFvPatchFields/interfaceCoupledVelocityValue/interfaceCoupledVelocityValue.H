@@ -29,20 +29,25 @@ Author
     Holger Marschall (marschall@csi.tu-darmstadt.de)
 
 Description
-    Couple boundary condition for velocity within the
-    ALE interface tracking framework.
+    Couple boundary condition for velocity within the ALE interface tracking.
     The no-jump condition of the velocity at the interface is taken into
     account by copying the value from the neighbour patch.
-    The normal flux is calculated as the normal gradient multiplied by mu.
+    The normal momentum flux is calculated as the normal gradient multiplied 
+    by mu.
 
     Example usage:
         interfacePatch
         {
-            type                    interfaceCoupledVelocityValue;
-            neighbourPatchName      neighbourPatch;
-            k                       "mu";
-            value                   uniform (0,0,0);
+            type                interfaceCoupledVelocityValue;
+            k                   "mu";
+            relax               1.0;
+            neighbourRegionName liquid;
+            neighbourPatchName  interface;
+            nonOrthCorr         yes;
+            secondOrder         yes;
+            value               uniform (0 0 0);
         }
+
 
 SourceFiles
     interfaceCoupledVelocityValue.C
@@ -54,12 +59,7 @@ SourceFiles
 
 #include "fvPatchFields.H"
 #include "fixedValueFvPatchFields.H"
-#include "fixedValueFvPatchFields.H"
-
-#include "patchCoupleManager.H"
-//#include "interfacialTransport.H"
-//#include "surfaceTracking.H"
-//#include "meshInterface.H"
+#include "regionInterface.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -77,10 +77,15 @@ class interfaceCoupledVelocityValue
     // Private data
 
         //- Diffusion coefficient
-	    word k_;
+	    word kName_;
 
-        //relaxation factor for velocity jump
+        //- relaxation factor for velocity jump
         scalar relax_;
+
+        //- neighbour names
+        word neighbourRegionName_;
+
+        word neighbourPatchName_;
 
         //- Name of flux field
         word phiName_;
@@ -94,25 +99,24 @@ class interfaceCoupledVelocityValue
         //- Second order accuracy correction
         Switch secondOrder_;
 
-        //- Current time index
-        label curTimeIndex_;
-
-        // Old face centres of patch
-        // for (second order) time integration
-        vectorField Fc_;
-        vectorField oldFc_;
-        vectorField oldOldFc_;
-
-        //- Couple manager
-        autoPtr<patchCoupleManager> coupleManagerPtr_;
-
-        //- Interfacial transport
-//        mutable autoPtr<interfacialTransport> interfacePtr_;
 
     // Private functions
 
         //- Reference to meshInterface
-//        const meshInterface& ale() const;
+        const regionInterface& rgInterface() const;
+
+        //- Reference to neighbour mesh
+        const fvMesh& nbrMesh() const;
+
+        //- Reference to neighbour patch
+        const fvPatch& nbrPatch() const;
+
+        //- Neighbour patch values
+        template<class Type>
+        tmp<Field<Type> > interpolateFromNbrField
+        (
+            const Field<Type>& fromField
+        ) const;
 
         //- Calc pressure jump
         tmp<vectorField> curJump() const;
@@ -180,6 +184,7 @@ public:
 
 
     // Member functions
+
         //- Update the patch field coefficients
         virtual void updateCoeffs();
 
@@ -191,14 +196,6 @@ public:
 
         //- Return the maximum normalized coupled patch residual
         scalarField residual() const;
-
-        //- Return the matrix diagonal coefficients corresponding to the
-        //  evaluation of the gradient of this patchField
-//        virtual tmp<Field<vector> > gradientInternalCoeffs() const;
-        
-        //- Return the matrix source coefficients corresponding to the
-        //  evaluation of the gradient of this patchField
-//        virtual tmp<Field<vector> > gradientBoundaryCoeffs() const;
 
         //- Return the matrix source coefficients corresponding to the
         //  evaluation of the gradient of this patchField
