@@ -36,11 +36,11 @@ Foam::patchCoupleManager::rgInterface() const
     const fvMesh& mesh = refPatch().boundaryMesh().mesh();
     const objectRegistry& obr = mesh.objectRegistry::parent();
 
-    word rgIntName = neighbourPatchName_ + neighbourRegionName_;
-    rgIntName += refPatch().name() + mesh.name();
+    word rgIntName = neighbourRegionName_ + neighbourPatchName_;
+    rgIntName += mesh.name() + refPatch().name();
 
-    word rgIntNameRev = refPatch().name() + mesh.name();
-    rgIntNameRev += neighbourPatchName_ + neighbourRegionName_;
+    word rgIntNameRev = mesh.name() + refPatch().name();
+    rgIntNameRev += neighbourRegionName_ + neighbourPatchName_;
 
     if
     (
