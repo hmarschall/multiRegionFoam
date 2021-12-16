@@ -29,11 +29,11 @@ Author
     Holger Marschall (marschall@csi.tu-darmstadt.de)
 
 Description
-    Couple boundary condition for velocity within the ALE interface tracking.
+    Dirichlet boundary condition for velocity within the ALE interface tracking.
     The no-jump condition of the velocity at the interface is taken into
-    account by copying the value from the neighbour patch.
-    The normal momentum flux is calculated as the normal gradient multiplied 
-    by mu.
+    account by copying the value from the neighbour patch. Flux continuity is 
+    enforced likewise. The momentum flux is calculated as the normal gradient 
+    multiplied by mu.
 
     Example usage:
         interfacePatch
@@ -42,7 +42,7 @@ Description
             k                   "mu";
             relax               1.0;
             neighbourRegionName liquid;
-            neighbourPatchName  interface;
+            neighbourPatchName  interfacePatchShadow;
             nonOrthCorr         yes;
             secondOrder         yes;
             value               uniform (0 0 0);

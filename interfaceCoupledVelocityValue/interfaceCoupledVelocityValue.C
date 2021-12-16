@@ -47,7 +47,7 @@ interfaceCoupledVelocityValue
     neighbourRegionName_(),
     neighbourPatchName_(),
     phiName_("phi"),
-    rhoName_("rhoA"),
+    rhoName_("rho"),
     nonOrthCorr_(false),
     secondOrder_(false)
 {}
@@ -56,22 +56,22 @@ interfaceCoupledVelocityValue
 Foam::interfaceCoupledVelocityValue::
 interfaceCoupledVelocityValue
 (
-    const interfaceCoupledVelocityValue& ptf,
+    const interfaceCoupledVelocityValue& icvv,
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    fixedValueFvPatchVectorField(ptf, p, iF, mapper),
+    fixedValueFvPatchVectorField(icvv, p, iF, mapper),
     patchCoupleManager(p),
-    kName_(ptf.kName_),
-    relax_(ptf.relax_),
-    neighbourRegionName_(ptf.neighbourRegionName_),
-    neighbourPatchName_(ptf.neighbourPatchName_),
-    phiName_(ptf.phiName_),
-    rhoName_(ptf.rhoName_),
-    nonOrthCorr_(ptf.nonOrthCorr_),
-    secondOrder_(ptf.secondOrder_)
+    kName_(icvv.kName_),
+    relax_(icvv.relax_),
+    neighbourRegionName_(icvv.neighbourRegionName_),
+    neighbourPatchName_(icvv.neighbourPatchName_),
+    phiName_(icvv.phiName_),
+    rhoName_(icvv.rhoName_),
+    nonOrthCorr_(icvv.nonOrthCorr_),
+    secondOrder_(icvv.secondOrder_)
 {}
 
 
