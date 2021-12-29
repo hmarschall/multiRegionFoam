@@ -61,6 +61,14 @@ SourceFiles
 #include "ggiInterpolation.H"
 #include "RBFInterpolation.H"
 
+#include "wedgeFaPatch.H"
+#include "wallFvPatch.H"
+#include "wedgeFaPatchFields.H"
+#include "slipFaPatchFields.H"
+#include "fixedValueFaPatchFields.H"
+#include "slipFvPatchFields.H"
+#include "symmetryFvPatchFields.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -82,6 +90,12 @@ class regionInterface
 
         //- interface properties dictionary
         IOdictionary regionInterfaceProperties_;
+        
+        //- bulk velocity field        
+        const volVectorField& U_;
+        
+        //- bulk flux field
+        const surfaceScalarField& phi_;
 
         //- Reference to time
         const Time& runTime_;
@@ -446,13 +460,34 @@ public:
             //- Detach the mesh interface using mesh modifier
             virtual void detach();
 
-            // interface-specific physics
+            //- Create/update interface physics
             void makeFaMesh() const;
-
-            virtual void makeUs() const = 0;
-            virtual void makeK() const = 0;
-            virtual void makePhis() const = 0;
-
+            
+            // Surface velocity
+            void makeUs() const;
+            void updateUs();
+                        
+            // Interfacial curvature
+            void makeK() const;
+            void updateK();
+                       
+            // Surface flux
+            void makePhis() const;
+            void updateSurfaceFlux();
+            
+            //- Helper functions
+            // Return constant reference to velocity field on patch
+            const vectorField& Up();
+            
+            // Update surface velocity b.c.
+            void correctUsBoundaryConditions();
+            
+            // Calculate interface curvature at axis
+            void calcCurvatureAxis
+            (
+                areaScalarField& K
+            );
+        
         // Write
 
            //- Write entries for patches
