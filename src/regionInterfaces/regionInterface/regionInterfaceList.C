@@ -304,29 +304,4 @@ void Foam::regionInterfaceList::transferFaces()
 //    }
 }
 
-
-void Foam::regionInterfaceList::makeUs() const
-{
-   forAll(*this, i)
-   {
-       this->operator[](i).makeUs();
-   }
-}
-
-void Foam::regionInterfaceList::makeK() const
-{
-   forAll(*this, i)
-   {
-       this->operator[](i).makeK();
-   }
-}
-
-void Foam::regionInterfaceList::makePhis() const
-{
-   forAll(*this, i)
-   {
-       this->operator[](i).makePhis();
-   }
-}
-
 // ************************************************************************* //
