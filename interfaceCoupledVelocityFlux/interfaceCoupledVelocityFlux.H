@@ -29,19 +29,22 @@ Author
     Holger Marschall (marschall@csi.tu-darmstadt.de)
 
 Description
-	Couple boundary condition for interfacial species flux within the
-	ALE interface tracking framework.
-  Jump in velocity normal flux is implemented using the normal velocity
-  gradient jump from tangential momentum jump condition.
+    Neumann boundary condition for velocity within the ALE interface tracking.
+    Jump in velocity normal flux is implemented using the normal velocity
+    gradient jump from tangential momentum jump condition.
 
     Example usage:
-		interfacePatch
-        {
-            type                    interfaceCoupledVelocityFlux;
-            neighbourPatchName      neighbourPatch;
-            k                       "mu";
-            value                   uniform (0 0 0);
-        }
+	    interfacePatchShadow
+            {
+                type                    interfaceCoupledVelocityFlux;
+                k                       "mu";
+                neighbourRegionName     gas;
+                neighbourPatchName      interfacePatch;
+                nonOrthCorr             yes;
+                secondOrder             yes;
+                value                   uniform (0 0 0);
+            }
+
 
 SourceFiles
     interfaceCoupledVelocityFlux.C
@@ -51,15 +54,10 @@ SourceFiles
 #ifndef interfaceCoupledVelocityFlux_H
 #define interfaceCoupledVelocityFlux_H
 
-#include "fvPatchFields.H"
 #include "fixedGradientFvPatchFields.H"
-#include "fixedGradientCorrectedFvPatchFields.H"
-#include "patchCoupleManager.H"
-#include "directMappedFvPatch.H"//
-#include "interfacialTransport.H"
 
-#include "surfaceTracking.H"
-#include "meshInterface.H"
+#include "patchCoupleManager.H"
+#include "regionInterface.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -72,17 +70,20 @@ namespace Foam
 
 class interfaceCoupledVelocityFlux
 :
-    public fixedGradientFvPatchVectorField
+    public fixedGradientFvPatchVectorField,
+    public patchCoupleManager
 {
     // Private data
 
-        //- Name of jump coefficient
-		//word K_;
-
         //- Diffusion coefficient
-		word k_;
+		word kName_;
+		
+		//- Neighbour names
+        word neighbourRegionName_;
 
-        //- fluid properties
+        word neighbourPatchName_;
+
+        //- Fluid properties
         dimensionedScalar muFluidA_;
 
         dimensionedScalar muFluidB_;
@@ -102,32 +103,12 @@ class interfaceCoupledVelocityFlux
 
         //- Second order accuracy correction
         Switch secondOrder_;
-
-        //- Current time index
-        label curTimeIndex_;
-
-        // Old face centres of patch
-        // for (second order) time integration
-        vectorField Fc_;
-        vectorField oldFc_;
-        vectorField oldoldFc_;
+        
 
     // Private functions
 
-        //- Reference to meshInterface
-        const meshInterface& ale() const;
-
-        //- Reference to interfacialTransport
-        const interfacialTransport& interface() const;
-
-        //- Calc velocity jump
+        //- Calculate velocity jump
         tmp<vectorField> velJump() const;
-
-        //- Couple manager
-        autoPtr<patchCoupleManager> coupleManagerPtr_;
-
-        //- Interfacial transport
-        mutable autoPtr<interfacialTransport> interfacePtr_;
 
 public:
 
