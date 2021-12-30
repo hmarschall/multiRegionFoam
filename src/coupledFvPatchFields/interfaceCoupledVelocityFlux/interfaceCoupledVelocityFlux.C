@@ -25,62 +25,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "interfaceCoupledVelocityFlux.H"
-#include "addToRunTimeSelectionTable.H"
-#include "volFields.H"
-#include "fvPatchFieldMapper.H"
 #include "interfaceCoupledVelocityValue.H"
-#include "ggiInterpolation.H"
-#include "patchToPatchInterpolation.H"
-
-#include "slipFvPatchFields.H"
-#include "symmetryFvPatchFields.H"
-#include "wallFvPatch.H"
-
-#include "wedgeFaPatch.H"
-#include "wedgeFaPatchFields.H"
-#include "slipFaPatchFields.H"
-
-#include "fixedGradientFvPatchFields.H"
-#include "fixedValueFvPatchFields.H"
-
-
-// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
-
-const Foam::meshInterface& 
-Foam::interfaceCoupledVelocityFlux::ale() const
-{
-    const fvMesh& mesh = patch().boundaryMesh().mesh();
-    const objectRegistry& obr = mesh.objectRegistry::parent();
-
-    if (!obr.foundObject<meshInterface>("aleProperties"))
-    {
-        FatalErrorIn("interfaceCoupledVelocityFlux::")
-            << "meshInterface object not found but required."
-            << abort(FatalError);
-    }
-
-    return obr.lookupObject<meshInterface>("aleProperties");
-}
-
-const Foam::interfacialTransport& 
-Foam::interfaceCoupledVelocityFlux::interface() const
-{
-    const fvMesh& mesh = ale().meshA();
-
-    if (!mesh.foundObject<interfacialTransport>("interfaceTransportProperties"))
-    {
-        FatalErrorIn("interfaceCoupledVelocityFlux::")
-            << "interfacialTransport object not found but required."
-            << abort(FatalError);
-    }
-
-    return
-    (
-        mesh.lookupObject<interfacialTransport>
-        ("interfaceTransportProperties")
-    );
-}
-
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -92,7 +38,10 @@ interfaceCoupledVelocityFlux
 )
 :
     fixedGradientFvPatchVectorField(p, iF),
-    k_("k"),
+    patchCoupleManager(p),
+    kName_("k"),
+    neighbourRegionName_(),
+    neighbourPatchName_(),
     muFluidA_
     (
         patch().boundaryMesh().mesh()
@@ -115,77 +64,33 @@ interfaceCoupledVelocityFlux
     phiName_("phi"),
     rhoName_("rhoA"),
     nonOrthCorr_(false),
-    secondOrder_(false),
-    curTimeIndex_( dimensionedInternalField().mesh().time().timeIndex() ),
-    Fc_( p.patch().size(), vector::zero ),
-    oldFc_( p.patch().size(), vector::zero ),
-    oldoldFc_( p.patch().size(), vector::zero )
-{
-    coupleManagerPtr_.reset
-    (
-        new patchCoupleManager(p)
-    );
-
-    interfacePtr_.reset
-    (
-        new interfacialTransport
-        (
-//            word::null,
-            this->db().lookupObject<volVectorField>("U"),
-            this->db().lookupObject<surfaceScalarField>("phi"),
-            this->patch().name(),
-            this->patch().boundaryMesh().mesh()
-            .lookupObject<IOdictionary>("surfaceProperties")
-        )
-    );
-}
+    secondOrder_(false)
+{}
 
 
 Foam::interfaceCoupledVelocityFlux::
 interfaceCoupledVelocityFlux
 (
-    const interfaceCoupledVelocityFlux& ptf,
+    const interfaceCoupledVelocityFlux& icvf,
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    fixedGradientFvPatchVectorField(ptf, p, iF, mapper),
-    k_(ptf.k_),
-    muFluidA_(ptf.muFluidA_),
-    muFluidB_(ptf.muFluidB_),
-    sigma_(ptf.sigma_),
+    fixedGradientFvPatchVectorField(icvf, p, iF, mapper),
+    patchCoupleManager(p),
+    kName_(icvf.kName_),
+    neighbourRegionName_(icvf.neighbourRegionName_),
+    neighbourPatchName_(icvf.neighbourPatchName_),
+    muFluidA_(icvf.muFluidA_),
+    muFluidB_(icvf.muFluidB_),
+    sigma_(icvf.sigma_),
     sigmaPtr_(NULL),
-    phiName_(ptf.phiName_),
-    rhoName_(ptf.rhoName_),
-    nonOrthCorr_(ptf.nonOrthCorr_),
-    secondOrder_(ptf.secondOrder_),
-    curTimeIndex_(ptf.curTimeIndex_),
-    Fc_(p.patch().size(), vector::zero),
-    oldFc_(p.patch().size(), vector::zero),
-    oldoldFc_(p.patch().size(), vector::zero)
-{
-    coupleManagerPtr_.reset
-    (
-        new patchCoupleManager
-        (
-            ptf.coupleManagerPtr_
-        )
-    );
-
-    interfacePtr_.reset
-    (
-        new interfacialTransport
-        (
-//            word::null,
-            this->db().lookupObject<volVectorField>("U"),
-            this->db().lookupObject<surfaceScalarField>("phi"),
-            this->patch().name(),
-            this->patch().boundaryMesh().mesh()
-            .lookupObject<IOdictionary>("surfaceProperties")
-        )
-    );
-}
+    phiName_(icvf.phiName_),
+    rhoName_(icvf.rhoName_),
+    nonOrthCorr_(icvf.nonOrthCorr_),
+    secondOrder_(icvf.secondOrder_)
+{}
 
 
 Foam::interfaceCoupledVelocityFlux::
@@ -197,7 +102,16 @@ interfaceCoupledVelocityFlux
 )
 :
     fixedGradientFvPatchVectorField(p, iF),
-    k_(dict.lookupOrDefault<word>("k", word::null)),
+    patchCoupleManager(p, dict),
+    kName_(dict.lookupOrDefault<word>("k", word::null)),
+    neighbourRegionName_
+    (
+        dict.lookupOrDefault<word>("neighbourRegionName", word::null)
+    ),
+    neighbourPatchName_
+    (
+        dict.lookupOrDefault<word>("neighbourPatchName", word::null)
+    ),
     muFluidA_
     (
         patch().boundaryMesh().mesh()
@@ -220,33 +134,8 @@ interfaceCoupledVelocityFlux
     phiName_(dict.lookupOrDefault<word>("phi", "phi")),
     rhoName_(dict.lookupOrDefault<word>("rho", "rho")),
     nonOrthCorr_(false),
-    secondOrder_(false),
-    curTimeIndex_(dimensionedInternalField().mesh().time().timeIndex()),
-    Fc_(p.patch().size(), vector::zero),
-    oldFc_(p.patch().size(), vector::zero),
-    oldoldFc_(p.patch().size(), vector::zero)
+    secondOrder_(false)
 {
-    coupleManagerPtr_.reset
-    (
-        new patchCoupleManager
-        (
-            p, dict
-        )
-    );
-
-    interfacePtr_.reset
-    (
-        new interfacialTransport
-        (
-//            word::null,
-            this->db().lookupObject<volVectorField>("U"),
-            this->db().lookupObject<surfaceScalarField>("phi"),
-            this->patch().name(),
-            this->patch().boundaryMesh().mesh()
-            .lookupObject<IOdictionary>("surfaceProperties")
-        )
-    );
-
     fvPatchVectorField::operator=(patchInternalField());
 
     if (dict.found("value"))
@@ -267,47 +156,24 @@ interfaceCoupledVelocityFlux
 Foam::interfaceCoupledVelocityFlux::
 interfaceCoupledVelocityFlux
 (
-    const interfaceCoupledVelocityFlux& whftcsf,
+    const interfaceCoupledVelocityFlux& icvf,
     const DimensionedField<vector, volMesh>& iF
 )
 :
-    fixedGradientFvPatchVectorField(whftcsf, iF),
-//    coupleManager_(whftcsf.coupleManager_),
-    k_(whftcsf.k_),
-    muFluidA_(whftcsf.muFluidA_),
-    muFluidB_(whftcsf.muFluidB_),
-    sigma_(whftcsf.sigma_),
+    fixedGradientFvPatchVectorField(icvf, iF),
+    patchCoupleManager(icvf),
+    kName_(icvf.kName_),
+    neighbourRegionName_(icvf.neighbourRegionName_),
+    neighbourPatchName_(icvf.neighbourPatchName_),
+    muFluidA_(icvf.muFluidA_),
+    muFluidB_(icvf.muFluidB_),
+    sigma_(icvf.sigma_),
     sigmaPtr_(NULL),
-    phiName_(whftcsf.phiName_),
-    rhoName_(whftcsf.rhoName_),
-    nonOrthCorr_(whftcsf.nonOrthCorr_),
-    secondOrder_(whftcsf.secondOrder_),
-    curTimeIndex_(whftcsf.curTimeIndex_),
-    Fc_(whftcsf.oldFc_),
-    oldFc_(whftcsf.oldFc_),
-    oldoldFc_(whftcsf.oldoldFc_)
-{
-    coupleManagerPtr_.reset
-    (
-        new patchCoupleManager
-        (
-            whftcsf.coupleManagerPtr_
-        )
-    );
-
-    interfacePtr_.reset
-    (
-        new interfacialTransport
-        (
-//            word::null,
-            this->db().lookupObject<volVectorField>("U"),
-            this->db().lookupObject<surfaceScalarField>("phi"),
-            this->patch().name(),
-            this->patch().boundaryMesh().mesh()
-            .lookupObject<IOdictionary>("surfaceProperties")
-        )
-    );
-}
+    phiName_(icvf.phiName_),
+    rhoName_(icvf.rhoName_),
+    nonOrthCorr_(icvf.nonOrthCorr_),
+    secondOrder_(icvf.secondOrder_)
+{}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
@@ -323,13 +189,9 @@ tmp<vectorField> interfaceCoupledVelocityFlux::velJump() const
 {
     const fvMesh& mesh = patch().boundaryMesh().mesh();
 
-    const faMesh& aMesh = interfacePtr_->aMesh();
+    const faMesh& aMesh = rgInterface().aMesh();
 
-    const areaVectorField& nf = aMesh.faceAreaNormals();
-
-    // Get interfacial curvature
-//    areaScalarField& K = interfacePtr_->K();
-//    interfacePtr_->updateK();
+    const areaVectorField& nf = aMesh.faceAreaNormals();                        
 
     // surface tension
     if
@@ -368,9 +230,10 @@ tmp<vectorField> interfaceCoupledVelocityFlux::velJump() const
     );
 
     // surface velocity terms
-    areaVectorField& Us = interfacePtr_->Us();
-    interfacePtr_->updateUs();
+    const areaVectorField& Us = rgInterface().Us();
 
+    //TODO rgInterface().updateUs();
+    
     areaScalarField divSU =
     (
         fac::div(Us)
@@ -405,45 +268,22 @@ void Foam::interfaceCoupledVelocityFlux::updateCoeffs()
         return;
     }
 
-    const fvMesh& mesh = patch().boundaryMesh().mesh();
-
     // Calculate interpolated patch field
     vectorField fluxNbrToOwn(patch().size(), pTraits<vector>::zero);
-//    const objectRegistry& obr = mesh.objectRegistry::parent();
 
-//    if (!obr.foundObject<meshInterface>("aleProperties"))
-//    {
-//        FatalErrorIn("interfaceCoupledPressureValue::updateCoeffs(...)")
-//            << "meshInterface object not found but required."
-//            << abort(FatalError);
-//    }
-
-//    const meshInterface& ale =
-//        obr.lookupObject<meshInterface>("aleProperties");
-
-    //- Lookup neighbouring patch field
-    const volVectorField& nbrField = ale().meshB().lookupObject<volVectorField>
+    // Lookup neighbouring patch field
+    const volVectorField& nbrField = nbrMesh().lookupObject<volVectorField>
         (
             //presume same field name as on this side
             this->dimensionedInternalField().name()
         );
 
-    const fvPatchVectorField& nbrPatchField =
-    (
-        ale().patchB().patchField<volVectorField, vector>(nbrField)
-    );
-
-    //- Interpolate flux face values B-to-A
     tmp<vectorField> tnbrFlux = 
         refCast<const interfaceCoupledVelocityValue>
-        (nbrPatchField).flux();
+        (nbrPatch().patchField<volVectorField, vector>(nbrField)).flux();
     const vectorField& nbrFlux = tnbrFlux();
 
-    ale().transferFacesBToA
-    (
-        nbrFlux,
-        fluxNbrToOwn
-    );
+    fluxNbrToOwn = interpolateFromNbrField<vector>(nbrFlux);
 
     fluxNbrToOwn *= -1.0;
     fluxNbrToOwn += velJump();
@@ -451,8 +291,8 @@ void Foam::interfaceCoupledVelocityFlux::updateCoeffs()
 	// Enforce flux matching
     dimensionedScalar k
     (
-      mesh.lookupObject<IOdictionary>
-      ("surfaceProperties").lookup(k_)
+      patch().boundaryMesh().mesh().lookupObject<IOdictionary>
+      ("surfaceProperties").lookup(kName_)
     );
 
     gradient() = fluxNbrToOwn/k.value();
@@ -564,33 +404,30 @@ void Foam::interfaceCoupledVelocityFlux::evaluate
 //- Return the maximum normalized coupled patch residual
 Foam::scalarField Foam::interfaceCoupledVelocityFlux::residual() const
 {
-
-    const fvMesh& mesh = patch().boundaryMesh().mesh();
-
     // Calculate interpolated patch flux
-    const polyPatch& ownPatch = patch().patch();
-    const polyPatch& nbrPatch = coupleManagerPtr_->neighbourPatch().patch();
+    vectorField fluxNbrToOwn(patch().size(), pTraits<vector>::zero);
 
-    const fvPatchField<vector>& nbrPatchField =
-        coupleManagerPtr_->neighbourPatchField<vector>();
-
-    const GGIInterpolation<polyPatch, polyPatch>& interpolator =
-        coupleManagerPtr_->ggiInterpolator(nbrPatch,ownPatch);
-
-    vectorField fluxNbrToOwn =
-        interpolator.masterToSlave
+    // Lookup neighbouring patch field
+    const volVectorField& nbrField = nbrMesh().lookupObject<volVectorField>
         (
-            refCast<const interfaceCoupledVelocityValue>
-            (nbrPatchField).flux()
+            //presume same field name as on this side
+            this->dimensionedInternalField().name()
         );
+        
+    tmp<vectorField> tnbrFlux = 
+        refCast<const interfaceCoupledVelocityValue>
+        (nbrPatch().patchField<volVectorField, vector>(nbrField)).flux();     
+    const vectorField& nbrFlux = tnbrFlux();
+
+    fluxNbrToOwn = interpolateFromNbrField<vector>(nbrFlux);
 
     // Calculate the maximum normalized residual
     const fvPatchVectorField& fown = *this;
 
     dimensionedScalar k
     (
-        mesh.lookupObject<IOdictionary>
-        ("surfaceProperties").lookup(k_)
+        patch().boundaryMesh().mesh().lookupObject<IOdictionary>
+        ("surfaceProperties").lookup(kName_)
     );
 
     vectorField fluxOwn = k.value()*fown.snGrad();
@@ -614,12 +451,24 @@ void Foam::interfaceCoupledVelocityFlux::write
 ) const
 {
     fvPatchVectorField::write(os);
-    coupleManagerPtr_->writeEntries(os);
-    os.writeKeyword("k") << k_ << token::END_STATEMENT << nl;
+    os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
+    os.writeKeyword("neighbourRegionName") << neighbourRegionName_ 
+        << token::END_STATEMENT << nl;
+    os.writeKeyword("neighbourPatchName") << neighbourPatchName_ 
+        << token::END_STATEMENT << nl;
+    os.writeKeyword("muFluidA") << muFluidA_ << token::END_STATEMENT << nl;
+    os.writeKeyword("muFluidB") << muFluidB_ << token::END_STATEMENT << nl;
+    os.writeKeyword("sigma") << sigma_ << token::END_STATEMENT << nl;
+    os.writeKeyword("sigmaPtr") << sigmaPtr_ << token::END_STATEMENT << nl;
+    os.writeKeyword("phiName") << phiName_ << token::END_STATEMENT << nl;
+    os.writeKeyword("rhoName") << rhoName_ << token::END_STATEMENT << nl;
+    os.writeKeyword("nonOrthCorr") << nonOrthCorr_ 
+        << token::END_STATEMENT << nl;
+    os.writeKeyword("secondOrder") << secondOrder_ 
+        << token::END_STATEMENT << nl;
     writeEntry("value", os);
 }
-
-
+    
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam

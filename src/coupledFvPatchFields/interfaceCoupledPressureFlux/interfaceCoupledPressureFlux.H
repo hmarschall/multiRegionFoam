@@ -29,19 +29,19 @@ Author
     Holger Marschall (marschall@csi.tu-darmstadt.de)
 
 Description
-	Couple boundary condition for interfacial pressure flux within the
-	ALE interface tracking framework.
-	Normal pressure flux jump is calculated from the flux at the
-	neighbour patch.
+    Neumann boundary condition for pressure within the ALE interface tracking.
+    Normal pressure flux jump is calculated from the neighbour patch flux.
 
     Example usage:
-	interfacePatch
-        {
-            type                    interfaceCoupledPressureFlux;
-            neighbourPatchName      neighbourPatch;
-            k                       "rho";
-            value                   uniform 0;
-        }
+        interfacePatch
+            {
+                type                    interfaceCoupledPressureFlux;
+                k                       "rho";
+                neighbourRegionName     liquid;
+                neighbourPatchName      interfacePatchShadow;
+                value                   uniform 0;
+            }
+
 
 SourceFiles
     interfaceCoupledPressureFlux.C
@@ -51,15 +51,11 @@ SourceFiles
 #ifndef interfaceCoupledPressureFlux_H
 #define interfaceCoupledPressureFlux_H
 
-#include "fvPatchFields.H"
-#include "fixedGradientFvPatchFields.H"
 #include "fixedGradientFvPatchFields.H"
 #include "autoPtr.H"
-#include "patchCoupleManager.H"
 
-#include "surfaceTracking.H"
-#include "interfacialTransport.H"
-#include "meshInterface.H"
+#include "patchCoupleManager.H"
+#include "regionInterface.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -72,14 +68,20 @@ namespace Foam
 
 class interfaceCoupledPressureFlux
 :
-    public fixedGradientFvPatchScalarField //fixedGradientFvPatchScalarField
+    public fixedGradientFvPatchScalarField, 
+    public patchCoupleManager    
 {
     // Private data
 
         //- Diffusion coefficient
-		word k_;
+		word kName_;
+		
+	    //- Neighbour names
+        word neighbourRegionName_;
 
-        //- fluid properties
+        word neighbourPatchName_;
+
+        //- Fluid properties
         dimensionedScalar muFluidA_;
 
         dimensionedScalar muFluidB_;
@@ -88,22 +90,12 @@ class interfaceCoupledPressureFlux
 
         dimensionedScalar rhoFluidB_;
 
-        //- gravitational accelaration
+        //- Gravitational accelaration
         dimensionedVector g_;
 
-        //- Calc pressure gradient jump
+        //- Calculate pressure gradient jump
         tmp<scalarField> nGradJump() const;
-
-        //- Couple manager
-        autoPtr<patchCoupleManager> coupleManagerPtr_;
-
-        //- Interfacial transport
-        mutable autoPtr<interfacialTransport> interfacePtr_;
-
-    // Private functions
-
-        //- Reference to meshInterface
-        const meshInterface& ale() const;
+        
 
 public:
 
