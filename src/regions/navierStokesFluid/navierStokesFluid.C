@@ -111,7 +111,10 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
     ),
     rhoFluid_
     (
-        transportProperties_.subDict(regionName_).lookup("rho")
+        // transportProperties_.subDict(regionName_).lookup("rho")
+            //currently there is no subdict for region name, each region has 
+            //a transportProperties dictionary in its folder
+        transportProperties_.lookup("rho")
     ),
     rho_
     (
@@ -128,7 +131,8 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
     ),
     muFluid_
     (
-        transportProperties_.subDict(regionName_).lookup("mu")
+        //transportProperties_.subDict(regionName_).lookup("mu")
+        transportProperties_.lookup("mu")
     ),
     mu_
     (
@@ -172,16 +176,7 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         *this,
         dimMass/sqr(dimLength*dimTime),
         zeroGradientFvPatchVectorField::typeName
-    ),   
-    phiHbyA_
-    (
-        "phiHbyA",
-        (
-            (fvc::interpolate(HU_)/fvc::interpolate(AU_))
-            & this->Sf()
-        )
-    ),
-             
+    ),              
     gradp_
     (
 		IOobject
@@ -344,7 +339,17 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
 
             HbyA = HU_/AU_;
             
-            phiHbyA_ += fvc::ddtPhiCorr((1.0/AU_)(), rho_, U_, phiHbyA_);
+            surfaceScalarField phiHbyA // moved from the constructor to avoid 
+                                       // error with divide operator at runtime
+            (
+                "phiHbyA",
+                (
+                    (fvc::interpolate(HU_)/fvc::interpolate(AU_))
+                    & this->Sf()
+                )
+            );
+
+            phiHbyA += fvc::ddtPhiCorr((1.0/AU_)(), rho_, U_, phiHbyA);
 
             tmp<volScalarField> AtU(AU_);
             AtU = max(AU_ - UEqn.H1(), 0.1*AU_);
@@ -352,11 +357,11 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
             surfaceScalarField AtUf("AtUf", fvc::interpolate(AtU()));
             surfaceScalarField AUf("AUf", fvc::interpolate(AU_));
 
-            phiHbyA_ += (1.0/AtUf - 1.0/AUf)*fvc::snGrad(p_)*this->magSf();
+            phiHbyA += (1.0/AtUf - 1.0/AUf)*fvc::snGrad(p_)*this->magSf();
 
             HbyA -= (1.0/AU_ - 1.0/AtU)*gradp_;
 
-            forAll(phiHbyA_.boundaryField(), patchI)
+            forAll(phiHbyA.boundaryField(), patchI)
             {
                 if
                 (
@@ -367,7 +372,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                     )
                 )
                 {
-                    phiHbyA_.boundaryField()[patchI] =
+                    phiHbyA.boundaryField()[patchI] =
                     (
                         U_.boundaryField()[patchI]
                         & this->Sf().boundaryField()[patchI]
@@ -381,7 +386,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
             {
                 fvScalarMatrix pEqn
                 (
-                    fvm::laplacian(1.0/AtUf, p_) == fvc::div(phiHbyA_)
+                    fvm::laplacian(1.0/AtUf, p_) == fvc::div(phiHbyA)
                 );
                 
                 // #include "setRefCell.H" 
@@ -410,7 +415,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                 if (pimple.finalNonOrthogonalIter()) 
                 // (corrNonOrtho_ == nNonOrthCorr_ + 1)
                 {
-                    phi_ = phiHbyA_ - pEqn.flux();
+                    phi_ = phiHbyA - pEqn.flux();
                 }                            
             }
             
@@ -434,7 +439,6 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
         }
         //} while (innerResidual > innerTolerance && corr < nCorr); 
     }
-
 }
 
 // ************************************************************************* //
