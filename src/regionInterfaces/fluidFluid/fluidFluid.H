@@ -34,7 +34,6 @@ SourceFiles
 
 #include "regionInterface.H"
 #include "dimensionedScalar.H"
-#include "multiRegionSystem.H"
 #include "volFields.H"
 #include "IOReferencer.H"
 #include "HashPtrTable.H"
@@ -59,10 +58,6 @@ class fluidFluid
         IOdictionary transportPropertiesB_;
 
         IOdictionary gravitationalProperties_;
-
-        //const Time& runTime_;
-        //const fvPatch& patchA_;
-        //const fvPatch& patchB_;
 
         //- bulk velocity field        
         const volVectorField& U_;
@@ -105,46 +100,10 @@ public:
     
       
     // Access  
-    
-        //- Return reference to velocity
-        const volVectorField& U() const
-        {
-            return U_;
-        }
  
     // Member Functions	
-    
-		//- Return constant reference to velocity field on patch
-        const vectorField& Up();
-        
-        //- Update surface velocity field
-        void updateUs();
+       
 
-        //- Update surface velocity b.c.
-        void correctUsBoundaryConditions();
-
-        //- Update surface flux
-        void updateSurfaceFlux();
-
-        //- Update interfacial curvature field
-        void updateK();
-
-        //- Calculate interface curvature at axis
-        void calcCurvatureAxis
-        (
-            areaScalarField& K
-        );
-    
-    // virtual functions 
-        
-        //- Create surface velocity field
-        virtual void makeUs() const;
-        
-        //- Create interfacial curvature                 
-        virtual void makeK() const;
-
-        //- Create surface flux
-        virtual void makePhis() const;
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
