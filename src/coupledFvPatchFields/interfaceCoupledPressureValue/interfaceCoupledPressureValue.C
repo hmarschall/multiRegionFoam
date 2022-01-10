@@ -25,42 +25,8 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "interfaceCoupledPressureValue.H"
-#include "addToRunTimeSelectionTable.H"
-#include "fvPatchFieldMapper.H"
-#include "volFields.H"
-#include "areaFields.H"
-#include "mathematicalConstants.H"
-#include "fvCFD.H"
-#include "ggiInterpolation.H"
-
-#include "slipFvPatchFields.H"
-#include "symmetryFvPatchFields.H"
-#include "wallFvPatch.H"
-#include "fixedGradientFaPatchFields.H"
-
-#include "wedgeFaPatch.H"
-#include "wedgeFaPatchFields.H"
-#include "slipFaPatchFields.H"
-
 #include "interfaceCoupledVelocityValue.H"
-
-// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
-
-const Foam::meshInterface& 
-Foam::interfaceCoupledPressureValue::ale() const
-{
-    const fvMesh& mesh = patch().boundaryMesh().mesh();
-    const objectRegistry& obr = mesh.objectRegistry::parent();
-
-    if (!obr.foundObject<meshInterface>("aleProperties"))
-    {
-        FatalErrorIn("interfaceCoupledPressureValue::")
-            << "meshInterface object not found but required."
-            << abort(FatalError);
-    }
-
-    return obr.lookupObject<meshInterface>("aleProperties");
-}
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -72,7 +38,10 @@ interfaceCoupledPressureValue
 )
 :
     fixedValueFvPatchScalarField(p, iF),
-    k_("k"),
+    patchCoupleManager(p),
+    kName_("k"),
+    neighbourRegionName_(),
+    neighbourPatchName_(), 
     muFluidA_
     (
         patch().boundaryMesh().mesh()
@@ -113,70 +82,34 @@ interfaceCoupledPressureValue
     relax_(1.0),
     nonOrthCorr_(false),
     secondOrder_(false)
-{
-    coupleManagerPtr_.reset
-    (
-        new patchCoupleManager(p)
-    );
-
-    interfacePtr_.reset
-    (
-        new interfacialTransport
-        (
-//            word::null,
-            this->db().lookupObject<volVectorField>("U"),
-            this->db().lookupObject<surfaceScalarField>("phi"),
-            this->patch().name(),
-            this->patch().boundaryMesh().mesh()
-            .lookupObject<IOdictionary>("surfaceProperties")
-        )
-    );
-}
+{}
 
 
 Foam::interfaceCoupledPressureValue::
 interfaceCoupledPressureValue
 (
-    const interfaceCoupledPressureValue& ptf,
+    const interfaceCoupledPressureValue& icpv,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    fixedValueFvPatchScalarField(ptf, p, iF, mapper),
-    k_(ptf.k_),
-    muFluidA_(ptf.muFluidA_),
-    muFluidB_(ptf.muFluidB_),
-    rhoFluidA_(ptf.rhoFluidA_),
-    rhoFluidB_(ptf.rhoFluidB_),
-    sigma_(ptf.sigma_),
-    sigmaPtr_(ptf.sigmaPtr_),
-    g_(ptf.g_),
-    relax_(ptf.relax_),
-    nonOrthCorr_(ptf.nonOrthCorr_),
-    secondOrder_(ptf.secondOrder_)
-{
-    coupleManagerPtr_.reset
-    (
-        new patchCoupleManager
-        (
-            ptf.coupleManagerPtr_
-        )
-    );
-
-    interfacePtr_.reset
-    (
-        new interfacialTransport
-        (
-//            word::null,
-            this->db().lookupObject<volVectorField>("U"),
-            this->db().lookupObject<surfaceScalarField>("phi"),
-            this->patch().name(),
-            this->patch().boundaryMesh().mesh()
-            .lookupObject<IOdictionary>("surfaceProperties")
-        )
-    );
-}
+    fixedValueFvPatchScalarField(icpv, p, iF, mapper),
+    patchCoupleManager(p),
+    kName_(icpv.kName_),
+    neighbourRegionName_(icpv.neighbourRegionName_),
+    neighbourPatchName_(icpv.neighbourPatchName_),
+    muFluidA_(icpv.muFluidA_),
+    muFluidB_(icpv.muFluidB_),
+    rhoFluidA_(icpv.rhoFluidA_),
+    rhoFluidB_(icpv.rhoFluidB_),
+    sigma_(icpv.sigma_),
+    sigmaPtr_(icpv.sigmaPtr_),
+    g_(icpv.g_),
+    relax_(icpv.relax_),
+    nonOrthCorr_(icpv.nonOrthCorr_),
+    secondOrder_(icpv.secondOrder_)
+{}
 
 
 Foam::interfaceCoupledPressureValue::
@@ -188,7 +121,16 @@ interfaceCoupledPressureValue
 )
 :
     fixedValueFvPatchScalarField(p, iF),
-    k_(dict.lookupOrDefault<word>("k", word::null)),
+    patchCoupleManager(p, dict),
+    kName_(dict.lookupOrDefault<word>("k", word::null)),
+    neighbourRegionName_
+    (
+        dict.lookupOrDefault<word>("neighbourRegionName", word::null)
+    ),
+    neighbourPatchName_
+    (
+        dict.lookupOrDefault<word>("neighbourPatchName", word::null)
+    ),
     muFluidA_
     (
         patch().boundaryMesh().mesh()
@@ -230,27 +172,6 @@ interfaceCoupledPressureValue
     nonOrthCorr_(false),
     secondOrder_(false)
 {
-    coupleManagerPtr_.reset
-    (
-        new patchCoupleManager
-        (
-            p, dict
-        )
-    );
-
-    interfacePtr_.reset
-    (
-        new interfacialTransport
-        (
-//            word::null,
-            this->db().lookupObject<volVectorField>("U"),
-            this->db().lookupObject<surfaceScalarField>("phi"),
-            this->patch().name(),
-            this->patch().boundaryMesh().mesh()
-            .lookupObject<IOdictionary>("surfaceProperties")
-        )
-    );
-
     if (dict.found("value"))
     {
         fvPatchField<scalar>::operator=
@@ -268,44 +189,26 @@ interfaceCoupledPressureValue
 Foam::interfaceCoupledPressureValue::
 interfaceCoupledPressureValue
 (
-    const interfaceCoupledPressureValue& wtcsf,
+    const interfaceCoupledPressureValue& icpv,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    fixedValueFvPatchScalarField(wtcsf, iF),
-    k_(wtcsf.k_),
-    muFluidA_(wtcsf.muFluidA_),
-    muFluidB_(wtcsf.muFluidB_),
-    rhoFluidA_(wtcsf.rhoFluidA_),
-    rhoFluidB_(wtcsf.rhoFluidB_),
-    sigma_(wtcsf.sigma_),
-    sigmaPtr_(wtcsf.sigmaPtr_),
-    g_(wtcsf.g_),
-    relax_(wtcsf.relax_),
-    nonOrthCorr_(wtcsf.nonOrthCorr_),
-    secondOrder_(wtcsf.secondOrder_)
-{
-    coupleManagerPtr_.reset
-    (
-        new patchCoupleManager
-        (
-            wtcsf.coupleManagerPtr_
-        )
-    );
-
-    interfacePtr_.reset
-    (
-        new interfacialTransport
-        (
-//            word::null,
-            this->db().lookupObject<volVectorField>("U"),
-            this->db().lookupObject<surfaceScalarField>("phi"),
-            this->patch().name(),
-            this->patch().boundaryMesh().mesh()
-            .lookupObject<IOdictionary>("surfaceProperties")
-        )
-    );
-}
+    fixedValueFvPatchScalarField(icpv, iF),
+    patchCoupleManager(icpv),
+    kName_(icpv.kName_),
+    neighbourRegionName_(icpv.neighbourRegionName_),
+    neighbourPatchName_(icpv.neighbourPatchName_),
+    muFluidA_(icpv.muFluidA_),
+    muFluidB_(icpv.muFluidB_),
+    rhoFluidA_(icpv.rhoFluidA_),
+    rhoFluidB_(icpv.rhoFluidB_),
+    sigma_(icpv.sigma_),
+    sigmaPtr_(icpv.sigmaPtr_),
+    g_(icpv.g_),
+    relax_(icpv.relax_),
+    nonOrthCorr_(icpv.nonOrthCorr_),
+    secondOrder_(icpv.secondOrder_)
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -324,28 +227,16 @@ tmp<scalarField> interfaceCoupledPressureValue::valueJump() const
 
     const faMesh& aMesh = faMesh(mesh);
 
-    const areaVectorField& nf = aMesh.faceAreaNormals();
-
     // Get interfacial curvature
-    areaScalarField& K = interfacePtr_->K();
-    interfacePtr_->updateK();
+    const areaScalarField& K = rgInterface().K();
+    
+    //TODO rgInterface().updateK();
 
-
-//    const fvMesh& meshA = ale().meshA();
-
-//    if (!obr.foundObject<interfacialTransport>("surfaceProperties"))
-//    {
-//        FatalErrorIn("interfaceCoupledPressureValue::")
-//            << "interfacialTransport object not found but required."
-//            << abort(FatalError);
-//    }
-
-//    const interfacialTransport& interface =
-//        meshA.lookupObject<interfacialTransport>("surfaceProperties");
 
     // surface velocity terms
-    areaVectorField& Us = interfacePtr_->Us();
-    interfacePtr_->updateUs();
+    const areaVectorField& Us = rgInterface().Us();
+        
+    //TODO rgInterface().updateUs(); 
 
     areaScalarField divUs
     (
@@ -412,34 +303,17 @@ void Foam::interfaceCoupledPressureValue::updateCoeffs()
     // Calculate interpolated patch field
     scalarField fieldNbrToOwn(patch().size(), 0);
 
-//    const fvMesh& mesh = patch().boundaryMesh().mesh();
-//    const objectRegistry& obr = mesh.objectRegistry::parent();
-
-//    if (!obr.foundObject<meshInterface>("aleProperties"))
-//    {
-//        FatalErrorIn("interfaceCoupledPressureValue::updateCoeffs(...)")
-//            << "meshInterface object not found but required."
-//            << abort(FatalError);
-//    }
-
-//    const meshInterface& ale =
-//        obr.lookupObject<meshInterface>("aleProperties");
-
-
-    //- Lookup neighbouring patch field
-    const volScalarField& nbrField = ale().meshB().lookupObject<volScalarField>
+    // Lookup neighbouring patch field
+    const volScalarField& nbrField = nbrMesh().lookupObject<volScalarField>
         (
             //presume same field name as on this side
             this->dimensionedInternalField().name()
         );
 
-    const fvPatchScalarField& nbrPatchField =
-    (
-        ale().patchB().patchField<volScalarField, scalar>(nbrField)
-    );
-
-    //- Interpolate pressure face values B-to-A
-    ale().transferFacesBToA(nbrPatchField, fieldNbrToOwn);
+    fieldNbrToOwn = interpolateFromNbrField<scalar>
+        (
+            nbrPatch().patchField<volScalarField, scalar>(nbrField)
+        );
 
     // Add interfacial pressure jump
     fieldNbrToOwn += valueJump();
@@ -509,12 +383,10 @@ Foam::interfaceCoupledPressureValue::snGrad() const
 Foam::tmp<Foam::scalarField>
 Foam::interfaceCoupledPressureValue::flux() const
 {
-    const fvMesh& mesh = patch().boundaryMesh().mesh();
-
     dimensionedScalar k
     (
-      mesh.lookupObject<IOdictionary>
-      ("surfaceProperties").lookup(k_)
+      patch().boundaryMesh().mesh().lookupObject<IOdictionary>
+      ("surfaceProperties").lookup(kName_)
     );
 
     return (this->snGrad()/k.value());
@@ -561,28 +433,28 @@ Foam::interfaceCoupledPressureValue::gradientBoundaryCoeffs() const
 Foam::scalarField Foam::interfaceCoupledPressureValue::residual() const
 {
     // Calculate interpolated patch field
-    const polyPatch& ownPatch = patch().patch();
-    const polyPatch& nbrPatch = coupleManagerPtr_->neighbourPatch().patch();
+    scalarField fieldNbrToOwn(patch().size(), 0);
+    
+    // Lookup neighbouring patch field
+    const volScalarField& nbrField = nbrMesh().lookupObject<volScalarField>
+        (
+            //presume same field name as on this side
+            this->dimensionedInternalField().name()
+        );
 
-    const GGIInterpolation<polyPatch, polyPatch>& interpolator = 
-        coupleManagerPtr_->ggiInterpolator(nbrPatch,ownPatch);
-
-    const fvPatchScalarField& nbrPatchField =
-         coupleManagerPtr_->neighbourPatchField<scalar>();
-
-    scalarField fieldNbrToOwn = interpolator.masterToSlave
-    (
-        nbrPatchField
-    );
-
+    fieldNbrToOwn = interpolateFromNbrField<scalar>
+        (
+            nbrPatch().patchField<volScalarField, scalar>(nbrField)
+        );    
+    
 	// Calculate the maximal normalized residual
 	const scalarField& fown = *this;
 
     scalarField K
-    (
-        valueJump()/(fieldNbrToOwn + SMALL)
-//        valueJump()/(*this + SMALL)
-    );
+        (
+            valueJump()/(fieldNbrToOwn + SMALL)
+    //        valueJump()/(*this + SMALL)
+        );
 
     const scalarField& residual =
         (
@@ -608,14 +480,26 @@ void Foam::interfaceCoupledPressureValue::write
 ) const
 {
     fvPatchScalarField::write(os);
-    coupleManagerPtr_->writeEntries(os);
-    os.writeKeyword("k") << k_ << token::END_STATEMENT << nl;
+    os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
+    os.writeKeyword("neighbourRegionName") << neighbourRegionName_ 
+        << token::END_STATEMENT << nl;
+    os.writeKeyword("neighbourPatchName") << neighbourPatchName_ 
+        << token::END_STATEMENT << nl;        
+    os.writeKeyword("muFluidA") << muFluidA_ << token::END_STATEMENT << nl;
+    os.writeKeyword("muFluidB") << muFluidB_ << token::END_STATEMENT << nl;
+    os.writeKeyword("rhoFluidA") << rhoFluidA_ << token::END_STATEMENT << nl;
+    os.writeKeyword("rhoFluidB") << rhoFluidB_ << token::END_STATEMENT << nl;
+    os.writeKeyword("sigma") << sigma_ << token::END_STATEMENT << nl;
+    os.writeKeyword("sigmaPtr") << sigmaPtr_ << token::END_STATEMENT << nl;
+    os.writeKeyword("g") << g_ << token::END_STATEMENT << nl;
     os.writeKeyword("relax") << relax_ << token::END_STATEMENT << nl;
-    os.writeKeyword("nonOrthCorr") << nonOrthCorr_ << token::END_STATEMENT << nl;
-    os.writeKeyword("secondOrder") << secondOrder_ << token::END_STATEMENT << nl;
+    os.writeKeyword("nonOrthCorr") << nonOrthCorr_ 
+<< token::END_STATEMENT << nl;
+    os.writeKeyword("secondOrder") << secondOrder_ 
+<< token::END_STATEMENT << nl;
     writeEntry("value", os);
 }
-
+    
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 

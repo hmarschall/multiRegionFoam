@@ -86,8 +86,6 @@ class navierStokesFluid
         volScalarField AU_;
         
         volVectorField HU_;
-
-        surfaceScalarField phiHbyA_;
         
         //- gradients
         volVectorField gradp_;

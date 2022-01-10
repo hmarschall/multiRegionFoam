@@ -29,20 +29,23 @@ Author
     Holger Marschall (marschall@csi.tu-darmstadt.de)
 
 Description
-    Couple boundary condition for pressure within the
-    ALE interface tracking framework.
-    Pressure jump across the interface is accounted for
-    by adding the jump to the neighbour patch value.
-    Normal pressure flux is calculated and divided by density.
+    Dirichlet boundary condition for pressure within the ALE interface tracking.
+    Pressure jump across the interface is accounted for by adding the jump to 
+    the neighbour patch value. Normal pressure flux is calculated and divided 
+    by the density.
 
     Example usage:
-        interfacePatch
-        {
-            type                    interfaceCoupledPressure;
-            neighbourPatchName      neighbourPatch;
-	    k			    "rho";
-            value                   uniform 0;
-        }
+        interfacePatchShadow
+            {
+                type                    interfaceCoupledPressureValue;
+	            k			            "rho";
+	            neighbourRegionName     gas;
+                neighbourPatchName      interfacePatch;
+                nonOrthCorr             yes;
+                secondOrder             yes;
+                value                   uniform 0;
+            }
+
 
 SourceFiles
     interfaceCoupledPressureValue.C
@@ -52,15 +55,8 @@ SourceFiles
 #ifndef interfaceCoupledPressureValue_H
 #define interfaceCoupledPressureValue_H
 
-#include "fvPatchFields.H"
-#include "fixedValueFvPatchFields.H"
-#include "fixedValueFvPatchFields.H"
-
-#include "interfaceCoupledPressureFlux.H"
 #include "patchCoupleManager.H"
-#include "interfacialTransport.H"
-#include "surfaceTracking.H"
-#include "meshInterface.H"
+#include "regionInterface.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -73,14 +69,20 @@ namespace Foam
 
 class interfaceCoupledPressureValue
 :
-    public fixedValueFvPatchScalarField //fixedValueFvPatchScalarField
+    public fixedValueFvPatchScalarField,
+    public patchCoupleManager
 {
     // Private data
 
         //- Diffusion coefficient
-	    word k_;
+	    word kName_;
+	    
+	    //- Neighbour names
+        word neighbourRegionName_;
 
-        //- fluid properties
+        word neighbourPatchName_;
+
+        //- Fluid properties
         dimensionedScalar muFluidA_;
 
         dimensionedScalar muFluidB_;
@@ -93,10 +95,10 @@ class interfaceCoupledPressureValue
 
         mutable areaScalarField* sigmaPtr_;
 
-        //- gravitational accelaration
+        //- Gravitational accelaration
         dimensionedVector g_;
 
-        //relaxation factor for pressure value jump
+        //- Relaxation factor for pressure value jump
         scalar relax_;
 
         //- NonOrthogonal correction
@@ -105,20 +107,11 @@ class interfaceCoupledPressureValue
         //- Second order accuracy correction
         Switch secondOrder_;
 
+
     // Private functions
 
-        //- Reference to meshInterface
-        const meshInterface& ale() const;
-
-        //- Calc pressure jump
+        //- Calculate pressure jump
         tmp<scalarField> valueJump() const;
-
-        //- Couple manager
-        autoPtr<patchCoupleManager> coupleManagerPtr_;
-
-        //- Interfacial transport
-        mutable autoPtr<interfacialTransport> interfacePtr_;
-
 
 public:
 
@@ -186,6 +179,7 @@ public:
         virtual ~interfaceCoupledPressureValue();
 
     // Member functions
+    
         //- Update the patch field coefficients
         virtual void updateCoeffs();
 
@@ -195,12 +189,12 @@ public:
         //- Return the patch flux
         tmp<scalarField> flux() const;
 
+        //- Return the maximum normalized coupled patch residual
+        scalarField residual() const;
+        
         //- Return the matrix source coefficients corresponding to the
         //  evaluation of the gradient of this patchField
         virtual tmp<Field<scalar> > gradientBoundaryCoeffs() const;
-
-        //- Return the maximum normalized coupled patch residual
-        scalarField residual() const;
 
         //- Write
         virtual void write(Ostream&) const;
