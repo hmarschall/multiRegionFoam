@@ -257,29 +257,9 @@ Foam::regionTypes::ionomer::ionomer
         )
     );
 
-    /*// thermal conductivity
+    // thermal conductivity
     k_() = dimensionedScalar(transportProperties_.lookup("k"));
 
-    // ionomer properties
-    // water diffusion through ionomer
-    DLambda_() = (3.842*pow(lambda_(),3)-32.03*sqr(lambda_())+67.75*lambda_())/(pow(lambda_(),3)-2.115*sqr(lambda_())-33.013*lambda_()+103.37)*DLambda0_*exp(ELambda_/RGas_*((1/TRef_)-(1/T_())));
-    // electro-osmotic drag coefficient
-    xi_ = 2.5*lambda_()/22;
-    // volume fraction water and protonic conductivity
-    f_ = lambda_()*VW_/(lambda_()*VW_+VM_);
-    fCond_ = fComp_;
-    {if(f_ > fCond_)
-    {
-	kappa_() = kappa0_*pow((f_-0.06),1.5)*exp(EKappa_/RGas_*((1/TRef_)-(1/T_())));
-    }
-    else
-    {
-	kappa_() = kappa0_*pow(0,1.5)*exp(EKappa_/RGas_*((1/TRef_)-(1/T_())));
-    }}
-
-    // source terms
-    // heat source - joule heating protons
-    sT_ = kappa_()*magSqr(fvc::grad(phiP_()));*/
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -291,6 +271,21 @@ Foam::regionTypes::ionomer::~ionomer()
 
 void Foam::regionTypes::ionomer::correct()
 {
+    // do nothing, add as required
+}
+
+
+void Foam::regionTypes::ionomer::setRDeltaT()
+{
+    // do nothing, add as required
+}
+
+
+void Foam::regionTypes::ionomer::setCoupledEqns()
+{
+
+    // update variables
+
     // ionomer properties
     // water diffusion through ionomer
     DLambda_() = (3.842*pow(lambda_(),3)-32.03*sqr(lambda_())+67.75*lambda_())/(pow(lambda_(),3)-2.115*sqr(lambda_())-33.013*lambda_()+103.37)*DLambda0_*exp(ELambda_/RGas_*((1/TRef_)-(1/T_())));
@@ -312,24 +307,13 @@ void Foam::regionTypes::ionomer::correct()
     // heat source - joule heating protons
     //sT_ = kappa_()*magSqr(fvc::grad(phiP_()));
     
-}
-
-
-void Foam::regionTypes::ionomer::setRDeltaT()
-{
-    // do nothing, add as required
-}
-
-
-void Foam::regionTypes::ionomer::setCoupledEqns()
-{
     // fourier heat conduction
     fvScalarMatrix TEqn =
     (
         rho_*cv_*fvm::ddt(T_())
      ==
         fvm::laplacian(k_(), T_(), "laplacian(k,T)")
-       +sT_
+       //+sT_
     );
 
     // ohm's law for protons
