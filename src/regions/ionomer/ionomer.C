@@ -27,6 +27,8 @@ License
 #include "ionomer.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
+#include "ionomerParameters.H"
+#include "globalFCParameters.H"
 
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -96,17 +98,9 @@ Foam::regionTypes::ionomer::ionomer
     rho_(transportProperties_.lookup("rho")),
     k_(nullptr),
     kappa_(nullptr),
-    kappa0_("kappa0", dimensionSet(-1, -3, 3, 0, 0, 2, 0), 116),
-    EKappa_("EKappa", dimensionSet(1, 2, -2, 0, -1, 0, 0), 15000),
-    ELambda_("ELambda", dimensionSet(1, 2, -2, 0, -1, 0, 0), 20000),
-    DLambda0_("DLambda0", dimensionSet(0, 2, -1, 0, 0, 0, 0), 1e-10),
-    fComp_("fComp", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.06),
     VW_(materialProperties_.lookup("VW")),
     VM_(materialProperties_.lookup("VM")),
     RH_(operatingConditions_.lookup("RH")),
-    TRef_("TRef", dimensionSet(0, 0, 0, 1, 0, 0, 0), 353.15),
-    RGas_("RGas", dimensionSet(1, 2, -2, -1, -1, 0, 0), 8.314472),
-    FConst_("FConst", dimensionSet(0, 0, 1, 0, -1, 1, 0), 9.64853e4),
     DLambda_(nullptr),
     f_
     (
@@ -263,7 +257,7 @@ Foam::regionTypes::ionomer::ionomer
         )
     );
 
-    // thermal conductivity
+    /*// thermal conductivity
     k_() = dimensionedScalar(transportProperties_.lookup("k"));
 
     // ionomer properties
@@ -285,7 +279,7 @@ Foam::regionTypes::ionomer::ionomer
 
     // source terms
     // heat source - joule heating protons
-    sT_ = kappa_()*magSqr(fvc::grad(phiP_()));
+    sT_ = kappa_()*magSqr(fvc::grad(phiP_()));*/
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -316,7 +310,7 @@ void Foam::regionTypes::ionomer::correct()
 
     // source terms
     // heat source - joule heating protons
-    sT_ = kappa_()*magSqr(fvc::grad(phiP_()));
+    //sT_ = kappa_()*magSqr(fvc::grad(phiP_()));
     
 }
 

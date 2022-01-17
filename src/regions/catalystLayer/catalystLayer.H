@@ -97,51 +97,6 @@ class catalystLayer
 	// diffusion coefficient vapor
 	dimensionedScalar DV_;
 
-	//- pre factor protonic conductivity
-	const dimensionedScalar kappa0_;
-
-	//- activation energy proton conductivity
-	const dimensionedScalar EKappa_;
-
-	//- activation energy diffusion water in ionomer
-	const dimensionedScalar ELambda_;
-
-	//- pre factor water diffusion in ionomer
-	const dimensionedScalar DLambda0_;
-
-	//- comparison parameter for ionomer transport parameters
-	const dimensionedScalar fComp_;
-
-	//- evaporation/condensation enthalpy
-	const dimensionedScalar HEC_;
-
-	//- absorption/desorption enthalpy
-	const dimensionedScalar HAD_;
-
-	//- prefactor absorption
-	const dimensionedScalar aA_;
-
-	//- prefactor desorption
-	const dimensionedScalar aD_;
-
-	//- factor1 for empirical equation viscosity
-	const dimensionedScalar TRefMu1_;
-
-	//- factor2 for empirical equation viscosity
-	const dimensionedScalar TRefMu2_;
-
-	//- factor1 saturation pressure
-	const dimensionedScalar TRefP1_;
-
-	//- factor2 saturation pressure
-	const dimensionedScalar TRefP2_;
-
-	//- dimensionSet pressure	
-	const dimensionedScalar pDim_;
-
-	//- dimensionSet viscosity
-	const dimensionedScalar muDim_;
-
 	//- porosity
 	dimensionedScalar epsilonP_;
 	
@@ -192,21 +147,6 @@ class catalystLayer
 
 	//- relative humidity
 	dimensionedScalar RH_;
-
-	//- reference pressure
-	const dimensionedScalar pRef_;
-
-	//- reference temperature
-	const dimensionedScalar TRef_;
-
-	//- gas constant
-	const dimensionedScalar RGas_;
-
-	//- Faraday constant
-	const dimensionedScalar FConst_;
-	
-	//- pi
-	const dimensionedScalar pi_;
 
 	//- diffusion coefficient water in ionomer
 	autoPtr<volScalarField> DLambda_;

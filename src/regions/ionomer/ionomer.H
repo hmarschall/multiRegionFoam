@@ -39,7 +39,6 @@ SourceFiles
 #include "IOReferencer.H"
 #include "HashPtrTable.H"
 
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -82,21 +81,6 @@ class ionomer
 	//- protonic conductivity
 	autoPtr<volScalarField> kappa_;
 
-	//- pre factor protonic conductivity
-	const dimensionedScalar kappa0_;
-
-	//- activation energy proton conductivity
-	const dimensionedScalar EKappa_;
-
-	//- activation energy diffusion water in ionomer
-	const dimensionedScalar ELambda_;
-
-	//- pre factor water diffusion in ionomer
-	const dimensionedScalar DLambda0_;
-
-	//- comparison parameter for ionomer transport parameters
-	const dimensionedScalar fComp_;
-
 	//- molar volume of liquid water
 	dimensionedScalar VW_;
 
@@ -105,15 +89,6 @@ class ionomer
 
 	//- relative humidity 
 	dimensionedScalar RH_;
-
-	//- reference temperature
-	const dimensionedScalar TRef_;
-	
-	//- gas constant
-	const dimensionedScalar RGas_;
-
-	//- Faraday constant
-	const dimensionedScalar FConst_;
 
 	//- diffusion coefficient of water in ionomer
 	autoPtr<volScalarField> DLambda_;

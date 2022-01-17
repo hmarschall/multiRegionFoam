@@ -27,6 +27,8 @@ License
 #include "gasDiffusionLayer.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
+#include "gasDiffusionLayerParameters.H"
+#include "globalFCParameters.H"
 
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -99,13 +101,6 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
     sigma_(nullptr),
     DO2_(transportProperties_.lookup("DO2")),
     DV_(transportProperties_.lookup("DV")),
-    HEC_("HEC", dimensionSet(1, 2, -2, 0, -1, 0, 0), 42000),
-    TRefMu1_("TRefMu1", dimensionSet(0, 0, 0, 1, 0, 0, 0), 542.05),
-    TRefMu2_("TRefMu2", dimensionSet(0, 0, 0, 1, 0, 0, 0), 144.15),
-    TRefP1_("TRefP1", dimensionSet(0, 0, 0, 1, 0, 0, 0), 3816.44),
-    TRefP2_("TRefP2", dimensionSet(0, 0, 0, 1, 0, 0, 0), 46.13),
-    pDim_("pDim", dimensionSet(1, -1, -2, 0, 0, 0, 0), 1),
-    muDim_("muDim", dimensionSet(0, 2, -1, 0, 0, 0, 0), 1),
     epsilonP_(materialProperties_.lookup("epsilonP")),
     tau_(materialProperties_.lookup("tau")),
     MW_(materialProperties_.lookup("MW")),
@@ -114,10 +109,6 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
     aLG_(materialProperties_.lookup("aLG")),
     p_(operatingConditions_.lookup("p")),
     RH_(operatingConditions_.lookup("RH")),
-    pRef_("pRef", dimensionSet(1, -1, -2, 0, 0, 0, 0), 1e5),
-    TRef_("TRef", dimensionSet(0, 0, 0, 1, 0, 0, 0), 353.15),
-    RGas_("RGas", dimensionSet(1, 2, -2, -1, -1, 0, 0), 8.314472),
-    pi_("pi", dimensionSet(0, 0, 0, 0, 0, 0, 0), 3.141592),
     c_
     (
         IOobject
@@ -409,7 +400,9 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         )
     );
 
-    // thermal conductivity
+
+
+    /*// thermal conductivity
     k_() = dimensionedScalar(transportProperties_.lookup("k"));
     // electric conducivity
     sigma_() = dimensionedScalar(transportProperties_.lookup("sigma"));
@@ -448,7 +441,7 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
     // mass source vapor
     sV_ = -gamma_*c_*(xV_()-xVSat_);
     // mass source liquid water
-    ss_ = gamma_*c_*(xV_()-xVSat_);
+    ss_ = gamma_*c_*(xV_()-xVSat_);*/
 }
 
 

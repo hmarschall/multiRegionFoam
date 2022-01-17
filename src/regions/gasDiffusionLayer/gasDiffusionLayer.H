@@ -91,27 +91,6 @@ class gasDiffusionLayer
 	//- diffusion coefficient vapor
 	dimensionedScalar DV_;
 
-	//- evaporation/condensation enthalpy
-	const dimensionedScalar HEC_;
-
-	//- factor1 for empirical equation viscosity
-	const dimensionedScalar TRefMu1_;
-
-	//- factor2 for empirical equation viscosity
-	const dimensionedScalar TRefMu2_;
-
-	//- factor1 saturation pressure
-	const dimensionedScalar TRefP1_;
-
-	//- factor2 saturation pressure
-	const dimensionedScalar TRefP2_;
-
-	//- dimensionSet pressure	
-	const dimensionedScalar pDim_;
-
-	//- dimensionSet viscosity
-	const dimensionedScalar muDim_;
-
 	//- porosity
 	dimensionedScalar epsilonP_;
 
@@ -135,18 +114,6 @@ class gasDiffusionLayer
 
 	//- relative humidity
 	dimensionedScalar RH_;
-
-	//- reference pressure
-	const dimensionedScalar pRef_;
-
-	//- reference temperature
-	const dimensionedScalar TRef_;
-
-	//- gas constant
-	const dimensionedScalar RGas_;
-
-	//- pi
-	const dimensionedScalar pi_;
 
 	//- total gas species concentration
 	volScalarField c_;

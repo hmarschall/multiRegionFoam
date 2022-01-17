@@ -27,6 +27,8 @@ License
 #include "catalystLayer.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
+#include "catalystLayerParameters.H"
+#include "globalFCParameters.H"
 
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -111,21 +113,6 @@ Foam::regionTypes::catalystLayer::catalystLayer
     kappa_(nullptr),
     DO2_(transportProperties_.lookup("DO2")),
     DV_(transportProperties_.lookup("DV")),
-    kappa0_("kappa0", dimensionSet(-1, -3, 3, 0, 0, 2, 0), 116),
-    EKappa_("EKappa", dimensionSet(1, 2, -2, 0, -1, 0, 0), 15000),
-    ELambda_("ELambda", dimensionSet(1, 2, -2, 0, -1, 0, 0), 20000),
-    DLambda0_("DLambda0", dimensionSet(0, 2, -1, 0, 0, 0, 0), 1e-10),
-    fComp_("fComp", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.06),
-    HEC_("HEC", dimensionSet(1, 2, -2, 0, -1, 0, 0), 42000),
-    HAD_("HEC", dimensionSet(1, 2, -2, 0, -1, 0, 0), 42000),
-    aA_("aA", dimensionSet(0, 1, -1, 0, 0, 0, 0), 3.53e-5),
-    aD_("aD", dimensionSet(0, 1, -1, 0, 0, 0, 0), 1.42e-4),
-    TRefMu1_("TRefMu1", dimensionSet(0, 0, 0, 1, 0, 0, 0), 542.05),
-    TRefMu2_("TRefMu2", dimensionSet(0, 0, 0, 1, 0, 0, 0), 144.15),
-    TRefP1_("TRefP1", dimensionSet(0, 0, 0, 1, 0, 0, 0), 3816.44),
-    TRefP2_("TRefP2", dimensionSet(0, 0, 0, 1, 0, 0, 0), 46.13),
-    pDim_("pDim", dimensionSet(1, -1, -2, 0, 0, 0, 0), 1),
-    muDim_("muDim", dimensionSet(0, 2, -1, 0, 0, 0, 0), 1),
     epsilonP_(materialProperties_.lookup("epsilonP")),
     tau_(materialProperties_.lookup("tau")),
     epsilonI_(materialProperties_.lookup("epsilonI")),
@@ -143,11 +130,6 @@ Foam::regionTypes::catalystLayer::catalystLayer
     j0_(electrochemicalProperties_.lookup("j0")),
     p_(operatingConditions_.lookup("p")),
     RH_(operatingConditions_.lookup("RH")),
-    pRef_("pRef", dimensionSet(1, -1, -2, 0, 0, 0, 0), 1e5),
-    TRef_("TRef", dimensionSet(0, 0, 0, 1, 0, 0, 0), 353.15),
-    RGas_("RGas", dimensionSet(1, 2, -2, -1, -1, 0, 0), 8.314472),
-    FConst_("FConst", dimensionSet(0, 0, 1, 0, -1, 1, 0), 9.64853e4),
-    pi_("pi", dimensionSet(0, 0, 0, 0, 0, 0, 0), 3.141592),
     DLambda_(nullptr),
     f_
     (
@@ -611,8 +593,10 @@ Foam::regionTypes::catalystLayer::catalystLayer
             *this
         )
     );
+
+
 	
-    // thermal conductivity
+    /*// thermal conductivity
     k_() = dimensionedScalar(transportProperties_.lookup("k"));
     // electric conductivity
     sigma_() = dimensionedScalar(transportProperties_.lookup("sigma"));
@@ -689,7 +673,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
     // mass source vapor / phase change & sorption
     sV_ = -gamma_*c_*(xV_()-xVSat_) - (kSorp_/d_/VM_)*(lambdaEq_-lambda_());
     // mass source liquid water / phase change
-    ss_ = gamma_*c_*(xV_()-xVSat_);
+    ss_ = gamma_*c_*(xV_()-xVSat_);*/
 }
 
 
