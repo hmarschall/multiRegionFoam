@@ -16,15 +16,14 @@ FoamFile
 
 regions
 (
-    navierStokesFluid (fluidA)
-    navierStokesFluid (fluidB) 
+    navierStokesFluid (fluidA fluidB)
 );
 
 partitionedTypeRegionInterfaces
 (
     fluidAfluidB 
     (
-        (((fluidA bottom)(fluidB top)) (U))
+        (((fluidA interface)(fluidB interfaceShadow)) (U))
     )
 );
 

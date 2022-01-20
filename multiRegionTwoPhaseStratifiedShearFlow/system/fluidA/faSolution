@@ -11,39 +11,31 @@ FoamFile
     format      ascii;
     class       dictionary;
     location    "system";
-    object      faSchemes;
+    object      faSolution;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-ddtSchemes
+solvers
 {
-    default         backward;
-}
+    Cs
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        minIter         2;
+        maxIter         2000;
+        tolerance       1e-12;
+        relTol          0;
+    }
 
-gradSchemes
-{
-    default         Gauss linear; // Grad: Us, surfaceTension
-//    grad(testAF)    leastSquares;
-}
-
-divSchemes
-{
-    default         Gauss linear;
-}
-
-laplacianSchemes
-{
-    default         Gauss linear corrected;
-}
-
-interpolationSchemes
-{
-    default         linear; // Interpolate: Us
-}
-
-snGradSchemes
-{
-    default         none;
+    K
+    {
+        solver          BiCGStab;
+        preconditioner  DILU;
+        minIter         2;
+        maxIter         2000;
+        tolerance       1e-12;
+        relTol          0;
+    }
 }
 
 // ************************************************************************* //
