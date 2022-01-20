@@ -262,14 +262,17 @@ Foam::regionInterface::regionInterface
             IOobject::NO_WRITE
         )
     ),
-    U_
+    gravitationalProperties_
     (
-        meshA().lookupObject<volVectorField>("U") 
-    ), 
-    phi_
-    (
-        meshA().lookupObject<surfaceScalarField>("phi")
-    ), 
+        IOobject
+        (
+            "g",
+            runTime.constant(),
+            runTime,
+            IOobject::MUST_READ_IF_MODIFIED,
+            IOobject::NO_WRITE
+        )
+    ),    
     runTime_(runTime),
     patchA_(patchA),
     patchB_(patchB),
@@ -606,6 +609,10 @@ void Foam::regionInterface::makeK() const
 
 void Foam::regionInterface::makePhis() const
 {
+
+    const surfaceScalarField& phi = 
+        meshA().lookupObject<surfaceScalarField>("phi");
+
     if (!phisPtr_.empty())
     {
         FatalErrorIn("regionInterface::makePhis()")
@@ -619,7 +626,7 @@ void Foam::regionInterface::makePhis() const
         (
             IOobject
             (
-                phi_.name() + "s",
+                phi.name() + "s",
                 runTime().constant(), 
                 runTime(),
                 IOobject::NO_READ,
@@ -633,6 +640,9 @@ void Foam::regionInterface::makePhis() const
 
 void Foam::regionInterface::makeUs() const
 {
+    // error if U is initialized in the constructor
+    const volVectorField& U = meshA().lookupObject<volVectorField>("U");
+         
     if (!UsPtr_.empty())
     {
         FatalErrorIn("regionInterface::makeUs()")
@@ -683,7 +693,7 @@ void Foam::regionInterface::makeUs() const
         (
             IOobject
             (
-                U_.name() + "s",
+                U.name() + "s",
                 runTime().constant(), 
                 runTime(), 
                 IOobject::NO_READ,
@@ -698,16 +708,20 @@ void Foam::regionInterface::makeUs() const
 
 const vectorField& Foam::regionInterface::Up()
 {
+    const volVectorField& U = meshA().lookupObject<volVectorField>("U");
+        
     const fvBoundaryMesh& fvbm = meshA().boundary(); 
 
     const fvPatch& p = fvbm[patchAID()];
 
-    return p.lookupPatchField<volVectorField, vector>(U_.name());
+    return p.lookupPatchField<volVectorField, vector>(U.name());
 } 
 
 
 void Foam::regionInterface::correctUsBoundaryConditions()
-{   
+{  
+    const volVectorField& U = meshA().lookupObject<volVectorField>("U");
+         
     forAll(Us().boundaryField(), patchI)
     {
         if
@@ -728,12 +742,12 @@ void Foam::regionInterface::correctUsBoundaryConditions()
                 if
                 (
                     (
-                        U_.boundaryField()[ngbPolyPatchID].type()
+                        U.boundaryField()[ngbPolyPatchID].type()
                      == slipFvPatchVectorField::typeName
                     )
                  ||
                     (
-                        U_.boundaryField()[ngbPolyPatchID].type()
+                        U.boundaryField()[ngbPolyPatchID].type()
                      == symmetryFvPatchVectorField::typeName
                     )
                 )
@@ -869,6 +883,7 @@ void Foam::regionInterface::updateK()
 
     K().correctBoundaryConditions();
 }
+
 
 
 //void Foam::regionInterface::writeEntries(Ostream& os) const
