@@ -22,15 +22,15 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::fluidFluid.C
+    Foam::capillaryInterface.C
 
 SourceFiles
-    fluidFluid.C
+    capillaryInterface.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef fluidFluid_H
-#define fluidFluid_H
+#ifndef capillaryInterface_H
+#define capillaryInterface_H
 
 #include "regionInterface.H"
 #include "dimensionedScalar.H"
@@ -46,48 +46,25 @@ namespace regionInterfaces
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class fluidFluid Declaration
+                           Class capillaryInterface Declaration
 \*---------------------------------------------------------------------------*/
 
-class fluidFluid
+class capillaryInterface
 :
     public regionInterface
-{
-        IOdictionary transportPropertiesA_;
-
-        IOdictionary transportPropertiesB_;
-
-        IOdictionary gravitationalProperties_;
-
-        //- bulk velocity field        
-        const volVectorField& U_;
-
-        //- bulk flux field
-        const surfaceScalarField& phi_;
+{  
+        // Surface tension 
+        dimensionedScalar sigma_;
         
-        //- phase densities
-        dimensionedScalar rhoA_;
-
-        dimensionedScalar rhoB_;
-
-        //- phase viscosities
-        dimensionedScalar muA_;
-
-        dimensionedScalar muB_;
-        
-        //- surface tension coefficient
-        dimensionedScalar sigma0_;
-
-        //- gravity
-        const dimensionedVector g_; 
-              
+        //mutable areaScalarField* sigmaPtr_;
+        mutable autoPtr<areaScalarField> sigmaPtr_;      
 public:
 
-    TypeName("fluidFluid");
+    TypeName("capillaryInterface");
 
     // Constructors
 
-        fluidFluid
+        capillaryInterface
         (
             const Time& runTime,
             const fvPatch& patchA,
@@ -95,15 +72,14 @@ public:
         );
 
     // Destructor
-    virtual ~fluidFluid()
+    virtual ~capillaryInterface()
     {}
     
       
     // Access  
  
     // Member Functions	
-       
-
+    virtual tmp<areaScalarField> sigma() const; 
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
