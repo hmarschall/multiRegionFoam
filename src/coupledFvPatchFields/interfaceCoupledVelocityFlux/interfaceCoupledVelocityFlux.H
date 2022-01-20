@@ -83,15 +83,6 @@ class interfaceCoupledVelocityFlux
 
         word neighbourPatchName_;
 
-        //- Fluid properties
-        dimensionedScalar muFluidA_;
-
-        dimensionedScalar muFluidB_;
-
-        dimensionedScalar sigma_;
-
-        mutable areaScalarField* sigmaPtr_;
-
         //- Name of flux field
         word phiName_;
 

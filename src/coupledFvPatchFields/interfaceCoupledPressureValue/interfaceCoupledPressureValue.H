@@ -82,22 +82,6 @@ class interfaceCoupledPressureValue
 
         word neighbourPatchName_;
 
-        //- Fluid properties
-        dimensionedScalar muFluidA_;
-
-        dimensionedScalar muFluidB_;
-
-        dimensionedScalar rhoFluidA_;
-
-        dimensionedScalar rhoFluidB_;
-
-        dimensionedScalar sigma_;
-
-        mutable areaScalarField* sigmaPtr_;
-
-        //- Gravitational accelaration
-        dimensionedVector g_;
-
         //- Relaxation factor for pressure value jump
         scalar relax_;
 
