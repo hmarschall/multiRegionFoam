@@ -81,18 +81,6 @@ class interfaceCoupledPressureFlux
 
         word neighbourPatchName_;
 
-        //- Fluid properties
-        dimensionedScalar muFluidA_;
-
-        dimensionedScalar muFluidB_;
-
-        dimensionedScalar rhoFluidA_;
-
-        dimensionedScalar rhoFluidB_;
-
-        //- Gravitational accelaration
-        dimensionedVector g_;
-
         //- Calculate pressure gradient jump
         tmp<scalarField> nGradJump() const;
         

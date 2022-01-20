@@ -320,11 +320,11 @@ interfaceCoupledVelocityValue::snGrad() const
 //- Return the patch flux
 Foam::tmp<Foam::vectorField>
 Foam::interfaceCoupledVelocityValue::flux() const
-{
+{   
     dimensionedScalar k
     (
-        nbrMesh().lookupObject<IOdictionary>
-        ("surfaceProperties").lookup(kName_)
+      db().time().lookupObject<IOdictionary>("transportProperties")
+      .subDict(nbrMesh().name()).lookup(kName_)
     );
 
     return (this->snGrad()*k.value());
