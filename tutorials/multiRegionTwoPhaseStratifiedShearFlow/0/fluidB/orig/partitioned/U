@@ -45,12 +45,12 @@ boundaryField
     interfaceShadow
     {
         type                    interfaceCoupledVelocityValue;
-        secondOrder             yes;
-        nonOrthCorr             yes;
+        k                       "mu";
         neighbourRegionName     fluidA;
         neighbourPatchName      interface;
         neighbourFieldName      U;
-        k                       "muFluidB";
+        secondOrder             yes;
+        nonOrthCorr             yes;
         value                   uniform (0 0 0);
     }
     frontAndBack

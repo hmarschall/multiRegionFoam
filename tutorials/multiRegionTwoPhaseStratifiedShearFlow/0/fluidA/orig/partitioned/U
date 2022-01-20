@@ -44,15 +44,15 @@ boundaryField
 // interfacial BC       
     interface
     {
-        type                    interfaceCoupledVelocityFlux;
+        type                    interfaceCoupledVelocityFlux; 
+        k                       "mu";
+        neighbourRegionName     fluidB;
+        neighbourPatchName      interfaceShadow;   
+        neighbourFieldName      U;                     
         secondOrder             yes;
         nonOrthCorr             yes;
-        neighbourRegionName     fluidB;
-        neighbourPatchName      interfaceShadow;
-        neighbourFieldName      U;
-        k                       "muFluidA";
         value                   uniform (0 0 0);
-    }
+    }    
     frontAndBack
     {
         type                    empty;

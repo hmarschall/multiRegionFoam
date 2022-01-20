@@ -46,12 +46,12 @@ boundaryField
     interface
     {
         type                    interfaceCoupledPressureValue;
-        secondOrder             yes;
-        nonOrthCorr             yes;
+        k                       "rho"; 
         neighbourRegionName     fluidB;
         neighbourPatchName      interfaceShadow;
         neighbourFieldName      p;
-        k                       "rhoFluidA"; 
+        secondOrder             yes;
+        nonOrthCorr             yes;
         value                   uniform 0;
     }
     frontAndBack
