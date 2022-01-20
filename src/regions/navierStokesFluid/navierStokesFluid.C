@@ -61,6 +61,52 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
     
     regionName_(regionName),
 
+    
+    transportProperties_
+    (
+        IOobject
+        (
+            "transportProperties",
+            runTime.constant(),
+            runTime, 
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    ),
+    rhoFluid_
+    (
+        transportProperties_.subDict(regionName_).lookup("rho")
+    ),
+    rho_
+    (
+        IOobject
+        (
+            "rho",
+            this->time().timeName(),
+            *this,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        *this,
+        rhoFluid_
+    ),
+    muFluid_
+    (
+        transportProperties_.subDict(regionName_).lookup("mu")
+    ),
+    mu_
+    (
+        IOobject
+        (
+            "mu",
+            this->time().timeName(),
+            *this,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE
+        ),
+        *this,
+        muFluid_
+    ),
     U_
     (
         IOobject
@@ -96,58 +142,7 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
 			IOobject::AUTO_WRITE
 		),
 		*this   
-    ),
-    
-    transportProperties_
-    (
-        IOobject
-        (
-            "transportProperties",
-            this->time().constant(),
-            *this,
-            IOobject::MUST_READ,
-            IOobject::NO_WRITE
-        )
-    ),
-    rhoFluid_
-    (
-        // transportProperties_.subDict(regionName_).lookup("rho")
-            //currently there is no subdict for region name, each region has 
-            //a transportProperties dictionary in its folder
-        transportProperties_.lookup("rho")
-    ),
-    rho_
-    (
-        IOobject
-        (
-            "rho",
-            this->time().timeName(),
-            *this,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        *this,
-        rhoFluid_
-    ),
-    muFluid_
-    (
-        //transportProperties_.subDict(regionName_).lookup("mu")
-        transportProperties_.lookup("mu")
-    ),
-    mu_
-    (
-        IOobject
-        (
-            "mu",
-            this->time().timeName(),
-            *this,
-            IOobject::NO_READ,
-            IOobject::NO_WRITE
-        ),
-        *this,
-        muFluid_
-    ),
-    
+    ),    
     AU_
     (
         IOobject
@@ -243,16 +238,16 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
             pcorrTypes_[i] = fixedValueFvPatchScalarField::typeName;
         }
     };  
+    
+    gradU_.checkIn();
+    gradp_.checkIn();
 }  
 
 // left from createFields    
 //#   include "createUf.H"
 //#   include "createSf.H"
 //#   include "setRefCell.H"
-//#   include "setFluxRequired.H" 
-     
-//gradp.checkIn(), 
-//gradU.checkIn(),     
+//#   include "setFluxRequired.H"    
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
@@ -434,8 +429,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
             U_.correctBoundaryConditions();
 
             // Update of velocity gradient
-            gradU_ = fvc::grad(U_);
-                
+            gradU_ = fvc::grad(U_);       
         }
         //} while (innerResidual > innerTolerance && corr < nCorr); 
     }
