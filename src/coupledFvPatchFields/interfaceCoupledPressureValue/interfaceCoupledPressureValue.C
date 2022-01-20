@@ -42,43 +42,6 @@ interfaceCoupledPressureValue
     kName_("k"),
     neighbourRegionName_(),
     neighbourPatchName_(), 
-    muFluidA_
-    (
-        patch().boundaryMesh().mesh()
-        .lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("muFluidA")
-    ),
-    muFluidB_
-    (
-        patch().boundaryMesh().mesh()
-        .lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("muFluidB")
-    ),
-    rhoFluidA_
-    (
-        patch().boundaryMesh().mesh()
-        .lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("rhoFluidA")
-    ),
-    rhoFluidB_
-    (
-        patch().boundaryMesh().mesh()
-        .lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("rhoFluidB")
-    ),
-    sigma_
-    (
-        patch().boundaryMesh().mesh()
-        .lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("cleanSurfaceTension")
-    ),
-    sigmaPtr_(NULL),
-    g_
-    (
-        patch().boundaryMesh().mesh()
-        .lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("g")
-    ),
     relax_(1.0),
     nonOrthCorr_(false),
     secondOrder_(false)
@@ -99,13 +62,6 @@ interfaceCoupledPressureValue
     kName_(icpv.kName_),
     neighbourRegionName_(icpv.neighbourRegionName_),
     neighbourPatchName_(icpv.neighbourPatchName_),
-    muFluidA_(icpv.muFluidA_),
-    muFluidB_(icpv.muFluidB_),
-    rhoFluidA_(icpv.rhoFluidA_),
-    rhoFluidB_(icpv.rhoFluidB_),
-    sigma_(icpv.sigma_),
-    sigmaPtr_(icpv.sigmaPtr_),
-    g_(icpv.g_),
     relax_(icpv.relax_),
     nonOrthCorr_(icpv.nonOrthCorr_),
     secondOrder_(icpv.secondOrder_)
@@ -130,43 +86,6 @@ interfaceCoupledPressureValue
     neighbourPatchName_
     (
         dict.lookupOrDefault<word>("neighbourPatchName", word::null)
-    ),
-    muFluidA_
-    (
-        patch().boundaryMesh().mesh()
-        .lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("muFluidA")
-    ),
-    muFluidB_
-    (
-        patch().boundaryMesh().mesh()
-        .lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("muFluidB")
-    ),
-    rhoFluidA_
-    (
-        patch().boundaryMesh().mesh()
-        .lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("rhoFluidA")
-    ),
-    rhoFluidB_
-    (
-        patch().boundaryMesh().mesh()
-        .lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("rhoFluidB")
-    ),
-    sigma_
-    (
-        patch().boundaryMesh().mesh()
-        .lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("cleanSurfaceTension")
-    ),
-    sigmaPtr_(NULL),
-    g_
-    (
-        patch().boundaryMesh().mesh()
-        .lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("g")
     ),
     relax_(dict.lookupOrDefault<scalar>("relax",1.0)),
     nonOrthCorr_(false),
@@ -198,13 +117,6 @@ interfaceCoupledPressureValue
     kName_(icpv.kName_),
     neighbourRegionName_(icpv.neighbourRegionName_),
     neighbourPatchName_(icpv.neighbourPatchName_),
-    muFluidA_(icpv.muFluidA_),
-    muFluidB_(icpv.muFluidB_),
-    rhoFluidA_(icpv.rhoFluidA_),
-    rhoFluidB_(icpv.rhoFluidB_),
-    sigma_(icpv.sigma_),
-    sigmaPtr_(icpv.sigmaPtr_),
-    g_(icpv.g_),
     relax_(icpv.relax_),
     nonOrthCorr_(icpv.nonOrthCorr_),
     secondOrder_(icpv.secondOrder_)
@@ -214,9 +126,7 @@ interfaceCoupledPressureValue
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::interfaceCoupledPressureValue::~interfaceCoupledPressureValue()
-{
-    delete sigmaPtr_;
-}
+{}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -244,50 +154,51 @@ tmp<scalarField> interfaceCoupledPressureValue::valueJump() const
     );
 //    divUs.correctBoundaryConditions();
 
-    // surface tension
-    if 
-    (
-        mesh.foundObject<areaScalarField>("surfaceTension")
-    )
-    {
-        // contaminated interface
-        sigmaPtr_ = const_cast<areaScalarField*> 
-            (&mesh.lookupObject<areaScalarField>("surfaceTension"));
-    }
-    else
-    {
-        // clean interface
-        sigmaPtr_ = new areaScalarField
-        (
-            IOobject
-            (
-                "sigma",
-                this->db().time().timeName(),
-                aMesh.thisDb(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            aMesh,
-            sigma_,
-            zeroGradientFaPatchVectorField::typeName
-        );
-    }
-
-    areaScalarField& sigma = *sigmaPtr_;
+    // surface tension 
+    areaScalarField sigma = rgInterface().sigma();  
 
     // gravity term
     vector pRefPoint(mesh.solutionDict().subDict("PISO").lookup("pRefPoint"));
 
+    //TODO: use nbr instead of A/B (ie. muFluidNbr) 
+    dimensionedScalar muFluidB
+    (
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(nbrMesh().name()).lookup("mu")
+    );
+    
+    dimensionedScalar muFluidA
+    (
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(patch().boundaryMesh().mesh().name()).lookup("mu")
+    );
+    dimensionedScalar rhoFluidB
+    (
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(nbrMesh().name()).lookup("rho")
+    );
+    
+    dimensionedScalar rhoFluidA
+    (
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(patch().boundaryMesh().mesh().name()).lookup("rho")
+    );
+    
+    dimensionedVector g
+    (
+        rgInterface().gravitationalProperties().lookup("g")
+    );
+    
     return
     (
-        2.0*(muFluidB_.value() - muFluidA_.value())*divUs.internalField()
+        2.0*(muFluidB.value() - muFluidA.value())*divUs.internalField()
       - sigma.internalField()*K.internalField()
-      + (rhoFluidB_.value() - rhoFluidA_.value())
+      + (rhoFluidB.value() - rhoFluidA.value())
         *(
             (
                 mesh.C().boundaryField()[this->patch().index()] 
               - pRefPoint
-            ) & g_.value()
+            ) & g.value()
         )
    );
 }
@@ -385,10 +296,10 @@ Foam::interfaceCoupledPressureValue::flux() const
 {
     dimensionedScalar k
     (
-      patch().boundaryMesh().mesh().lookupObject<IOdictionary>
-      ("surfaceProperties").lookup(kName_)
+      db().time().lookupObject<IOdictionary>("transportProperties")
+      .subDict(patch().boundaryMesh().mesh().name()).lookup(kName_)
     );
-
+    
     return (this->snGrad()/k.value());
 }
 
@@ -485,13 +396,6 @@ void Foam::interfaceCoupledPressureValue::write
         << token::END_STATEMENT << nl;
     os.writeKeyword("neighbourPatchName") << neighbourPatchName_ 
         << token::END_STATEMENT << nl;        
-    os.writeKeyword("muFluidA") << muFluidA_ << token::END_STATEMENT << nl;
-    os.writeKeyword("muFluidB") << muFluidB_ << token::END_STATEMENT << nl;
-    os.writeKeyword("rhoFluidA") << rhoFluidA_ << token::END_STATEMENT << nl;
-    os.writeKeyword("rhoFluidB") << rhoFluidB_ << token::END_STATEMENT << nl;
-    os.writeKeyword("sigma") << sigma_ << token::END_STATEMENT << nl;
-    os.writeKeyword("sigmaPtr") << sigmaPtr_ << token::END_STATEMENT << nl;
-    os.writeKeyword("g") << g_ << token::END_STATEMENT << nl;
     os.writeKeyword("relax") << relax_ << token::END_STATEMENT << nl;
     os.writeKeyword("nonOrthCorr") << nonOrthCorr_ 
 << token::END_STATEMENT << nl;

@@ -61,13 +61,6 @@ class navierStokesFluid
 
         //- name
         word regionName_;
-
-        //- transport
-        volVectorField U_;
-
-        surfaceScalarField phi_;            
-
-        volScalarField p_;
         
         //- transport properties dictionary 
         IOdictionary transportProperties_;
@@ -81,7 +74,14 @@ class navierStokesFluid
         dimensionedScalar muFluid_;
         
         volScalarField mu_;           
-        
+ 
+        //- transport
+        volVectorField U_;
+
+        surfaceScalarField phi_;            
+
+        volScalarField p_;
+               
         //- fields for poison equation for the pressure
         volScalarField AU_;
         

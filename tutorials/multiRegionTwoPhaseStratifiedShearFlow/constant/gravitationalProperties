@@ -11,17 +11,11 @@ FoamFile
     version         2.0;
     format          ascii;
     class           dictionary;
-    object          transportProperties;
+    object          gravitationProperties;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
-// Density 
-rho             rho [1 -3 0 0 0 0 0] 1.0;
-
-// Viscosity
-mu              mu [ 1 -1 -1 0 0 0 0 ] 1.85e-05;
-
+    g               g [ 0 1 -2 0 0 0 0 ] ( 0 9.81 0 );
 
 // ************************************************************************* //

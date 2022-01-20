@@ -41,58 +41,8 @@ interfaceCoupledPressureFlux
     patchCoupleManager(p),
     kName_("k"),
     neighbourRegionName_(),
-    neighbourPatchName_(),
-    muFluidA_
-    (
-        dimensionedScalar("muFluidA", dimensionSet(1, -1, -1, 0, 0, 0, 0), 0)
-    ),
-    muFluidB_
-    (
-        dimensionedScalar("muFluidB", dimensionSet(1, -1, -1, 0, 0, 0, 0), 0)
-    ),
-    rhoFluidA_
-    (
-        dimensionedScalar("rhoFluidA", dimMass/dimVolume, 0)
-    ),
-    rhoFluidB_
-    (
-        dimensionedScalar("rhoFluidB", dimMass/dimVolume, 0)
-    ),
-    g_
-    (
-        dimensionedVector("g", dimensionSet(0, 1, -2, 0, 0, 0, 0), vector::zero)
-    )
-{
-    muFluidA_ = dimensionedScalar
-    (
-        nbrMesh().lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("muFluidA")
-    );
-
-    muFluidB_ = dimensionedScalar
-    (
-        nbrMesh().lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("muFluidB")
-    );
-
-    rhoFluidA_ = dimensionedScalar
-    (
-        nbrMesh().lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("rhoFluidA")
-    );
-
-    rhoFluidB_ = dimensionedScalar
-    (
-        nbrMesh().lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("rhoFluidB")
-    );
-
-    g_ = dimensionedVector
-    (
-        nbrMesh().lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("g")
-    );
-}
+    neighbourPatchName_()
+{}
 
 
 Foam::interfaceCoupledPressureFlux::
@@ -108,12 +58,7 @@ interfaceCoupledPressureFlux
     patchCoupleManager(p),
     kName_(icpf.kName_),
     neighbourRegionName_(icpf.neighbourRegionName_),
-    neighbourPatchName_(icpf.neighbourPatchName_),
-    muFluidA_(icpf.muFluidA_),
-    muFluidB_(icpf.muFluidB_),
-    rhoFluidA_(icpf.rhoFluidA_),
-    rhoFluidB_(icpf.rhoFluidB_),
-    g_(icpf.g_)
+    neighbourPatchName_(icpf.neighbourPatchName_)
 {}
 
 
@@ -135,58 +80,8 @@ interfaceCoupledPressureFlux
     neighbourPatchName_
     (
         dict.lookupOrDefault<word>("neighbourPatchName", word::null)
-    ),
-    muFluidA_
-    (
-        dimensionedScalar("muFluidA", dimensionSet(1, -1, -1, 0, 0, 0, 0), 0)
-    ),
-    muFluidB_
-    (
-        dimensionedScalar("muFluidB", dimensionSet(1, -1, -1, 0, 0, 0, 0), 0)
-    ),
-    rhoFluidA_
-    (
-        dimensionedScalar("rhoFluidA", dimMass/dimVolume, 0)
-    ),
-    rhoFluidB_
-    (
-        dimensionedScalar("rhoFluidB", dimMass/dimVolume, 0)
-    ),
-    g_
-    (
-        dimensionedVector("g", dimensionSet(0, 1, -2, 0, 0, 0, 0), vector::zero)
     )
 {
-    muFluidA_ = dimensionedScalar
-    (
-        nbrMesh().lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("muFluidA")
-    );
-
-    muFluidB_ = dimensionedScalar
-    (
-        nbrMesh().lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("muFluidB")
-    );
-
-    rhoFluidA_ = dimensionedScalar
-    (
-        nbrMesh().lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("rhoFluidA")
-    );
-
-    rhoFluidB_ = dimensionedScalar
-    (
-        nbrMesh().lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("rhoFluidB")
-    );
-
-    g_ = dimensionedVector
-    (
-        nbrMesh().lookupObject<IOdictionary>("surfaceProperties")
-        .lookup("g")
-    );
-
     if (dict.found("value"))
     {
         fvPatchField<scalar>::operator=
@@ -213,12 +108,7 @@ interfaceCoupledPressureFlux
     patchCoupleManager(icpf),
     kName_(icpf.kName_),
     neighbourRegionName_(icpf.neighbourRegionName_),
-    neighbourPatchName_(icpf.neighbourPatchName_),
-    muFluidA_(icpf.muFluidA_),
-    muFluidB_(icpf.muFluidB_),
-    rhoFluidA_(icpf.rhoFluidA_),
-    rhoFluidB_(icpf.rhoFluidB_),
-    g_(icpf.g_)
+    neighbourPatchName_(icpf.neighbourPatchName_)
 {}
 
 
@@ -259,17 +149,41 @@ tmp<scalarField> interfaceCoupledPressureFlux::nGradJump() const
         (
             DDtUA
         );
-
+    
+    //TODO: use nbr instead of A/B (ie. muFluidNbr) 
+    dimensionedScalar muFluidB
+    (
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(nbrMesh().name()).lookup("mu")
+    );
+    
+    dimensionedScalar muFluidA
+    (
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(patch().boundaryMesh().mesh().name()).lookup("mu")
+    );
+    dimensionedScalar rhoFluidB
+    (
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(nbrMesh().name()).lookup("rho")
+    );
+    
+    dimensionedScalar rhoFluidA
+    (
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(patch().boundaryMesh().mesh().name()).lookup("rho")
+    );
+    
     return 
     (
         (
-            muFluidB_.value()/rhoFluidB_.value()
+            muFluidB.value()/rhoFluidB.value()
             *(
                 fvc::laplacian(U)()
                 .boundaryField()[this->patch().index()]
                 .patchInternalField()
             )
-          - muFluidA_.value()/rhoFluidA_.value()*
+          - muFluidA.value()/rhoFluidA.value()*
             nbrLaplacianU
         )
       + (
@@ -315,8 +229,8 @@ void Foam::interfaceCoupledPressureFlux::updateCoeffs()
 
     dimensionedScalar k
     (
-      nbrMesh().lookupObject<IOdictionary>
-      ("surfaceProperties").lookup(kName_)
+      db().time().lookupObject<IOdictionary>("transportProperties")
+      .subDict(nbrMesh().name()).lookup(kName_)
     );
 
     gradient() = fluxNbrToOwn*k.value();
@@ -387,11 +301,11 @@ Foam::scalarField Foam::interfaceCoupledPressureFlux::residual() const
 
     // Calculate the maximum normalized residual
     const fvPatchScalarField& fown = *this;
-
+    
     dimensionedScalar k
     (
-      nbrMesh().lookupObject<IOdictionary>
-      ("surfaceProperties").lookup(kName_)
+      db().time().lookupObject<IOdictionary>("transportProperties")
+      .subDict(nbrMesh().name()).lookup(kName_)
     );
 
     scalarField fluxOwn = 1.0/k.value()*fown.snGrad();
@@ -416,11 +330,6 @@ void Foam::interfaceCoupledPressureFlux::write
         << token::END_STATEMENT << nl;
     os.writeKeyword("neighbourPatchName") << neighbourPatchName_ 
         << token::END_STATEMENT << nl;    
-    os.writeKeyword("muFluidA") << muFluidA_ << token::END_STATEMENT << nl;
-    os.writeKeyword("muFluidB") << muFluidB_ << token::END_STATEMENT << nl;
-    os.writeKeyword("rhoFluidA") << rhoFluidA_ << token::END_STATEMENT << nl;
-    os.writeKeyword("rhoFluidB") << rhoFluidB_ << token::END_STATEMENT << nl;
-    os.writeKeyword("g") << g_ << token::END_STATEMENT << nl;
     writeEntry("value", os);
 }
     

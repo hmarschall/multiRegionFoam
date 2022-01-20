@@ -51,7 +51,7 @@ boundaryField
         neighbourRegionName     fluidA;
         neighbourPatchName      interface;
         neighbourFieldName      p;
-        k                       "rhoFluidB";
+        k                       "rho";
         value                   uniform 0;
     }
     frontAndBack

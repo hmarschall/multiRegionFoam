@@ -91,11 +91,8 @@ class regionInterface
         //- interface properties dictionary
         IOdictionary regionInterfaceProperties_;
         
-        //- bulk velocity field        
-        const volVectorField& U_;
-        
-        //- bulk flux field
-        const surfaceScalarField& phi_;
+        //- gravitationalProperties
+        IOdictionary gravitationalProperties_;
 
         //- Reference to time
         const Time& runTime_;
@@ -258,6 +255,12 @@ public:
                 return regionInterfaceProperties_;
             }
 
+            //- Return reference to gravitation properties
+            const IOdictionary& gravitationalProperties() const
+            {
+                return gravitationalProperties_;
+            }
+            
 			//- Return reference to DB
 			const Time& runTime() const
 			{
@@ -488,6 +491,9 @@ public:
                 areaScalarField& K
             );
         
+            // Surface tension
+            virtual tmp<areaScalarField> sigma() const = 0;
+            
         // Write
 
            //- Write entries for patches

@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "fluidFluid.H"
+#include "capillaryInterface.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -33,12 +33,12 @@ namespace Foam
 {
 namespace regionInterfaces
 {
-    defineTypeNameAndDebug(fluidFluid, 0);
+    defineTypeNameAndDebug(capillaryInterface, 0);
 
     addToRunTimeSelectionTable
     (
         regionInterface, 
-        fluidFluid, 
+        capillaryInterface, 
         IOdictionary 
     );
 }
@@ -46,7 +46,7 @@ namespace regionInterfaces
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
     
-Foam::regionInterfaces::fluidFluid::fluidFluid
+Foam::regionInterfaces::capillaryInterface::capillaryInterface
 ( 
     const Time& runTime,   
     const fvPatch& patchA, 
@@ -55,85 +55,79 @@ Foam::regionInterfaces::fluidFluid::fluidFluid
 :
     regionInterface(runTime, patchA, patchB),
 
-    transportPropertiesA_
-    (
-        IOobject
-        (
-            "transportProperties",
-            fileName(runTime.caseConstant()/meshA().name()),
-            runTime,
-            IOobject::MUST_READ,
-            IOobject::NO_WRITE
-        )
-    ),
-    transportPropertiesB_
-    (
-        IOobject
-        (
-            "transportProperties",
-            fileName(runTime.caseConstant()/meshB().name()),
-            runTime,
-            IOobject::MUST_READ,
-            IOobject::NO_WRITE
-        )
-    ),
-    gravitationalProperties_
-    (
-        IOobject
-        (
-            "g",
-            runTime.constant(),
-            runTime,
-            IOobject::MUST_READ_IF_MODIFIED,
-            IOobject::NO_WRITE
-        )
-    ),
-
-    U_
-    (
-        meshA().lookupObject<volVectorField>("U") 
-    ),    
-    phi_
-    (
-        meshA().lookupObject<surfaceScalarField>("phi")
-    ),    
-    rhoA_
-    (
-        transportPropertiesA_.lookup("rho")
-    ),
-    rhoB_
-    (
-        transportPropertiesB_.lookup("rho")
-    ),
-    muA_
-    (
-        transportPropertiesA_.lookup("mu")
-    ),
-    muB_
-    (
-        transportPropertiesB_.lookup("mu")
-    ),
-    sigma0_
+    sigma_
     (
         interfaceProperties().subDict(name()).lookup("sigma")
     ),
-    g_
-    (
-        gravitationalProperties_.lookup("g")
-    )
+    sigmaPtr_(NULL)
 {}
-
-
-// * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
-
-
-
-
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-
-
+tmp<areaScalarField>
+Foam::regionInterfaces::capillaryInterface::sigma() const
+{         
+    if
+    (
+        //meshA().foundObject<areaScalarField>("sigma")
+        runTime().foundObject<areaScalarField>("sigma")
+    )
+    {
+        // contaminated interface
+        
+        //sigmaPtr_ = const_cast<areaScalarField*>
+        //    (&meshA().lookupObject<areaScalarField>("sigma"));
+            
+        sigmaPtr_.set
+        (
+            new areaScalarField
+            (
+               //meshA().lookupObject<areaScalarField>("sigma")
+               runTime().lookupObject<areaScalarField>("sigma")
+            )
+        );   
+    }
+    else
+    {
+       // clean interface
+       
+       // sigmaPtr_ = new areaScalarField
+       // (
+       //     IOobject
+       //     (
+       //         "sigma",
+       //         this->db().time().timeName(),
+       //         aMesh().thisDb(),
+       //         IOobject::NO_READ,
+       //         IOobject::NO_WRITE
+       //     ),
+       //     aMesh(),
+       //     sigma_,
+       //     zeroGradientFaPatchVectorField::typeName
+       // );
+        
+        
+        sigmaPtr_.set
+        (
+            new areaScalarField
+            (
+                IOobject
+                (
+                    "sigma",
+                    runTime().timeName(),
+                    aMesh().thisDb(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                aMesh(),
+                sigma_,
+                zeroGradientFaPatchVectorField::typeName
+            )
+        );
+    }      
+    
+    //return sigmaPtr;
+} 
 
 
 // ************************************************************************* //

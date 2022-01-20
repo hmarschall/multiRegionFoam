@@ -177,7 +177,9 @@ public:
         
         //- Interface properties
         void makeFaMesh() const;
-     
+        
+        //- surface tension 
+        virtual tmp<areaScalarField> sigma() const;
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

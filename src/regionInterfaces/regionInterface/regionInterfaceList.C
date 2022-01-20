@@ -45,10 +45,10 @@ Foam::regionInterfaceList::regionInterfaceList
     pcFldNames_(),
     mcFldNames_()
 {
-
     if (partitionedTypeInterfaces_.size() > 0)
     {
         reset(partitionedTypeInterfaces_);
+
         setFieldNamesPartitionedCoupling(partitionedTypeInterfaces_);
     }
 
@@ -304,4 +304,12 @@ void Foam::regionInterfaceList::transferFaces()
 //    }
 }
 
+tmp<areaScalarField>
+Foam::regionInterfaceList::sigma() const
+{
+   forAll(*this, i)
+   {
+       this->operator[](i).sigma();
+   }
+}
 // ************************************************************************* //
