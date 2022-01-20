@@ -48,7 +48,7 @@ Foam::patchCoupleManager::rgInterface() const
      && !obr.foundObject<regionInterface>(rgIntNameRev)
     )
     {
-        FatalErrorIn("interfaceCoupledVelocityValue::")
+        FatalErrorIn("patchCoupleManager::rgInterface()")
             << "regionInterface object not found but required."
             << abort(FatalError);
     } else if
@@ -151,6 +151,10 @@ Foam::patchCoupleManager::patchCoupleManager
     localRegion_(patch_.boundaryMesh().mesh())
 {}
 
+// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
+
+Foam::patchCoupleManager::~patchCoupleManager()
+{}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
@@ -163,6 +167,5 @@ void Foam::patchCoupleManager::writeEntries(Ostream& os) const
     os.writeKeyword("neighbourFieldName");
     os << neighbourFieldName_ << token::END_STATEMENT << nl;
 }
-
 
 // ************************************************************************* //
