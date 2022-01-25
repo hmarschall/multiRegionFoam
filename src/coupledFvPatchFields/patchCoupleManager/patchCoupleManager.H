@@ -96,6 +96,7 @@ protected:
             const Field<Type>& fromField
         ) const;
 
+
 public:
 
     // Constructors
@@ -143,6 +144,9 @@ public:
             //- Return a reference to the neighbour patch field
             template<class Type>
             inline const fvPatchField<Type>& neighbourPatchField() const;
+
+            //- Update region-interface
+            void updateRegionInterface();
 
 
         // Edit

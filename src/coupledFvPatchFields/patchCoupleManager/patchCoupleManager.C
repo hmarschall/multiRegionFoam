@@ -94,21 +94,14 @@ Foam::patchCoupleManager::nbrPatch() const
     return rgInterface().patchA();
 }
 
-template<class Type>
-Foam::tmp<Field<Type> > 
-Foam::patchCoupleManager::interpolateFromNbrField
-(
-    const Field<Type>& fromField
-) const
+void Foam::patchCoupleManager::updateRegionInterface()
 {
-    if (refPatch().name() == rgInterface().patchA().name())
-    {
-        return rgInterface().transferFacesFromB(fromField);
-    }
+    regionInterface& rgInt = const_cast<regionInterface&>(rgInterface());
 
-    return rgInterface().transferFacesFromA(fromField);
+    rgInt.updateUs();
+    rgInt.updateK();
+    rgInt.updatePhis();
 }
-
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 

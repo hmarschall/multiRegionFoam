@@ -89,4 +89,20 @@ inline Foam::word& Foam::patchCoupleManager::neighbourPatchName()
 };
 
 
+template<class Type>
+Foam::tmp<Field<Type> > 
+Foam::patchCoupleManager::interpolateFromNbrField
+(
+    const Field<Type>& fromField
+) const
+{
+    if (refPatch().name() == rgInterface().patchA().name())
+    {
+        return rgInterface().transferFacesFromB<Type>(fromField);
+    }
+
+    return rgInterface().transferFacesFromA<Type>(fromField);
+}
+
+
 // ************************************************************************* //
