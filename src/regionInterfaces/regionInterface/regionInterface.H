@@ -476,7 +476,7 @@ public:
                        
             // Surface flux
             void makePhis() const;
-            void updateSurfaceFlux();
+            void updatePhis();
             
             //- Helper functions
             // Return constant reference to velocity field on patch

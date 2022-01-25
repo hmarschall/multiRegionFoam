@@ -353,7 +353,10 @@ void Foam::multiRegionSystem::solve()
     interfaces_->detach();
 
     // Solve for regions' inherent physics
-    regions_->solveRegion();
+    for (int i=0; i<3; i++)
+    {
+        regions_->solveRegion();
+    }
 
 
     // Solve region-region coupling (partitioned)

@@ -54,10 +54,11 @@ class capillaryInterface
     public regionInterface
 {  
         // Surface tension 
-        dimensionedScalar sigma_;
+        dimensionedScalar sigma0_;
         
         //mutable areaScalarField* sigmaPtr_;
-        mutable autoPtr<areaScalarField> sigmaPtr_;      
+        mutable autoPtr<areaScalarField> sigmaPtr_;
+
 public:
 
     TypeName("capillaryInterface");
