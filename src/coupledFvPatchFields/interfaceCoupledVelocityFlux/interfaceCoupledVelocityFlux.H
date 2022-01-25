@@ -34,16 +34,17 @@ Description
     gradient jump from tangential momentum jump condition.
 
     Example usage:
+
 	    interfacePatchShadow
-            {
-                type                    interfaceCoupledVelocityFlux;
-                k                       "mu";
-                neighbourRegionName     gas;
-                neighbourPatchName      interfacePatch;
-                nonOrthCorr             yes;
-                secondOrder             yes;
-                value                   uniform (0 0 0);
-            }
+        {
+            type                    interfaceCoupledVelocityFlux;
+            k                       "mu";
+            neighbourRegionName     gas;
+            neighbourPatchName      interfacePatch;
+            nonOrthCorr             yes;
+            secondOrder             yes;
+            value                   uniform (0 0 0);
+        }
 
 
 SourceFiles

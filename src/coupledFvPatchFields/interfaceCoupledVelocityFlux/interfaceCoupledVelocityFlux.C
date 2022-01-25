@@ -144,7 +144,7 @@ tmp<vectorField> interfaceCoupledVelocityFlux::velJump() const
     const areaVectorField& nf = aMesh.faceAreaNormals();                        
 
     // surface tension
-    areaScalarField sigma = rgInterface().sigma();  
+    areaScalarField sigma = rgInterface().sigma();
     
     areaVectorField gradSsigma =
     (
@@ -203,6 +203,8 @@ void Foam::interfaceCoupledVelocityFlux::updateCoeffs()
         return;
     }
 
+    updateRegionInterface();
+
     // Calculate interpolated patch field
     vectorField fluxNbrToOwn(patch().size(), pTraits<vector>::zero);
 
@@ -225,7 +227,7 @@ void Foam::interfaceCoupledVelocityFlux::updateCoeffs()
     const vectorField& nbrFlux = tnbrFlux();
 
     fluxNbrToOwn = interpolateFromNbrField<vector>(nbrFlux);
-    
+
     fluxNbrToOwn *= -1.0;
     fluxNbrToOwn += velJump();
 
@@ -361,11 +363,9 @@ Foam::scalarField Foam::interfaceCoupledVelocityFlux::residual() const
          nbrPatch().patchField<volVectorField, vector>(nbrField)
      );
      
-    tmp<vectorField> tnbrFlux = 
+    vectorField nbrFlux = 
         refCast<const interfaceCoupledVelocityValue>
         (nbrPatchField).flux();
-     
-    const vectorField& nbrFlux = tnbrFlux();
 
     fluxNbrToOwn = interpolateFromNbrField<vector>(nbrFlux);
 
