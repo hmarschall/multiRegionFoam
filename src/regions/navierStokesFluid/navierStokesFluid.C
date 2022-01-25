@@ -241,13 +241,34 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
     
     gradU_.checkIn();
     gradp_.checkIn();
-}  
+
+    IOdictionary fvSchemesDict
+    (
+        IOobject
+        (
+            "fvSchemes",
+            this->time().system(),
+            *this,
+            IOobject::MUST_READ,
+            IOobject::NO_WRITE
+        )
+    );
+
+    dictionary fluxRequiredDict = fvSchemesDict.subDict("fluxRequired");
+
+    for(label i=0; i<fluxRequiredDict.size(); i++)
+    {
+        if(fluxRequiredDict.toc()[i] != "default")
+        {
+            this->schemesDict().setFluxRequired(fluxRequiredDict.toc()[i]);
+        }
+    }
+}
 
 // left from createFields    
 //#   include "createUf.H"
 //#   include "createSf.H"
 //#   include "setRefCell.H"
-//#   include "setFluxRequired.H"    
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
@@ -346,10 +367,10 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
 
             phiHbyA += fvc::ddtPhiCorr((1.0/AU_)(), rho_, U_, phiHbyA);
 
-            tmp<volScalarField> AtU(AU_);
+            volScalarField AtU(AU_);
             AtU = max(AU_ - UEqn.H1(), 0.1*AU_);
 
-            surfaceScalarField AtUf("AtUf", fvc::interpolate(AtU()));
+            surfaceScalarField AtUf("AtUf", fvc::interpolate(AtU));
             surfaceScalarField AUf("AUf", fvc::interpolate(AU_));
 
             phiHbyA += (1.0/AtUf - 1.0/AUf)*fvc::snGrad(p_)*this->magSf();
