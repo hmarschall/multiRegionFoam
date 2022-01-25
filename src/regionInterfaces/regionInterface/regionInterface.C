@@ -346,13 +346,13 @@ Foam::word Foam::regionInterface::name() const
     word meshAName = meshA_.name();
 
     word meshBName = meshB_.name();
-    meshBName[0] = toupper(meshBName[0]);
+//    meshBName[0] = toupper(meshBName[0]);
 
     word name1(Pair<word>::first());
-    name1[0] = toupper(name1[0]);
+//    name1[0] = toupper(name1[0]);
 
     word name2(Pair<word>::second());
-    name2[0] = toupper(name2[0]);
+//    name2[0] = toupper(name2[0]);
 
     return meshAName + name1 + meshBName + name2;
 }
@@ -775,7 +775,7 @@ void Foam::regionInterface::updateUs()
 }
 
 
-void Foam::regionInterface::updateSurfaceFlux()
+void Foam::regionInterface::updatePhis()
 {
     Phis() = fac::interpolate(Us()) & aMesh().Le();
 }
