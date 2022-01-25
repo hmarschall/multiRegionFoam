@@ -55,7 +55,7 @@ Foam::regionInterfaces::capillaryInterface::capillaryInterface
 :
     regionInterface(runTime, patchA, patchB),
 
-    sigma_
+    sigma0_
     (
         interfaceProperties().subDict(name()).lookup("sigma")
     ),
@@ -66,68 +66,61 @@ Foam::regionInterfaces::capillaryInterface::capillaryInterface
 
 tmp<areaScalarField>
 Foam::regionInterfaces::capillaryInterface::sigma() const
-{         
+{
     if
     (
-        //meshA().foundObject<areaScalarField>("sigma")
         runTime().foundObject<areaScalarField>("sigma")
     )
     {
         // contaminated interface
-        
-        //sigmaPtr_ = const_cast<areaScalarField*>
-        //    (&meshA().lookupObject<areaScalarField>("sigma"));
             
-        sigmaPtr_.set
+        sigmaPtr_.reset
         (
             new areaScalarField
             (
-               //meshA().lookupObject<areaScalarField>("sigma")
-               runTime().lookupObject<areaScalarField>("sigma")
+                meshA().lookupObject<areaScalarField>("sigma")
             )
         );   
     }
     else
     {
-       // clean interface
-       
-       // sigmaPtr_ = new areaScalarField
-       // (
-       //     IOobject
-       //     (
-       //         "sigma",
-       //         this->db().time().timeName(),
-       //         aMesh().thisDb(),
-       //         IOobject::NO_READ,
-       //         IOobject::NO_WRITE
-       //     ),
-       //     aMesh(),
-       //     sigma_,
-       //     zeroGradientFaPatchVectorField::typeName
-       // );
+        // clean interface
         
-        
-        sigmaPtr_.set
+        sigmaPtr_.reset
         (
             new areaScalarField
             (
                 IOobject
                 (
-                    "sigma",
+                    "sigmaPtr",
                     runTime().timeName(),
                     aMesh().thisDb(),
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
                 aMesh(),
-                sigma_,
+                sigma0_,
                 zeroGradientFaPatchVectorField::typeName
             )
         );
-    }      
-    
-    //return sigmaPtr;
-} 
+    }
+
+    return tmp<areaScalarField>
+    (
+        new areaScalarField
+        (
+            IOobject
+            (
+                "sigma" + name(),
+                runTime().timeName(),
+                aMesh().thisDb(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            sigmaPtr_()
+        )
+    );
+}
 
 
 // ************************************************************************* //
