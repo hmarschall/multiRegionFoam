@@ -19,37 +19,53 @@ solvers
 {
     p
     {
-        solver          PCG;
-        preconditioner
-        {
-
-            preconditioner  GAMG;
-            nVcycles        2;
-            tolerance       1e-06;
-            relTol          0;
-            smoother        ILU;//GaussSeidel;
-            //number of smoothing steps before projection
-            nSmoothingSteps 1;
-            //sweeps to perform before moving to a coarser level.
-            nPreSweeps      1;
-            //sweeps to perform after coarser level corrections
-            nPostSweeps     2;
-            nFinestSweeps   2;
-            cacheAgglomeration true;
-            nCellsInCoarsestLevel 4;
-            agglomerator    faceAreaPair;
-            //-HM alternatives: algebraicPair; faceAreaPair;
-            mergeLevels     1;
-        }
-        tolerance        1e-14;
-        relTol           0;
-        minIter          1;
-        maxIter          1000;
+        solver          BICCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
     }
+
+/*    p*/
+/*    {*/
+/*        solver          PCG;*/
+/*        preconditioner*/
+/*        {*/
+
+/*            preconditioner  GAMG;*/
+/*            nVcycles        2;*/
+/*            tolerance       1e-06;*/
+/*            relTol          0;*/
+/*            smoother        GaussSeidel;*/
+/*            //number of smoothing steps before projection*/
+/*            nSmoothingSteps 1;*/
+/*            //sweeps to perform before moving to a coarser level.*/
+/*            nPreSweeps      1;*/
+/*            //sweeps to perform after coarser level corrections*/
+/*            nPostSweeps     2;*/
+/*            nFinestSweeps   2;*/
+/*            cacheAgglomeration true;*/
+/*            nCellsInCoarsestLevel 4;*/
+/*            agglomerator    faceAreaPair;*/
+/*            //-HM alternatives: algebraicPair; faceAreaPair;*/
+/*            mergeLevels     1;*/
+/*        }*/
+/*        tolerance        1e-14;*/
+/*        relTol           0;*/
+/*        minIter          1;*/
+/*        maxIter          1000;*/
+/*    }*/
 
     pcorr
     {
         solver          BiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+
+    pFinal
+    {
+        solver          BICCG;
         preconditioner  DILU;
         tolerance       1e-12;
         relTol          0;
@@ -101,10 +117,9 @@ PISO
 PIMPLE
 {
     // p-U coupling
-    nCoupledIt			4;
-    nOuterCorrectors            2; // SIMPLEC loops
-    nCorrectors                 2; // PISO loops
-    nNonOrthogonalCorrectors    2;
+    nOuterCorrectors            3; // SIMPLEC loops
+    nCorrectors                 1; // PISO loops
+    nNonOrthogonalCorrectors    1;
 
     // interface tracking
     adjustFluxFrequency         100;
@@ -115,13 +130,12 @@ PIMPLE
 
     velTolerance                1e-8;
     momTolerance                1e-8;
-
-    betaSqrEps      betaSqrEps [0 -2 2 0 0 0 0] 10;//0.09;
-    gamma0          1;
 }
 
 relaxationFactors
 {
+/*    p               0.3;*/
+/*    U               0.7;*/
 }
 
 

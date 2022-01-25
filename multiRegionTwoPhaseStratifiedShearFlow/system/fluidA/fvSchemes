@@ -33,7 +33,6 @@ gradSchemes
 divSchemes
 {
     default none;
-    div(phi,Ci) Gauss upwind;
     div(phi,U) Gauss linearUpwindV Gauss linear;//Gauss skewCorrected GammaVDC 1;//Gauss linearUpwindV Gauss linear;
     //-HM linearUpwindV;
     //-HM GammaVDC 0.5;

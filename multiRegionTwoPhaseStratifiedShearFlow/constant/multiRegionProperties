@@ -21,9 +21,9 @@ regions
 
 partitionedTypeRegionInterfaces
 (
-    fluidAfluidB 
+    fluidAfluidB
     (
-        (((fluidA interface)(fluidB interfaceShadow)) (U))
+        (((fluidA interface)(fluidB interfaceShadow)) ())
     )
 );
 

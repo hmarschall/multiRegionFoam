@@ -16,7 +16,7 @@ FoamFile
 
 libs
   (
-    "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/lib/linux64GccDPInt32Opt/libcoupledFvPatchBCs.so"
+    "libcoupledFvPatchBCs.so"
   );
   
 applicationClass multiRegionFoam;
@@ -29,11 +29,11 @@ stopAt endTime;
 
 endTime 1.0;
 
-deltaT 1e-06; 
+deltaT 1e-6; 
 
-writeControl adjustableRunTime;
+writeControl timeStep;//adjustableRunTime;
 
-writeInterval 0.1;
+writeInterval 10;//0.1;
 
 cycleWrite 0; 
 
@@ -55,7 +55,7 @@ maxCo 0.1;
 
 maxDeltaT 1e-05; 
 
-minDeltaT 5e-07; 	
+minDeltaT 1e-07; 	
 
 /*
 functions
