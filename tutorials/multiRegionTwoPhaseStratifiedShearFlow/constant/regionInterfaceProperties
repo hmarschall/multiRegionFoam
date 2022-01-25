@@ -16,7 +16,7 @@ FoamFile
 
 regionInterfaceType capillaryInterface;
 
-fluidAInterfaceFluidBInterfaceShadow
+fluidAinterfacefluidBinterfaceShadow
 {
     sigma           sigma [ 1 0 -2 0 0 0 0 ] 0.07;
 }
