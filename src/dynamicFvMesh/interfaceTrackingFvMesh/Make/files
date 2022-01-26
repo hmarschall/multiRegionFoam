@@ -1,4 +1,15 @@
 interfaceTrackingFvMesh.C
 freeSurfacePointDisplacement.C
 
+correctedFvPatchFields/correctedFvPatchField/correctedFvPatchFields.C
+
+basicCorrectedFvPatchFields = correctedFvPatchFields/basicCorrectedFvPatchFields
+$(basicCorrectedFvPatchFields)/fixedGradient/fixedGradientCorrectedFvPatchFields.C
+$(basicCorrectedFvPatchFields)/fixedValue/fixedValueCorrectedFvPatchFields.C
+$(basicCorrectedFvPatchFields)/zeroGradient/zeroGradientCorrectedFvPatchFields.C
+
+patchCorrectedSnGrad/patchCorrectedSnGrads.C
+
+faMesh.C
+
 LIB = $(FOAM_USER_LIBBIN)/libinterfaceTrackingFvMesh
