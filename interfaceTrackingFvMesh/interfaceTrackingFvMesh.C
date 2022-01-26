@@ -54,101 +54,88 @@ namespace Foam
     defineTypeNameAndDebug(interfaceTrackingFvMesh, 0);
     addToRunTimeSelectionTable
     (
-        dynamicFvMesh,
+        topoChangerFvMesh,
         interfaceTrackingFvMesh,
         IOobject
     );
-//    addToRunTimeSelectionTable
-//    (
-//        dynamicFvMesh,
-//        interfaceTrackingFvMesh,
-//        doInit
-//    );
 }
 
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-//void Foam::interfaceTrackingFvMesh::initializeData()
-//{
-//    // Set free surface patch index
-//    {
-//        const word fsPatchName(motion().get<word>("fsPatchName"));
-
-//        polyPatchID patch(fsPatchName, this->boundaryMesh());
-
-//        if (!patch.active())
-//        {
-//            FatalErrorInFunction
-//                << "Patch name " << fsPatchName << " not found."
-//                << abort(FatalError);
-//        }
-
-//        surfacePatchID_ = patch.index();
-//    }
-
-//    // Set point normal correction for finite area mesh
-//    {
-//        boolList& correction = aMesh().correctPatchPointNormals();
-
-//        for (const word& patchName : pointNormalsCorrectionPatches_)
-//        {
-//            label patchID = aMesh().boundary().findPatchID(patchName);
-
-//            if (patchID == -1)
-//            {
-//                FatalErrorInFunction
-//                    << "Patch name '" << patchName
-//                    << "' for point normals correction does not exist"
-//                    << abort(FatalError);
-//            }
-
-//            correction[patchID] = true;
-//        }
-//    }
-
-//    // Read motion direction
-//    if (!normalMotionDir_)
-//    {
-//        motionDir_ = normalised(motion().get<vector>("motionDir"));
-//    }
-
-//    // Check if contact angle is defined
-//    makeContactAngle();
-
-//    motion().readIfPresent
-//    (
-//        "nonReflectingFreeSurfacePatches",
-//        nonReflectingFreeSurfacePatches_
-//    );
-//}
-
-
-void Foam::interfaceTrackingFvMesh::makeSurfaceNetPhi() const
+void Foam::interfaceTrackingFvMesh::initializeData()
 {
-    DebugInFunction
-        << "making surface net flux" << nl;
+    // Set motion-based data
+    movingSurfacePatches_ = wordList
+    (
+        motionDict_.lookup("movingSurfacePatches")
+    );
 
-    if (surfaceNetPhiPtr_)
+    fixedSurfacePatches_ = wordList
+    (
+        motionDict_.lookup("fixedSurfacePatches")
+    );
+
+    pointNormalsCorrectionPatches_ = wordList
+    (
+        motionDict_.lookup("pointNormalsCorrectionPatches")
+    );
+
+    normalMotionDir_ = Switch
+    (
+        motionDict_.lookup("normalMotionDir")
+    );
+
+    smoothing_ = Switch
+    (
+        motionDict_.lookupOrDefault<Switch>("smoothing", false)
+    );
+
+    // Set surface patch index
     {
-        FatalErrorInFunction
-            << "surface net flux already exists"
-            << abort(FatalError);
+        const word surfacePatchName("freeSurface");
+
+        polyPatchID patch(surfacePatchName, this->boundaryMesh());
+
+        if (!patch.active())
+        {
+            FatalErrorInFunction
+                << "Patch name " << surfacePatchName << " not found."
+                << abort(FatalError);
+        }
+
+        surfacePatchID_ = patch.index();
     }
 
-    surfaceNetPhiPtr_ = new areaScalarField
-    (
-        IOobject
-        (
-            "surfaceNetPhi",
-            mesh().time().timeName(),
-            mesh(),
-            IOobject::NO_READ,
-            IOobject::AUTO_WRITE
-        ),
-        aMesh(),
-        dimensionedScalar("surfaceNetPhi0", dimVelocity*dimArea, pTraits<scalar>::zero)
-    );
+    // Set point normal correction for finite area mesh
+    {
+        boolList& correction = aMesh().correctPatchPointNormals();
+
+        forAll(pointNormalsCorrectionPatches_, patchI)
+        {
+            word patchName = pointNormalsCorrectionPatches_[patchI];
+
+            label patchID = aMesh().boundary().findPatchID(patchName);
+
+            if(patchID == -1)
+            {
+                FatalErrorIn
+                (
+                    "surfaceTracking::surfaceTracking(...)"
+                )   << "Patch name for point normals correction does not exist"
+                    << abort(FatalError);
+            }
+
+            correction[patchID] = true;
+        }
+    }
+
+    // Read motion direction
+    if (!normalMotionDir_)
+    {
+        motionDir_ = vector(motionDict_.lookup("motionDir"));
+        motionDir_ /= mag(motionDir_) + SMALL;
+    }
 }
 
 
@@ -163,7 +150,7 @@ void Foam::interfaceTrackingFvMesh::makeControlPoints()
 
     // It is an error to attempt to recalculate
     // if the pointer is already set
-    if (controlPointsPtr_)
+    if (!controlPointsPtr_.empty())
     {
         FatalErrorIn("interfaceTrackingFvMesh::makeInterpolators()")
             << "patch to patch interpolators already exists"
@@ -180,7 +167,8 @@ void Foam::interfaceTrackingFvMesh::makeControlPoints()
 
     if (controlPointsHeader.headerOk())
     {
-        controlPointsPtr_ =
+        controlPointsPtr_.set
+        (
             new vectorIOField
             (
                 IOobject
@@ -191,11 +179,13 @@ void Foam::interfaceTrackingFvMesh::makeControlPoints()
                     IOobject::MUST_READ,
                     IOobject::AUTO_WRITE
                 )
-            );
+            )
+        );
     }
     else
     {
-        controlPointsPtr_ =
+        controlPointsPtr_.set
+        (
             new vectorIOField
             (
                 IOobject
@@ -207,29 +197,71 @@ void Foam::interfaceTrackingFvMesh::makeControlPoints()
                     IOobject::AUTO_WRITE
                 ),
                 aMesh().areaCentres().internalField()
-            );
+            )
+        );
 
         initializeControlPointsPosition();
     }
 }
 
+void Foam::interfaceTrackingFvMesh::makeTotalDisplacement()
+{
+    if (debug)
+    {
+        Info<< "surfaceTracking::makeTotalDisplacement() : "
+            << "making zero total points displacement"
+            << endl;
+    }
+
+    // It is an error to attempt to recalculate
+    // if the pointer is already set
+    if (!totalDisplacementPtr_.empty())
+    {
+        FatalErrorIn("surfaceTracking::makeTotalDisplacement()")
+            << "total points displacement already exists"
+            << abort(FatalError);
+    }
+
+    totalDisplacementPtr_.set
+    (
+        new vectorIOField
+        (
+            IOobject
+            (
+                "totalDisplacement",
+                mesh().time().timeName(),
+                mesh(),
+                IOobject::NO_READ,
+                IOobject::AUTO_WRITE
+            ),
+            vectorField
+            (
+                mesh().boundaryMesh()[surfacePatchID()].nPoints(),
+                vector::zero
+            )
+        )
+    );
+}
 
 void Foam::interfaceTrackingFvMesh::makeMotionPointsMask()
 {
     DebugInFunction
         << "making motion points mask" << nl;
 
-    if (motionPointsMaskPtr_)
+    if (!motionPointsMaskPtr_.empty())
     {
         FatalErrorInFunction
             << "motion points mask already exists"
             << abort(FatalError);
     }
 
-    motionPointsMaskPtr_ = new scalarField//labelList
+    motionPointsMaskPtr_.set
     (
-        mesh().boundaryMesh()[surfacePatchID()].nPoints(),
-        1
+        new scalarField
+        (
+            mesh().boundaryMesh()[surfacePatchID()].nPoints(),
+            1
+        )
     );
 
     // Mark free surface boundary points
@@ -260,7 +292,7 @@ void Foam::interfaceTrackingFvMesh::makeMotionPointsMask()
         if (fixedPatchID == -1)
         {
             FatalErrorInFunction
-                << "Wrong faPatch name in the fixedFreeSurfacePatches list"
+                << "Wrong faPatch name in the fixedSurfacePatches list"
                 << " defined in the dynamicMeshDict dictionary"
                 << abort(FatalError);
         }
@@ -281,26 +313,30 @@ void Foam::interfaceTrackingFvMesh::makeDirections()
     DebugInFunction
         << "make displacement directions for points and control points" << nl;
 
-    if (pointsDisplacementDirPtr_ || facesDisplacementDirPtr_)
+    if (!pointsDisplacementDirPtr_.empty() || !facesDisplacementDirPtr_.empty())
     {
         FatalErrorInFunction
             << "points, control points displacement directions already exist"
             << abort(FatalError);
     }
 
-    pointsDisplacementDirPtr_ =
+    pointsDisplacementDirPtr_.set
+    (
         new vectorField
         (
             mesh().boundaryMesh()[surfacePatchID()].nPoints(),
             pTraits<vector>::zero
-        );
+        )
+    );
 
-    facesDisplacementDirPtr_ =
+    facesDisplacementDirPtr_.set
+    (
         new vectorField
         (
             mesh().boundaryMesh()[surfacePatchID()].size(),
             pTraits<vector>::zero
-        );
+        )
+    );
 
     if (!normalMotionDir())
     {
@@ -458,89 +494,32 @@ void Foam::interfaceTrackingFvMesh::initializeControlPointsPosition()
             (faceArea[faceI] & facesDisplacementDir()[faceI]);
     }
 
-//    forAll(fixedSurfacePatches_, patchI)
-//    {
-//        label fixedPatchID = 
-//            aMesh().boundary().findPatchID
-//            (
-//                fixedSurfacePatches_[patchI]
-//            );
+    forAll(fixedSurfacePatches_, patchI)
+    {
+        label fixedPatchID = 
+            aMesh().boundary().findPatchID
+            (
+                fixedSurfacePatches_[patchI]
+            );
 
-//        if(fixedPatchID == -1)
-//        {
-//            FatalErrorIn("surfaceTracking::surfaceTracking(...)")
-//                << "Wrong faPatch name in the fixedSurfacePatches list"
-//                    << " defined in the surfaceProperties dictionary"
-//                    << abort(FatalError);
-//        }
+        if(fixedPatchID == -1)
+        {
+            FatalErrorIn("interfaceTrackingFvMesh::initializeControlPointsPosition()")
+                << "Wrong faPatch name in the fixedSurfacePatches list"
+                    << " defined in the dynamicMeshDict dictionary"
+                    << abort(FatalError);
+        }
 
-//        const labelList& eFaces =
-//            aMesh().boundary()[fixedPatchID].edgeFaces();
+        const labelList& eFaces =
+            aMesh().boundary()[fixedPatchID].edgeFaces();
 
-//        forAll(eFaces, edgeI)
-//        {
-//            deltaH[eFaces[edgeI]] *= 2.0;
-//        }
-//    }
+        forAll(eFaces, edgeI)
+        {
+            deltaH[eFaces[edgeI]] *= 2.0;
+        }
+    }
 
     displacement = pointDisplacement(deltaH);
-}
-
-
-//Foam::scalar Foam::interfaceTrackingFvMesh::maxCourantNumber()
-//{
-//    scalar CoNum = 0;
-
-//    if (pureFreeSurface())
-//    {
-//        const scalarField& dE = aMesh().lPN();
-
-//        CoNum = gMax
-//        (
-//            mesh().time().deltaT().value()/
-//            sqrt
-//            (
-//                Foam::pow(dE, 3.0)/2.0/M_PI/(sigma().value() + SMALL)
-//            )
-//        );
-//    }
-//    else
-//    {
-//        scalarField sigmaE
-//        (
-//            linearEdgeInterpolate(surfaceTension())().internalField().field()
-//          + SMALL
-//        );
-
-//        const scalarField& dE = aMesh().lPN();
-
-//        CoNum = gMax
-//        (
-//            mesh().time().deltaT().value()/
-//            sqrt
-//            (
-//                Foam::pow(dE, 3.0)/2.0/M_PI/sigmaE
-//            )
-//        );
-//    }
-
-//    return CoNum;
-//}
-
-
-void Foam::interfaceTrackingFvMesh::updateProperties()
-{
-    const singlePhaseTransportModel& properties =
-        mesh().lookupObject<singlePhaseTransportModel>
-        (
-            "transportProperties"
-        );
-
-    rho_ = dimensionedScalar(properties.lookup("rho"));
-
-    // volScalarField mu_ = rho_*properties.nu();
-
-    sigma0_ = dimensionedScalar(properties.lookup("sigma"));
 }
 
 
@@ -663,139 +642,65 @@ Foam::interfaceTrackingFvMesh::interfaceTrackingFvMesh
     const IOobject& io
 )
 :
-    dynamicMotionSolverFvMesh(io),
+//    dynamicMotionSolverFvMesh(io),
+    topoChangerFvMesh(io),
+    motionPtr_(motionSolver::New(*this)),
     aMeshPtr_(new faMesh(*this)),
-    surfacePatchID_(-1),
+    motionDict_
+    (
+        IOdictionary
+        (
+            IOobject
+            (
+                "dynamicMeshDict",
+                io.time().constant(),
+                (io.name() == topoChangerFvMesh::defaultRegion ? "" : io.name() ),
+                io.db(),
+                IOobject::MUST_READ,
+                IOobject::NO_WRITE,
+                false
+            )
+        ).subDict(typeName + "Coeffs")
+    ),
+    movingSurfacePatches_(),
+    surfacePatchID_ //(-1),
+    (
+        this->boundaryMesh().findPatchID("freeSurface")
+    ),
     fixedSurfacePatches_(),
     nonReflectingFreeSurfacePatches_(),
     pointNormalsCorrectionPatches_(),
-    normalMotionDir_(false),
+    normalMotionDir_
+    (
+        motionDict_.lookup("normalMotionDir")
+    ),
     motionDir_(pTraits<vector>::zero),
     smoothing_(false),
-    pureFreeSurface_(true),
-    rigidFreeSurface_(false),
-    correctContactLineNormals_(false),
-    sigma0_("zero", dimForce/dimLength/dimDensity, pTraits<scalar>::zero),
-    rho_("one", dimDensity, 1.0),
+    rigidFreeSurface_
+    (
+        motionDict_.lookupOrDefault<Switch>("rigidFreeSurface", false)
+    ),
     timeIndex_(-1),
-    controlPointsPtr_(nullptr),
-    motionPointsMaskPtr_(nullptr),
-    pointsDisplacementDirPtr_(nullptr),
-    facesDisplacementDirPtr_(nullptr),
-    surfaceNetPhiPtr_(nullptr)
-//    surfaceTensionPtr_(nullptr),
+    sweptVolCorrOld_(this->boundaryMesh()[surfacePatchID_].size(), 0.0),
+    resetFluxFrequency_(100),
+    controlPointsPtr_(),
+    totalDisplacementPtr_(),
+    motionPointsMaskPtr_(),
+    pointsDisplacementDirPtr_(),
+    facesDisplacementDirPtr_()
 //    contactAnglePtr_(nullptr)
 {
-//    if (doInit)
-//    {
-//        init(false);    // do not initialise lower levels
-//    }
+    initializeData();
 }
 
-/*
-Foam::interfaceTrackingFvMesh::interfaceTrackingFvMesh
-(
-    const IOobject& io,
-    pointField&& points,
-    faceList&& faces,
-    labelList&& allOwner,
-    labelList&& allNeighbour,
-    const bool syncPar
-)
-:
-    dynamicMotionSolverFvMesh
-    (
-        io,
-        std::move(points),
-        std::move(faces),
-        std::move(allOwner),
-        std::move(allNeighbour),
-        syncPar
-    ),
-    aMeshPtr_(new faMesh(*this)),
-    surfacePatchID_(-1),
-    fixedSurfacePatches_(),
-    nonReflectingFreeSurfacePatches_(),
-    pointNormalsCorrectionPatches_(),
-    normalMotionDir_(false),
-    motionDir_(pTraits<vector>::zero),
-    smoothing_(false),
-    pureFreeSurface_(true),
-    sigma0_("zero", dimForce/dimLength/dimDensity, pTraits<scalar>::zero),
-    rho_("one", dimDensity, 1.0),
-    timeIndex_(-1),
-    controlPointsPtr_(nullptr),
-    motionPointsMaskPtr_(nullptr),
-    pointsDisplacementDirPtr_(nullptr),
-    facesDisplacementDirPtr_(nullptr),
-    surfaceNetPhiPtr_(nullptr),
-    surfaceTensionPtr_(nullptr),
-    contactAnglePtr_(nullptr)
-{}
-*/
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::interfaceTrackingFvMesh::~interfaceTrackingFvMesh()
-{
-    deleteDemandDrivenData(controlPointsPtr_);
-    deleteDemandDrivenData(motionPointsMaskPtr_);
-    deleteDemandDrivenData(pointsDisplacementDirPtr_);
-    deleteDemandDrivenData(facesDisplacementDirPtr_);
-    deleteDemandDrivenData(surfaceNetPhiPtr_);
-//    deleteDemandDrivenData(surfaceTensionPtr_);
-//    deleteDemandDrivenData(contactAnglePtr_);
-}
+{}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-//bool Foam::interfaceTrackingFvMesh::init(const bool doInit)
-//{
-//    if (doInit)
-//    {
-//        dynamicMotionSolverFvMesh::init(doInit);
-//    }
-
-//    aMeshPtr_.reset(new faMesh(*this));
-
-//    // Set motion-based data
-//    fixedSurfacePatches_ =
-//        motion().get<wordList>("fixedFreeSurfacePatches");
-
-//    pointNormalsCorrectionPatches_ =
-//        motion().get<wordList>("pointNormalsCorrectionPatches");
-
-//    normalMotionDir_ = motion().get<bool>("normalMotionDir");
-//    smoothing_ = motion().getOrDefault("smoothing", false);
-//    pureFreeSurface_ = motion().getOrDefault("pureFreeSurface", true);
-
-//    initializeData();
-
-//    return true;
-//}
-
-
-Foam::areaScalarField& Foam::interfaceTrackingFvMesh::surfaceNetPhi()
-{
-    if (!surfaceNetPhiPtr_)
-    {
-        makeSurfaceNetPhi();
-    }
-
-    return *surfaceNetPhiPtr_;
-}
-
-
-const Foam::areaScalarField& Foam::interfaceTrackingFvMesh::surfaceNetPhi() const
-{
-    if (!surfaceNetPhiPtr_)
-    {
-        makeSurfaceNetPhi();
-    }
-
-    return *surfaceNetPhiPtr_;
-}
 
 
 const Foam::volVectorField& Foam::interfaceTrackingFvMesh::U() const
@@ -804,10 +709,10 @@ const Foam::volVectorField& Foam::interfaceTrackingFvMesh::U() const
 }
 
 
-//const Foam::volScalarField& Foam::interfaceTrackingFvMesh::p() const
-//{
-//    return *this.objectRegistry::lookupObject<volScalarField>("p");
-//}
+const Foam::volScalarField& Foam::interfaceTrackingFvMesh::p() const
+{
+    return mesh().objectRegistry::lookupObject<volScalarField>("p");
+}
 
 
 const Foam::surfaceScalarField& Foam::interfaceTrackingFvMesh::phi() const
@@ -818,70 +723,55 @@ const Foam::surfaceScalarField& Foam::interfaceTrackingFvMesh::phi() const
 
 Foam::vectorField& Foam::interfaceTrackingFvMesh::controlPoints()
 {
-    if (!controlPointsPtr_)
+    if (controlPointsPtr_.empty())
     {
         makeControlPoints();
     }
 
-    return *controlPointsPtr_;
+    return controlPointsPtr_();
 }
 
+Foam::vectorField& Foam::interfaceTrackingFvMesh::totalDisplacement()
+{
+    if (totalDisplacementPtr_.empty())
+    {
+        makeTotalDisplacement();
+    }
 
-//Foam::labelList& Foam::interfaceTrackingFvMesh::motionPointsMask()
-//{
-//    if (!motionPointsMaskPtr_)
-//    {
-//        makeMotionPointsMask();
-//    }
+    return totalDisplacementPtr_();
+}
 
-//    return *motionPointsMaskPtr_;
-//}
+Foam::scalarField& Foam::interfaceTrackingFvMesh::motionPointsMask()
+{
+    if (motionPointsMaskPtr_.empty())
+    {
+        makeMotionPointsMask();
+    }
+
+    return motionPointsMaskPtr_();
+}
 
 
 Foam::vectorField& Foam::interfaceTrackingFvMesh::pointsDisplacementDir()
 {
-    if (!pointsDisplacementDirPtr_)
+    if (pointsDisplacementDirPtr_.empty())
     {
         makeDirections();
     }
 
-    return *pointsDisplacementDirPtr_;
+    return pointsDisplacementDirPtr_();
 }
 
 
 Foam::vectorField& Foam::interfaceTrackingFvMesh::facesDisplacementDir()
 {
-    if (!facesDisplacementDirPtr_)
+    if (facesDisplacementDirPtr_.empty())
     {
         makeDirections();
     }
 
-    return *facesDisplacementDirPtr_;
+    return facesDisplacementDirPtr_();
 }
-
-
-//Foam::areaScalarField&
-//Foam::interfaceTrackingFvMesh::surfaceTension()
-//{
-//    if (!surfaceTensionPtr_)
-//    {
-//        makeSurfaceTension();
-//    }
-
-//    return *surfaceTensionPtr_;
-//}
-
-
-//const Foam::areaScalarField&
-//Foam::interfaceTrackingFvMesh::surfaceTension() const
-//{
-//    if (!surfaceTensionPtr_)
-//    {
-//        makeSurfaceTension();
-//    }
-
-//    return *surfaceTensionPtr_;
-//}
 
 
 bool Foam::interfaceTrackingFvMesh::update()
@@ -895,11 +785,6 @@ bool Foam::interfaceTrackingFvMesh::update()
 
         updateDisplacementDirections();
 
-        updateProperties();
-
-        Info<< "Maximal capillary Courant number: "
-            << maxCourantNumber() << endl;
-
         const scalarField& K = aMesh().faceCurvatures().internalField();
 
         Info<< "Free surface curvature: min = " << gMin(K)
@@ -908,30 +793,23 @@ bool Foam::interfaceTrackingFvMesh::update()
         timeIndex_ = mesh().time().timeIndex();
     }
 
-//    if (!rigidFreeSurface_)
-//    {
-        pointField newMeshPoints = mesh().allPoints();
-
+    if (!rigidFreeSurface_)
+    {
         // This is currently relative flux
         scalarField sweptVolCorr =
             phi().boundaryField()[surfacePatchID()];
 
-        // Info<< "Free surface flux: sum local = "
-        //     << gSum(mag(sweptVolCorr))
-        //     << ", global = " << gSum(sweptVolCorr) << endl;
+//        if (mesh().moving())
+//        {
+//            sweptVolCorr -=
+//                fvc::meshPhi(U())().boundaryField()[surfacePatchID()];
+//        }
 
-        // if (mesh().moving())
-        // {
-        //     sweptVolCorr -=
-        //         fvc::meshPhi(U())().boundaryField()[fsPatchIndex()];
-        // }
+        pointField newMeshPoints = mesh().allPoints();
 
-        Info<< "Free surface continuity error : sum local = "
+        Info<< "Moving surface continuity error : sum local = "
             << gSum(mag(sweptVolCorr)) << ", global = " << gSum(sweptVolCorr)
             << endl;
-
-        // For postprocessing
-        surfaceNetPhi().internalField() = sweptVolCorr;
 
         word ddtScheme
         (
@@ -959,8 +837,9 @@ bool Foam::interfaceTrackingFvMesh::update()
         }
         else if
         (
-            ddtScheme
-         == fv::backwardDdtScheme<vector>::typeName
+            (ddtScheme == "bdf2")
+         ||
+            (ddtScheme == fv::backwardDdtScheme<vector>::typeName)
         )
         {
             if (mesh().time().timeIndex() == 1)
@@ -970,6 +849,8 @@ bool Foam::interfaceTrackingFvMesh::update()
             else
             {
                 sweptVolCorr *= (2.0/3.0)*mesh().time().deltaT().value();
+
+//                sweptVolCorr += (1.0/3.0)*sweptVolCorrOld_;
             }
         }
         else
@@ -999,7 +880,7 @@ bool Foam::interfaceTrackingFvMesh::update()
             if(fixedPatchID == -1)
             {
                 FatalErrorIn("interfaceTrackingFvMesh::update(...)")
-                    << "Wrong faPatch name in the fixedFreeSurfacePatches list"
+                    << "Wrong faPatch name in the fixedSurfacePatches list"
                         << " defined in the surfaceProperties dictionary"
                         << abort(FatalError);
             }
@@ -1014,11 +895,13 @@ bool Foam::interfaceTrackingFvMesh::update()
         }
 
         controlPoints() += facesDisplacementDir()*deltaHf;
+//        updateDisplacementDirections();
 
-        pointField displacement(pointDisplacement(deltaHf));
+        pointField displacement(pointDisplacement(deltaHf)); //line 291 in freeSurface
+
+        //- correct point displacement for fixed surface patches
         correctPointDisplacement(sweptVolCorr, displacement);
 
-        //- HM
         // Move only free surface points
         const labelList& meshPoints =
             mesh().boundaryMesh()[surfacePatchID()].meshPoints();
@@ -1028,18 +911,29 @@ bool Foam::interfaceTrackingFvMesh::update()
             newMeshPoints[meshPoints[pointI]] += displacement[pointI];
         }
 
-        // TODO: add totalDisplacementPtr_ data
-        // OR can this be replace by displacement? (see line 178 in freeSurface.C)
-        // totalDisplacement() += displacement;
+        // Update total displacement field
+//        totalDisplacement() += displacement;
 
-        twoDPointCorrector twoDPointCorr(mesh());
+        if (timeIndex_ < mesh().time().timeIndex())
+        {
+            totalDisplacement() = displacement;
 
-        twoDPointCorr.correctPoints(newMeshPoints);
-
-        mesh().movePoints(newMeshPoints);
-
+            timeIndex_ = mesh().time().timeIndex();
+        }
+        else
+        {
+            totalDisplacement() += displacement;
+        }
 
         // mesh motion
+//        fvMotionSolver& mSolver =
+//            dynamic_cast<fvMotionSolver&>
+//            (
+//                motionPtr_()
+//            );
+
+//        pointVectorField& motionU = mSolver.pointMotionU();
+
         pointVectorField& motionU =
             const_cast<pointVectorField&>
             (
@@ -1056,179 +950,179 @@ bool Foam::interfaceTrackingFvMesh::update()
                 motionU.boundaryField()[surfacePatchID()]
             );
 
+//        motionUPatch ==
+//            totalDisplacement()/mesh().time().deltaT().value();
+
         motionUPatch ==
             displacement/mesh().time().deltaT().value();
 
-//        velocityMotionSolver& vMotion =
-//            refCast<velocityMotionSolver>
-//            (
-//                const_cast<motionSolver&>(motion())
-//            );
 
-//        pointVectorField& pointMotionU = vMotion.pointMotionU();
-//        pointMotionU.primitiveFieldRef() = pTraits<vector>::zero;
+//        twoDPointCorrector twoDPointCorr(mesh());
+//        twoDPointCorr.correctPoints(newMeshPoints);
 
-//        fixedValuePointPatchVectorField& fsPatchPointMeshU =
-//            refCast<fixedValuePointPatchVectorField>
-//            (
-//                const_cast<pointPatchVectorField&>
-//                (
-//                    pointMotionU.boundaryField()[fsPatchIndex()]
-//                )
-//            );
+        sweptVolCorrOld_ = sweptVolCorr;
 
-//        fsPatchPointMeshU ==
-//            displacement/mesh().time().deltaT().value();
+//        fvMesh::movePoints(newMeshPoints);
+//        setOldPoints(newMeshPoints);
+//        movePoints(newMeshPoints);
 
-        dynamicMotionSolverFvMesh::update();
+//        aMesh().movePoints();
 
-//    }
-//    else
-//    {
-//        vectorField displacement
-//        (
-//            mesh().boundaryMesh()[fsPatchIndex()].nPoints(),
-//            pTraits<vector>::zero
-//        );
-
-//        velocityMotionSolver& vMotion =
-//            refCast<velocityMotionSolver>
-//            (
-//                const_cast<motionSolver&>(motion())
-//            );
-
-//        pointVectorField& pointMotionU = vMotion.pointMotionU();
-//        pointMotionU.primitiveFieldRef() = pTraits<vector>::zero;
-
-//        fixedValuePointPatchVectorField& fsPatchPointMeshU =
-//            refCast<fixedValuePointPatchVectorField>
-//            (
-//                const_cast<pointPatchVectorField&>
-//                (
-//                    pointMotionU.boundaryField()[fsPatchIndex()]
-//                )
-//            );
-
-//        fsPatchPointMeshU ==
-//            displacement/mesh().time().deltaT().value();
+        motionPtr_->solve();
+//-        mSolver.solve();
 
 //        dynamicMotionSolverFvMesh::update();
-//    }
+
+        fvMesh::movePoints(motionPtr_->curPoints());
+//-        fvMesh::movePoints(mSolver.curPoints());
+
+//        fvMesh::movePoints(mSolver.newPoints());
+    }
+    else
+    {
+        notImplemented
+        (
+            "interfaceTrackingFvMesh::update()\n"
+            "Rigid free-surface model\n"
+            "not implemented"
+        );
+    }
+
+    // Enforce interface motion based on actual flux (without artefacts),
+    // by reset of residual fluxes across free surface
+    if
+    (
+        ((timeIndex_-1) % resetFluxFrequency_) == 0
+     && timeIndex_ > 1
+    )
+    {
+        //- Non-const access to flux on patch
+        fvsPatchField<scalar>& surfacePhiField = 
+            const_cast<fvsPatchField<scalar>& >
+            (
+                mesh().lookupObject<surfaceScalarField>("phi")
+                .boundaryField()[surfacePatchID()]
+            );
+
+        surfacePhiField *= 0;
+    }
+
+    // dynamicMotionSolverFvMesh::update();
 
     return true;
 }
 
 
-//void Foam::interfaceTrackingFvMesh::writeVTK() const
-//{
-//    // Write patch and points into VTK
-//    OFstream mps(mesh().time().timePath()/"freeSurface.vtk");
+void Foam::interfaceTrackingFvMesh::writeVTK() const
+{
+    // Write patch and points into VTK
+    OFstream mps(mesh().time().timePath()/"surface.vtk");
 
-//    const vectorField& points = aMesh().patch().points();
-//    const IndirectList<face>& faces = aMesh().patch();
+    const vectorField& points = aMesh().patch().points();
+    const IndirectList<face>& faces = aMesh().patch();
 
-//    mps << "# vtk DataFile Version 2.0" << nl
-//        << mesh().time().timePath()/"freeSurface.vtk" << nl
-//        << "ASCII" << nl
-//        << "DATASET POLYDATA" << nl
-//        << "POINTS " << points.size() << " float" << nl;
+    mps << "# vtk DataFile Version 2.0" << nl
+        << mesh().time().timePath()/"surface.vtk" << nl
+        << "ASCII" << nl
+        << "DATASET POLYDATA" << nl
+        << "POINTS " << points.size() << " float" << nl;
 
-//    // Write points
-//    List<float> mlpBuffer(3*points.size());
+    // Write points
+    List<float> mlpBuffer(3*points.size());
 
-//    label counter = 0;
-//    forAll(points, i)
-//    {
-//        mlpBuffer[counter++] = float(points[i].x());
-//        mlpBuffer[counter++] = float(points[i].y());
-//        mlpBuffer[counter++] = float(points[i].z());
-//    }
+    label counter = 0;
+    forAll(points, i)
+    {
+        mlpBuffer[counter++] = float(points[i].x());
+        mlpBuffer[counter++] = float(points[i].y());
+        mlpBuffer[counter++] = float(points[i].z());
+    }
 
-//    forAll(mlpBuffer, i)
-//    {
-//        mps << mlpBuffer[i] << ' ';
+    forAll(mlpBuffer, i)
+    {
+        mps << mlpBuffer[i] << ' ';
 
-//        if (i > 0 && (i % 10) == 0)
-//        {
-//            mps << nl;
-//        }
-//    }
+        if (i > 0 && (i % 10) == 0)
+        {
+            mps << nl;
+        }
+    }
 
-//    // Write faces
-//    label nFaceVerts = 0;
+    // Write faces
+    label nFaceVerts = 0;
 
-//    forAll(faces, faceI)
-//    {
-//        nFaceVerts += faces[faceI].size() + 1;
-//    }
-//    labelList mlfBuffer(nFaceVerts);
+    forAll(faces, faceI)
+    {
+        nFaceVerts += faces[faceI].size() + 1;
+    }
+    labelList mlfBuffer(nFaceVerts);
 
-//    counter = 0;
-//    forAll(faces, faceI)
-//    {
-//        const face& f = faces[faceI];
+    counter = 0;
+    forAll(faces, faceI)
+    {
+        const face& f = faces[faceI];
 
-//        mlfBuffer[counter++] = f.size();
+        mlfBuffer[counter++] = f.size();
 
-//        forAll(f, fpI)
-//        {
-//            mlfBuffer[counter++] = f[fpI];
-//        }
-//    }
-//    mps << nl;
+        forAll(f, fpI)
+        {
+            mlfBuffer[counter++] = f[fpI];
+        }
+    }
+    mps << nl;
 
-//    mps << "POLYGONS " << faces.size() << ' ' << nFaceVerts << endl;
+    mps << "POLYGONS " << faces.size() << ' ' << nFaceVerts << endl;
 
-//    forAll(mlfBuffer, i)
-//    {
-//        mps << mlfBuffer[i] << ' ';
+    forAll(mlfBuffer, i)
+    {
+        mps << mlfBuffer[i] << ' ';
 
-//        if (i > 0 && (i % 10) == 0)
-//        {
-//            mps << nl;
-//        }
-//    }
-//    mps << nl;
+        if (i > 0 && (i % 10) == 0)
+        {
+            mps << nl;
+        }
+    }
+    mps << nl;
 
-//    // aMesh().patch().writeVTK
-//    // (
-//    //     mesh().time().timePath()/"freeSurface",
-//    //     aMesh().patch(),
-//    //     aMesh().patch().points()
-//    // );
-//}
+     aMesh().patch().writeVTK
+     (
+         mesh().time().timePath()/"surface",
+         aMesh().patch(),
+         aMesh().patch().points()
+     );
+}
 
 
-//void Foam::interfaceTrackingFvMesh::writeVTKControlPoints()
-//{
-//    // Write control points into VTK
-//    fileName name(mesh().time().timePath()/"freeSurfaceControlPoints.vtk");
-//    OFstream mps(name);
+void Foam::interfaceTrackingFvMesh::writeVTKControlPoints()
+{
+    // Write control points into VTK
+    fileName name(mesh().time().timePath()/"surfaceControlPoints.vtk");
+    OFstream mps(name);
 
-//    Info<< "Writing free surface control point to " << name << endl;
+    Info<< "Writing surface control point to " << name << endl;
 
-//    mps << "# vtk DataFile Version 2.0" << nl
-//        << name << nl
-//        << "ASCII" << nl
-//        << "DATASET POLYDATA" << nl
-//        << "POINTS " << controlPoints().size() << " float" << nl;
+    mps << "# vtk DataFile Version 2.0" << nl
+        << name << nl
+        << "ASCII" << nl
+        << "DATASET POLYDATA" << nl
+        << "POINTS " << controlPoints().size() << " float" << nl;
 
-//    forAll(controlPoints(), pointI)
-//    {
-//        mps << controlPoints()[pointI].x() << ' '
-//            << controlPoints()[pointI].y() << ' '
-//            << controlPoints()[pointI].z() << nl;
-//    }
+    forAll(controlPoints(), pointI)
+    {
+        mps << controlPoints()[pointI].x() << ' '
+            << controlPoints()[pointI].y() << ' '
+            << controlPoints()[pointI].z() << nl;
+    }
 
-//    // Write vertices
-//    mps << "VERTICES " << controlPoints().size() << ' '
-//        << controlPoints().size()*2 << nl;
+    // Write vertices
+    mps << "VERTICES " << controlPoints().size() << ' '
+        << controlPoints().size()*2 << nl;
 
-//    forAll(controlPoints(), pointI)
-//    {
-//        mps << 1 << ' ' << pointI << nl;
-//    }
-//}
+    forAll(controlPoints(), pointI)
+    {
+        mps << 1 << ' ' << pointI << nl;
+    }
+}
 
 
 // ************************************************************************* //
