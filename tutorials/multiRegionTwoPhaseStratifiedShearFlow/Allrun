@@ -27,10 +27,19 @@ while getopts "pm" OPTION; do
             runApplication -l log.blockMesh.fluidB blockMesh -region fluidB 2>/dev/null
             runApplication blockMesh -region fluidA 2>/dev/null
             
-            transformPoints -scale "(0.04 0.01 0.001)" -region fluidA 2>/dev/null >> log.transformPoints
-            transformPoints -scale "(0.04 0.01 0.001)" -region fluidB 2>/dev/null >> log.transformPoints
+            #check
+            runApplication -l log.setSet.fluidB setSet -region fluidB -batch faces.setSet 2>/dev/null
+            runApplication setSet -region fluidA -batch faces.setSet 2>/dev/null
             
-            runApplication makeFaMesh -region fluidA 2>/dev/null >> log.makeFaMesh
+            #runApplication createPatch -overwrite
+            
+            transformPoints -scale "(0.004 0.001 0.001)" -region fluidA 2>/dev/null >> log.transformPoints
+            transformPoints -scale "(0.004 0.001 0.001)" -region fluidB 2>/dev/null >> log.transformPoints
+            
+            runApplication makeFaMesh -region fluidA 2>/dev/null 
+            runApplication -l log.makeFaMesh.fluidB makeFaMesh -region fluidB 2>/dev/null
+
+            #runApplication calcCurvature
             ;;
 
         m)

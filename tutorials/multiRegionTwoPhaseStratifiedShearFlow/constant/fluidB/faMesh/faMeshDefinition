@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-polyMeshPatches  1( interface );
+polyMeshPatches  1( interfaceShadow );
 
 boundary
 {}
