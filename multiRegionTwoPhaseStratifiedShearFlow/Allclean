@@ -4,11 +4,18 @@ find -type l -delete
 
 rm -rf 0.* [1-9]* log* proc* VTK
 
-rm constant/fluid/polyMesh/blockMeshDict 2>/dev/null
-rm constant/solid/polyMesh/blockMeshDict 2>/dev/null
+rm constant/fluidA/polyMesh/blockMeshDict 2>/dev/null
+rm constant/fluidB/polyMesh/blockMeshDict 2>/dev/null
 
-rm 0/fluid/T 2>/dev/null
-rm 0/fluid/alpha 2>/dev/null
+rm constant/fluidA/faMesh/faceLabels 2>/dev/null
+rm constant/fluidB/faMesh/faceLabels 2>/dev/null
 
-rm 0/solid/T 2>/dev/null
-rm 0/solid/alpha 2>/dev/null
+rm constant/fluidA/faMesh/faBoundary 2>/dev/null
+rm constant/fluidB/faMesh/faBoundary 2>/dev/null
+
+rm 0/fluidA/U 2>/dev/null
+rm 0/fluidA/p 2>/dev/null
+
+rm 0/fluidB/U 2>/dev/null
+rm 0/fluidB/p 2>/dev/null
+
