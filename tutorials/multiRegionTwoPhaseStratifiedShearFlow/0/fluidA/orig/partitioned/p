@@ -27,18 +27,18 @@ boundaryField
 	value	uniform 0;
 }
 // fixed values for the inlet (p(x=0)) and outlet (p(x=L))
-    left
+    inlet
     {
         type            fixedValue;
         value           uniform 0;
     }
-    right
+    outlet
     {
         type            fixedValue;
         value           uniform 0.0021;
     } 
 // zero gradient for the walls parallel to the interface  
-    top
+    Wall
     {
         type            zeroGradient;
     }
@@ -59,6 +59,5 @@ boundaryField
         type                    empty;
     }
 }
-
 
 // ************************************************************************* //

@@ -118,72 +118,66 @@ tmp<scalarField> interfaceCoupledPressureFlux::nGradJump() const
 {
     const fvMesh& mesh = patch().boundaryMesh().mesh();
 
-    const volVectorField& U =
+    const volVectorField& U = 
         mesh.objectRegistry::lookupObject<volVectorField>("U");
 
     const volVectorField& nbrU = 
         nbrMesh().lookupObject<volVectorField>("U");
 
-    const surfaceScalarField& phi =
+    const surfaceScalarField& phi = 
         mesh.objectRegistry::lookupObject<surfaceScalarField>("phi");
 
     const surfaceScalarField& nbrPhi = 
         nbrMesh().lookupObject<surfaceScalarField>("phi");
 
-    vectorField laplacianUA = fvc::laplacian(nbrU)()
-        .boundaryField()[nbrPatch().index()] 
-        .patchInternalField();
-
-    vectorField DDtUA = fvc::DDt(nbrPhi, nbrU)()
-        .boundaryField()[nbrPatch().index()] 
-        .patchInternalField();
-
-    vectorField nbrLaplacianU =
-        interpolateFromNbrField<vector> 
+    vectorField nbrLaplacianU = interpolateFromNbrField<vector> 
         (
-            laplacianUA
+            fvc::laplacian(nbrU)() 
+            .boundaryField()[nbrPatch().index()] 
+            .patchInternalField()
         );
 
-    vectorField nbrDDtU =
-        interpolateFromNbrField<vector> 
+    vectorField nbrDDtU = interpolateFromNbrField<vector> 
         (
-            DDtUA
+            fvc::DDt(nbrPhi, nbrU)()
+            .boundaryField()[nbrPatch().index()] 
+            .patchInternalField()
         );
     
-    //TODO: use nbr instead of A/B (ie. muFluidNbr) 
-    dimensionedScalar muFluidB
+    dimensionedScalar muFluidNbr
     (
         db().time().lookupObject<IOdictionary>("transportProperties")
         .subDict(nbrMesh().name()).lookup("mu")
     );
     
-    dimensionedScalar muFluidA
+    dimensionedScalar muFluid 
     (
         db().time().lookupObject<IOdictionary>("transportProperties")
-        .subDict(patch().boundaryMesh().mesh().name()).lookup("mu")
+        .subDict(mesh.name()).lookup("mu")
     );
-    dimensionedScalar rhoFluidB
+    
+    dimensionedScalar rhoFluidNbr 
     (
         db().time().lookupObject<IOdictionary>("transportProperties")
         .subDict(nbrMesh().name()).lookup("rho")
     );
     
-    dimensionedScalar rhoFluidA
+    dimensionedScalar rhoFluid 
     (
         db().time().lookupObject<IOdictionary>("transportProperties")
-        .subDict(patch().boundaryMesh().mesh().name()).lookup("rho")
+        .subDict(mesh.name()).lookup("rho")
     );
     
     return 
     (
         (
-            muFluidB.value()/rhoFluidB.value()
+            muFluid.value()/rhoFluid.value()
             *(
                 fvc::laplacian(U)()
                 .boundaryField()[this->patch().index()]
                 .patchInternalField()
             )
-          - muFluidA.value()/rhoFluidA.value()*
+          - muFluidNbr.value()/rhoFluidNbr.value()*
             nbrLaplacianU
         )
       + (
@@ -218,7 +212,8 @@ void Foam::interfaceCoupledPressureFlux::updateCoeffs()
     // Interpolate flux face values from neighbour patch
     tmp<scalarField> tnbrFlux = 
         refCast<const interfaceCoupledPressureValue>
-        (nbrPatch().patchField<volScalarField, scalar>(nbrField)).flux();  
+        (nbrPatch().patchField<volScalarField, scalar>(nbrField)).flux(); 
+
     const scalarField& nbrFlux = tnbrFlux();
 
     fluxNbrToOwn = interpolateFromNbrField<scalar>(nbrFlux);
@@ -229,8 +224,8 @@ void Foam::interfaceCoupledPressureFlux::updateCoeffs()
 
     dimensionedScalar k
     (
-      db().time().lookupObject<IOdictionary>("transportProperties")
-      .subDict(nbrMesh().name()).lookup(kName_)
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(patch().boundaryMesh().mesh().name()).lookup(kName_)
     );
 
     gradient() = fluxNbrToOwn*k.value();
@@ -304,8 +299,8 @@ Foam::scalarField Foam::interfaceCoupledPressureFlux::residual() const
     
     dimensionedScalar k
     (
-      db().time().lookupObject<IOdictionary>("transportProperties")
-      .subDict(nbrMesh().name()).lookup(kName_)
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(patch().boundaryMesh().mesh().name()).lookup(kName_)
     );
 
     scalarField fluxOwn = 1.0/k.value()*fown.snGrad();

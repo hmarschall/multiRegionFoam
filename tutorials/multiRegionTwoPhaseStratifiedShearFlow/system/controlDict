@@ -27,13 +27,13 @@ startTime 0;
 
 stopAt endTime;
 
-endTime 1.0;
+endTime 10.0;
 
 deltaT 1e-6; 
 
-writeControl timeStep;//adjustableRunTime;
+writeControl adjustableRunTime; //timeStep;
 
-writeInterval 10;//0.1;
+writeInterval 0.001;//10
 
 cycleWrite 0; 
 

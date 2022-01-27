@@ -27,17 +27,17 @@ boundaryField
 	value	uniform (0 0 0);
 }
 //No-slip at the walls parallel to the interface
-    bottom
+    Wall
     {
         type            fixedValue;
         value           uniform (0 0 0);
     }
 // zero-gradient BC on the left side (inlet) and the right side (outlet)
-    left
+    inlet
     {
         type            zeroGradient;
     }
-    right
+    outlet
     {
         type            zeroGradient;
     }
