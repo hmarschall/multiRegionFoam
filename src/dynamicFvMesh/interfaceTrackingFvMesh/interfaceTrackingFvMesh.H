@@ -38,13 +38,18 @@ SourceFiles
 #ifndef interfaceTrackingFvMesh_H
 #define interfaceTrackingFvMesh_H
 
-#include "dynamicMotionSolverFvMesh.H"
+//#include "dynamicMotionSolverFvMesh.H"
+#include "topoChangerFvMesh.H"
+//#include "dynamicFvMesh.H"
+#include "motionSolver.H"
 #include "regIOobject.H"
 #include "faCFD.H"
+#include "IOdictionary.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "singlePhaseTransportModel.H"
 #include "demandDrivenData.H"
+//#include "correctPointsFunctionObject.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -57,73 +62,75 @@ namespace Foam
 
 class interfaceTrackingFvMesh
 :
-    public dynamicMotionSolverFvMesh
+    public topoChangerFvMesh//dynamicMotionSolverFvMesh
 {
     // Private Data
+
+        // Dynamic motion solver
+        autoPtr<motionSolver> motionPtr_;
 
         //- Finite area mesh
         autoPtr<faMesh> aMeshPtr_;
 
-        //- Free surface patch index
+        //- Motion dictionary
+        dictionary motionDict_;
+
+        //- Surface patches which move
+        wordList movingSurfacePatches_;
+
+        //- Surface patch index
         label surfacePatchID_;
 
-        //- Free surface faPatch-es which do not move
+        //- Surface patches which do not move
         wordList fixedSurfacePatches_;
 
-        //- Free surface faPatch-es where wave should not reflect
+        //- Surface faPatch-es where wave should not reflect
         wordList nonReflectingFreeSurfacePatches_;
 
-        //- Free surface patches which do not move
-
-        //- Free surface patches for which point normals must be corrected
+        //- Surface patches for which point normals must be corrected
         wordList pointNormalsCorrectionPatches_;
 
-        //- Is it free-surface points displacement direction
-        //  parallel with free-surface point normals
+        //- Is the surface points displacement direction
+        //  parallel with surface point normals?
         Switch normalMotionDir_;
 
-        //- Free-surface points displacement direction
+        //- Surface points displacement direction
         //  if not normal motion direction
         vector motionDir_;
 
         //- Interface smoothing at the beginning of time step
         Switch smoothing_;
 
-        //- Pure free-surface
-        Switch pureFreeSurface_; //! CFL
-
         //- Rigid free-surface
         Switch rigidFreeSurface_;
-
-        //- Correct contact line point normals
-        Switch correctContactLineNormals_;
-
-        //- Surface tension coefficient of pure free-surface
-        dimensionedScalar sigma0_; //! CFL
-
-        //- Fluid density
-        dimensionedScalar rho_; //! CFL
 
         //- Current interface tracking time index
         label timeIndex_;
 
+        //- Swept Volume Correction
+        scalarField sweptVolCorrOld_;
+
+        //- Reset flux frequency
+        label resetFluxFrequency_;
+
         //- Points which are attached to the free-surface A side faces
         //  and which defines the free-surface shape
-        mutable vectorIOField* controlPointsPtr_;
+        autoPtr<vectorIOField> controlPointsPtr_;
+
+        //- Total displacement of free-surface points
+        //  in one time step
+        autoPtr<vectorIOField> totalDisplacementPtr_;
 
         //- Field which additionally determines
         //  the motion of free-surface points
 //        mutable labelList* motionPointsMaskPtr_;
-        mutable scalarField* motionPointsMaskPtr_;
+        autoPtr<scalarField> motionPointsMaskPtr_;
 
         //- Displacement direction of free-surface points
-        mutable vectorField* pointsDisplacementDirPtr_;
+        autoPtr<vectorField> pointsDisplacementDirPtr_;
 
         //- Displacement direction of free-surface control points
-        mutable vectorField* facesDisplacementDirPtr_;
-
-        //- Free-surface net flux
-        mutable areaScalarField* surfaceNetPhiPtr_;
+        autoPtr<vectorField> facesDisplacementDirPtr_;
 
         //- Contact angle
 //        mutable areaScalarField* contactAnglePtr_;
@@ -135,14 +142,14 @@ class interfaceTrackingFvMesh
             //- Create control points
             void makeControlPoints();
 
+            //- Create total displacement field
+            void makeTotalDisplacement();
+
             //- Create motion points mask
             void makeMotionPointsMask();
 
             //- Create points and control point motion direction
             void makeDirections();
-
-            //- Create free surface net flux
-            void makeSurfaceNetPhi() const;
 
             //- Create contact angle
 //            void makeContactAngle();
@@ -153,8 +160,8 @@ class interfaceTrackingFvMesh
         //- No copy assignment
         void operator=(const interfaceTrackingFvMesh&) = delete;
 
-//        //- Initialize data
-//        void initializeData();
+        //- Initialize data
+        void initializeData();
 
         //- Update control points end displacement directions
         void updateDisplacementDirections();
@@ -177,12 +184,6 @@ class interfaceTrackingFvMesh
             const vector& axis
         ) const;
 
-        //- Maximal surface tension based Courant number
-        scalar maxCourantNumber();
-
-        //- Update properties
-        void updateProperties();
-
         //- Correct free surface point displacement next to fixed contact line
         void correctPointDisplacement
         (
@@ -201,27 +202,12 @@ public:
         //- Construct from IOobject
         interfaceTrackingFvMesh(const IOobject& io);
 
-        //- Construct from components without boundary.
-        //  Boundary is added using addFvPatches() member function
-//        interfaceTrackingFvMesh
-//        (
-//            const IOobject& io,
-//            pointField&& points,
-//            faceList&& faces,
-//            labelList&& allOwner,
-//            labelList&& allNeighbour,
-//            const bool syncPar = true
-//        );
-
 
     //- Destructor
     ~interfaceTrackingFvMesh();
 
 
     // Member Functions
-
-        //- Initialise all non-demand-driven data
-//        virtual bool init(const bool doInit);
 
         fvMesh& mesh()
         {
@@ -250,23 +236,17 @@ public:
             return surfacePatchID_;
         }
 
-//        //- Pure free-surface
-//        const Switch& pureFreeSurface() const
-//        {
-//            return pureFreeSurface_;
-//        }
+        //- Rigid free-surface
+        const Switch& rigidFreeSurface() const
+        {
+            return rigidFreeSurface_;
+        }
 
-//        //- Rigid free-surface
-//        const Switch& rigidFreeSurface() const
-//        {
-//            return rigidFreeSurface_;
-//        }
-
-//        //- Rigid free-surface
-//        Switch& rigidFreeSurface()
-//        {
-//            return rigidFreeSurface_;
-//        }
+        //- Rigid free-surface
+        Switch& rigidFreeSurface()
+        {
+            return rigidFreeSurface_;
+        }
 
 //        //- Correct contact line point normals
 //        const Switch& correctContactLineNormals() const
@@ -280,23 +260,11 @@ public:
 //            return correctContactLineNormals_;
 //        }
 
-//        //- Surface tension coefficient of pure free-surface
-//        const dimensionedScalar& sigma() const
-//        {
-//            return sigma0_;
-//        }
-
-        //- Return free-surface net flux
-        const areaScalarField& surfaceNetPhi() const;
-
-        //- Return free-surface net flux
-        areaScalarField& surfaceNetPhi();
-
         //- Return constant reference to velocity field
         const volVectorField& U() const;
 
-//        //- Return constant reference to pressure field
-//        const volScalarField& p() const;
+        //- Return constant reference to pressure field
+        const volScalarField& p() const;
 
         //- Return constant reference to velocity field
         const surfaceScalarField& phi() const;
@@ -314,17 +282,14 @@ public:
         //- Return reference to control points displacement direction field
         vectorField& facesDisplacementDir();
 
+        //- Return total points displacement
+        vectorField& totalDisplacement();
+
         //- Motion direction swithc
         bool normalMotionDir() const
         {
             return normalMotionDir_;
         }
-
-//        //- Return surface tension field
-//        areaScalarField& surfaceTension();
-
-//        //- Return surface tension field
-//        const areaScalarField& surfaceTension() const;
 
         //- Update the mesh for both mesh motion and topology change
         virtual bool update();
@@ -332,14 +297,14 @@ public:
         //- Clear control points
         void clearControlPoints()
         {
-            deleteDemandDrivenData(controlPointsPtr_);
+            controlPointsPtr_.clear();
         }
 
-//        //- Write VTK freeSurface mesh
-//        void writeVTK() const;
+        //- Write VTK surface mesh
+        void writeVTK() const;
 
-//        //- Write VTK freeSurface control points
-//        void writeVTKControlPoints();
+        //- Write VTK surface control points
+        void writeVTKControlPoints();
 };
 
 

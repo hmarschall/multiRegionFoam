@@ -1,6 +1,11 @@
 /* ../globalPolyPatch/globalPolyPatchTemplates.C */
 /*../../numerics/newGGIInterpolation/newGGIInterpolationName.C*/
 
+interfaceToInterface = ./../coupledFvPatchFields/interfaceToInterfaceMappings
+$(interfaceToInterface)/interfaceToInterfaceMapping/interfaceToInterfaceMapping.C
+$(interfaceToInterface)/ggiInterfaceToInterfaceMapping/ggiInterfaceToInterfaceMapping.C
+$(interfaceToInterface)/directMapInterfaceToInterfaceMapping/directMapInterfaceToInterfaceMapping.C
+
 interfaces = ./regionInterface
 $(interfaces)/interfaceKey.C
 $(interfaces)/newRegionInterface.C
