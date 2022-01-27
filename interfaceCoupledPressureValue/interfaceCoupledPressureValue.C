@@ -128,7 +128,6 @@ interfaceCoupledPressureValue
 Foam::interfaceCoupledPressureValue::~interfaceCoupledPressureValue()
 {}
 
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 tmp<scalarField> interfaceCoupledPressureValue::valueJump() const
@@ -137,21 +136,14 @@ tmp<scalarField> interfaceCoupledPressureValue::valueJump() const
 
     const faMesh& aMesh = faMesh(mesh);
 
-    // Get interfacial curvature
+    // interfacial curvature
     const areaScalarField& K = rgInterface().K();
-    
-    //TODO rgInterface().updateK();
-
-
+   
     // surface velocity terms
     const areaVectorField& Us = rgInterface().Us();
-        
-    //TODO rgInterface().updateUs(); 
 
-    areaScalarField divUs
-    (
-        fac::div(Us)
-    );
+    areaScalarField divUs(fac::div(Us));
+    
 //    divUs.correctBoundaryConditions();
 
     // surface tension 
@@ -159,41 +151,38 @@ tmp<scalarField> interfaceCoupledPressureValue::valueJump() const
 
     // gravity term
     vector pRefPoint(mesh.solutionDict().subDict("PISO").lookup("pRefPoint"));
+    
+    dimensionedVector g (rgInterface().gravitationalProperties().lookup("g"));
 
-    //TODO: use nbr instead of A/B (ie. muFluidNbr) 
-    dimensionedScalar muFluidB
+    dimensionedScalar muFluidNbr
     (
         db().time().lookupObject<IOdictionary>("transportProperties")
         .subDict(nbrMesh().name()).lookup("mu")
     );
     
-    dimensionedScalar muFluidA
+    dimensionedScalar muFluid
     (
         db().time().lookupObject<IOdictionary>("transportProperties")
-        .subDict(patch().boundaryMesh().mesh().name()).lookup("mu")
+        .subDict(mesh.name()).lookup("mu")
     );
-    dimensionedScalar rhoFluidB
+    
+    dimensionedScalar rhoFluidNbr
     (
         db().time().lookupObject<IOdictionary>("transportProperties")
         .subDict(nbrMesh().name()).lookup("rho")
     );
     
-    dimensionedScalar rhoFluidA
+    dimensionedScalar rhoFluid
     (
         db().time().lookupObject<IOdictionary>("transportProperties")
-        .subDict(patch().boundaryMesh().mesh().name()).lookup("rho")
-    );
-    
-    dimensionedVector g
-    (
-        rgInterface().gravitationalProperties().lookup("g")
+        .subDict(mesh.name()).lookup("rho")
     );
     
     return
     (
-        2.0*(muFluidB.value() - muFluidA.value())*divUs.internalField()
+        2.0*(muFluidNbr.value() - muFluid.value())*divUs.internalField()
       - sigma.internalField()*K.internalField()
-      + (rhoFluidB.value() - rhoFluidA.value())
+      + (rhoFluidNbr.value() - rhoFluid.value())
         *(
             (
                 mesh.C().boundaryField()[this->patch().index()] 
@@ -211,6 +200,8 @@ void Foam::interfaceCoupledPressureValue::updateCoeffs()
         return;
     }
 
+    updateRegionInterface();
+    
     // Calculate interpolated patch field
     scalarField fieldNbrToOwn(patch().size(), 0);
 
@@ -296,8 +287,8 @@ Foam::interfaceCoupledPressureValue::flux() const
 {
     dimensionedScalar k
     (
-      db().time().lookupObject<IOdictionary>("transportProperties")
-      .subDict(patch().boundaryMesh().mesh().name()).lookup(kName_)
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(patch().boundaryMesh().mesh().name()).lookup(kName_)
     );
     
     return (this->snGrad()/k.value());
@@ -405,7 +396,6 @@ void Foam::interfaceCoupledPressureValue::write
 }
     
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
 
 namespace Foam
 {

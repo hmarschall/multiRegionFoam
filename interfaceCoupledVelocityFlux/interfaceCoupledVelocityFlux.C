@@ -134,59 +134,44 @@ interfaceCoupledVelocityFlux
 Foam::interfaceCoupledVelocityFlux::~interfaceCoupledVelocityFlux()
 {}
 
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 tmp<vectorField> interfaceCoupledVelocityFlux::velJump() const
 {
-    const faMesh& aMesh = rgInterface().aMesh();
-
-    const areaVectorField& nf = aMesh.faceAreaNormals();                        
+    const areaVectorField& nf = rgInterface().aMesh().faceAreaNormals();                        
 
     // surface tension
     areaScalarField sigma = rgInterface().sigma();
-    
-    areaVectorField gradSsigma =
-    (
-        fac::grad(sigma)
-    );
+
+    areaVectorField gradSsigma = fac::grad(sigma);
 
     // surface velocity terms
     const areaVectorField& Us = rgInterface().Us();
+  
+    areaScalarField divSU = fac::div(Us); 
 
-    //TODO rgInterface().updateUs();
-    
-    areaScalarField divSU =
-    (
-        fac::div(Us)
-    );
-
-    areaTensorField gradSU =
-    (
-        fac::grad(Us)
-    );
+    areaTensorField gradSU = fac::grad(Us);
 
     // Remove component of gradient normal to surface (area)
     gradSU -= nf*(nf & gradSU);
     gradSU.correctBoundaryConditions();
 
-    //TODO: use nbr instead of A/B (ie. muFluidNbr) 
-    dimensionedScalar muFluidB
+    dimensionedScalar muFluidNbr
     (
         db().time().lookupObject<IOdictionary>("transportProperties")
         .subDict(nbrMesh().name()).lookup("mu")
     );
     
-    dimensionedScalar muFluidA
+    dimensionedScalar muFluid
     (
-         db().time().lookupObject<IOdictionary>("transportProperties")
+        db().time().lookupObject<IOdictionary>("transportProperties")
         .subDict(patch().boundaryMesh().mesh().name()).lookup("mu")
     );
     
     return
     (
 //        gradSsigma.internalField()
-        (muFluidB.value() - muFluidA.value())
+        (muFluidNbr.value() - muFluid.value())
         *(
             divSU*nf
           + (gradSU&nf)
@@ -234,8 +219,8 @@ void Foam::interfaceCoupledVelocityFlux::updateCoeffs()
 	// Enforce flux matching
     dimensionedScalar k
     (
-      db().time().lookupObject<IOdictionary>("transportProperties")
-      .subDict(patch().boundaryMesh().mesh().name()).lookup(kName_)
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(patch().boundaryMesh().mesh().name()).lookup(kName_)
     );
 
     gradient() = fluxNbrToOwn/k.value();
@@ -359,9 +344,9 @@ Foam::scalarField Foam::interfaceCoupledVelocityFlux::residual() const
         );
         
     const fvPatchVectorField& nbrPatchField =
-     (
-         nbrPatch().patchField<volVectorField, vector>(nbrField)
-     );
+        (
+            nbrPatch().patchField<volVectorField, vector>(nbrField)
+        );
      
     vectorField nbrFlux = 
         refCast<const interfaceCoupledVelocityValue>
@@ -374,8 +359,8 @@ Foam::scalarField Foam::interfaceCoupledVelocityFlux::residual() const
 
     dimensionedScalar k
     (
-      db().time().lookupObject<IOdictionary>("transportProperties")
-      .subDict(patch().boundaryMesh().mesh().name()).lookup(kName_)
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(patch().boundaryMesh().mesh().name()).lookup(kName_)
     );
 
     vectorField fluxOwn = k.value()*fown.snGrad();
