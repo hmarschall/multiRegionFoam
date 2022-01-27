@@ -30,7 +30,6 @@ License
 #include "mathematicalConstants.H"
 #include "fvCFD.H"
 
-
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::interfaceCoupledVelocityValue::
@@ -323,8 +322,8 @@ Foam::interfaceCoupledVelocityValue::flux() const
 {   
     dimensionedScalar k
     (
-      db().time().lookupObject<IOdictionary>("transportProperties")
-      .subDict(nbrMesh().name()).lookup(kName_)
+        db().time().lookupObject<IOdictionary>("transportProperties")
+        .subDict(patch().boundaryMesh().mesh().name()).lookup(kName_)
     );
 
     return (this->snGrad()*k.value());
@@ -352,10 +351,10 @@ Foam::scalarField Foam::interfaceCoupledVelocityValue::residual() const
 
     // Get the fluxes
     const fvsPatchField<scalar>& phip =
-    (
-        this->db().lookupObject<surfaceScalarField>(phiName_)
-        .boundaryField()[this->patch().index()]
-    );
+        (
+            this->db().lookupObject<surfaceScalarField>(phiName_)
+            .boundaryField()[this->patch().index()]
+        );
 
     const surfaceScalarField& nbrPhi =
         nbrMesh().lookupObject<surfaceScalarField>(phiName_);
@@ -406,7 +405,6 @@ void Foam::interfaceCoupledVelocityValue::write
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
 
 namespace Foam
 {
