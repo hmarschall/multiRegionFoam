@@ -99,7 +99,7 @@ public:
         );
 
     //- Destructor
-    virtual ~regionType();
+    virtual ~regionType(){}
 
         // Selectors
         static autoPtr<regionType> New
@@ -132,6 +132,8 @@ public:
         virtual void setCoupledEqns() = 0;
         
         virtual void updateFields() = 0;
+
+//        virtual void clear() = 0;
 
         // Get a ref to the fvMatrix 
         template<class T>

@@ -327,7 +327,9 @@ Foam::multiRegionSystem::multiRegionSystem
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 Foam::multiRegionSystem::~multiRegionSystem()
-{}
+{
+    regions_->clear();
+}
 
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //

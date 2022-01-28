@@ -43,8 +43,6 @@ void ggiInterfaceToInterfaceMapping::transferFacesZoneToZone
     Field<Type>& toField             // to field
 ) const
 {
-    Info<< "Interpolating face values using GGI" << endl;
-
     // Check field sizes are correct
     interfaceToInterfaceMapping::checkFieldSizes
     (
@@ -88,8 +86,6 @@ void ggiInterfaceToInterfaceMapping::transferPointsZoneToZone
     Field<Type>& toField             // to field
 ) const
 {
-    Info<< "Interpolating point values using GGI" << endl;
-
     // Check field sizes are correct
     interfaceToInterfaceMapping::checkFieldSizes
     (
