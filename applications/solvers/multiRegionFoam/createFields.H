@@ -2,9 +2,9 @@
 
 Info << "Creating multi-region system\n" << endl;
 
-multiRegionSystem multiRegion(runTime);
+autoPtr<multiRegionSystem> multiRegion(new multiRegionSystem(runTime));
 
-regionTypeList& regions = multiRegion.regions();
+regionTypeList& regions = multiRegion().regions();
 
 bool LTS = false;
 
