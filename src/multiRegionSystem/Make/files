@@ -1,5 +1,10 @@
 mergePolyMesh.C
 
+interfaceToInterface = ./../coupledFvPatchFields/interfaceToInterfaceMappings
+$(interfaceToInterface)/interfaceToInterfaceMapping/interfaceToInterfaceMapping.C
+$(interfaceToInterface)/ggiInterfaceToInterfaceMapping/ggiInterfaceToInterfaceMapping.C
+$(interfaceToInterface)/directMapInterfaceToInterfaceMapping/directMapInterfaceToInterfaceMapping.C
+
 regions = ./../regions
 $(regions)/region/regionType.C
 $(regions)/region/newRegionType.C
