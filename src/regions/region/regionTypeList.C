@@ -71,12 +71,6 @@ Foam::regionTypeList::regionTypeList
 }
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::regionTypeList::~regionTypeList()
-{}
-
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 //const Foam::dynamicFvMesh& Foam::regionTypeList::superMesh()
@@ -296,6 +290,14 @@ void Foam::regionTypeList::updateFields()
     forAll(*this, i)
     {
         this->operator[](i).updateFields();
+    }
+}
+
+void Foam::regionTypeList::clear()
+{
+    forAll(*this, i)
+    {
+        this->operator[](i).clear();
     }
 }
 
