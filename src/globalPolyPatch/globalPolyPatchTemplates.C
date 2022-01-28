@@ -25,6 +25,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "globalPolyPatch.H"
+#include "FieldSumOp.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -71,8 +72,8 @@ Foam::tmp<Foam::Field<Type> > Foam::globalPolyPatch::patchPointToGlobal
         }
 
         // Global comm
-        reduce(gField, sumOp<Field<Type> >());
-        reduce(nPoints, sumOp<Field<scalar> >());
+        reduce(gField, FieldSumOp<Type>());
+        reduce(nPoints, FieldSumOp<scalar>());
         gField /= nPoints;
     }
     else
@@ -163,7 +164,7 @@ Foam::tmp<Foam::Field<Type> > Foam::globalPolyPatch::patchFaceToGlobal
         }
 
         // Global comm
-        reduce(gField, sumOp<Field<Type> >());
+        reduce(gField, FieldSumOp<Type>());
     }
     else
     {
