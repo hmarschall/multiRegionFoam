@@ -67,18 +67,18 @@ int main(int argc, char *argv[])
         }
         else
         {
-            multiRegion.setRDeltaT();
+            multiRegion().setRDeltaT();
         }
 
         runTime++;
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        multiRegion.correct();
+        multiRegion().correct();
 
-        // multiRegion.solveCoupledMonolithic();
+        // multiRegion().solveCoupledMonolithic();
 
-        multiRegion.solve();
+        multiRegion().solve();
 
         // multiRegion.solveCoupledPartitioned();
 
