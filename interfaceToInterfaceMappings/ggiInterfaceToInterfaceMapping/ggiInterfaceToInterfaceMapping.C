@@ -46,7 +46,6 @@ addToRunTimeSelectionTable
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-#ifdef FOAMEXTEND
 void ggiInterfaceToInterfaceMapping::makeInterpolator() const
 {
     if (interpolatorPtr_.valid())
@@ -139,7 +138,6 @@ void ggiInterfaceToInterfaceMapping::checkZoneBToZoneAError() const
         << gMax(mag(zoneAPoints - zoneBPointsAtFluid))
         << endl;
 }
-#endif
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -157,10 +155,8 @@ ggiInterfaceToInterfaceMapping::ggiInterfaceToInterfaceMapping
     (
         type, dict, patchA, patchB, globalPatchA, globalPatchB
     )
-#ifdef FOAMEXTEND
     ,
     interpolatorPtr_()
-#endif
 {}
 
 
@@ -174,11 +170,7 @@ void ggiInterfaceToInterfaceMapping::transferFacesZoneToZone
     Field<scalar>& toField           // to field
 ) const
 {
-#ifdef FOAMEXTEND
     transferFacesZoneToZone<scalar>(fromZone, toZone, fromField, toField);
-#else
-    notImplemented("Not implemented for this version of OpenFOAM/FOAM");
-#endif
 }
 
 
@@ -190,11 +182,7 @@ void ggiInterfaceToInterfaceMapping::transferPointsZoneToZone
     Field<scalar>& toField           // to field
 ) const
 {
-#ifdef FOAMEXTEND
     transferPointsZoneToZone<scalar>(fromZone, toZone, fromField, toField);
-#else
-    notImplemented("Not implemented for this version of OpenFOAM/FOAM");
-#endif
 }
 
 
@@ -206,11 +194,7 @@ void ggiInterfaceToInterfaceMapping::transferFacesZoneToZone
     Field<vector>& toField           // to field
 ) const
 {
-#ifdef FOAMEXTEND
     transferFacesZoneToZone<vector>(fromZone, toZone, fromField, toField);
-#else
-    notImplemented("Not implemented for this version of OpenFOAM/FOAM");
-#endif
 }
 
 
@@ -222,11 +206,7 @@ void ggiInterfaceToInterfaceMapping::transferPointsZoneToZone
     Field<vector>& toField           // to field
 ) const
 {
-#ifdef FOAMEXTEND
     transferPointsZoneToZone<vector>(fromZone, toZone, fromField, toField);
-#else
-    notImplemented("Not implemented for this version of OpenFOAM/FOAM");
-#endif
 }
 
 
