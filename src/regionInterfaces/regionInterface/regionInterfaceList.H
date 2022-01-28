@@ -109,7 +109,8 @@ public:
     regionInterfaceList(const Time& runTime);
 
     // Destructor
-    ~regionInterfaceList();
+    virtual ~regionInterfaceList()
+    {}
 
 
     // Member Functions
@@ -177,9 +178,6 @@ public:
         
         //- Interface properties
         void makeFaMesh() const;
-        
-        //- surface tension 
-        virtual tmp<areaScalarField> sigma() const;
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
