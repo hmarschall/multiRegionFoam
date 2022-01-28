@@ -3,7 +3,7 @@ import os.path
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from pygnuplot import gnuplot, pyplot
+#from pygnuplot import gnuplot, pyplot
 
 # input required ===============================================================
 muA = 5e-04

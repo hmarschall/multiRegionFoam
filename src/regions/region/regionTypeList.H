@@ -95,7 +95,8 @@ public:
     regionTypeList(const Time& runTime);
 
     //- Destructor
-    ~regionTypeList();
+    virtual ~regionTypeList()
+    {}
 
     // Member Functions
 
@@ -122,6 +123,9 @@ public:
 
         //- Update fields after solution
         void updateFields();
+
+        //- Clear regions
+        void clear();
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

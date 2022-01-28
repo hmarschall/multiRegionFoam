@@ -62,12 +62,6 @@ Foam::regionInterfaceList::regionInterfaceList
 }
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::regionInterfaceList::~regionInterfaceList()
-{}
-
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 //bool Foam::regionInterfaceList::coupled(const bool warn) const
@@ -304,12 +298,4 @@ void Foam::regionInterfaceList::transferFaces()
 //    }
 }
 
-tmp<areaScalarField>
-Foam::regionInterfaceList::sigma() const
-{
-   forAll(*this, i)
-   {
-       this->operator[](i).sigma();
-   }
-}
 // ************************************************************************* //
