@@ -3,6 +3,7 @@ EXE_INC = \
     -I../regions/region \
     -I../regionInterfaces/regionInterface \
     -I../regionProperties \
+    -I../globalPolyPatch \
     -I../regionInterfaceProperties \
     -I../../lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \

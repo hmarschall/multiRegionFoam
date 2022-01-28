@@ -96,12 +96,38 @@ Foam::patchCoupleManager::interpolateFromNbrField
     const Field<Type>& fromField
 ) const
 {
+    // B is neighbour
     if (refPatch().name() == rgInterface().patchA().name())
     {
-        return rgInterface().transferFacesFromB<Type>(fromField);
+        Field<Type> globalFromFld = 
+            rgInterface().globalPatchB().patchFaceToGlobal(fromField);
+
+        Field<Type> interpolatedGlobalFld = 
+            rgInterface().transferFacesFromB<Type>(globalFromFld);
+
+        return
+        (
+            rgInterface().globalPatchB().globalFaceToPatch
+            (
+                interpolatedGlobalFld
+            )
+        );
     }
 
-    return rgInterface().transferFacesFromA<Type>(fromField);
+    // A is neighbour
+    Field<Type> globalFromFld = 
+        rgInterface().globalPatchA().patchFaceToGlobal(fromField);
+
+    Field<Type> interpolatedGlobalFld = 
+        rgInterface().transferFacesFromA<Type>(globalFromFld);
+
+    return
+    (
+        rgInterface().globalPatchA().globalFaceToPatch
+        (
+            interpolatedGlobalFld
+        )
+    );
 }
 
 

@@ -47,7 +47,7 @@ tmp<Field<Type> > regionInterface::transferFacesFromA
         "not implemented"
     );
 
-    tmp<Field<Type> > ttoField(new Field<Type>(patchA().size()));
+    tmp<Field<Type> > ttoField(new Field<Type>(fromField.size()));
 
     return ttoField;
 }
@@ -58,7 +58,7 @@ tmp<Field<scalar> > regionInterface::transferFacesFromA
     const Field<scalar>& fromField
 ) const
 {
-    tmp<Field<scalar> > ttoField(new Field<scalar>(patchA().size()));
+    tmp<Field<scalar> > ttoField(new Field<scalar>(fromField));
     Field<scalar>& toField = ttoField();
 
     interfaceToInterface().transferFacesZoneToZone
@@ -78,7 +78,7 @@ tmp<Field<vector> > regionInterface::transferFacesFromA
     const Field<vector>& fromField
 ) const
 {
-    tmp<Field<vector> > ttoField(new Field<vector>(patchA().size()));
+    tmp<Field<vector> > ttoField(new Field<vector>(fromField));
     Field<vector>& toField = ttoField();
 
     interfaceToInterface().transferFacesZoneToZone
@@ -108,7 +108,7 @@ tmp<Field<Type> > regionInterface::transferFacesFromB
         "not implemented"
     );
 
-    tmp<Field<Type> > ttoField(new Field<Type>(patchB().size()));
+    tmp<Field<Type> > ttoField(new Field<Type>(fromField.size()));
 
     return ttoField;
 }
@@ -119,7 +119,7 @@ tmp<Field<scalar> > regionInterface::transferFacesFromB
     const Field<scalar>& fromField
 ) const
 {
-    tmp<Field<scalar> > ttoField(new Field<scalar>(patchB().size()));
+    tmp<Field<scalar> > ttoField(new Field<scalar>(fromField.size()));
     Field<scalar>& toField = ttoField();
 
     interfaceToInterface().transferFacesZoneToZone
@@ -139,7 +139,7 @@ tmp<Field<vector> > regionInterface::transferFacesFromB
     const Field<vector>& fromField
 ) const
 {
-    tmp<Field<vector> > ttoField(new Field<vector>(patchB().size()));
+    tmp<Field<vector> > ttoField(new Field<vector>(fromField.size()));
     Field<vector>& toField = ttoField();
 
     interfaceToInterface().transferFacesZoneToZone
