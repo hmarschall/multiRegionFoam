@@ -24,14 +24,14 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "patchCoupleManager.H"
+#include "interfaceToInterfaceCoupleManager.H"
 #include "OFstream.H"
 
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
 const Foam::regionInterface& 
-Foam::patchCoupleManager::rgInterface() const
+Foam::interfaceToInterfaceCoupleManager::rgInterface() const
 {
     const fvMesh& mesh = refPatch().boundaryMesh().mesh();
     const objectRegistry& obr = mesh.objectRegistry::parent();
@@ -48,7 +48,7 @@ Foam::patchCoupleManager::rgInterface() const
      && !obr.foundObject<regionInterface>(rgIntNameRev)
     )
     {
-        FatalErrorIn("patchCoupleManager::rgInterface()")
+        FatalErrorIn("interfaceToInterfaceCoupleManager::rgInterface()")
             << "regionInterface object not found but required."
             << abort(FatalError);
     } else if
@@ -73,7 +73,7 @@ Foam::patchCoupleManager::rgInterface() const
 }
 
 const Foam::fvMesh& 
-Foam::patchCoupleManager::nbrMesh() const
+Foam::interfaceToInterfaceCoupleManager::nbrMesh() const
 {
     if (refPatch().name() == rgInterface().patchA().name())
     {
@@ -84,7 +84,7 @@ Foam::patchCoupleManager::nbrMesh() const
 }
 
 const Foam::fvPatch& 
-Foam::patchCoupleManager::nbrPatch() const
+Foam::interfaceToInterfaceCoupleManager::nbrPatch() const
 {
     if (refPatch().name() == rgInterface().patchA().name())
     {
@@ -94,7 +94,7 @@ Foam::patchCoupleManager::nbrPatch() const
     return rgInterface().patchA();
 }
 
-void Foam::patchCoupleManager::updateRegionInterface()
+void Foam::interfaceToInterfaceCoupleManager::updateRegionInterface()
 {
     regionInterface& rgInt = const_cast<regionInterface&>(rgInterface());
 
@@ -105,7 +105,7 @@ void Foam::patchCoupleManager::updateRegionInterface()
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::patchCoupleManager::patchCoupleManager
+Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 (
     const fvPatch& patch
 )
@@ -118,7 +118,7 @@ Foam::patchCoupleManager::patchCoupleManager
 {}
 
 
-Foam::patchCoupleManager::patchCoupleManager
+Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 (
     const fvPatch& patch,
     const dictionary& dict
@@ -132,9 +132,9 @@ Foam::patchCoupleManager::patchCoupleManager
 {}
 
 
-Foam::patchCoupleManager::patchCoupleManager
+Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 (
-    const patchCoupleManager& pcm
+    const interfaceToInterfaceCoupleManager& pcm
 )
 :
     patch_(pcm.refPatch()),
@@ -146,12 +146,12 @@ Foam::patchCoupleManager::patchCoupleManager
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::patchCoupleManager::~patchCoupleManager()
+Foam::interfaceToInterfaceCoupleManager::~interfaceToInterfaceCoupleManager()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::patchCoupleManager::writeEntries(Ostream& os) const
+void Foam::interfaceToInterfaceCoupleManager::writeEntries(Ostream& os) const
 {
     os.writeKeyword("neighbourRegionName");
     os << neighbourRegionName_ << token::END_STATEMENT << nl;

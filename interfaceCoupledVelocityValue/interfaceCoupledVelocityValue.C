@@ -40,7 +40,7 @@ interfaceCoupledVelocityValue
 )
 :
     fixedValueFvPatchVectorField(p, iF),
-    patchCoupleManager(p),
+    interfaceToInterfaceCoupleManager(p),
     kName_("k"),
     relax_(1.0),
     neighbourRegionName_(),
@@ -62,7 +62,7 @@ interfaceCoupledVelocityValue
 )
 :
     fixedValueFvPatchVectorField(icvv, p, iF, mapper),
-    patchCoupleManager(p),
+    interfaceToInterfaceCoupleManager(p),
     kName_(icvv.kName_),
     relax_(icvv.relax_),
     neighbourRegionName_(icvv.neighbourRegionName_),
@@ -83,7 +83,7 @@ interfaceCoupledVelocityValue
 )
 :
     fixedValueFvPatchVectorField(p, iF),
-    patchCoupleManager(p, dict),
+    interfaceToInterfaceCoupleManager(p, dict),
     kName_(dict.lookupOrDefault<word>("k", word::null)),
     relax_(dict.lookupOrDefault<scalar>("relax",1.0)),
     neighbourRegionName_
@@ -121,7 +121,7 @@ interfaceCoupledVelocityValue
 )
 :
     fixedValueFvPatchVectorField(icvv, iF),
-    patchCoupleManager(icvv),
+    interfaceToInterfaceCoupleManager(icvv),
     kName_(icvv.kName_),
     relax_(icvv.relax_),
     neighbourRegionName_(icvv.neighbourRegionName_),

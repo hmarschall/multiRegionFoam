@@ -38,7 +38,7 @@ interfaceCoupledPressureValue
 )
 :
     fixedValueFvPatchScalarField(p, iF),
-    patchCoupleManager(p),
+    interfaceToInterfaceCoupleManager(p),
     kName_("k"),
     neighbourRegionName_(),
     neighbourPatchName_(), 
@@ -58,7 +58,7 @@ interfaceCoupledPressureValue
 )
 :
     fixedValueFvPatchScalarField(icpv, p, iF, mapper),
-    patchCoupleManager(p),
+    interfaceToInterfaceCoupleManager(p),
     kName_(icpv.kName_),
     neighbourRegionName_(icpv.neighbourRegionName_),
     neighbourPatchName_(icpv.neighbourPatchName_),
@@ -77,7 +77,7 @@ interfaceCoupledPressureValue
 )
 :
     fixedValueFvPatchScalarField(p, iF),
-    patchCoupleManager(p, dict),
+    interfaceToInterfaceCoupleManager(p, dict),
     kName_(dict.lookupOrDefault<word>("k", word::null)),
     neighbourRegionName_
     (
@@ -113,7 +113,7 @@ interfaceCoupledPressureValue
 )
 :
     fixedValueFvPatchScalarField(icpv, iF),
-    patchCoupleManager(icpv),
+    interfaceToInterfaceCoupleManager(icpv),
     kName_(icpv.kName_),
     neighbourRegionName_(icpv.neighbourRegionName_),
     neighbourPatchName_(icpv.neighbourPatchName_),

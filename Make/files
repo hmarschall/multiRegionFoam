@@ -1,4 +1,4 @@
-patchCoupleManager/patchCoupleManager.C
+interfaceToInterfaceCoupleManager/interfaceToInterfaceCoupleManager.C
 
 boundaryConditions = ./
 $(boundaryConditions)/interfaceCoupledVelocityValue/interfaceCoupledVelocityValue.C

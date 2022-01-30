@@ -54,7 +54,7 @@ SourceFiles
 #include "fixedGradientFvPatchFields.H"
 #include "autoPtr.H"
 
-#include "patchCoupleManager.H"
+#include "interfaceToInterfaceCoupleManager.H"
 #include "regionInterface.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -69,7 +69,7 @@ namespace Foam
 class interfaceCoupledPressureFlux
 :
     public fixedGradientFvPatchScalarField, 
-    public patchCoupleManager    
+    public interfaceToInterfaceCoupleManager    
 {
     // Private data
 

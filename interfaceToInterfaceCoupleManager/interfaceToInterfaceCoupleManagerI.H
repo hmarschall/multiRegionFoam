@@ -24,44 +24,44 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-inline const Foam::fvPatch& Foam::patchCoupleManager::refPatch() const
+inline const Foam::fvPatch& Foam::interfaceToInterfaceCoupleManager::refPatch() const
 {
     return patch_;
 };
 
 
-inline const Foam::word& Foam::patchCoupleManager::neighbourRegionName() const
+inline const Foam::word& Foam::interfaceToInterfaceCoupleManager::neighbourRegionName() const
 {
     return neighbourRegionName_;
 };
 
 
-inline const Foam::word& Foam::patchCoupleManager::neighbourPatchName() const
+inline const Foam::word& Foam::interfaceToInterfaceCoupleManager::neighbourPatchName() const
 {
     return neighbourPatchName_;
 };
 
 
-inline const Foam::word& Foam::patchCoupleManager::neighbourFieldName() const
+inline const Foam::word& Foam::interfaceToInterfaceCoupleManager::neighbourFieldName() const
 {
      return neighbourFieldName_;
 };
 
 
-inline const Foam::fvMesh& Foam::patchCoupleManager::neighbourRegion() const
+inline const Foam::fvMesh& Foam::interfaceToInterfaceCoupleManager::neighbourRegion() const
 {
     return localRegion_.objectRegistry::parent()
         .lookupObject<fvMesh>(neighbourRegionName_);
 }
 
 
-inline Foam::label Foam::patchCoupleManager::neighbourPatchID() const
+inline Foam::label Foam::interfaceToInterfaceCoupleManager::neighbourPatchID() const
 {
     return neighbourRegion().boundaryMesh().findPatchID(neighbourPatchName_);
 }
 
 
-inline const Foam::fvPatch& Foam::patchCoupleManager::neighbourPatch() const
+inline const Foam::fvPatch& Foam::interfaceToInterfaceCoupleManager::neighbourPatch() const
 {
     return neighbourRegion().boundary()[neighbourPatchID()];
 }
@@ -69,7 +69,7 @@ inline const Foam::fvPatch& Foam::patchCoupleManager::neighbourPatch() const
 
 template<class Type>
 inline const Foam::fvPatchField<Type>&
-Foam::patchCoupleManager::neighbourPatchField() const
+Foam::interfaceToInterfaceCoupleManager::neighbourPatchField() const
 {
     return neighbourPatch().fvPatch::lookupPatchField
         <GeometricField<Type, fvPatchField, volMesh>, Type>
@@ -77,13 +77,13 @@ Foam::patchCoupleManager::neighbourPatchField() const
 }
 
 
-inline Foam::word& Foam::patchCoupleManager::neighbourRegionName()
+inline Foam::word& Foam::interfaceToInterfaceCoupleManager::neighbourRegionName()
 {
     return neighbourRegionName_;
 };
 
 
-inline Foam::word& Foam::patchCoupleManager::neighbourPatchName()
+inline Foam::word& Foam::interfaceToInterfaceCoupleManager::neighbourPatchName()
 {
     return neighbourPatchName_;
 };
@@ -91,7 +91,7 @@ inline Foam::word& Foam::patchCoupleManager::neighbourPatchName()
 
 template<class Type>
 Foam::tmp<Field<Type> > 
-Foam::patchCoupleManager::interpolateFromNbrField
+Foam::interfaceToInterfaceCoupleManager::interpolateFromNbrField
 (
     const Field<Type>& fromField
 ) const
