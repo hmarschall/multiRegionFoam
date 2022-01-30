@@ -68,7 +68,7 @@ void Foam::interfaceTrackingFvMesh::initializeData()
     // Set motion-based data
     movingSurfacePatches_ = wordList
     (
-        motionDict_.lookup("movingSurfacePatches")
+        motionDict_.lookup("movingSurfacePatchList")
     );
 
     fixedSurfacePatches_ = wordList
@@ -642,7 +642,6 @@ Foam::interfaceTrackingFvMesh::interfaceTrackingFvMesh
     const IOobject& io
 )
 :
-//    dynamicMotionSolverFvMesh(io),
     topoChangerFvMesh(io),
     motionPtr_(motionSolver::New(*this)),
     aMeshPtr_(new faMesh(*this)),
@@ -663,7 +662,8 @@ Foam::interfaceTrackingFvMesh::interfaceTrackingFvMesh
         ).subDict(typeName + "Coeffs")
     ),
     movingSurfacePatches_(),
-    surfacePatchID_ //(-1),
+    movingInterfaces_(),
+    surfacePatchID_
     (
         this->boundaryMesh().findPatchID("freeSurface")
     ),
@@ -690,6 +690,27 @@ Foam::interfaceTrackingFvMesh::interfaceTrackingFvMesh
     facesDisplacementDirPtr_()
 //    contactAnglePtr_(nullptr)
 {
+    PtrList<entry> movingInterfaceEntries
+    (
+        motionDict_.lookup("movingSurfacePatches")
+    );
+
+    movingInterfaces_.setSize(movingInterfaceEntries.size());
+
+    forAll (movingInterfaceEntries, surfI)
+    {
+        movingInterfaces_.set
+        (
+            surfI,
+            new movingInterfacePatches
+            (
+                movingInterfaceEntries[surfI].keyword(),
+                *this,
+                movingInterfaceEntries[surfI].dict()
+            )
+        );
+    }
+
     initializeData();
 }
 
@@ -1006,8 +1027,6 @@ bool Foam::interfaceTrackingFvMesh::update()
 
         surfacePhiField *= 0;
     }
-
-    // dynamicMotionSolverFvMesh::update();
 
     return true;
 }
