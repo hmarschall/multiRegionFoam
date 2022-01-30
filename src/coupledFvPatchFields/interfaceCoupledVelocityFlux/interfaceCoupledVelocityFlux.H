@@ -57,7 +57,7 @@ SourceFiles
 
 #include "fixedGradientFvPatchFields.H"
 
-#include "patchCoupleManager.H"
+#include "interfaceToInterfaceCoupleManager.H"
 #include "regionInterface.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -72,7 +72,7 @@ namespace Foam
 class interfaceCoupledVelocityFlux
 :
     public fixedGradientFvPatchVectorField,
-    public patchCoupleManager
+    public interfaceToInterfaceCoupleManager
 {
     // Private data
 

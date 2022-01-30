@@ -38,7 +38,7 @@ interfaceCoupledPressureFlux
 )
 :
     fixedGradientFvPatchScalarField(p, iF),
-    patchCoupleManager(p),
+    interfaceToInterfaceCoupleManager(p),
     kName_("k"),
     neighbourRegionName_(),
     neighbourPatchName_()
@@ -55,7 +55,7 @@ interfaceCoupledPressureFlux
 )
 :
     fixedGradientFvPatchScalarField(icpf, p, iF, mapper),
-    patchCoupleManager(p),
+    interfaceToInterfaceCoupleManager(p),
     kName_(icpf.kName_),
     neighbourRegionName_(icpf.neighbourRegionName_),
     neighbourPatchName_(icpf.neighbourPatchName_)
@@ -71,7 +71,7 @@ interfaceCoupledPressureFlux
 )
 :
     fixedGradientFvPatchScalarField(p, iF),
-    patchCoupleManager(p, dict),
+    interfaceToInterfaceCoupleManager(p, dict),
     kName_(dict.lookupOrDefault<word>("k", word::null)),
     neighbourRegionName_
     (
@@ -105,7 +105,7 @@ interfaceCoupledPressureFlux
 )
 :
     fixedGradientFvPatchScalarField(icpf, iF),
-    patchCoupleManager(icpf),
+    interfaceToInterfaceCoupleManager(icpf),
     kName_(icpf.kName_),
     neighbourRegionName_(icpf.neighbourRegionName_),
     neighbourPatchName_(icpf.neighbourPatchName_)
