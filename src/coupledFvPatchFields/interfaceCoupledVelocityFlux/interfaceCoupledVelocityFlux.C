@@ -38,7 +38,7 @@ interfaceCoupledVelocityFlux
 )
 :
     fixedGradientFvPatchVectorField(p, iF),
-    patchCoupleManager(p),
+    interfaceToInterfaceCoupleManager(p),
     kName_("k"),
     neighbourRegionName_(),
     neighbourPatchName_(),
@@ -59,7 +59,7 @@ interfaceCoupledVelocityFlux
 )
 :
     fixedGradientFvPatchVectorField(icvf, p, iF, mapper),
-    patchCoupleManager(p),
+    interfaceToInterfaceCoupleManager(p),
     kName_(icvf.kName_),
     neighbourRegionName_(icvf.neighbourRegionName_),
     neighbourPatchName_(icvf.neighbourPatchName_),
@@ -79,7 +79,7 @@ interfaceCoupledVelocityFlux
 )
 :
     fixedGradientFvPatchVectorField(p, iF),
-    patchCoupleManager(p, dict),
+    interfaceToInterfaceCoupleManager(p, dict),
     kName_(dict.lookupOrDefault<word>("k", word::null)),
     neighbourRegionName_
     (
@@ -119,7 +119,7 @@ interfaceCoupledVelocityFlux
 )
 :
     fixedGradientFvPatchVectorField(icvf, iF),
-    patchCoupleManager(icvf),
+    interfaceToInterfaceCoupleManager(icvf),
     kName_(icvf.kName_),
     neighbourRegionName_(icvf.neighbourRegionName_),
     neighbourPatchName_(icvf.neighbourPatchName_),

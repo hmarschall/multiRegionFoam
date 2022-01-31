@@ -55,7 +55,7 @@ SourceFiles
 #ifndef interfaceCoupledPressureValue_H
 #define interfaceCoupledPressureValue_H
 
-#include "patchCoupleManager.H"
+#include "interfaceToInterfaceCoupleManager.H"
 #include "regionInterface.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -70,7 +70,7 @@ namespace Foam
 class interfaceCoupledPressureValue
 :
     public fixedValueFvPatchScalarField,
-    public patchCoupleManager
+    public interfaceToInterfaceCoupleManager
 {
     // Private data
 

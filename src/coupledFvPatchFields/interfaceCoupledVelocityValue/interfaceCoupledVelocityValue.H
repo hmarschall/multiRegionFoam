@@ -60,7 +60,7 @@ SourceFiles
 #include "fvPatchFields.H"
 #include "fixedValueFvPatchFields.H"
 #include "regionInterface.H"
-#include "patchCoupleManager.H"
+#include "interfaceToInterfaceCoupleManager.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -74,7 +74,7 @@ namespace Foam
 class interfaceCoupledVelocityValue
 :
     public fixedValueFvPatchVectorField,
-    public patchCoupleManager
+    public interfaceToInterfaceCoupleManager
 {
     // Private data
 
