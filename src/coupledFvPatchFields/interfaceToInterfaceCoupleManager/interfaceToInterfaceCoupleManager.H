@@ -23,7 +23,7 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    patchCoupleManager
+    interfaceToInterfaceCoupleManager
 
 Description
     Helper class to handle the coupling of region patches.
@@ -32,12 +32,12 @@ Description
     the neighbour information and data.
 
 SourceFiles
-    patchCoupleManager.C
+    interfaceToInterfaceCoupleManager.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef patchCoupleManager_H
-#define patchCoupleManager_H
+#ifndef interfaceToInterfaceCoupleManager_H
+#define interfaceToInterfaceCoupleManager_H
 
 #include "Ostream.H"
 #include "regionInterface.H"
@@ -48,10 +48,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class patchCoupleManager Declaration
+                         Class interfaceToInterfaceCoupleManager Declaration
 \*---------------------------------------------------------------------------*/
 
-class patchCoupleManager
+class interfaceToInterfaceCoupleManager
 {
     // Private data
 
@@ -73,10 +73,10 @@ class patchCoupleManager
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
-        // patchCoupleManager(const patchCoupleManager&);
+        // interfaceToInterfaceCoupleManager(const interfaceToInterfaceCoupleManager&);
 
         //- Disallow default bitwise assignment
-        void operator=(const patchCoupleManager&);
+        void operator=(const interfaceToInterfaceCoupleManager&);
 
 protected:
 
@@ -102,18 +102,18 @@ public:
     // Constructors
 
         //- Construct from fvPatch
-        patchCoupleManager(const fvPatch& patch);
+        interfaceToInterfaceCoupleManager(const fvPatch& patch);
 
         //- Construct from fvPatch and dictionary
-        patchCoupleManager(const fvPatch& patch, const dictionary& dict);
+        interfaceToInterfaceCoupleManager(const fvPatch& patch, const dictionary& dict);
 
         //- Copy constructor
-        patchCoupleManager(const patchCoupleManager& pcm);
+        interfaceToInterfaceCoupleManager(const interfaceToInterfaceCoupleManager& pcm);
 
 
     // Destructor
 
-        ~patchCoupleManager();
+        ~interfaceToInterfaceCoupleManager();
 
 
     // Member Functions
@@ -177,7 +177,7 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "patchCoupleManagerI.H"
+#include "interfaceToInterfaceCoupleManagerI.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
