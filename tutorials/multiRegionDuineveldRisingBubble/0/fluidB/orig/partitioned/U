@@ -1,0 +1,55 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     3.1-sfb1194                        |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 1e-06 0);
+
+boundaryField
+{
+"proc.*"
+{
+	type	processor;
+	value	uniform (0 0 0);
+}
+    interfaceShadow
+    {
+        type                    interfaceCoupledVelocityValue;
+        k                       "mu";
+        neighbourRegionName     fluidA;
+        neighbourPatchName      interface;
+        neighbourFieldName      U;
+        secondOrder             yes;
+        nonOrthCorr             yes;
+        value                   uniform (0 0 0);
+    }
+    centerline
+    {
+        type            symmetryPlane;
+    }
+    upperWedge
+    {
+        type            wedge;
+    }
+    lowerWedge
+    {
+        type            wedge;
+    }
+}
+
+
+// ************************************************************************* //
