@@ -56,8 +56,6 @@ class navierStokesFluid
 :
     public regionType
 {       
-        //- finite area mesh
-        faMesh aMesh_;
 
         //- name
         word regionName_;
