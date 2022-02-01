@@ -1,0 +1,47 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-11cb6dafc53a
+Exec   : multiRegionFoam
+Date   : Feb 01 2022
+Time   : 11:23:12
+Host   : "wmpc15"
+PID    : 58316
+CtrlDict : "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB/system/controlDict"
+Case   : /home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+
+
+--> FOAM FATAL IO ERROR: 
+cannot find file
+
+file: /home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB/system/controlDict at line 0.
+
+    From function regIOobject::readStream()
+    in file db/regIOobject/regIOobjectRead.C at line 72.
+
+FOAM aborting (FOAM_ABORT set)
+
+
+#0  Foam::error::printStack(Foam::Ostream&) at ??:?
+#1  Foam::IOerror::abort() at ??:?
+#2  Foam::IOerror::exit(int) at ??:?
+#3  Foam::regIOobject::readStream() at ??:?
+#4  Foam::regIOobject::readStream(Foam::word const&) at ??:?
+#5  Foam::IOdictionary::readFile(bool) at ??:?
+#6  Foam::IOdictionary::IOdictionary(Foam::IOobject const&) at ??:?
+#7  Foam::Time::Time(Foam::word const&, Foam::argList const&, Foam::word const&, Foam::word const&) at ??:?
+#8   in "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/applications/bin/linux64GccDPInt32Opt/multiRegionFoam"
+#9  __libc_start_main in "/lib/x86_64-linux-gnu/libc.so.6"
+#10   in "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/applications/bin/linux64GccDPInt32Opt/multiRegionFoam"
+Aborted (core dumped)

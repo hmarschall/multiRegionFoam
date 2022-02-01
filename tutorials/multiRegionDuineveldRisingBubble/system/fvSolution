@@ -1,0 +1,166 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          BICCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+    
+    
+/*    p
+    {
+        solver          PCG;
+        preconditioner
+        {
+
+            preconditioner  GAMG;
+            agglomerator    faceAreaPair;
+            nCellsInCoarsestLevel 4;
+            mergeLevels     1;
+            smoother        GaussSeidel;
+            nVcycles        2;
+            tolerance       1e-06;
+            relTol          0;
+        }
+        tolerance        1e-14;
+        relTol           0;
+        minIter          1;
+        maxIter          1000;
+    }
+*/
+
+/*    p*/
+/*    {*/
+/*        solver          PCG;*/
+/*        preconditioner*/
+/*        {*/
+
+/*            preconditioner  GAMG;*/
+/*            nVcycles        2;*/
+/*            tolerance       1e-06;*/
+/*            relTol          0;*/
+/*            smoother        GaussSeidel;*/
+/*            //number of smoothing steps before projection*/
+/*            nSmoothingSteps 1;*/
+/*            //sweeps to perform before moving to a coarser level.*/
+/*            nPreSweeps      1;*/
+/*            //sweeps to perform after coarser level corrections*/
+/*            nPostSweeps     2;*/
+/*            nFinestSweeps   2;*/
+/*            cacheAgglomeration true;*/
+/*            nCellsInCoarsestLevel 4;*/
+/*            agglomerator    faceAreaPair;*/
+/*            //-HM alternatives: algebraicPair; faceAreaPair;*/
+/*            mergeLevels     1;*/
+/*        }*/
+/*        tolerance        1e-14;*/
+/*        relTol           0;*/
+/*        minIter          1;*/
+/*        maxIter          1000;*/
+/*    }*/
+
+    pcorr
+    {
+        solver          BiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+
+    pFinal
+    {
+        solver          BICCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-13;
+        relTol          0;
+        minIter         2;
+        maxIter         1000;
+    }
+
+    cellMotionU
+    {
+        solver          BiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+/*        solver          GMRES;*/
+/*        nDirections     6;*/
+/*        preconditioner  Cholesky;*/
+/*        tolerance       1e-15;*/
+/*        relTol          0;*/
+/*        minIter         2;*/
+/*        maxIter         600;*/
+    }
+
+    "(A|B|C|P|S|Ci)"
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        minIter         2;
+        maxIter         2000;
+        tolerance       1e-11;
+        relTol          0;
+    }
+
+}
+
+PISO
+{
+    pRefPoint (5e-5 0 0); 
+    pRefValue 0;
+}
+
+PIMPLE
+{
+    // p-U coupling
+    nOuterCorrectors            3; // SIMPLEC loops
+    nCorrectors                 1; // PISO loops
+    nNonOrthogonalCorrectors    1;
+
+    // interface tracking
+    adjustFluxFrequency         100;
+
+    // convergence control
+    momentumTolerance           1e-7;
+    innerTolerance              1e-7;
+
+    velTolerance                1e-8;
+    momTolerance                1e-8;
+}
+
+relaxationFactors
+{
+/*    p               0.3;*/
+/*    U               0.7;*/
+}
+
+
+
+// ************************************************************************* //

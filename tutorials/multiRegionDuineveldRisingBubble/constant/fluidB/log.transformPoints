@@ -1,0 +1,132 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-11cb6dafc53a
+Exec   : transformPoints -scale (0.0005 0.0005 0.0005) -region fluidA
+Date   : Feb 01 2022
+Time   : 11:23:11
+Host   : "wmpc15"
+PID    : 58197
+CtrlDict : "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB/system/controlDict"
+Case   : /home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-11cb6dafc53a
+Exec   : transformPoints -scale (0.0005 0.0005 0.0005) -region fluidB
+Date   : Feb 01 2022
+Time   : 11:23:11
+Host   : "wmpc15"
+PID    : 58225
+CtrlDict : "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB/system/controlDict"
+Case   : /home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-11cb6dafc53a
+Exec   : transformPoints -scale (0.0005 0.0005 0.0005) -region fluidA
+Date   : Feb 01 2022
+Time   : 11:24:15
+Host   : "wmpc15"
+PID    : 58475
+CtrlDict : "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB/system/controlDict"
+Case   : /home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-11cb6dafc53a
+Exec   : transformPoints -scale (0.0005 0.0005 0.0005) -region fluidB
+Date   : Feb 01 2022
+Time   : 11:24:15
+Host   : "wmpc15"
+PID    : 58503
+CtrlDict : "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB/system/controlDict"
+Case   : /home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-11cb6dafc53a
+Exec   : transformPoints -scale (0.0005 0.0005 0.0005) -region fluidA
+Date   : Feb 01 2022
+Time   : 11:24:36
+Host   : "wmpc15"
+PID    : 58607
+CtrlDict : "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB/system/controlDict"
+Case   : /home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-11cb6dafc53a
+Exec   : transformPoints -scale (0.0005 0.0005 0.0005) -region fluidB
+Date   : Feb 01 2022
+Time   : 11:24:36
+Host   : "wmpc15"
+PID    : 58635
+CtrlDict : "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB/system/controlDict"
+Case   : /home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/multiRegionDuineveldRisingBubble/constant/fluidB
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
