@@ -24,7 +24,6 @@ License
 \*---------------------------------------------------------------------------*/
         
 #include "fvCFD.H"
-#include "faCFD.H"
 #include "navierStokesFluid.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
@@ -57,11 +56,9 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
 )
 :
     regionType(runTime, regionName),
-    aMesh_(*this),
     
     regionName_(regionName),
 
-    
     transportProperties_
     (
         IOobject
