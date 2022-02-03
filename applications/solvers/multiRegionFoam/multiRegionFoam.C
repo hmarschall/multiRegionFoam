@@ -74,13 +74,9 @@ int main(int argc, char *argv[])
 
         Info<< "Time = " << runTime.timeName() << nl << endl;
 
-        multiRegion().correct();
-
-        // multiRegion().solveCoupledMonolithic();
+        multiRegion().updateAndCorrect();
 
         multiRegion().solve();
-
-        // multiRegion.solveCoupledPartitioned();
 
         runTime.write();
 
