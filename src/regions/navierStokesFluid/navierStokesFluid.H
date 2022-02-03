@@ -134,17 +134,6 @@ public:
 
     // Member Functions
 
-        // Update mesh
-        bool update()
-        {
-            navierStokesFluid& mesh =
-                const_cast<navierStokesFluid&>(*this);
-
-            bool meshChanged = mesh.update();
-
-            return meshChanged;
-        }
-
         // Access
         const volVectorField& U() const
         {
@@ -172,7 +161,7 @@ public:
         {
             return
             (
-                this->thisDb().lookupObject<T>(name)
+                mesh().thisDb().lookupObject<T>(name)
             );
         }
 
@@ -181,7 +170,7 @@ public:
         {
             return
             (
-                const_cast<const T&>(this->thisDb().lookupObject<T>(name))
+                const_cast<const T&>(mesh().thisDb().lookupObject<T>(name))
             );
         }
 

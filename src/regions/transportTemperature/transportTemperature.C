@@ -63,24 +63,24 @@ Foam::regionTypes::transportTemperature::transportTemperature
         IOobject
         (
             "U",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::AUTO_WRITE
         ),
-        *this
+        mesh()
     ),
     phi_
     (
 		IOobject
 		(
 			"phi",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
 			IOobject::READ_IF_PRESENT,
 			IOobject::AUTO_WRITE
 		),
-		linearInterpolate(U_) & (*this).Sf()    
+		linearInterpolate(U_) & mesh().Sf()    
     ),
 
     transportProperties_
@@ -88,8 +88,8 @@ Foam::regionTypes::transportTemperature::transportTemperature
         IOobject
         (
             "transportProperties",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -134,12 +134,12 @@ Foam::regionTypes::transportTemperature::transportTemperature
             IOobject
             (
                 "alpha",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             k_/(rho_*cp_)
         )
     );
@@ -151,12 +151,12 @@ Foam::regionTypes::transportTemperature::transportTemperature
             IOobject
             (
                 "T",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -195,7 +195,7 @@ void Foam::regionTypes::transportTemperature::setCoupledEqns()
 
     fvScalarMatrices.set
     (
-        T_().name() + this->name() + "Eqn",
+        T_().name() + mesh().name() + "Eqn",
         new fvScalarMatrix(TEqn)
     );
 }

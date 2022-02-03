@@ -142,8 +142,7 @@ public:
 
     // Member Functions
 
-        // Correct
-        void correct();
+        void updateAndCorrect();
 
         void solve();
 

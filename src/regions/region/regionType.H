@@ -59,8 +59,12 @@ class multiRegionSystem;
 
 class regionType
 :
-    public dynamicFvMesh
+    public IOdictionary
 {
+    // Private data
+
+        //- Mesh
+        autoPtr<dynamicFvMesh> meshPtr_;
 
 protected:
 
@@ -111,9 +115,27 @@ public:
 
     // Member Functions
 
-        virtual bool update() const
+        //- Return reference to the mesh
+        dynamicFvMesh& mesh()
         {
-            return false;
+            return meshPtr_();
+        }
+
+        //- Return const reference to the mesh
+        const dynamicFvMesh& mesh() const
+        {
+            return meshPtr_();
+        }
+
+        //- Return time
+        const Time& runTime() const
+        {
+            return meshPtr_().time();
+        }
+
+        bool update()
+        {
+            return mesh().update();
         }
 
         // virtual functions

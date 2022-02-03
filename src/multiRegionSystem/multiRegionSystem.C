@@ -91,7 +91,7 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
         if
         (
             !(
-                regions_()[regI].thisDb().foundObject
+                regions_()[regI].mesh().thisDb().foundObject
                 <GeometricField<T, fvPatchField, volMesh> >
                 (
                     fldName
@@ -107,13 +107,16 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
         fvMatrix<T>& eqn =
             rg.getCoupledEqn<T>
             (
-                fldName + rg.name() + "Eqn"
+                fldName + rg.mesh().name() + "Eqn"
             );
 
         coupledEqns.set(regI, &eqn);
     }
 
-    coupledEqns.solve(regions_()[0].solutionDict().solver(fldName + "coupled"));
+    coupledEqns.solve
+    (
+        regions_()[0].mesh().solutionDict().solver(fldName + "coupled")
+    );
 }
 
 template<class T>
@@ -130,7 +133,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
         if
         (
             !(
-                regions_()[regI].thisDb().foundObject
+                regions_()[regI].mesh().thisDb().foundObject
                 <GeometricField<T, fvPatchField, volMesh> >
                 (
                     fldName
@@ -145,7 +148,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
         // TODO: need more consistency checks:
         //  - Is the regionCouple bc set for fldName?
         //  - AND: Is this region adjacent to the relevant regionInterface?
-        regionType& mesh = const_cast<regionType&>(regions_()[regI]);
+        dynamicFvMesh& mesh = const_cast<dynamicFvMesh&>(regions_()[regI].mesh());
 
         {
             const polyPatchList& patches = mesh.boundaryMesh();
@@ -170,16 +173,16 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
         fvMatrix<T>& eqn =
             rg.getCoupledEqn<T>
             (
-                fldName + rg.name() + "Eqn"
+                fldName + rg.mesh().name() + "Eqn"
             );
 
         Info<< nl 
             << "Solving for " << eqn.psi().name() 
-            << " in " << rg.name()
+            << " in " << rg.mesh().name()
             << endl;
 
         // inner coupling loop
-        simpleControl simpleControlRegion(rg);
+        simpleControl simpleControlRegion(rg.mesh());
 
         while (simpleControlRegion.correctNonOrthogonal())
         {
@@ -211,7 +214,7 @@ void Foam::multiRegionSystem::assembleCoupledFields
             // get list of all objects registered to region
             IOobjectList objects
             (
-                regions_()[regI],
+                regions_()[regI].mesh(),
                 "0"
             );
 
@@ -235,7 +238,7 @@ void Foam::multiRegionSystem::assembleCoupledFields
                 )
                 {
                     const GeometricField<T, fvPatchField, volMesh>& fld =
-                        regions_()[regI].thisDb().lookupObject
+                        regions_()[regI].mesh().thisDb().lookupObject
                         <GeometricField<T, fvPatchField, volMesh> >
                         (
                             iter()->name()
@@ -334,10 +337,13 @@ Foam::multiRegionSystem::~multiRegionSystem()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::multiRegionSystem::correct()
+void Foam::multiRegionSystem::updateAndCorrect()
 {
-    //- correct regions' properties
-    regions_->correct();
+    // Correct region properties and update meshes
+    regions_->updateAndCorrect();
+
+    // Update interfaces on mesh change (motion or topology)
+    interfaces_->update();
 }
 
 
@@ -354,7 +360,7 @@ void Foam::multiRegionSystem::solve()
 
     interfaces_->detach();
 
-    // Solve for regions' inherent physics
+    // Solve for region-specific physics
     for (int i=0; i<3; i++)
     {
         regions_->solveRegion();
