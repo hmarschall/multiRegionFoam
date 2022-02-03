@@ -102,7 +102,7 @@ Foam::interfaceToInterfaceCoupleManager::interpolateFromNbrField
         Field<Type> globalFromFld = 
             rgInterface().globalPatchB().patchFaceToGlobal(fromField);
 
-        Field<Type> interpolatedGlobalFld = 
+        Field<Type> interpolatedGlobalFld =
             rgInterface().transferFacesFromB<Type>(globalFromFld);
 
         return
