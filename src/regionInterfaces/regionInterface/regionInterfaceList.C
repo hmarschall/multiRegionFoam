@@ -278,24 +278,16 @@ void Foam::regionInterfaceList::detach()
    }
 }
 
-void Foam::regionInterfaceList::move()
+void Foam::regionInterfaceList::update()
 {
-
-    // error: ‘class Foam::regionInterface’ has no member named ‘move’
 //    forAll(*this, i)
 //    {
-//        this->operator[](i).move();
+//        if(this->operator[](i).changing())
+//        {
+//            this->operator[](i).updateInterpolatorAndGlobalPatches();
+//        }
 //    }
 }
 
-
-void Foam::regionInterfaceList::transferFaces()
-{
-    // error: ‘class Foam::regionInterface’ has no member named ‘transferFaces’
-//    forAll(*this, i)
-//    {
-//        this->operator[](i).transferFaces();
-//    }
-}
 
 // ************************************************************************* //

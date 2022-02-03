@@ -119,11 +119,15 @@ class regionInterface
 
         Switch attachedB_;
 
+        //- adjacent meshes changing?
+        bool changing_;
+
         //- Interpolator update frequency
         label interpolatorUpdateFrequency_;
         
         //- finite area mesh
         mutable autoPtr<faMesh> aMeshPtr_;
+
 
 protected:
 
@@ -145,7 +149,7 @@ private:
         void makeGlobalPatches() const;
 
         //- Clear global poly patch
-        void clearGlobalPatches() const;
+        void clearGlobalPatches();
 
         //- Make interface-to-interface
         void makeInterfaceToInterface() const;
@@ -318,6 +322,16 @@ public:
                 }
                 
                 return aMeshPtr_();
+            }
+
+            const bool& changing()
+            {
+                if (meshA().changing() || meshB().changing())
+                {
+                    changing_ = true;
+                }
+
+                return changing_;
             }
 
             //- interfacial transport

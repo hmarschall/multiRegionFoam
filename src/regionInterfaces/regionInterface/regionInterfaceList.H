@@ -165,11 +165,8 @@ public:
         //- Detach interface
         void detach();
 
-        //- Move boundary
-        void move();
-
-        //- Interpolate/map/transfer face values
-        void transferFaces();
+        //- Update boundary
+        void update();
         
         //- Interfacial transport
         void makeUs() const;
