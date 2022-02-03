@@ -41,14 +41,34 @@ Foam::regionType::regionType
     const word& regionName
 )
 :
-    dynamicFvMesh
+    IOdictionary
     (
         IOobject
         (
-            regionName,
-            runTime.timeName(),
+            regionName + "Dict",
+//            // If region == "region0" then read from the main case
+//            // Otherwise, read from the region/sub-mesh directory
+//            bool(regionName == dynamicFvMesh::defaultRegion)
+//          ? fileName(runTime.caseConstant())
+//          : fileName(runTime.caseConstant()/regionName),
+            runTime.constant(),
             runTime,
-            IOobject::MUST_READ
+            IOobject::NO_READ,
+            IOobject::NO_WRITE,
+            false
+        )
+    ),
+    meshPtr_
+    (
+        dynamicFvMesh::New
+        (
+            IOobject
+            (
+                regionName,
+                runTime.timeName(),
+                runTime,
+                IOobject::MUST_READ
+            )
         )
     )
 {}

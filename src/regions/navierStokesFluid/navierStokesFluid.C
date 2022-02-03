@@ -79,12 +79,12 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         IOobject
         (
             "rho",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         rhoFluid_
     ),
     muFluid_
@@ -96,12 +96,12 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         IOobject
         (
             "mu",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         muFluid_
     ),
     U_
@@ -109,49 +109,49 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         IOobject
         (
            "U",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::AUTO_WRITE
         ),
-        *this
+        mesh()
     ),
     phi_
     (
 		IOobject
 		(
 			"phi",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
 			IOobject::READ_IF_PRESENT,
 			IOobject::AUTO_WRITE
 		),
-		linearInterpolate(U_) & (*this).Sf()    
+		linearInterpolate(U_) & mesh().Sf()    
     ),
     p_
     (
 		IOobject
 		(
 			"p",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
 			IOobject::MUST_READ,
 			IOobject::AUTO_WRITE
 		),
-		*this   
+		mesh()
     ),    
     AU_
     (
         IOobject
         (
             "AU",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE,
             false
         ),
-        *this,
+        mesh(),
         dimMass/(dimVolume*dimTime),
         zeroGradientFvPatchScalarField::typeName
     ),
@@ -160,12 +160,12 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         IOobject
         (
             "HU",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimMass/sqr(dimLength*dimTime),
         zeroGradientFvPatchVectorField::typeName
     ),              
@@ -174,8 +174,8 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
 		IOobject
 		(
 			"grad(p)",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
 			IOobject::NO_READ,
             IOobject::NO_WRITE
 		),
@@ -186,8 +186,8 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
 		IOobject
 		(
 			"grad(U)",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
 			IOobject::NO_READ,
             IOobject::NO_WRITE
 		),
@@ -203,18 +203,18 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         IOobject
         (
             "pcorr",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::NO_READ,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("pcorr", p_.dimensions(), 0.0),
         pcorrTypes_
     ),
     UUrf_ 
     ( 
-        this->solutionDict().subDict("relaxationFactors")
+        mesh().solutionDict().subDict("relaxationFactors")
         .lookupOrDefault<scalar>(U_.name(), 1)   
     ), 
     
@@ -244,8 +244,8 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         IOobject
         (
             "fvSchemes",
-            this->time().system(),
-            *this,
+            mesh().time().system(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -257,7 +257,7 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
     {
         if(fluxRequiredDict.toc()[i] != "default")
         {
-            this->schemesDict().setFluxRequired(fluxRequiredDict.toc()[i]);
+            mesh().schemesDict().setFluxRequired(fluxRequiredDict.toc()[i]);
         }
     }
 }
@@ -300,8 +300,10 @@ void Foam::regionTypes::navierStokesFluid::updateFields()
 
 void Foam::regionTypes::navierStokesFluid::solveRegion()
 {
+    Info << nl << "Solving for " << mesh().name() << endl;
+
     // --- PIMPLE loop      
-    pimpleControl pimple(*this);
+    pimpleControl pimple(mesh());
          
     while (pimple.loop())
     // (corr_ == nCorrPIMPLE_ + 1) 
@@ -358,7 +360,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                 "phiHbyA",
                 (
                     (fvc::interpolate(HU_)/fvc::interpolate(AU_))
-                    & this->Sf()
+                    & mesh().Sf()
                 )
             );
 
@@ -370,7 +372,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
             surfaceScalarField AtUf("AtUf", fvc::interpolate(AtU));
             surfaceScalarField AUf("AUf", fvc::interpolate(AU_));
 
-            phiHbyA += (1.0/AtUf - 1.0/AUf)*fvc::snGrad(p_)*this->magSf();
+            phiHbyA += (1.0/AtUf - 1.0/AUf)*fvc::snGrad(p_)*mesh().magSf();
 
             HbyA -= (1.0/AU_ - 1.0/AtU)*gradp_;
 
@@ -388,7 +390,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                     phiHbyA.boundaryField()[patchI] =
                     (
                         U_.boundaryField()[patchI]
-                        & this->Sf().boundaryField()[patchI]
+                        & mesh().Sf().boundaryField()[patchI]
                     );
                 }
             }      
@@ -407,11 +409,11 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                                           
                 // #include "setReference.H" // need "setRefCell.H"   
                 
-                pEqn.setReference(pRefCell_, pRefValue_);             
+                pEqn.setReference(pRefCell_, pRefValue_);
                 
                 pEqn.solve
                 (
-                    this->solutionDict().solver
+                    mesh().solutionDict().solver
                     (
                         p_.select(pimple.finalInnerIter())
                     )

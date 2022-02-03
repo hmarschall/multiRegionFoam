@@ -77,15 +77,11 @@ class transportTemperature
         dimensionedScalar rho_;
 
         //- thermal diffusivity
-//        volScalarField alpha_;
-
         autoPtr<volScalarField> alpha_;
 
 protected:
 
         //- temperature
-//        volScalarField T_;
-
         autoPtr<volScalarField> T_;
 
 public:
@@ -106,17 +102,6 @@ public:
 
     // Member Functions
 
-        // Update mesh
-        bool update()
-        {
-            transportTemperature& mesh = 
-                const_cast<transportTemperature&>(*this);
-
-            bool meshChanged = mesh.update();
-
-            return meshChanged;
-        }
-
         // Access
         const volScalarField& T() const
         {
@@ -134,7 +119,7 @@ public:
         {
             return
             (
-                this->thisDb().lookupObject<T>(name)
+                mesh().thisDb().lookupObject<T>(name)
             );
         }
 
@@ -143,7 +128,7 @@ public:
         {
             return
             (
-                const_cast<const T&>(this->thisDb().lookupObject<T>(name))
+                const_cast<const T&>(mesh().thisDb().lookupObject<T>(name))
             );
         }
 
