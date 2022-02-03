@@ -43,8 +43,6 @@ void directMapInterfaceToInterfaceMapping::transferFacesZoneToZone
     Field<Type>& toField             // to field
 ) const
 {
-    Info<< "Mapping face values using directMap" << endl;
-
     // Check field sizes are correct
     interfaceToInterfaceMapping::checkFieldSizes
     (
