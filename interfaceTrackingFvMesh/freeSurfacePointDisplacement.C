@@ -25,7 +25,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "interfaceTrackingFvMesh.H"
+#include "movingInterfacePatches.H"
 #include "primitivePatchInterpolation.H"
 #include "emptyFaPatch.H"
 #include "wedgeFaPatch.H"
@@ -39,13 +39,13 @@ License
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
 Foam::tmp<Foam::vectorField>
-Foam::interfaceTrackingFvMesh::pointDisplacement(const scalarField& deltaH)
+Foam::movingInterfacePatches::pointDisplacement(const scalarField& deltaH)
 {
     const pointField& points = aMesh().patch().localPoints();
     const labelListList& pointFaces = aMesh().patch().pointFaces();
 
     const labelList faceCells = 
-        mesh().boundary()[surfacePatchID()].patch().faceCells();
+        mesh().boundary()[patchID()].patch().faceCells();
 
     controlPoints() += facesDisplacementDir()*deltaH;
 
@@ -230,7 +230,7 @@ Foam::interfaceTrackingFvMesh::pointDisplacement(const scalarField& deltaH)
 }
 
 
-//tmp<vectorField> interfaceTrackingFvMesh::pointDisplacement(const scalarField& deltaH) 
+//tmp<vectorField> movingInterfacePatches::pointDisplacement(const scalarField& deltaH) 
 //{
 //    const pointField& points = aMesh().patch().localPoints();
 //    const labelListList& pointFaces = aMesh().patch().pointFaces();
@@ -789,7 +789,7 @@ Foam::interfaceTrackingFvMesh::pointDisplacement(const scalarField& deltaH)
 
 
 
-//tmp<vectorField> surfaceTracking::pointDisplacement(const scalarField& deltaH)
+//tmp<vectorField> movingInterfacePatches::pointDisplacement(const scalarField& deltaH)
 //{
 //    const pointField& points = aMesh().patch().localPoints();
 //    const labelListList& pointFaces = aMesh().patch().pointFaces();
@@ -1265,7 +1265,7 @@ Foam::interfaceTrackingFvMesh::pointDisplacement(const scalarField& deltaH)
 
 
 
-//tmp<vectorField> surfaceTracking::pointDisplacement(const scalarField& deltaH)
+//tmp<vectorField> movingInterfacePatches::pointDisplacement(const scalarField& deltaH)
 //{
 //    const pointField& points = aMesh().patch().localPoints();
 //    const labelListList& pointFaces = aMesh().patch().pointFaces();
@@ -1739,7 +1739,7 @@ Foam::interfaceTrackingFvMesh::pointDisplacement(const scalarField& deltaH)
 //}
 
 Foam::tmp<vectorField>
-Foam::interfaceTrackingFvMesh::lsPlanePointAndNormal
+Foam::movingInterfacePatches::lsPlanePointAndNormal
 (
     const vectorField& points,
     const vector& origin,
