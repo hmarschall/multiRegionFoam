@@ -10,6 +10,8 @@ EXE_INC = \
     -I$(LIB_SRC)/dynamicMesh/topoChangerFvMesh/lnInclude \
     -I$(LIB_SRC)/dynamicMesh/meshMotion/fvMotionSolver/lnInclude \
     -I$(LIB_SRC)/fvMotionSolver/lnInclude \
+    -I../../globalPolyPatch \
+    -I../../coupledFvPatchFields/lnInclude \
     -I$(LIB_SRC_ITM)/meshMotion/lnInclude
 
 
@@ -21,5 +23,6 @@ LIB_LIBS = \
     -lmeshTools \
     -ldynamicFvMesh \
     -ldynamicMesh \
+    -ltopoChangerFvMesh \
     -ltetMotionSolver \
     -lfvMotionSolver
