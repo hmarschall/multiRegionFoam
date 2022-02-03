@@ -109,8 +109,8 @@ public:
         //- Reset the source list
         void reset(const regionProperties& region);
 
-        //- Correct model properties
-        void correct();
+        //- Update the meshes and correct model properties
+        void updateAndCorrect();
 
         //- Set reverse time step
         void setRDeltaT();

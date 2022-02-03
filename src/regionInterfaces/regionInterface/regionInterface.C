@@ -50,7 +50,7 @@ void Foam::regionInterface::makeGlobalPatches() const
     globalPatchBPtr_.set(new globalPolyPatch(patchB().name(), meshB()));
 }
 
-void Foam::regionInterface::clearGlobalPatches() const
+void Foam::regionInterface::clearGlobalPatches()
 {
     globalPatchAPtr_.clear();
     globalPatchBPtr_.clear();
@@ -440,10 +440,11 @@ Foam::regionInterface::regionInterface
     meshB_(patchB_.boundaryMesh().mesh()),
     attachedA_(false),
     attachedB_(false),
+    changing_(false),
     interpolatorUpdateFrequency_
     (
         regionInterfaceProperties_
-        .lookupOrDefault<int>("interpolatorUpdateFrequency", 0)
+        .lookupOrDefault<int>("interpolatorUpdateFrequency", 1)
     ),
     aMeshPtr_(),
     UsPtr_(),
@@ -546,8 +547,14 @@ void Foam::regionInterface::updateInterpolatorAndGlobalPatches()
             ((runTime().timeIndex() - 1) % interpolatorUpdateFrequency_) == 0
         )
         {
+            // Clear current interpolators
+            interfaceToInterfacePtr_.clear();
+
+            // Clear and re-create global patches
             clearGlobalPatches();
             makeGlobalPatches();
+
+            // Re-create interpolators
             interfaceToInterface();
         }
     }

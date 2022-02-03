@@ -223,7 +223,7 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
     // attach patches of regionCouplePolyPatch type
     forAll(*this, i)
     {
-        regionType& mesh = const_cast<regionType&>(this->operator[](i));
+        dynamicFvMesh& mesh = const_cast<dynamicFvMesh&>(this->operator[](i).mesh());
 
         {
             const polyPatchList& patches = mesh.boundaryMesh();
@@ -247,7 +247,7 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
 }
 
 
-void Foam::regionTypeList::correct()
+void Foam::regionTypeList::updateAndCorrect()
 {
     forAll(*this, i)
     {
