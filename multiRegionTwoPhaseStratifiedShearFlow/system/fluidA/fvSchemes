@@ -40,7 +40,7 @@ divSchemes
 
 laplacianSchemes
 {
-    default Gauss linear corrected;//patchCorrected;// corrected;//none;
+    default Gauss linear patchCorrected;// corrected;//none;
     //laplacian(U) Gauss linear patchCorrected; //Added CP
     //laplacian(mu,U) Gauss linear patchCorrected;
     //laplacian((1|A(U)),p) Gauss linear patchCorrected;
@@ -54,7 +54,7 @@ interpolationSchemes
 
 snGradSchemes
 {
-    default corrected;//patchCorrected;//
+    default patchCorrected;//corrected;//
 }
 
 fluxRequired

@@ -35,11 +35,17 @@ boundaryField
 // zero-gradient for inlet/outlet
     inlet
     {
-        type            zeroGradient;
+/*        type            zeroGradient;*/
+        type            outletInlet;
+        outletValue     uniform (0 0 0);
+        value           uniform (0 0 0);
     }
     outlet
     {
-        type            zeroGradient;
+/*        type            zeroGradient;*/
+        type            pressureInletOutletVelocity;//inletOutlet;//
+        inletValue      uniform (0 0 0);
+        value           uniform (0 0 0);
     }
 // interfacial BC       
     interface

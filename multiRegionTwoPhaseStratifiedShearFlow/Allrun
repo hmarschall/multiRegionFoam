@@ -36,7 +36,7 @@ do
         -p|--partitioned)
             cp 0/fluidA/orig/partitioned/U 0/fluidA/.
             cp 0/fluidB/orig/partitioned/U 0/fluidB/.
-            
+
             cp 0/fluidA/orig/partitioned/p 0/fluidA/.
             cp 0/fluidB/orig/partitioned/p 0/fluidB/.
 
@@ -45,14 +45,10 @@ do
 
             runApplication -l log.blockMesh.fluidB blockMesh -region fluidB 2>/dev/null
             runApplication blockMesh -region fluidA 2>/dev/null
-            
-            #check
+
             runApplication -l log.setSet.fluidB setSet -region fluidB -batch faces.setSet 2>/dev/null
             runApplication setSet -region fluidA -batch faces.setSet 2>/dev/null
-            
-            transformPoints -scale "(0.004 0.001 0.001)" -region fluidA 2>/dev/null >> log.transformPoints
-            transformPoints -scale "(0.004 0.001 0.001)" -region fluidB 2>/dev/null >> log.transformPoints
-            
+
             runApplication makeFaMesh -region fluidA 2>/dev/null 
             runApplication -l log.makeFaMesh.fluidB makeFaMesh -region fluidB 2>/dev/null
 
