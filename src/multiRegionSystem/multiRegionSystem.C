@@ -360,11 +360,8 @@ void Foam::multiRegionSystem::solve()
 
     interfaces_->detach();
 
-    // Solve for region-specific physics
-    for (int i=0; i<3; i++)
-    {
-        regions_->solveRegion();
-    }
+    // Solve each region physics
+    regions_->solveRegion();
 
 
     // Solve region-region coupling (partitioned)
