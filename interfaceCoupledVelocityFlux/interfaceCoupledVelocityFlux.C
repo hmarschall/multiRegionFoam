@@ -149,6 +149,7 @@ tmp<vectorField> interfaceCoupledVelocityFlux::velJump() const
     const areaVectorField& Us = rgInterface().Us();
   
     areaScalarField divSU = fac::div(Us); 
+    divSU.correctBoundaryConditions();
 
     areaTensorField gradSU = fac::grad(Us);
 

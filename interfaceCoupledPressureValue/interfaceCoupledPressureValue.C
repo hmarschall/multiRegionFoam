@@ -142,9 +142,8 @@ tmp<scalarField> interfaceCoupledPressureValue::valueJump() const
     // surface velocity terms
     const areaVectorField& Us = rgInterface().Us();
 
-    areaScalarField divUs(fac::div(Us));
-    
-//    divUs.correctBoundaryConditions();
+    areaScalarField divUs(fac::div(Us));    
+    divUs.correctBoundaryConditions();
 
     // surface tension 
     areaScalarField sigma = rgInterface().sigma();  
