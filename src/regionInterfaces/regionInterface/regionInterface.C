@@ -141,6 +141,11 @@ void Foam::regionInterface::makeUs() const
                  == wallFvPatch::typeName
                 )
                 {
+                    WarningIn("regionInterface::makeUs() const")
+                        << "Patch neighbouring to interface is wall" << nl
+                        << "Not appropriate for inlets/outlets" << nl
+                        << endl;
+
                     patchFieldTypes[patchI] =
                         slipFaPatchVectorField::typeName;
                 }
@@ -285,19 +290,29 @@ void Foam::regionInterface::correctUsBoundaryConditions()
     Us().correctBoundaryConditions();
 }
 
-void Foam::regionInterface::calcCurvatureAxis
+void Foam::regionInterface::correctCurvature
 (
     areaScalarField& K
 )
 {
     scalarField& KI = K.internalField();
 
-    //  TODO: dictionary lookup (also hard coded in surfaceTracking!)
-    //        + use also for fixedSurfacesPatches
-    label patchID = aMesh().boundary().findPatchID("centerline");
-
-    if (patchID != -1)
+    forAll(curvatureCorrectedSurfacePatches_, patchI)
     {
+        label patchID = 
+            aMesh().boundary().findPatchID
+            (
+                curvatureCorrectedSurfacePatches_[patchI]
+            );
+
+        if(patchID == -1)
+        {
+            FatalErrorIn("regionInterface::correctCurvature(...)")
+                << "Wrong faPatch name in the curvatureCorrectedSurfacePatches"
+                    << " list defined in the surfaceProperties dictionary"
+                    << abort(FatalError);
+        }
+
         const labelList& eFaces =
             aMesh().boundary()[patchID].edgeFaces();
 
@@ -325,6 +340,7 @@ void Foam::regionInterface::calcCurvatureAxis
 
             KI[curFace] = avrK;
         }
+
 //        label counter = 0;
 //        do
 //        {
@@ -447,6 +463,10 @@ Foam::regionInterface::regionInterface
         .lookupOrDefault<int>("interpolatorUpdateFrequency", 1)
     ),
     aMeshPtr_(),
+    curvatureCorrectedSurfacePatches_
+    (
+        regionInterfaceProperties_.lookup("curvatureCorrectedSurfacePatches")
+    ),
     UsPtr_(),
     KPtr_(),
     phisPtr_()
@@ -680,7 +700,7 @@ void Foam::regionInterface::updateK()
            aMesh().faceCurvatures()
         );
 
-    calcCurvatureAxis(K());
+    correctCurvature(K());
 
     K().correctBoundaryConditions();
 }

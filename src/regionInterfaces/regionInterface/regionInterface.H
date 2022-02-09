@@ -119,14 +119,18 @@ class regionInterface
 
         Switch attachedB_;
 
-        //- adjacent meshes changing?
+        //- Adjacent meshes changing?
         bool changing_;
 
         //- Interpolator update frequency
         label interpolatorUpdateFrequency_;
         
-        //- finite area mesh
+        //- Finite area mesh
         mutable autoPtr<faMesh> aMeshPtr_;
+
+        //- Surface patches requiring curvature correction
+        //- e.g. fixedSurfacePatches or centerlinePatches (wedge cases)
+        wordList curvatureCorrectedSurfacePatches_;
 
 
 protected:
@@ -175,7 +179,7 @@ private:
         void correctUsBoundaryConditions();
             
         //-- Calculate interface curvature at wedge axis
-        void calcCurvatureAxis
+        void correctCurvature
         (
             areaScalarField& K
         );
