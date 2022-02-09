@@ -14,7 +14,48 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dynamicFvMesh staticFvMesh;
+/*dynamicFvMesh staticFvMesh;*/
 
+dynamicFvMesh interfaceTrackingFvMesh;
+
+solver velocityLaplacian;
+
+diffusivity quadratic inverseDistance 1(interface);
+
+frozenDiffusion yes;
+
+twoDMotion yes;
+
+distancePatches 1 (interface);
+
+
+interfaceTrackingFvMeshCoeffs
+{
+    movingSurfacePatches
+    (
+        interface
+        {
+            neighbourPatch   interfaceShadow;
+            neighbourMesh    fluidB;
+
+            normalMotionDir yes;
+
+            // motion direction if normalMotionDir is no
+            motionDir (0 1 0);
+
+            fixedSurfacePatches 0();
+
+            interpolatorUpdateFrequency 5;
+
+            pointNormalsCorrectionPatches 0();
+
+            interfaceTransferMethod directMap;
+
+            directMapCoeffs{}
+
+            GGICoeffs{}
+        }
+    );
+}
 
 // ************************************************************************* //

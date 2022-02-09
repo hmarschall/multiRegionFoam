@@ -18,6 +18,28 @@ FoamFile
 polyMeshPatches  1( interfaceShadow );
 
 boundary
-{}
+{
+    outlet
+    {
+        type                patch;
+        ownerPolyPatch      interfaceShadow;
+        neighbourPolyPatch  outlet;
+    }
+
+    inlet
+    {
+        type                patch;
+        ownerPolyPatch      interfaceShadow;
+        neighbourPolyPatch  inlet;
+    }
+
+    frontAndBack
+    {
+        type                empty;
+        ownerPolyPatch      interfaceShadow;
+        neighbourPolyPatch  frontAndBack;
+    }
+}
+
 
 // ************************************************************************** //

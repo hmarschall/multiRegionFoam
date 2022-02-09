@@ -35,7 +35,7 @@ boundaryField
     outlet
     {
         type            fixedValue;
-        value           uniform 0.0021;
+        value           uniform -0.0021;
     } 
 // zero gradient for the walls parallel to the interface  
     Wall

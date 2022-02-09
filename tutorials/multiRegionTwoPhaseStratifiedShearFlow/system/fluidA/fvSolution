@@ -75,7 +75,7 @@ solvers
     {
         solver          PBiCG;
         preconditioner  DILU;
-        tolerance       1e-13;
+        tolerance       1e-15;
         relTol          0;
         minIter         2;
         maxIter         1000;
@@ -120,16 +120,6 @@ PIMPLE
     nOuterCorrectors            3; // SIMPLEC loops
     nCorrectors                 1; // PISO loops
     nNonOrthogonalCorrectors    1;
-
-    // interface tracking
-    adjustFluxFrequency         100;
-
-    // convergence control
-    momentumTolerance           1e-7;
-    innerTolerance              1e-7;
-
-    velTolerance                1e-8;
-    momTolerance                1e-8;
 }
 
 relaxationFactors

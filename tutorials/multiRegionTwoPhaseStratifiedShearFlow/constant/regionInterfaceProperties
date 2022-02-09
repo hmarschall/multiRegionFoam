@@ -16,10 +16,15 @@ FoamFile
 
 regionInterfaceType capillaryInterface;
 
+/*fluidBinterfaceShadowfluidAinterface*/
 fluidAinterfacefluidBinterfaceShadow
 {
     sigma           sigma [ 1 0 -2 0 0 0 0 ] 0.0727;
 }
+
+interpolatorUpdateFrequency 1;
+
+curvatureCorrectedSurfacePatches 0();
 
 GGICoeffs
 {}
