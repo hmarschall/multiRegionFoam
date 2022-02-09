@@ -81,13 +81,10 @@ Foam::interfaceTrackingFvMesh::interfaceTrackingFvMesh
         motionDict_.lookup("movingSurfacePatches")
     )
 {
-//    movingInterfaces_.setSize(movingInterfaceEntries_.size());
-
     forAll (movingInterfaceEntries_, surfI)
     {
         movingInterfaces_.set
         (
-//            surfI,
             movingInterfaceEntries_[surfI].keyword(),
             new movingInterfacePatches
             (
@@ -131,7 +128,7 @@ const Foam::surfaceScalarField& Foam::interfaceTrackingFvMesh::phi() const
 
 bool Foam::interfaceTrackingFvMesh::update()
 {
-    Info << nl << "*** Updating " << this->name() << endl;
+    Info << nl << "Updating " << this->name() << nl << endl;
 
 //        fvMotionSolver& mSolver =
 //            dynamic_cast<fvMotionSolver&>
@@ -145,9 +142,6 @@ bool Foam::interfaceTrackingFvMesh::update()
     {
         // Set surface patch motion
         word patchName = movingInterfaceEntries_[surfI].keyword();
-
-        // Update
-//        movingInterfaces_[patchName]->updateInterpolatorAndGlobalPatches();
 
         pointVectorField& motionU =
             const_cast<pointVectorField&>
@@ -182,8 +176,6 @@ bool Foam::interfaceTrackingFvMesh::update()
         // Set shadow patch motion (interface)
         if (movingInterfaces_[patchName]->isInterface())
         {
-            Info << nl << "*** Moving points of interface shadow" << endl;
-
             pointVectorField& motionNbrU =
                 const_cast<pointVectorField&>
                 (
@@ -216,8 +208,6 @@ bool Foam::interfaceTrackingFvMesh::update()
 //    setOldPoints(newMeshPoints);
 //    movePoints(newMeshPoints);
 
-//    aMesh().movePoints();
-
     motionPtr_->solve();
 //-    mSolver.solve();
 
@@ -227,6 +217,14 @@ bool Foam::interfaceTrackingFvMesh::update()
 //-    fvMesh::movePoints(mSolver.curPoints());
 
 //    fvMesh::movePoints(mSolver.newPoints());
+
+    // Correct point normals
+    forAll (movingInterfaceEntries_, surfI)
+    {
+        word patchName = movingInterfaceEntries_[surfI].keyword();
+
+        movingInterfaces_[patchName]->correctPointNormals();
+    }
 
     return true;
 }

@@ -42,6 +42,9 @@ License
 #include "CrankNicolsonDdtScheme.H"
 #include "backwardDdtScheme.H"
 
+#include "coordinateSystem.H"
+#include "scalarMatrices.H"
+
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -55,6 +58,11 @@ namespace Foam
 
 void Foam::movingInterfacePatches::initializeData()
 {
+    if (motionDict_.found("neighbourMesh"))
+    {
+        isInterface_ = true;
+    }
+
     fixedSurfacePatches_ = wordList
     (
         motionDict_.lookup("fixedSurfacePatches")
@@ -733,21 +741,10 @@ Foam::movingInterfacePatches::movingInterfacePatches
     interpolatorUpdateFrequency_
     (
         motionDict_
-        .lookupOrDefault<int>("interpolatorUpdateFrequency", 1)
+        .lookupOrDefault<int>("interpolatorUpdateFrequency", 0)
     )
 {
-    if (motionDict_.found("neighbourMesh"))
-    {
-        // Create global patches synced in parallel runs such that
-        // all faces are present on all processors
-        makeGlobalPatches();
-
-        // Force creation of interface-to-interface object 
-        // as they may need to read fields on restart
-        interfaceToInterface();
-
-        isInterface_ = true;
-    }
+    initializeData();
 }
 
 
@@ -769,8 +766,8 @@ void Foam::movingInterfacePatches::updateTopology()
 
     if (isInterface_)
     {
-        clearGlobalPatches();
-        makeGlobalPatches();
+        globalPatchPtr_().updateMesh();
+        globalNbrPatchPtr_().updateMesh();
     }
 }
 
@@ -850,11 +847,27 @@ Foam::vectorField& Foam::movingInterfacePatches::facesDisplacementDir()
 Foam::tmp<vectorField> 
 Foam::movingInterfacePatches::surfacePointDisplacement()
 {
+    if (timeIndex_ == -1) //initial only / do not move into constructor
+    {
+        if (motionDict_.found("neighbourMesh"))
+        {
+            // Create global patches synced in parallel runs such that
+            // all faces are present on all processors
+            makeGlobalPatches();
+
+            // Force creation of interface-to-interface object 
+            // as they may need to read fields on restart
+            interfaceToInterface();
+        }
+    }
+
+    const pointField& points = aMesh().patch().localPoints();
+
     tmp<vectorField> tdisplacement
     (
         new vectorField
         (
-            aMesh().patch().localPoints().size(),
+            points.size(),
             vector::zero
         )
     );
@@ -1053,7 +1066,6 @@ Foam::movingInterfacePatches::surfacePointDisplacement()
 //        surfacePhiField *= 0;
 //    }
 
-
     return tdisplacement;
 }
 
@@ -1084,6 +1096,10 @@ Foam::movingInterfacePatches::shadowPointDisplacement
         globalShadowDisplacement            // to field
     );
 
+    // Move global patch points due to mesh motion
+    globalPatchPtr_().movePoints(globalDisplacement);
+    globalNbrPatchPtr_().movePoints(globalShadowDisplacement);
+
     // Filter global patch point data to patch
     shadowDisplacement() = globalNbrPatch().globalPointToPatch
     (
@@ -1092,6 +1108,386 @@ Foam::movingInterfacePatches::shadowPointDisplacement
 
     // Return
     return shadowDisplacement;
+}
+
+void movingInterfacePatches::correctPointNormals()
+{
+    // Correct normals for fixed patches points
+    Info << "Correct point normals" << endl;
+
+    vectorField& N =
+        const_cast<vectorField&>
+        (
+            aMesh().pointAreaNormals()
+        );
+
+    const labelListList& pFaces =
+        aMesh().patch().pointFaces();
+
+    const labelListList& fFaces =
+        aMesh().patch().faceFaces();
+
+    const faceList& faces = 
+        aMesh().patch().localFaces();
+
+    const pointField& points = 
+        aMesh().patch().localPoints();
+
+    // Wedge points
+//    forAll(aMesh().boundary(), patchI)
+//    {
+//        if (aMesh().boundary()[patchI].type() == wedgeFaPatch::typeName)
+//        {
+//            const wedgeFaPatch& wedgePatch =
+//                refCast<const wedgeFaPatch>(aMesh().boundary()[patchI]);
+
+//            const labelList& patchPoints = wedgePatch.pointLabels();
+
+//            forAll(patchPoints, pointI)
+//            {
+//                label curPoint = patchPoints[pointI];
+
+//                labelHashSet faceSet;
+//                forAll(pFaces[curPoint], faceI)
+//                {
+//                    faceSet.insert(pFaces[curPoint][faceI]);
+//                }
+//                labelList curFaces = faceSet.toc();
+//                
+//                labelHashSet pointSet;
+
+//                pointSet.insert(curPoint);
+//                for(label i=0; i<curFaces.size(); i++)
+//                {
+//                    const labelList& facePoints = faces[curFaces[i]];
+//                    for(label j=0; j<facePoints.size(); j++)
+//                    {
+//                        if(!pointSet.found(facePoints[j]))
+//                        {
+//                            pointSet.insert(facePoints[j]);
+//                        }
+//                    }
+//                }
+//                pointSet.erase(curPoint);
+//                labelList curPoints = pointSet.toc();
+
+//                
+//                labelHashSet addPointsSet;
+//                forAll(curPoints, pointI)
+//                {
+//                    label index = 
+//                        findIndex(patchPoints, curPoints[pointI]);
+
+//                    if (index != -1)
+//                    {
+//                        addPointsSet.insert(curPoints[pointI]);
+//                    }  
+//                }
+//                addPointsSet.insert(curPoint);
+//                labelList curAddPoints = addPointsSet.toc();
+
+
+//                if (curPoints.size() + curAddPoints.size() >= 5)
+//                {
+//                    vectorField allPoints
+//                    (
+//                        curPoints.size()+curAddPoints.size()
+//                    );
+//                    scalarField W(curPoints.size()+curAddPoints.size(), 1.0);
+//                    label I = -1;
+//                    for(label i=0; i<curPoints.size(); i++)
+//                    {
+//                        I++;
+//                        allPoints[I] = points[curPoints[i]];
+//                        W[I] = 1.0/magSqr(allPoints[I] - points[curPoint]);
+//                    }
+//                    for(label i=0; i<curAddPoints.size(); i++)
+//                    {
+//                        I++;
+//                        allPoints[I] = 
+//                            transform
+//                            (
+//                                wedgePatch.faceT(),
+//                                points[curAddPoints[i]]
+//                            );
+//                        W[I] = 1.0/magSqr(allPoints[I] - points[curPoint]);
+//                    }
+
+//                    // Transforme points
+//                    vector origin = points[curPoint];
+//                    vector axis = N[curPoint]/mag(N[curPoint]);
+//                    vector dir = (allPoints[0] - points[curPoint]);
+//                    dir -= axis*(axis&dir);
+//                    dir /= mag(dir);
+//                    coordinateSystem cs("cs", origin, axis, dir);
+//                    
+//                    forAll(allPoints, pI)
+//                    {
+//                        allPoints[pI] = cs.localPosition(allPoints[pI]);
+//                    }
+//                    
+//                    scalarRectangularMatrix M
+//                    (
+//                        allPoints.size(),
+//                        5,
+//                        0.0
+//                    );
+
+//                    for(label i = 0; i < allPoints.size(); i++)
+//                    {
+//                        M[i][0] = sqr(allPoints[i].x());
+//                        M[i][1] = sqr(allPoints[i].y());
+//                        M[i][2] = allPoints[i].x()*allPoints[i].y();
+//                        M[i][3] = allPoints[i].x();
+//                        M[i][4] = allPoints[i].y();
+//                    }
+//                    
+//                    scalarSquareMatrix MtM(5, 0.0);
+
+//                    for (label i = 0; i < MtM.n(); i++)
+//                    {
+//                        for (label j = 0; j < MtM.m(); j++)
+//                        {
+//                            for (label k = 0; k < M.n(); k++)
+//                            {
+//                                MtM[i][j] += M[k][i]*M[k][j]*W[k];
+//                            }
+//                        }
+//                    }
+//                    
+//                    scalarField MtR(5, 0);
+
+//                    for (label i=0; i<MtR.size(); i++)
+//                    {
+//                        for (label j=0; j<M.n(); j++)
+//                        {
+//                            MtR[i] += M[j][i]*allPoints[j].z()*W[j];
+//                        }
+//                    }
+//            
+//                    scalarSquareMatrix::LUsolve(MtM, MtR);
+
+//                    vector curNormal = vector(MtR[3], MtR[4], -1);
+//                    
+//                    curNormal = cs.globalVector(curNormal);
+//                    
+//                    curNormal *= sign(curNormal&N[curPoint]);
+//                    
+//                    N[curPoint] = curNormal;
+//                }
+//            }
+//        }
+//    }
+    
+    // Fixed boundary points
+
+    forAll(fixedSurfacePatches_, patchI)
+    {
+        label fixedPatchID = 
+            aMesh().boundary().findPatchID
+            (
+                fixedSurfacePatches_[patchI]
+            );
+
+        if(fixedPatchID == -1)
+        {
+            FatalErrorIn("movingInterfacePatches::correctPointNormals()")
+                << "Wrong faPatch name in the fixedSurfacePatches list"
+                    << " defined in the surfaceProperties dictionary"
+                    << abort(FatalError);
+        }
+
+        const labelList& pLabels = 
+            aMesh().boundary()[fixedPatchID].pointLabels();
+
+        const labelList& eFaces =
+            aMesh().boundary()[fixedPatchID].edgeFaces();
+ 
+        forAll(pLabels, pointI)
+        {
+            label curPoint = pLabels[pointI];
+
+            labelHashSet faceSet;
+            forAll(pFaces[curPoint], faceI)
+            {
+                faceSet.insert(pFaces[curPoint][faceI]);
+            }
+
+            labelList curFaces = faceSet.toc();
+
+            forAll(curFaces, faceI)
+            {
+                const labelList& curFaceFaces =
+                    fFaces[curFaces[faceI]];
+                
+                forAll(curFaceFaces, fI)
+                {
+                    label curFaceFace = curFaceFaces[fI];
+                        
+                    label index = findIndex(eFaces, curFaceFace);
+
+                    if( (index==-1) && !faceSet.found(curFaceFace) )
+                    {
+                        faceSet.insert(curFaceFace);
+                    }
+                }
+            }
+            curFaces = faceSet.toc();
+
+            labelHashSet pointSet;
+
+            pointSet.insert(curPoint);
+            for(label i=0; i<curFaces.size(); i++)
+            {
+                const labelList& fPoints = faces[curFaces[i]];
+                for(label j=0; j<fPoints.size(); j++)
+                {
+                    if(!pointSet.found(fPoints[j]))
+                    {
+                        pointSet.insert(fPoints[j]);
+                    }
+                }
+            }
+
+            pointSet.erase(curPoint);
+
+            labelList curPoints = pointSet.toc();
+
+            // LS quadric fit
+            vectorField allPoints(curPoints.size());
+            scalarField W(curPoints.size(), 1.0);
+            for(label i=0; i<curPoints.size(); i++)
+            {
+                allPoints[i] = points[curPoints[i]];
+                W[i] = 1.0/magSqr(allPoints[i] - points[curPoint]);
+            }
+
+            // Transforme points
+            vector origin = points[curPoint];
+            vector axis = N[curPoint]/mag(N[curPoint]);
+            vector dir = (allPoints[0] - points[curPoint]);
+            dir -= axis*(axis&dir);
+            dir /= mag(dir);
+            coordinateSystem cs("cs", origin, axis, dir);
+
+            forAll(allPoints, pI)
+            {
+                allPoints[pI] = cs.localPosition(allPoints[pI]);
+            }
+
+            scalarRectangularMatrix M
+            (
+                allPoints.size(),
+                5,
+                0.0
+            );
+
+            for(label i = 0; i < allPoints.size(); i++)
+            {
+                M[i][0] = sqr(allPoints[i].x());
+                M[i][1] = sqr(allPoints[i].y());
+                M[i][2] = allPoints[i].x()*allPoints[i].y();
+                M[i][3] = allPoints[i].x();
+                M[i][4] = allPoints[i].y();
+            }
+
+            scalarSquareMatrix MtM(5, 0.0);
+
+            for (label i = 0; i < MtM.n(); i++)
+            {
+                for (label j = 0; j < MtM.m(); j++)
+                {
+                    for (label k = 0; k < M.n(); k++)
+                    {
+                        MtM[i][j] += M[k][i]*M[k][j]*W[k];
+                    }
+                }
+            }
+
+            scalarField MtR(5, 0);
+
+            for (label i=0; i<MtR.size(); i++)
+            {
+                for (label j=0; j<M.n(); j++)
+                {
+                    MtR[i] += M[j][i]*allPoints[j].z()*W[j];
+                }
+            }
+
+            scalarSquareMatrix::LUsolve(MtM, MtR);
+
+            vector curNormal = vector(MtR[3], MtR[4], -1);
+
+            curNormal = cs.globalVector(curNormal);
+
+            curNormal *= sign(curNormal&N[curPoint]);
+
+            N[curPoint] = curNormal;
+        }
+    }
+
+    // Correcte wedge points
+//    forAll (aMesh().boundary(), patchI)
+//    {
+//        if (aMesh().boundary()[patchI].type() == wedgeFaPatch::typeName)
+//        {
+//            const wedgeFaPatch& wedgePatch =
+//                refCast<const wedgeFaPatch>(aMesh().boundary()[patchI]);
+
+//            const labelList& patchPoints = wedgePatch.pointLabels();
+
+//            vector n =
+//                transform
+//                (
+//                    wedgePatch.edgeT(),
+//                    wedgePatch.centreNormal()
+//                );
+
+//            n /= mag(n);
+
+//            forAll (patchPoints, pointI)
+//            {
+//                N[patchPoints[pointI]]
+//                    -= n*(n&N[patchPoints[pointI]]);
+//            }
+//        }
+//    }
+
+
+    // Boundary points correction
+    forAll (aMesh().boundary(), patchI)
+    {
+        if
+        (
+            aMesh().correctPatchPointNormals(patchI) 
+        && !aMesh().boundary()[patchI].coupled()
+        )
+        {
+            if (aMesh().boundary()[patchI].ngbPolyPatchIndex() == -1)
+            {
+                FatalErrorIn
+                    (
+                        "void correctPointNormals::correctPointNormals()"
+                    )   << "Neighbour polyPatch index is not defined "
+                        << "for faPatch " << aMesh().boundary()[patchI].name()
+                        << abort(FatalError);
+            }
+
+            labelList patchPoints = aMesh().boundary()[patchI].pointLabels();
+
+            vectorField n = 
+                aMesh().boundary()[patchI].ngbPolyPatchPointNormals();
+
+            forAll (patchPoints, pointI)
+            {
+                N[patchPoints[pointI]]
+                    -= n[pointI]*(n[pointI]&N[patchPoints[pointI]]);
+            }
+        }
+    }
+
+
+    N /= mag(N);
 }
 
 const Foam::interfaceToInterfaceMapping&
@@ -1143,12 +1539,16 @@ void Foam::movingInterfacePatches::updateInterpolatorAndGlobalPatches()
     {
         if
         (
-            ((mesh().time().timeIndex() - 1) % interpolatorUpdateFrequency_) == 0
+            (
+                (mesh().time().timeIndex() - 1) % interpolatorUpdateFrequency_
+            ) == 0
         )
         {
-            clearGlobalPatches();
-            makeGlobalPatches();
+            // Re-create interpolators
             interfaceToInterface();
+
+            // Enforce topology update
+            updateTopology();
         }
     }
 }
