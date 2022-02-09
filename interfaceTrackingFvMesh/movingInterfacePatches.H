@@ -336,6 +336,9 @@ public:
         //- Return total points displacement
         vectorField& totalDisplacement();
 
+        //- Correct the point normal vectors
+        void correctPointNormals();
+
         //- Motion direction switch
         bool normalMotionDir() const
         {

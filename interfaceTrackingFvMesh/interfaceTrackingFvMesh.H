@@ -54,9 +54,6 @@ SourceFiles
 #include "IOdictionary.H"
 #include "volFields.H"
 #include "surfaceFields.H"
-//#include "singlePhaseTransportModel.H"
-//#include "demandDrivenData.H"
-//#include "correctPointsFunctionObject.H"
 
 #include "movingInterfacePatches.H"
 
@@ -82,7 +79,6 @@ class interfaceTrackingFvMesh
         dictionary motionDict_;
 
         //- Moving interface patches
-//        PtrList<movingInterfacePatches> movingInterfaces_;
         HashPtrTable<movingInterfacePatches> movingInterfaces_;
 
         PtrList<entry> movingInterfaceEntries_;
