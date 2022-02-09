@@ -304,11 +304,18 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
 
     // --- PIMPLE loop      
     pimpleControl pimple(mesh());
-         
-    while (pimple.loop())
-    // (corr_ == nCorrPIMPLE_ + 1) 
+
+    if (mesh().changing())
     {
-        U_.storePrevIter();     
+#       include "correctPhi.H"
+    }
+
+    // Make the fluxes relative to the mesh motion
+    fvc::makeRelative(phi_, U_);
+
+    while (pimple.loop())
+    {
+        U_.storePrevIter();
         
         // Convection-diffusion matrix
         fvVectorMatrix HUEqn
@@ -342,8 +349,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
         UEqn.boundaryCoeffs() = B0;
 
         // --- PISO loop
-        while (pimple.correct())  
-        // (corrPISO_ <= nCorrPISO_)            
+        while (pimple.correct())
         {
             p_.storePrevIter();   
                  
@@ -365,6 +371,9 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
             );
 
             phiHbyA += fvc::ddtPhiCorr((1.0/AU_)(), rho_, U_, phiHbyA);
+
+            // Global flux continuity
+            adjustPhi(phiHbyA, U_, p_);
 
             volScalarField AtU(AU_);
             AtU = max(AU_ - UEqn.H1(), 0.1*AU_);
@@ -393,21 +402,55 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                         & mesh().Sf().boundaryField()[patchI]
                     );
                 }
-            }      
+            }
                  
             while (pimple.correctNonOrthogonal())
-            // (corrNonOrtho_ <= nNonOrthCorr_ + 1)
-            // vs. for (label nonOrth=0; nonOrth<=nNonOrthCorr; nonOrth++)
             {
                 fvScalarMatrix pEqn
                 (
                     fvm::laplacian(1.0/AtUf, p_) == fvc::div(phiHbyA)
                 );
-                
-                // #include "setRefCell.H" 
-                    // error: ‘interface’ was not declared
-                                          
-                // #include "setReference.H" // need "setRefCell.H"   
+
+//                label pRefCell = 0;
+//                scalar pRefValue = 0.0;
+//                bool pNeedRef = false;
+//                bool procHasRef = false;
+
+                // Find reference cell
+//                if (mesh().name() == "fluidB")
+//                {
+//                    point refPointi(mesh().solutionDict().subDict("PIMPLE").lookup("pRefPoint"));
+//                    label refCelli = mesh().findCell(refPointi);
+//                    label hasRef = (refCelli >= 0 ? 1 : 0);
+//                    label sumHasRef = returnReduce<label>(hasRef, sumOp<label>());
+
+//                    if (sumHasRef != 1)
+//                    {
+//                        FatalError<< "Unable to set reference cell for field "
+//                                << p_.name()
+//                                << nl << "    Reference point pRefPoint"
+//                                << " found on " << sumHasRef << " domains (should be one)"
+//                                << nl << exit(FatalError);
+//                    }
+
+//                    if (hasRef)
+//                    {
+//                        pRefCell = refCelli;
+//                        procHasRef = true;
+//                    }
+
+//                    pRefValue =
+//                        readScalar(mesh().solutionDict().subDict("PIMPLE").lookup("pRefValue"));
+//                    if (pNeedRef && procHasRef)
+//                    {
+//                        pEqn.source()[pRefCell_] +=
+//                            pEqn.diag()[pRefCell_]*pRefValue_;
+
+//                        pEqn.diag()[pRefCell_] +=
+//                            pEqn.diag()[pRefCell_];
+//                    }
+
+//                }
                 
                 pEqn.setReference(pRefCell_, pRefValue_);
                 
@@ -419,16 +462,13 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                     )
                 ); 
                  
+                pEqn.solve
+                (
+                    mesh().solutionDict()
+                    .solver(p_.select(pimple.finalInnerIter()))
+                );
 
-                innerResidual_ = pEqn.solve().initialResidual();
-
-                if (corrNonOrtho_ == 0 && corr_ == 0) 
-                {
-                    residualPressure_ = innerResidual_;
-                }  
-                        
-                if (pimple.finalNonOrthogonalIter()) 
-                // (corrNonOrtho_ == nNonOrthCorr_ + 1)
+                if (pimple.finalNonOrthogonalIter())
                 {
                     phi_ = phiHbyA - pEqn.flux();
                 }                            
@@ -451,7 +491,6 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
             // Update of velocity gradient
             gradU_ = fvc::grad(U_);       
         }
-        //} while (innerResidual > innerTolerance && corr < nCorr); 
     }
 }
 
