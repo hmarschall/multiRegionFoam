@@ -251,7 +251,7 @@ void Foam::regionTypeList::updateAndCorrect()
 {
     forAll(*this, i)
     {
-        // mesh update
+        // mesh update (one sweep before solving)
         this->operator[](i).update();
 
         // correct properties
@@ -273,7 +273,17 @@ void Foam::regionTypeList::solveRegion()
 {
     forAll(*this, i)
     {
-        this->operator[](i).solveRegion();
+        // mesh update
+//        this->operator[](i).update();
+
+        // Solve for region-specific physics
+        // This might require outer loops if
+        // coupling is achieved only by mutual
+        // boundary condition updates
+        for (int j=0; j<5; j++)
+        {
+            this->operator[](i).solveRegion();
+        }
     }
 }
 
