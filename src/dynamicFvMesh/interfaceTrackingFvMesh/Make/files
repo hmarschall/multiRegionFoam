@@ -1,6 +1,6 @@
 movingInterfacePatches.C
 interfaceTrackingFvMesh.C
-freeSurfacePointDisplacement.C
+surfacePointDisplacement.C
 
 correctedFvPatchFields/correctedFvPatchField/correctedFvPatchFields.C
 
