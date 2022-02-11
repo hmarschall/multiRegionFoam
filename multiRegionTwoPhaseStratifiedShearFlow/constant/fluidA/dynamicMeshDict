@@ -18,7 +18,9 @@ FoamFile
 
 dynamicFvMesh interfaceTrackingFvMesh;
 
+
 solver velocityLaplacian;
+/*solver laplace;*/
 
 diffusivity quadratic inverseDistance 1(interface);
 
@@ -44,6 +46,8 @@ interfaceTrackingFvMeshCoeffs
             motionDir (0 1 0);
 
             fixedSurfacePatches 0();
+
+            interfaceDeformationLimit interfaceDeformationLimit [ 0 0 0 0 0 0 0 ] 0.0005;
 
             interpolatorUpdateFrequency 5;
 

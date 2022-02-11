@@ -73,12 +73,10 @@ solvers
 
     U
     {
-        solver          PBiCG;
-        preconditioner  DILU;
-        tolerance       1e-15;
+        solver          BiCGStab;
+        preconditioner  SymGaussSeidel;
+        tolerance       1e-9;
         relTol          0;
-        minIter         2;
-        maxIter         1000;
     }
 
     cellMotionU
