@@ -50,6 +50,8 @@ SourceFiles
 #include "topoChangerFvMesh.H"
 #include "HashPtrTable.H"
 #include "motionSolver.H"
+#include "tetMotionSolver.H"
+#include "fvMotionSolver.H"
 #include "regIOobject.H"
 #include "IOdictionary.H"
 #include "volFields.H"
@@ -75,6 +77,10 @@ class interfaceTrackingFvMesh
         // Dynamic motion solver
         autoPtr<motionSolver> motionPtr_;
 
+        // Motion Solver type
+        bool fvMotionSolver_;
+        bool feMotionSolver_;
+
         //- Motion dictionary
         dictionary motionDict_;
 
@@ -82,6 +88,9 @@ class interfaceTrackingFvMesh
         HashPtrTable<movingInterfacePatches> movingInterfaces_;
 
         PtrList<entry> movingInterfaceEntries_;
+
+        //- Moving / non-moving
+        bool active_;
 
 
     // Private Member Functions
@@ -120,6 +129,11 @@ public:
         const fvMesh& mesh() const
         {
             return *this;
+        }
+
+        bool& active()
+        {
+            return active_;
         }
 
         //- Return constant reference to velocity field

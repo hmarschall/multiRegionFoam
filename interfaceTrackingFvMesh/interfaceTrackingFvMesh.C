@@ -28,10 +28,28 @@ License
 
 #include "interfaceTrackingFvMesh.H"
 #include "addToRunTimeSelectionTable.H"
-#include "motionSolver.H"
-#include "volFields.H"
 
+#include "motionSolver.H"
 #include "velocityLaplacianFvMotionSolver.H"
+#include "laplaceTetMotionSolver.H"
+
+#include "tetPolyPatchFields.H"
+#include "fixedValueTetPolyPatchFields.H"
+#include "fixedValuePointPatchFields.H"
+#include "tetFemMatrices.H"
+#include "tetPointFields.H"
+#include "faceTetPolyPatch.H"
+#include "tetPolyPatchInterpolation.H"
+
+#include "slipFvPatchFields.H"
+#include "wedgeFvsPatchFields.H"
+#include "symmetryFvPatchFields.H"
+#include "fixedGradientFvPatchFields.H"
+#include "zeroGradientCorrectedFvPatchFields.H"
+#include "fixedGradientCorrectedFvPatchFields.H"
+#include "fixedValueCorrectedFvPatchFields.H"
+
+#include "volFields.H"
 #include "twoDPointCorrector.H"
 #include "demandDrivenData.H"
 #include "unitConversion.H"
@@ -59,6 +77,8 @@ Foam::interfaceTrackingFvMesh::interfaceTrackingFvMesh
 :
     topoChangerFvMesh(io),
     motionPtr_(motionSolver::New(*this)),
+    fvMotionSolver_(false),
+    feMotionSolver_(false),
     motionDict_
     (
         IOdictionary
@@ -79,8 +99,10 @@ Foam::interfaceTrackingFvMesh::interfaceTrackingFvMesh
     movingInterfaceEntries_
     (
         motionDict_.lookup("movingSurfacePatches")
-    )
+    ),
+    active_(true)
 {
+    // Set movingInterfacePatches objects
     forAll (movingInterfaceEntries_, surfI)
     {
         movingInterfaces_.set
@@ -93,6 +115,41 @@ Foam::interfaceTrackingFvMesh::interfaceTrackingFvMesh
                 movingInterfaceEntries_[surfI].dict()
             )
         );
+    }
+
+    Info << "Motion solver type : " << motionPtr_->type() << endl;
+
+    // Check mesh motion solver type
+    if
+    (
+        motionPtr_->type()
+     == laplaceTetMotionSolver::typeName
+    )
+    {
+        feMotionSolver_ =
+            mesh().objectRegistry::foundObject<tetPointVectorField>
+            (
+                "motionU"
+            );
+    }
+    else if
+    (
+        motionPtr_->type()
+     == velocityLaplacianFvMotionSolver::typeName
+    )
+    {
+        fvMotionSolver_ =
+            mesh().objectRegistry::foundObject<pointVectorField>
+            (
+                "pointMotionU"
+            );
+    }
+    else
+    {
+        FatalErrorInFunction
+            << "Unsupported mesh motion solver : "
+            << motionPtr_->type() << nl
+            << abort(FatalError);
     }
 }
 
@@ -128,95 +185,203 @@ const Foam::surfaceScalarField& Foam::interfaceTrackingFvMesh::phi() const
 
 bool Foam::interfaceTrackingFvMesh::update()
 {
-    Info << nl << "Updating " << this->name() << nl << endl;
+//    if (!active_)
+//    {
+//        return true;
+//    }
 
-//        fvMotionSolver& mSolver =
-//            dynamic_cast<fvMotionSolver&>
-//            (
-//                motionPtr_()
-//            );
-
-//        pointVectorField& motionU = mSolver.pointMotionU();
+//    bool control = false;
 
     forAll (movingInterfaceEntries_, surfI)
     {
         // Set surface patch motion
         word patchName = movingInterfaceEntries_[surfI].keyword();
 
-        pointVectorField& motionU =
-            const_cast<pointVectorField&>
-            (
-                mesh().objectRegistry::
-                lookupObject<pointVectorField>
-                (
-                    "pointMotionU"
-                )
-            );
-
-        fixedValuePointPatchVectorField& motionUPatch =
-            refCast<fixedValuePointPatchVectorField>
-            (
-                motionU.boundaryField()
-                [movingInterfaces_[patchName]->patchID()]
-            );
-
-        //motionUPatch ==
-        //    totalDisplacement()/mesh().time().deltaT().value();
-
-//        motionUPatch ==
-//            movingInterfaces_[patchName]->surfacePointDisplacement()
-//            /mesh().time().deltaT().value();
-
-        vectorField surfacePointDisplacement
-            (movingInterfaces_[patchName]->surfacePointDisplacement());
-
-        motionUPatch ==
-            surfacePointDisplacement/mesh().time().deltaT().value();
-
-        // Set shadow patch motion (interface)
-        if (movingInterfaces_[patchName]->isInterface())
+        if (fvMotionSolver_)
         {
-            pointVectorField& motionNbrU =
+            pointVectorField& motionU =
                 const_cast<pointVectorField&>
                 (
-                    movingInterfaces_[patchName]->nbrMesh().objectRegistry::
+                    mesh().objectRegistry::
                     lookupObject<pointVectorField>
                     (
                         "pointMotionU"
                     )
                 );
 
-            fixedValuePointPatchVectorField& motionNbrUPatch =
+            fixedValuePointPatchVectorField& motionUPatch =
                 refCast<fixedValuePointPatchVectorField>
                 (
-                    motionNbrU.boundaryField()
-                    [movingInterfaces_[patchName]->nbrPatch().index()]
+                    motionU.boundaryField()
+                    [movingInterfaces_[patchName]->patchID()]
                 );
 
-            motionNbrUPatch ==
-                movingInterfaces_[patchName]->shadowPointDisplacement
+            vectorField surfacePointDisplacement
+                (movingInterfaces_[patchName]->surfacePointDisplacement());
+
+            // TODO: Debug parallel issues
+            motionUPatch ==
+                surfacePointDisplacement/mesh().time().deltaT().value();
+
+            // TODO: needs thoughts on logics for multi-region arrangement
+//            dynamicFvMesh& aleNbgMesh =
+//                const_cast<dynamicFvMesh&>
+//                (
+//                    movingInterfaces_[patchName]->nbrMesh()
+//                );
+
+//            interfaceTrackingFvMesh& aleNbrMesh =
+//                refCast<interfaceTrackingFvMesh>
+//                (
+//                    aleNbgMesh
+//                );
+
+//            if (movingInterfaces_[patchName]->moving())
+//            {
+//                motionUPatch ==
+//                    surfacePointDisplacement/mesh().time().deltaT().value();
+
+//                if (!aleNbrMesh.active())
+//                {
+//                    control = true;
+
+//                    aleNbrMesh.active() = true;
+//                }
+//            }
+//            else
+//            {
+//                if (!control)
+//                {
+//                    aleNbrMesh.active() = false;
+//                }
+
+//                return true;
+//            }
+
+            // Set shadow patch motion (interface)
+            if 
+            (
+                movingInterfaces_[patchName]->isInterface()
+             && movingInterfaces_[patchName]->moving()
+            )
+            {
+                pointVectorField& motionNbrU =
+                    const_cast<pointVectorField&>
+                    (
+                        movingInterfaces_[patchName]->nbrMesh()
+                        .objectRegistry::lookupObject<pointVectorField>
+                        (
+                            "pointMotionU"
+                        )
+                    );
+
+                fixedValuePointPatchVectorField& motionNbrUPatch =
+                    refCast<fixedValuePointPatchVectorField>
+                    (
+                        motionNbrU.boundaryField()
+                        [movingInterfaces_[patchName]->nbrPatch().index()]
+                    );
+
+                motionNbrUPatch ==
+                    movingInterfaces_[patchName]->shadowPointDisplacement
+                    (
+                        surfacePointDisplacement
+                    )/mesh().time().deltaT().value();
+            }
+        }
+
+        if (feMotionSolver_)
+        {
+            tetPointVectorField& motionU =
+                const_cast<tetPointVectorField&>
                 (
-                    surfacePointDisplacement
-                )/mesh().time().deltaT().value();
+                    mesh().objectRegistry::
+                    lookupObject<tetPointVectorField>
+                    (
+                        "motionU"
+                    )
+                );
+
+            fixedValueTetPolyPatchVectorField& motionUPatch =
+                refCast<fixedValueTetPolyPatchVectorField>
+                (
+                    motionU.boundaryField()
+                    [movingInterfaces_[patchName]->patchID()]
+                );
+
+            vectorField surfacePointDisplacement
+                (movingInterfaces_[patchName]->surfacePointDisplacement());
+
+            if (movingInterfaces_[patchName]->moving())
+            {
+                tetPolyPatchInterpolation tppiPatch
+                (
+                    refCast<const faceTetPolyPatch>
+                    (
+                        motionUPatch.patch()
+                    )
+                );
+
+                motionUPatch ==
+                    tppiPatch.pointToPointInterpolate
+                    (
+                        surfacePointDisplacement/mesh().time().deltaT().value()
+                    );
+            }
+            else
+            {
+                return true;
+            }
+
+            // Set shadow patch motion (interface)
+            if 
+            (
+                movingInterfaces_[patchName]->isInterface()
+             && movingInterfaces_[patchName]->moving()
+            )
+            {
+                tetPointVectorField& motionNbrU =
+                    const_cast<tetPointVectorField&>
+                    (
+                        movingInterfaces_[patchName]->nbrMesh()
+                        .objectRegistry::lookupObject<tetPointVectorField>
+                        (
+                            "motionU"
+                        )
+                    );
+
+                fixedValueTetPolyPatchVectorField& motionNbrUPatch =
+                    refCast<fixedValueTetPolyPatchVectorField>
+                    (
+                        motionNbrU.boundaryField()
+                        [movingInterfaces_[patchName]->nbrPatch().index()]
+                    );
+
+                tetPolyPatchInterpolation tppiPatch
+                (
+                    refCast<const faceTetPolyPatch>
+                    (
+                        motionNbrUPatch.patch()
+                    )
+                );
+
+                motionNbrUPatch ==
+                    tppiPatch.pointToPointInterpolate
+                    (
+                        movingInterfaces_[patchName]->shadowPointDisplacement
+                        (
+                            surfacePointDisplacement
+                        )/mesh().time().deltaT().value()
+                    );
+            }
         }
     }
 
-//    twoDPointCorrector twoDPointCorr(mesh());
-//    twoDPointCorr.correctPoints(newMeshPoints);
-
-//    fvMesh::movePoints(newMeshPoints);
-//    setOldPoints(newMeshPoints);
-//    movePoints(newMeshPoints);
+    Info << nl << "Updating " << this->name() << nl << endl;
 
     motionPtr_->solve();
-//-    mSolver.solve();
-
-//    dynamicMotionSolverFvMesh::update();
 
     fvMesh::movePoints(motionPtr_->curPoints());
-//-    fvMesh::movePoints(mSolver.curPoints());
-
-//    fvMesh::movePoints(mSolver.newPoints());
 
     // Correct point normals
     forAll (movingInterfaceEntries_, surfI)

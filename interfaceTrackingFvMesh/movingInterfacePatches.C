@@ -716,6 +716,15 @@ Foam::movingInterfacePatches::movingInterfacePatches
         motionDict_.lookupOrDefault<Switch>("rigidFreeSurface", false)
     ),
     isInterface_(false),
+    motionTrigger_(true),
+    interfaceDeformationLimit_
+    (
+        motionDict_.lookupOrDefault<dimensionedScalar>
+        (
+            "interfaceDeformationLimit",
+            dimensionedScalar("interfaceDeformationLimit", dimLength, 0.0)
+        )
+    ),
     timeIndex_(-1),
     sweptVolCorrOld_(mesh_.boundaryMesh()[surfacePatchID_].size(), 0.0),
     resetFluxFrequency_(100),
@@ -1034,6 +1043,36 @@ Foam::movingInterfacePatches::surfacePointDisplacement()
         else
         {
             totalDisplacement() += displacement;
+        }
+
+        // Move whole mesh only if interface deformation limit is exceeded
+        // Note: This check is supposed to be done for every interface in 
+        // the list, thus triggering mesh motion automatically if the 
+        // individual limit is exceeded by ONE of the moving interfaces.
+        scalar minCellThickness =
+            2*gMin(1.0/mesh().boundary()[patchID()].deltaCoeffs());
+
+        scalar maxInterfaceDeformation =
+            gMax(mag(totalDisplacement()))/minCellThickness;
+
+        Info << "Maximal relative interface deformation: "
+            << maxInterfaceDeformation << endl;
+
+        if 
+        (
+            !(maxInterfaceDeformation > interfaceDeformationLimit_.value())
+        )
+        {
+            motionTrigger_ = false;
+
+            return tmp<vectorField>
+            (
+                new vectorField
+                (
+                    points.size(),
+                    vector::zero
+                )
+            );
         }
     }
     else
