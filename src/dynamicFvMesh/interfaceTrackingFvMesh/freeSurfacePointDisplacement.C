@@ -98,6 +98,7 @@ Foam::movingInterfacePatches::pointDisplacement(const scalarField& deltaH)
     }
 
     // Correct controPoints next to fixed patches
+//    if (Pstream::master())
 //    {
         forAll(fixedSurfacePatches_, patchI)
         {

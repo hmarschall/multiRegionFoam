@@ -117,6 +117,12 @@ class movingInterfacePatches
         //- Interface? (patch and shadow patch to move)
         bool isInterface_;
 
+        //- Move surface and mesh?
+        bool motionTrigger_;
+
+        //- Limit above which interface is deformed
+        dimensionedScalar interfaceDeformationLimit_;
+
         //- Current interface tracking time index
         mutable label timeIndex_;
 
@@ -371,6 +377,11 @@ public:
         const bool& isInterface()
         {
             return isInterface_;
+        }
+
+        const bool& moving()
+        {
+            return motionTrigger_;
         }
 
         //- Update interpolator
