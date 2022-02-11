@@ -28,9 +28,9 @@ endTime 4.5;
 
 deltaT 1e-4;
 
-writeControl timeStep;//runTime;//
+writeControl runTime;//timeStep;//
 
-writeInterval 10;//0.01;//
+writeInterval 0.01;//10;//
 
 cycleWrite 0; 
 

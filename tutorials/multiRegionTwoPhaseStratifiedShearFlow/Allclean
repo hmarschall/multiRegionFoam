@@ -15,7 +15,11 @@ rm constant/fluidB/faMesh/faBoundary 2>/dev/null
 
 rm 0/fluidA/U 2>/dev/null
 rm 0/fluidA/p 2>/dev/null
+rm 0/fluidA/pointMotionU 2>/dev/null
+rm 0/fluidA/motionU 2>/dev/null
 
 rm 0/fluidB/U 2>/dev/null
 rm 0/fluidB/p 2>/dev/null
+rm 0/fluidB/pointMotionU 2>/dev/null
+rm 0/fluidB/motionU 2>/dev/null
 

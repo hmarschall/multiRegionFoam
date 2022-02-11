@@ -40,6 +40,12 @@ do
             cp 0/fluidA/orig/partitioned/p 0/fluidA/.
             cp 0/fluidB/orig/partitioned/p 0/fluidB/.
 
+            cp 0/fluidA/orig/partitioned/pointMotionU 0/fluidA/.
+            cp 0/fluidB/orig/partitioned/pointMotionU 0/fluidB/.
+
+            cp 0/fluidA/orig/partitioned/motionU 0/fluidA/.
+            cp 0/fluidB/orig/partitioned/motionU 0/fluidB/.
+
             cp constant/fluidA/polyMesh/blockMeshDictPartitioned constant/fluidA/polyMesh/blockMeshDict 2>/dev/null
             cp constant/fluidB/polyMesh/blockMeshDictPartitioned constant/fluidB/polyMesh/blockMeshDict 2>/dev/null
 
