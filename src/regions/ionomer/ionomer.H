@@ -54,9 +54,6 @@ class ionomer
 :
     public regionType
 {
-        //- mesh
-        const fvMesh& mesh_;
-
         //- name
         word regionName_;
 
@@ -133,7 +130,7 @@ public:
 
         ionomer
         (
-            const fvMesh& mesh,
+            const Time& runTime,
             const word& regionName
         );
 

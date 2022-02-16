@@ -30,7 +30,6 @@ License
 #include "gasDiffusionLayerParameters.H"
 #include "globalFCParameters.H"
 
-
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
@@ -52,13 +51,12 @@ namespace regionTypes
 
 Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
 (
-    const fvMesh& mesh,
+    const Time& runTime,
     const word& regionName
 )
 :
-    regionType(mesh, regionName),
+    regionType(runTime, regionName),
 
-    mesh_(mesh),
     regionName_(regionName),
 
     transportProperties_
@@ -66,8 +64,8 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         IOobject
         (
             "transportProperties",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -77,8 +75,8 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         IOobject
         (
             "materialProperties",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -88,8 +86,8 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         IOobject
         (
             "operatingConditions",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -114,12 +112,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         IOobject
         (
             "c",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("c0", dimensionSet(0, -3, 0, 0, 1, 0, 0), 1.0)
     ),
     DEffO2_(nullptr),
@@ -129,12 +127,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         IOobject
         (
             "sRed",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("sRed0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.12)
     ),
     xVSat_
@@ -142,12 +140,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         IOobject
         (
             "xVSat",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("xVSat0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.1)
     ),
     K_(nullptr), 
@@ -156,12 +154,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         IOobject
         (
             "mu",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("mu", dimensionSet(0, 2, -1, 0, 0, 0, 0), 1.0)
     ), 
     dpCds_
@@ -169,12 +167,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         IOobject
         (
             "dpCds",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("dpCds0", dimensionSet(1, -1, -2, 0, 0, 0, 0), 1.0)
     ),
     gamma_
@@ -182,12 +180,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         IOobject
         (
             "gamma",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("gamma0", dimensionSet(0, 0, -1, 0, 0, 0, 0), 1.0)
     ), 
     sT_
@@ -195,12 +193,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         IOobject
         (
             "sT",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("sT0", dimensionSet(1, -1, -3, 0, 0, 0, 0), 1.0)
     ),
     sV_
@@ -208,12 +206,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         IOobject
         (
             "sV",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("sV0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 1.0)
     ),
     ss_
@@ -221,12 +219,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
         IOobject
         (
             "ss",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("ss0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 1.0)
     ),
     T_(nullptr),
@@ -242,12 +240,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject
             (
                 "k",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             dimensionedScalar(transportProperties_.lookup("k"))
         )
     );
@@ -259,12 +257,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject
             (
                 "sigma",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             dimensionedScalar(transportProperties_.lookup("sigma"))
         )
     );
@@ -276,12 +274,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject
             (
                 "DEffO2",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             DO2_
         )
     );
@@ -293,12 +291,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject
             (
                 "DEffV",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             DV_
         )
     );
@@ -310,12 +308,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject	
             (
                 "K",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             K0_
         )
     );
@@ -327,12 +325,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject
             (
                 "T",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -343,12 +341,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject
             (
                 "phiE",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -359,12 +357,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject
             (
                 "xO2",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -375,12 +373,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject
             (
                 "xV",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -391,12 +389,12 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject
             (
                 "s",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -512,31 +510,31 @@ void Foam::regionTypes::gasDiffusionLayer::setCoupledEqns()
 
     fvScalarMatrices.set
     (
-        T_().name() + this->name() + "Eqn",
+        T_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(TEqn)
     );
 
     fvScalarMatrices.set
     (
-	phiE_().name() + this->name() + "Eqn",
+	phiE_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(phiEEqn)
     );
 
     fvScalarMatrices.set
     (
-	xO2_().name() + this->name() + "Eqn",
+	xO2_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(xO2Eqn)
     );
 
     fvScalarMatrices.set
     (
-	xV_().name() + this->name() + "Eqn",
+	xV_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(xVEqn)
     );
 
     fvScalarMatrices.set
     (
-	s_().name() + this->name() + "Eqn",
+	s_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(sEqn)
     );
 }

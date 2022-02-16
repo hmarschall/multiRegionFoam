@@ -11,7 +11,6 @@ $(regions)/region/newRegionType.C
 $(regions)/region/regionTypeList.C
 $(regions)/conductTemperature/conductTemperature.C
 $(regions)/transportTemperature/transportTemperature.C
-$(regions)/navierStokesFluid/navierStokesFluid.C
 $(regions)/gasDiffusionLayer/gasDiffusionLayer.C
 $(regions)/ionomer/ionomer.C
 $(regions)/catalystLayer/catalystLayer.C

@@ -52,13 +52,12 @@ namespace regionTypes
 
 Foam::regionTypes::catalystLayer::catalystLayer
 (
-    const fvMesh& mesh,
+    const Time& runTime,
     const word& regionName
 )
 :
-    regionType(mesh, regionName),
+    regionType(runTime, regionName),
 
-    mesh_(mesh),
     regionName_(regionName),
 
     transportProperties_
@@ -66,8 +65,8 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "transportProperties",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -77,8 +76,8 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "materialProperties",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -88,8 +87,8 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "electrochemicalProperties",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -99,8 +98,8 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "operatingConditions",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -136,12 +135,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
 	IOobject
 	(
 	    "f",
-	    this->time().timeName(),
-	    *this,
+	    mesh().time().timeName(),
+	    mesh(),
 	    IOobject::READ_IF_PRESENT,
 	    IOobject::NO_WRITE
 	),
-	*this,
+	mesh(),
 	dimensionedScalar("f0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.06)
     ),
     fCond_
@@ -149,12 +148,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
 	IOobject
 	(
 	    "fCond",
-	    this->time().timeName(),
-	    *this,
+	    mesh().time().timeName(),
+	    mesh(),
 	    IOobject::READ_IF_PRESENT,
 	    IOobject::NO_WRITE
 	),
-	*this,
+	mesh(),
 	dimensionedScalar("f0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.06)
     ),
     xi_
@@ -162,12 +161,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
 	IOobject
 	(
 	    "xi",
-	    this->time().timeName(),
-	    *this,
+	    mesh().time().timeName(),
+	    mesh(),
 	    IOobject::READ_IF_PRESENT,
 	    IOobject::NO_WRITE
 	),
-	*this,
+	mesh(),
 	dimensionedScalar("xi0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 1.0)
     ),
     lambdaEq_
@@ -175,12 +174,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
 	IOobject
 	(
 	    "lambdaEq",
-	    this->time().timeName(),
-	    *this,
+	    mesh().time().timeName(),
+	    mesh(),
 	    IOobject::READ_IF_PRESENT,
 	    IOobject::NO_WRITE
 	),
-	*this,
+	mesh(),
 	dimensionedScalar("lambdaEq0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 1.0)
     ),
     kSorp_
@@ -188,12 +187,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
 	IOobject
 	(
 	    "kSorp",
-	    this->time().timeName(),
-	    *this,
+	    mesh().time().timeName(),
+	    mesh(),
 	    IOobject::READ_IF_PRESENT,
 	    IOobject::NO_WRITE
 	),
-	*this,
+	mesh(),
 	dimensionedScalar("kSorp0", dimensionSet(0, 1, -1, 0, 0, 0, 0), 1.0)
     ),
     c_
@@ -201,12 +200,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "c",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("c0", dimensionSet(0, -3, 0, 0, 1, 0, 0), 1.0)
     ),
     DEffO2_(nullptr), 
@@ -216,12 +215,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "sRed",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("sRed0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.12)
     ),
     xVSat_
@@ -229,12 +228,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "xVSat",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("xVSat0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.1)
     ),
     K_(nullptr),
@@ -243,12 +242,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "mu",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("mu", dimensionSet(0, 2, -1, 0, 0, 0, 0), 1.0)
     ), 
     dpCds_
@@ -256,12 +255,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "dpCds",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("dpCds0", dimensionSet(1, -1, -2, 0, 0, 0, 0), 1.0)
     ),
     gamma_
@@ -269,12 +268,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "gamma",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("gamma0", dimensionSet(0, 0, -1, 0, 0, 0, 0), 1.0)
     ), 
     eta_
@@ -282,12 +281,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "eta",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("eta0", dimensionSet(1, 2, -3, 0, 0, -1, 0), 1.0)
     ),
     j_
@@ -295,12 +294,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "j",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("jInit", dimensionSet(0, -3, 0, 0, 0, 1, 0), 1.0)
     ),
     sT_
@@ -308,12 +307,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "sT",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("sT0", dimensionSet(1, -1, -3, 0, 0, 0, 0), 1.0)
     ),
     sLambda_
@@ -321,12 +320,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "sLambda",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("sLambda0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 1.0)
     ),
     sV_
@@ -334,12 +333,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "sV",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("sV0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 1.0)
     ),
     ss_
@@ -347,12 +346,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
         IOobject
         (
             "ss",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar("ss0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 1.0)
     ),
     T_(nullptr),
@@ -370,12 +369,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "k",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             dimensionedScalar(transportProperties_.lookup("k"))
         )
     );
@@ -387,12 +386,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "sigma",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             dimensionedScalar(transportProperties_.lookup("sigma"))
         )
     );
@@ -404,12 +403,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "kappa",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             kappa0_
         )
     );
@@ -421,12 +420,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "DLambda",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             DLambda0_
         )
     );
@@ -438,12 +437,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "DEffO2",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             DO2_
         )
     );
@@ -455,12 +454,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "DEffV",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             DV_
         )
     );
@@ -472,12 +471,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "K",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             K0_
         )
     );
@@ -489,12 +488,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "T",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -505,12 +504,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "phiE",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -521,12 +520,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "phiP",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -537,12 +536,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "lambda",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -553,12 +552,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "xO2",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -569,12 +568,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "xV",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -585,12 +584,12 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject
             (
                 "s",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -765,43 +764,43 @@ void Foam::regionTypes::catalystLayer::setCoupledEqns()
 
     fvScalarMatrices.set
     (
-        T_().name() + this->name() + "Eqn",
+        T_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(TEqn)
     );
 
     fvScalarMatrices.set
     (
-        phiE_().name() + this->name() + "Eqn",
+        phiE_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(phiEEqn)
     );
 
     fvScalarMatrices.set
     (
-        phiP_().name() + this->name() + "Eqn",
+        phiP_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(phiPEqn)
     );
 
     fvScalarMatrices.set
     (
-        lambda_().name() + this->name() + "Eqn",
+        lambda_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(lambdaEqn)
     );
 
     fvScalarMatrices.set
     (
-        xO2_().name() + this->name() + "Eqn",
+        xO2_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(xO2Eqn)
     );
 
     fvScalarMatrices.set
     (
-        xV_().name() + this->name() + "Eqn",
+        xV_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(xVEqn)
     );
 
     fvScalarMatrices.set
     (
-        s_().name() + this->name() + "Eqn",
+        s_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(sEqn)
     );
 }

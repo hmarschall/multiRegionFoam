@@ -55,9 +55,6 @@ class gasDiffusionLayer
 :
     public regionType
 {
-        //- mesh
-        const fvMesh& mesh_;
-
         //- name
         word regionName_;
 
@@ -188,7 +185,7 @@ public:
 
         gasDiffusionLayer
         (
-            const fvMesh& mesh,
+            const Time& runTime,
             const word& regionName
         );
 

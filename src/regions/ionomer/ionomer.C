@@ -52,13 +52,12 @@ namespace regionTypes
 
 Foam::regionTypes::ionomer::ionomer
 (
-    const fvMesh& mesh,
+    const Time& runTime,
     const word& regionName
 )
 :
-    regionType(mesh, regionName),
+    regionType(runTime, regionName),
 
-    mesh_(mesh),
     regionName_(regionName),
 
     transportProperties_
@@ -66,8 +65,8 @@ Foam::regionTypes::ionomer::ionomer
         IOobject
         (
             "transportProperties",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -77,8 +76,8 @@ Foam::regionTypes::ionomer::ionomer
         IOobject
         (
             "materialProperties",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -88,8 +87,8 @@ Foam::regionTypes::ionomer::ionomer
         IOobject
         (
             "operatingConditions",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -107,12 +106,12 @@ Foam::regionTypes::ionomer::ionomer
 	IOobject
 	(
 	    "f",
-	    this->time().timeName(),
-	    *this,
+	    mesh().time().timeName(),
+	    mesh(),
 	    IOobject::READ_IF_PRESENT,
 	    IOobject::NO_WRITE
 	),
-	*this,
+	mesh(),
 	dimensionedScalar("f0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.06)
     ),
     fCond_
@@ -120,12 +119,12 @@ Foam::regionTypes::ionomer::ionomer
 	IOobject
 	(
 	    "fCond",
-	    this->time().timeName(),
-	    *this,
+	    mesh().time().timeName(),
+	    mesh(),
 	    IOobject::READ_IF_PRESENT,
 	    IOobject::NO_WRITE
 	),
-	*this,
+	mesh(),
 	dimensionedScalar("f0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.06)
     ),
     xi_
@@ -133,12 +132,12 @@ Foam::regionTypes::ionomer::ionomer
 	IOobject
 	(
 	    "xi",
-	    this->time().timeName(),
-	    *this,
+	    mesh().time().timeName(),
+	    mesh(),
 	    IOobject::READ_IF_PRESENT,
 	    IOobject::NO_WRITE
 	),
-	*this,
+	mesh(),
 	dimensionedScalar("xi0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 1.0)
     ),
     sT_
@@ -146,12 +145,12 @@ Foam::regionTypes::ionomer::ionomer
 	IOobject
 	(
 	    "sT",
-	    this->time().timeName(),
-	    *this,
+	    mesh().time().timeName(),
+	    mesh(),
 	    IOobject::READ_IF_PRESENT,
 	    IOobject::NO_WRITE
 	),
-	*this,
+	mesh(),
 	dimensionedScalar("sT0", dimensionSet(1,-1,-3,0,0,0,0), 0.0)
     ),
     T_(nullptr),
@@ -165,12 +164,12 @@ Foam::regionTypes::ionomer::ionomer
             IOobject
             (
                 "k",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             dimensionedScalar(transportProperties_.lookup("k"))
         )
     );
@@ -182,12 +181,12 @@ Foam::regionTypes::ionomer::ionomer
             IOobject
             (
                 "kappa",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             kappa0_
         )
     );
@@ -199,12 +198,12 @@ Foam::regionTypes::ionomer::ionomer
             IOobject
             (
                 "DLambda",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             DLambda0_
         )
     );
@@ -216,12 +215,12 @@ Foam::regionTypes::ionomer::ionomer
             IOobject
             (
                 "T",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -232,12 +231,12 @@ Foam::regionTypes::ionomer::ionomer
             IOobject
             (
                 "phiP",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -248,12 +247,12 @@ Foam::regionTypes::ionomer::ionomer
             IOobject
             (
                 "lambda",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -332,19 +331,19 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
     
     fvScalarMatrices.set
     (
-        T_().name() + this->name() + "Eqn",
+        T_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(TEqn)
     );
 
     fvScalarMatrices.set
     (
-	phiP_().name() + this->name() + "Eqn",
+	phiP_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(phiPEqn)
     );
 
     fvScalarMatrices.set
     (
-	lambda_().name() + this->name() + "Eqn",
+	lambda_().name() + mesh().name() + "Eqn",
 	new fvScalarMatrix(lambdaEqn)
     );
 }
