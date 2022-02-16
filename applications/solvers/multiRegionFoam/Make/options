@@ -13,6 +13,8 @@ EXE_INC = \
     -I./../../../src/coupleManager \
     -I./../../../src/coupledFvPatchFields/regionCoupleTemperature \
     -I./../../../src/coupledFvPatchFields/regionCoupleHeatFlux \
+    -I./../../../src/coupledFvPatchFields/regionCoupleJump \
+    -I./../../../src/coupledFvPatchFields/regionCoupleFlux \
     -I$(FOAM_SOLVERS)/coupled/conjugateHeatTransfer/lnInclude
 
 
