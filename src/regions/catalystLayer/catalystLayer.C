@@ -248,7 +248,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("mu", dimensionSet(0, 2, -1, 0, 0, 0, 0), 1.0)
+        dimensionedScalar("mu", dimensionSet(1, -1, -1, 0, 0, 0, 0), 1.0)
     ), 
     dpCds_
     (
@@ -731,7 +731,7 @@ void Foam::regionTypes::catalystLayer::setCoupledEqns()
     (
         1/VM_*fvm::ddt(lambda_())
      ==
-        fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")+fvm::laplacian(xi_*kappa_()/FConst_, phiP_(), "laplacian(kappa,phiP)")
+        fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")//+fvm::laplacian(xi_*kappa_()/FConst_, phiP_(), "laplacian(kappa,phiP)")
        //+sLambda_ 
     );
 
@@ -756,9 +756,9 @@ void Foam::regionTypes::catalystLayer::setCoupledEqns()
     // liquid water transport (derived from Darcy's Law)
     fvScalarMatrix sEqn =
     (
-	1/MW_*fvm::ddt(s_())
+	1/VW_*fvm::ddt(s_())
      ==
-        fvm::laplacian(K_()/(mu_*VW_)*dpCds_, s_(), "laplacian(K,s)")
+        fvm::laplacian(K_()*dpCds_/(mu_*VW_), s_(), "laplacian(K,s)")
        //+ss_
     );
 

@@ -50,7 +50,7 @@ namespace regionTypes
     const dimensionedScalar TRefP1_("TRefP1", dimensionSet(0, 0, 0, 1, 0, 0, 0), 3816.44);
     const dimensionedScalar TRefP2_("TRefP2", dimensionSet(0, 0, 0, 1, 0, 0, 0), 46.13);
     const dimensionedScalar pDim_("pDim", dimensionSet(1, -1, -2, 0, 0, 0, 0), 1);
-    const dimensionedScalar muDim_("muDim", dimensionSet(0, 2, -1, 0, 0, 0, 0), 1);
+    const dimensionedScalar muDim_("muDim", dimensionSet(1, -1, -1, 0, 0, 0, 0), 1);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -160,7 +160,7 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("mu", dimensionSet(0, 2, -1, 0, 0, 0, 0), 1.0)
+        dimensionedScalar("mu", dimensionSet(1, -1, -1, 0, 0, 0, 0), 1.0)
     ), 
     dpCds_
     (
@@ -502,9 +502,9 @@ void Foam::regionTypes::gasDiffusionLayer::setCoupledEqns()
     // liquid water transport (derived from Darcy's Law)
     fvScalarMatrix sEqn =
     (
-	1/MW_*fvm::ddt(s_())
+	1/VW_*fvm::ddt(s_())
      ==
-        fvm::laplacian(K_()/(mu_*VW_)*dpCds_, s_(), "laplacian(K,s)")
+        fvm::laplacian(K_()*dpCds_/(mu_*VW_), s_(), "laplacian(K,s)")
        //+ss_
     );
 

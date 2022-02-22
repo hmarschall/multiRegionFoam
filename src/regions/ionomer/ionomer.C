@@ -326,7 +326,7 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
     (
         1/VM_*fvm::ddt(lambda_())
      ==
-        fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")+fvm::laplacian(xi_*kappa_()/FConst_, phiP_(), "laplacian(kappa,phiP)")
+        fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")//+fvm::laplacian(xi_*kappa_()/FConst_, phiP_(), "laplacian(kappa,phiP)")
     );
     
     fvScalarMatrices.set
