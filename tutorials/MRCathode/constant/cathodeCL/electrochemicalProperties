@@ -1,0 +1,38 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           dictionary;
+    object          electrochemicalProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+// Pt Loading - Dimensions: 1/m
+a             	a [0 -1 0 0 0 0 0] 3.0e7;
+
+// Symmetry Factor - Dimensions: -
+beta          	beta  [0 0 0 0 0 0 0] 0.5;
+
+// Reaction Entropy - Dimensions: J/(mol K)
+deltaS          deltaS  [1 2 -2 -1 -1 0 0] -163.3;
+
+// Reaction Enthalpy - Dimensions: J/mol
+deltaH		deltaH	[1 2 -2 0 -1 0 0] -285830; 
+
+// Activation Energy - Dimensions: J/mol
+ER		ER  [1 2 -2 0 -1 0 0] 67000;
+
+// pre-exponent factor exchange current density - Dimensions: A/m²
+j0		j0 [0 -2 0 0 0 1 0] 2.45e-4;
+
+// ************************************************************************* //
