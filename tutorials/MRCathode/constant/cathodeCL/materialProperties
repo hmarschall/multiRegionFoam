@@ -1,0 +1,49 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           dictionary;
+    object          materialProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+// Porosity - Dimensions: -
+epsilonP	epsilonP  [0 0 0 0 0 0 0] 0.4;
+
+// Tortuosity - Dimensions: -
+tau             tau   [0 0 0 0 0 0 0] 1.6;
+
+// Ionomer content: -
+epsilonI	epsilonI   [0 0 0 0 0 0 0] 0.3;
+
+// layer thickness - Dimensions: m
+d		d   [0 1 0 0 0 0 0] 1e-5;
+
+// molecular weight water - Dimensions: kg/mol
+MW		MW   [1 0 0 0 -1 0 0] 0.018;
+
+// molar volume of liquid water - Dimensions: m³/mol
+VW		VW   [0 3 0 0 -1 0 0] 1.841e-5;
+
+// molar volume of membrane - Dimensions: m³/mol
+VM		VM   [0 3 0 0 -1 0 0] 5.177e-4;
+
+// irreducible saturation - Dimensions: -
+sIm		sIm  [0 0 0 0 0 0 0] 0.12;
+
+// liquid gas exchange area - Dimensions: 1/m
+aLG		aLG  [0 -1 0 0 0 0 0] 2e6;
+
+
+
+// ************************************************************************* //

@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      coupledSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+regions
+(
+    gasDiffusionLayer (cathodeGDL)
+    catalystLayer (cathodeCL)
+    ionomer (membrane)
+);
+
+partitionedTypeRegionInterfaces
+(
+    /*membraneCathodeCL
+    (
+	(((membrane right)(cathodeCL left)) (T phiP lambda))
+    )
+
+    cathodeCLCathodeGDL
+    (
+	(((cathodeCL right)(cathodeGDL left)) (T phiE xO2 xV s))
+    )*/
+);
+
+monolithicTypeRegionInterfaces
+(
+    membraneCathodeCL
+    (
+	(((membrane right)(cathodeCL left)) (T phiP lambda))
+    )
+
+    cathodeCLCathodeGDL
+    (
+	(((cathodeCL right)(cathodeGDL left)) (T phiE xO2 xV s))
+    )
+);
+
+// Assembles a super-mesh
+superMeshRegions
+(
+
+);
+
+
+partitionedCoupling
+{
+    maxCoupleIter 10;
+}
+
+// ************************************************************************* //

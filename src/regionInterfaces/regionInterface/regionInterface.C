@@ -101,9 +101,53 @@ void Foam::regionInterface::makeFaMesh() const
 
 void Foam::regionInterface::makeUs() const
 {
-    // error if U is initialized in the constructor
-    const volVectorField& U = meshA().lookupObject<volVectorField>("U");
-         
+// error if U is initialized in the constructor
+autoPtr<volVectorField> UPtr_(nullptr);
+
+IOobject UHeader
+(
+    "U",
+    runTime().timeName(),
+    meshA(),
+    IOobject::NO_READ
+);
+
+if(UHeader.headerOk())
+{
+    Info<< "Reading field U.\n" << endl;
+
+    UPtr_.reset
+    (
+	new volVectorField
+	(
+	    meshA().lookupObject<volVectorField>("U")
+	)
+    );
+}
+else
+{
+    Info<< "No Convection." << endl;
+
+    UPtr_.reset
+    (
+	new volVectorField
+    	(
+	    IOobject
+	    (
+	    	"U",
+	    	runTime().timeName(),
+	    	meshA(),
+	    	IOobject::NO_READ,
+	    	IOobject::NO_WRITE
+	    ),
+	    meshA(),
+	    dimensioned<vector>("U", dimVelocity, vector::zero)
+	)
+    );
+}
+
+const volVectorField& U = UPtr_;
+        
     if (!UsPtr_.empty())
     {
         FatalErrorIn("regionInterface::makeUs()")

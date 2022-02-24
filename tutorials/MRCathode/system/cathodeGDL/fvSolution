@@ -1,0 +1,166 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    T
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+        maxIter         50;
+    };
+    Tcoupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
+    phiE
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+        maxIter         50;
+    };
+    phiEcoupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
+    xO2
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+        maxIter         50;
+    };
+    xO2coupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
+    xV
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+        maxIter         50;
+    };
+    xVcoupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
+    s
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+        maxIter         50;
+    };
+    scoupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 3;
+
+    residualControl
+    {
+        T               1e-7;
+	phiE		1e-7;
+	xO2		1e-7;
+	xV		1e-7;
+	s		1e-7;
+    }
+}
+
+relaxationFactors
+{
+	T	1.0;
+	phiE	1.0;
+	xO2	1.0;
+	xV	1.0;
+	s	1.0;
+}
+
+
+
+// ************************************************************************* //

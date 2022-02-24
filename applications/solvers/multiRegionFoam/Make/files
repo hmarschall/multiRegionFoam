@@ -1,6 +1,8 @@
 ../../../src/coupleManager/coupleManager.C
 ../../../src/coupledFvPatchFields/regionCoupleTemperature/regionCoupleTemperatureFvPatchScalarField.C
 ../../../src/coupledFvPatchFields/regionCoupleHeatFlux/regionCoupleHeatFluxFvPatchScalarField.C
+../../../src/coupledFvPatchFields/regionCoupleJump/regionCoupleJumpFvPatchScalarField.C
+../../../src/coupledFvPatchFields/regionCoupleFlux/regionCoupleFluxFvPatchScalarField.C
 
 multiRegionFoam.C
 
