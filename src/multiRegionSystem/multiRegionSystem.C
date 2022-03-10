@@ -77,13 +77,14 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
 
     if (nEqns == 0) return;
 
-    // Info<< fldName << ": "
-    //    << "Number of coupled fields : " << nEqns << endl;
+    Info<< fldName << ": "
+       << "Number of coupled fields : " << nEqns << endl;
 
     // assemble and solve block matrix system
     coupledFvMatrix<T> coupledEqns(nEqns);
 
     // assemble and solve all matrices one-by-one
+    label nReg = 0;
     forAll (regions_(), regI)
     {
         // Check if coupled field is registered to region 
@@ -110,7 +111,9 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
                 fldName + rg.mesh().name() + "Eqn"
             );
 
-        coupledEqns.set(regI, &eqn);
+        coupledEqns.set(nReg, &eqn);
+
+        nReg++;
     }
 
     coupledEqns.solve
