@@ -48,6 +48,111 @@ namespace regionTypes
 }
 }
 
+// * * * * * * * * * * * * * * * Private Functions * * * * * * * * * * * * * //
+
+void Foam::regionTypes::catalystLayer::calculateIonomerProperties()
+{
+    // water diffusion through ionomer
+    DLambda_() = pow(epsilonI_,1.5)*(3.842*pow(lambda_(),3) - 32.03*sqr(lambda_()) + 67.75*lambda_())/(pow(lambda_(),3) - 2.115*sqr(lambda_()) - 33.013*lambda_() + 103.37)*DLambda0_*exp(ELambda_/RGas_*((1/TRef_) - (1/T_())));
+
+    // electro-osmotic drag coefficient
+    xi_ = 2.5*lambda_()/22;
+
+    // volume fraction water
+    f_ = lambda_()*VW_/(lambda_()*VW_ + VM_);
+    fCond_ = fComp_;
+
+    // protonic conductivity
+    if(f_ > fCond_)
+    {
+	kappa_() = pow(epsilonI_,1.5)*kappa0_*pow((f_ - 0.06),1.5)*exp(EKappa_/RGas_*((1/TRef_) - (1/T_())));
+    }
+    else
+    {
+	kappa_() = pow(epsilonI_,1.5)*kappa0_*pow(0,1.5)*exp(EKappa_/RGas_*((1/TRef_) - (1/T_())));
+    }
+}
+
+void Foam::regionTypes::catalystLayer::calculateGasSpeciesTransportProperties()
+{
+    // ideal gas concentration
+    c_ = p_/(RGas_*T_());
+
+    // effective diffusion coefficient oxygen
+    DEffO2_() = epsilonP_/sqr(tau_)*pow((1 - s_()),3)*DO2_*pow((T_()/TRef_),1.5)*(pRef_/p_);
+
+    // effective diffusion coefficient vapor
+    DEffV_() = epsilonP_/sqr(tau_)*pow((1 - s_()),3)*DV_*pow((T_()/TRef_),1.5)*(pRef_/p_);
+}
+
+void Foam::regionTypes::catalystLayer::calculateLiquidWaterTransportProperties()
+{
+    // reduced liquid water saturation
+    sRed_ = (s_() - sIm_)/(1 - sIm_);
+
+    // saturation vapor fraction
+    xVSat_ = (exp(23.1963 - (TRefP1_/(T_() - TRefP2_)))*pDim_)/p_;
+
+    // dynamic viscosity water
+    mu_ = exp(-3.63148 + (TRefMu1_/(T_() + TRefMu2_)))*muDim_;
+
+    // derivate of capillary pressure with respect to liquid water saturation
+    dpCds_ = (4.8422e-3*exp(-44.02*(s_() - 0.496)) + 2255.0649*exp(8.103*(s_() - 0.496)))*pDim_;
+
+    // reduced liquid water permeability
+    K_() = (1e-6 + pow(sRed_,3))*K0_;
+    // evaporation/condensation rate
+    if(xV_() < xVSat_) // evaporation
+    {
+        gamma_ = 5e-4*sqrt(RGas_*T_()/(2*pi_*MW_))*aLG_*sRed_;
+    }
+    else // condensation
+    {
+        gamma_ = 6e-3*sqrt(RGas_*T_()/(2*pi_*MW_))*aLG_*sRed_;
+    }
+}
+
+void Foam::regionTypes::catalystLayer::calculateAbsorptionDesorption()
+{
+    // equilibrium water content in ionomer
+    lambdaEq_ = 0.043 + (17.81*xV_()/xVSat_) - (39.85*pow((xV_()/xVSat_),2)) + (36*pow((xV_()/xVSat_),3));
+
+    // ab-/desorption rate
+    if(lambda_() < lambdaEq_) // absorption
+    {
+        kSorp_ = aA_*f_*exp((ELambda_/RGas_)*((1/TRef_) - (1/T_())));
+    }
+    else // desorption
+    {
+        kSorp_ = aD_*f_*exp((ELambda_/RGas_)*((1/TRef_) - (1/T_())));
+    }
+}
+
+void Foam::regionTypes::catalystLayer::calculateElectrochemistry()
+{
+    // overpotential
+    eta_ = (((deltaH_ - T_()*deltaS_)/2/FConst_) - (RGas_*T_()*log(xO2_()*p_/pRef_)/4/FConst_)) - (phiE_() - phiP_());
+
+    // volumetric exchange current density (Butler-Volmer)
+    j_ = j0_*pow((xO2_()*p_/pRef_),0.54)*exp((ER_/RGas_)*((1/TRef_) - (1/T_())))*a_*(exp(2*beta_*FConst_*eta_/RGas_/T_()) - exp(-2*(1 - beta_)*FConst_*eta_/RGas_/T_()));
+}
+
+void Foam::regionTypes::catalystLayer::calculateSourceTerms()
+{
+    // heat Source - joule heating electrons & protons, phase change heat, sorption heat, reaction heat
+    //sT_ = sigma_()*magSqr(fvc::grad(phiE_())) + kappa_()*magSqr(fvc::grad(phiP_())) + gamma_*c_*(xV_() - xVSat_)*HEC_ + (kSorp_/d_/VM_)*(lambdaEq_ - lambda_())*HAD_ + j_*eta_ - (j_/2/FConst_)*T_()*deltaS_;
+
+    // mass source water content in ionomer / reaction & sorption
+    //sLambda_ = j_/2/FConst_ + (kSorp_/d_/VM_)*(lambdaEq_ - lambda_());
+
+    // mass source vapor / phase change & sorption
+    //sV_ = -gamma_*c_*(xV_() - xVSat_) - (kSorp_/d_/VM_)*(lambdaEq_ - lambda_());
+
+    // mass source liquid water / phase change
+    //ss_ = gamma_*c_*(xV_() - xVSat_);
+
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::regionTypes::catalystLayer::catalystLayer
@@ -167,7 +272,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
 	    IOobject::NO_WRITE
 	),
 	mesh(),
-	dimensionedScalar("xi0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 1.0)
+	dimensionedScalar("xi0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0)
     ),
     lambdaEq_
     (
@@ -180,7 +285,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
 	    IOobject::NO_WRITE
 	),
 	mesh(),
-	dimensionedScalar("lambdaEq0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 1.0)
+	dimensionedScalar("lambdaEq0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0)
     ),
     kSorp_
     (
@@ -193,7 +298,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
 	    IOobject::NO_WRITE
 	),
 	mesh(),
-	dimensionedScalar("kSorp0", dimensionSet(0, 1, -1, 0, 0, 0, 0), 1.0)
+	dimensionedScalar("kSorp0", dimensionSet(0, 1, -1, 0, 0, 0, 0), 0)
     ),
     c_
     (
@@ -206,7 +311,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("c0", dimensionSet(0, -3, 0, 0, 1, 0, 0), 1.0)
+        dimensionedScalar("c0", dimensionSet(0, -3, 0, 0, 1, 0, 0), 0)
     ),
     DEffO2_(nullptr), 
     DEffV_(nullptr),
@@ -248,7 +353,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("mu", dimensionSet(1, -1, -1, 0, 0, 0, 0), 1.0)
+        dimensionedScalar("mu", dimensionSet(1, -1, -1, 0, 0, 0, 0), 0)
     ), 
     dpCds_
     (
@@ -261,7 +366,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("dpCds0", dimensionSet(1, -1, -2, 0, 0, 0, 0), 1.0)
+        dimensionedScalar("dpCds0", dimensionSet(1, -1, -2, 0, 0, 0, 0), 0)
     ),
     gamma_
     (
@@ -274,7 +379,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("gamma0", dimensionSet(0, 0, -1, 0, 0, 0, 0), 1.0)
+        dimensionedScalar("gamma0", dimensionSet(0, 0, -1, 0, 0, 0, 0), 0)
     ), 
     eta_
     (
@@ -287,7 +392,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("eta0", dimensionSet(1, 2, -3, 0, 0, -1, 0), 1.0)
+        dimensionedScalar("eta0", dimensionSet(1, 2, -3, 0, 0, -1, 0), 0)
     ),
     j_
     (
@@ -300,7 +405,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("jInit", dimensionSet(0, -3, 0, 0, 0, 1, 0), 1.0)
+        dimensionedScalar("jInit", dimensionSet(0, -3, 0, 0, 0, 1, 0), 0)
     ),
     sT_
     (
@@ -313,7 +418,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("sT0", dimensionSet(1, -1, -3, 0, 0, 0, 0), 1.0)
+        dimensionedScalar("sT0", dimensionSet(1, -1, -3, 0, 0, 0, 0), 0)
     ),
     sLambda_
     (
@@ -326,7 +431,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("sLambda0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 1.0)
+        dimensionedScalar("sLambda0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 0)
     ),
     sV_
     (
@@ -339,7 +444,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("sV0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 1.0)
+        dimensionedScalar("sV0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 0)
     ),
     ss_
     (
@@ -352,7 +457,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("ss0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 1.0)
+        dimensionedScalar("ss0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 0)
     ),
     T_(nullptr),
     phiE_(nullptr),
@@ -627,78 +732,22 @@ void Foam::regionTypes::catalystLayer::setCoupledEqns()
 
     // update fields
     // ionomer properties
-    // water diffusion through ionomer
-    DLambda_() = pow(epsilonI_,1.5)*(3.842*pow(lambda_(),3)-32.03*sqr(lambda_())+67.75*lambda_())/(pow(lambda_(),3)-2.115*sqr(lambda_())-33.013*lambda_()+103.37)*DLambda0_*exp(ELambda_/RGas_*((1/TRef_)-(1/T_())));
-    // electro-osmotic drag coefficient
-    xi_ = 2.5*lambda_()/22;
-    // volume fraction water and protonic conductivity
-    f_ = lambda_()*VW_/(lambda_()*VW_+VM_);
-    fCond_ = fComp_;
-    {if(f_ > fCond_)
-    {
-	kappa_() = pow(epsilonI_,1.5)*kappa0_*pow((f_-0.06),1.5)*exp(EKappa_/RGas_*((1/TRef_)-(1/T_())));
-    }
-    else
-    {
-	kappa_() = pow(epsilonI_,1.5)*kappa0_*pow(0,1.5)*exp(EKappa_/RGas_*((1/TRef_)-(1/T_())));
-    }}
-    
+    calculateIonomerProperties();
+
     // gas species transport
-    // ideal gas concentration
-    c_ = p_/(RGas_*T_());
-    // effective diffusion coefficient oxygen and vapor
-    DEffO2_() = epsilonP_/sqr(tau_)*pow((1-s_()),3)*DO2_*pow((T_()/TRef_),1.5)*(pRef_/p_);
-    DEffV_() = epsilonP_/sqr(tau_)*pow((1-s_()),3)*DV_*pow((T_()/TRef_),1.5)*(pRef_/p_);
+    calculateGasSpeciesTransportProperties();
 
     // liquid water transport
-    // reduced liquid water saturation
-    sRed_ = (s_()-sIm_)/(1-sIm_);
-    // saturation vapor fraction
-    xVSat_ = (exp(23.1963-(TRefP1_/(T_()-TRefP2_)))*pDim_)/p_;
-    // dynamic viscosity water
-    mu_ = exp(-3.63148+(TRefMu1_/(T_()+TRefMu2_)))*muDim_;
-    // derivate of capillary pressure with respect to liquid water saturation
-    dpCds_ = (4.8422e-3*exp(-44.02*(s_()-0.496))+2255.0649*exp(8.103*(s_()-0.496)))*pDim_;
-    // reduced liquid water permeability
-    K_() = (1e-6+pow(sRed_,3))*K0_;
-    // evaporation/condensation rate
-    {if(xV_() < xVSat_) // evaporation
-	{
-	   gamma_ = 5e-4*sqrt(RGas_*T_()/(2*pi_*MW_))*aLG_*sRed_;
-	}
-	else // condensation
-	{
-	   gamma_ = 6e-3*sqrt(RGas_*T_()/(2*pi_*MW_))*aLG_*sRed_;
-	}}
+    calculateLiquidWaterTransportProperties();
 
     // ab-/desorption
-    // equilibrium water content in ionomer
-    lambdaEq_ = 0.043+(17.81*xV_()/xVSat_)-(39.85*pow((xV_()/xVSat_),2))+(36*pow((xV_()/xVSat_),3));
-    // ab-/desorption rate
-    {if(lambda_() < lambdaEq_) // absorption
-	{
-	    kSorp_ = aA_*f_*exp((ELambda_/RGas_)*((1/TRef_)-(1/T_())));
-	}
-	else // desorption
-	{
-	    kSorp_ = aD_*f_*exp((ELambda_/RGas_)*((1/TRef_)-(1/T_())));
-	}}
+    calculateAbsorptionDesorption();
 
     // electrochemistry
-    // overpotential
-    eta_ = (((deltaH_-T_()*deltaS_)/2/FConst_)-(RGas_*T_()*log(xO2_()*p_/pRef_)/4/FConst_))-(phiE_()-phiP_());
-    // volumetric exchange current density (Butler-Volmer)
-    j_ = j0_*pow((xO2_()*p_/pRef_),0.54)*exp((ER_/RGas_)*((1/TRef_)-(1/T_())))*a_*(exp(2*beta_*FConst_*eta_/RGas_/T_())-exp(-2*(1-beta_)*FConst_*eta_/RGas_/T_()));
+    calculateElectrochemistry();
 
     // source terms
-    // heat Source / joule heating electrons & protons, phase change heat, sorption heat, reaction heat
-    //sT_ = sigma_()*magSqr(fvc::grad(phiE_())) + kappa_()*magSqr(fvc::grad(phiP_())) + gamma_*c_*(xV_()-xVSat_)*HEC_ + (kSorp_/d_/VM_)*(lambdaEq_-lambda_())*HAD_ + j_*eta_-(j_/2/FConst_)*T_()*deltaS_;
-    // mass source water content in ionomer / reaction & sorption
-    //sLambda_ = j_/2/FConst_ + (kSorp_/d_/VM_)*(lambdaEq_-lambda_());
-    // mass source vapor / phase change & sorption
-    //sV_ = -gamma_*c_*(xV_()-xVSat_) - (kSorp_/d_/VM_)*(lambdaEq_-lambda_());
-    // mass source liquid water / phase change
-    //ss_ = gamma_*c_*(xV_()-xVSat_);
+    calculateSourceTerms();
 
     // set Eqns
     // fourier heat conduction
@@ -714,16 +763,16 @@ void Foam::regionTypes::catalystLayer::setCoupledEqns()
     fvScalarMatrix phiEEqn =
     (
         -fvm::laplacian(sigma_(), phiE_(), "laplacian(sigma,phiE)")
-     ==
-        j_
+     //==
+        //j_
     );
 
     // ohm's law for protons
     fvScalarMatrix phiPEqn =
     (
         -fvm::laplacian(kappa_(), phiP_(), "laplacian(kappa,phiP)")
-     ==
-        -j_
+     //==
+        //-j_
     );
 
     // water transport in ionomer
@@ -731,7 +780,7 @@ void Foam::regionTypes::catalystLayer::setCoupledEqns()
     (
         1/VM_*fvm::ddt(lambda_())
      ==
-        fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")//+fvm::laplacian(xi_*kappa_()/FConst_, phiP_(), "laplacian(kappa,phiP)")
+        fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")// + fvm::laplacian(xi_*kappa_()/FConst_, phiP_(), "laplacian(kappa,phiP)")
        //+sLambda_ 
     );
 
@@ -741,7 +790,7 @@ void Foam::regionTypes::catalystLayer::setCoupledEqns()
 	c_*fvm::ddt(xO2_())
      ==
         fvm::laplacian(c_*DEffO2_(), xO2_(), "laplacian(D,x)")
-       -j_/4/FConst_
+       //-j_/4/FConst_
     );
 
     // fick diffusion for vapor
