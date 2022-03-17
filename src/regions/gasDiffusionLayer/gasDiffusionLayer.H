@@ -148,7 +148,16 @@ class gasDiffusionLayer
 	//- mass source liquid water
 	volScalarField ss_;
 
-	
+    // Private member functions	
+
+        //- calculate or update gas species transport parameters
+        void calculateGasSpeciesTransportProperties();
+
+        //- calculate or update liquid water transport properties
+        void calculateLiquidWaterTransportProperties();
+
+        //- calculate or update source terms
+        void calculateSourceTerms();
 
 protected:
 

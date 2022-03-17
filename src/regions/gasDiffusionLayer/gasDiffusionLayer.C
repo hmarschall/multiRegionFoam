@@ -47,6 +47,58 @@ namespace regionTypes
 }
 }
 
+// * * * * * * * * * * * * * * * Private Functions * * * * * * * * * * * * * //
+
+void Foam::regionTypes::gasDiffusionLayer::calculateGasSpeciesTransportProperties()
+{
+    // ideal gas concentration
+    c_ = p_/(RGas_*T_());
+
+    // effective diffusion coefficient oxygen
+    DEffO2_() = epsilonP_/sqr(tau_)*pow((1 - s_()),3)*DO2_*pow((T_()/TRef_),1.5)*(pRef_/p_);
+
+    // effective diffusion coefficient vapor
+    DEffV_() = epsilonP_/sqr(tau_)*pow((1 - s_()),3)*DV_*pow((T_()/TRef_),1.5)*(pRef_/p_);
+}
+
+void Foam::regionTypes::gasDiffusionLayer::calculateLiquidWaterTransportProperties()
+{
+    // reduced liquid water saturation
+    sRed_ = (s_() - sIm_)/(1 - sIm_);
+
+    // saturation vapor fraction
+    xVSat_ = (exp(23.1963 - (TRefP1_/(T_() - TRefP2_)))*pDim_)/p_;
+
+    // dynamic viscosity water
+    mu_ = exp(-3.63148+(TRefMu1_/(T_() + TRefMu2_)))*muDim_;
+
+    // derivate of capillary pressure with respect to liquid water saturation
+    dpCds_ = (4.8422e-3*exp(-44.02*(s_() - 0.496)) + 2255.0649*exp(8.103*(s_() - 0.496)))*pDim_;
+
+    // reduced liquid water permeability
+    K_() = (1e-6 + pow(sRed_,3))*K0_;
+
+    // evaporation/condensation rate
+    if(xV_() < xVSat_) // evaporation
+    {
+        gamma_ = 5e-4*sqrt(RGas_*T_()/(2*pi_*MW_))*aLG_*sRed_;
+    }
+    else // condensation
+    {
+        gamma_ = 6e-3*sqrt(RGas_*T_()/(2*pi_*MW_))*aLG_*sRed_;
+    }
+}
+
+void Foam::regionTypes::gasDiffusionLayer::calculateSourceTerms()
+{
+    // heat Source - joule heating electrons and condensation/evaporation heat
+    //sT_ = sigma_()*magSqr(fvc::grad(phiE_())) + gamma_*c_*(xV_() - xVSat_)*HEC_;
+    // mass source vapor
+    //sV_ = -gamma_*c_*(xV_() - xVSat_);
+    // mass source liquid water
+    //ss_ = gamma_*c_*(xV_() - xVSat_);
+}
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
@@ -432,40 +484,15 @@ void Foam::regionTypes::gasDiffusionLayer::setCoupledEqns()
 {
     // update fields
     // gas species transport
-    // ideal gas concentration
-    c_ = p_/(RGas_*T_());
-    // effective diffusion coefficient oxygen and vapor
-    DEffO2_() = epsilonP_/sqr(tau_)*pow((1-s_()),3)*DO2_*pow((T_()/TRef_),1.5)*(pRef_/p_);
-    DEffV_() = epsilonP_/sqr(tau_)*pow((1-s_()),3)*DV_*pow((T_()/TRef_),1.5)*(pRef_/p_);
+    calculateGasSpeciesTransportProperties();
     
     // liquid water transport
-    // reduced liquid water saturation
-    sRed_ = (s_()-sIm_)/(1-sIm_);
-    // saturation vapor fraction
-    xVSat_ = (exp(23.1963-(TRefP1_/(T_()-TRefP2_)))*pDim_)/p_;
-    // dynamic viscosity water
-    mu_ = exp(-3.63148+(TRefMu1_/(T_()+TRefMu2_)))*muDim_;
-    // derivate of capillary pressure with respect to liquid water saturation
-    dpCds_ = (4.8422e-3*exp(-44.02*(s_()-0.496))+2255.0649*exp(8.103*(s_()-0.496)))*pDim_;
-    // reduced liquid water permeability
-    K_() = (1e-6+pow(sRed_,3))*K0_;
-    // evaporation/condensation rate
-    {if(xV_() < xVSat_) //evaporation
-	{
-	   gamma_ = 5e-4*sqrt(RGas_*T_()/(2*pi_*MW_))*aLG_*sRed_;
-	}
-	else //condensation
-	{
-	   gamma_ = 6e-3*sqrt(RGas_*T_()/(2*pi_*MW_))*aLG_*sRed_;
-	}}
+    calculateLiquidWaterTransportProperties();
 
     // source terms
-    // heat Source - joule heating electrons and condensation/evaporation heat
-    //sT_ = sigma_()*magSqr(fvc::grad(phiE_()))+gamma_*c_*(xV_()-xVSat_)*HEC_;
-    // mass source vapor
-    //sV_ = -gamma_*c_*(xV_()-xVSat_);
-    // mass source liquid water
-    //ss_ = gamma_*c_*(xV_()-xVSat_);
+    calculateSourceTerms();
+
+    // set Eqns
     // fourier heat conduction
     fvScalarMatrix TEqn =
     (
@@ -475,7 +502,6 @@ void Foam::regionTypes::gasDiffusionLayer::setCoupledEqns()
 	//+sT_
     );
 
-    // set Eqns
     // ohm's law for electrons
     fvScalarMatrix phiEEqn =
     (
