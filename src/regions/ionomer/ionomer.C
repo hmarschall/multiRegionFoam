@@ -48,6 +48,38 @@ namespace regionTypes
 }
 }
 
+// * * * * * * * * * * * * * * * Private Functions * * * * * * * * * * * * * //
+
+void Foam::regionTypes::ionomer::calculateIonomerProperties()
+{
+
+    // Diffusion coefficient of water through ionomer
+    DLambda_() = (3.842*pow(lambda_(),3) - 32.03*sqr(lambda_()) + 67.75*lambda_())/(pow(lambda_(),3) - 2.115*sqr(lambda_()) - 33.013*lambda_() + 103.37)*DLambda0_*exp(ELambda_/RGas_*((1/TRef_) - (1/T_())));
+
+    // electro-osmotic drag coefficient
+    xi_ = 2.5*lambda_()/22;
+
+    // volume fraction water
+    f_ = lambda_()*VW_/(lambda_()*VW_ + VM_);
+
+    // protonic conductivity
+    fCond_ = fComp_;
+    if(f_ > fCond_)
+    {
+	kappa_() = kappa0_*pow((f_ - 0.06),1.5)*exp(EKappa_/RGas_*((1/TRef_) - (1/T_())));
+    }
+    else
+    {
+	kappa_() = kappa0_*pow(0,1.5)*exp(EKappa_/RGas_*((1/TRef_) - (1/T_())));
+    }
+}
+
+void Foam::regionTypes::ionomer::calculateSourceTerms()
+{
+    // heat source - joule heating protons
+    //sT_ = kappa_()*magSqr(fvc::grad(phiP_()));
+}	
+
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::regionTypes::ionomer::ionomer
@@ -284,27 +316,11 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
 {
 
     // update variables
-
     // ionomer properties
-    // water diffusion through ionomer
-    DLambda_() = (3.842*pow(lambda_(),3)-32.03*sqr(lambda_())+67.75*lambda_())/(pow(lambda_(),3)-2.115*sqr(lambda_())-33.013*lambda_()+103.37)*DLambda0_*exp(ELambda_/RGas_*((1/TRef_)-(1/T_())));
-    // electro-osmotic drag coefficient
-    xi_ = 2.5*lambda_()/22;
-    // volume fraction water and protonic conductivity
-    f_ = lambda_()*VW_/(lambda_()*VW_+VM_);
-    fCond_ = fComp_;
-    {if(f_ > fCond_)
-    {
-	kappa_() = kappa0_*pow((f_-0.06),1.5)*exp(EKappa_/RGas_*((1/TRef_)-(1/T_())));
-    }
-    else
-    {
-	kappa_() = kappa0_*pow(0,1.5)*exp(EKappa_/RGas_*((1/TRef_)-(1/T_())));
-    }}
+    calculateIonomerProperties();
 
     // source terms
-    // heat source - joule heating protons
-    //sT_ = kappa_()*magSqr(fvc::grad(phiP_()));
+    calculateSourceTerms();
     
     // fourier heat conduction
     fvScalarMatrix TEqn =

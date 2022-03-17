@@ -102,7 +102,13 @@ class ionomer
 	//- heat sources
 	volScalarField sT_;
 
-		
+    // Private member functions
+
+        //- calculate or update Ionomer Properties
+        void calculateIonomerProperties();
+
+        //- calculate or update Source Terms
+        void calculateSourceTerms();
 
 protected:
 
