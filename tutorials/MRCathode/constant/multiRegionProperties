@@ -23,6 +23,19 @@ regions
 
 partitionedTypeRegionInterfaces
 (
+   cathodeCLCathodeGDL
+    (
+	(((cathodeCL right)(cathodeGDL left)) (T phiE xV xO2 s))
+    )
+ 
+   membraneCathodeCL
+    (
+	(((membrane right)(cathodeCL left)) (T lambda phiP))
+    )
+);
+
+monolithicTypeRegionInterfaces
+(
     /*membraneCathodeCL
     (
 	(((membrane right)(cathodeCL left)) (T phiP lambda))
@@ -32,19 +45,6 @@ partitionedTypeRegionInterfaces
     (
 	(((cathodeCL right)(cathodeGDL left)) (T phiE xO2 xV s))
     )*/
-);
-
-monolithicTypeRegionInterfaces
-(
-    membraneCathodeCL
-    (
-	(((membrane right)(cathodeCL left)) (T phiP lambda))
-    )
-
-    cathodeCLCathodeGDL
-    (
-	(((cathodeCL right)(cathodeGDL left)) (T phiE xO2 xV s))
-    )
 );
 
 // Assembles a super-mesh
