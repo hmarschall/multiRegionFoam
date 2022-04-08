@@ -60,11 +60,11 @@ class ionomer
         //- transport properties dictionary 
         IOdictionary transportProperties_;
 
-	//- material properties dictionary 
+        //- material properties dictionary 
         IOdictionary materialProperties_;
 
-	//- operating conditions
-	IOdictionary operatingConditions_;
+        //- operating conditions
+        IOdictionary operatingConditions_;
 
         //- specific heat
         dimensionedScalar cv_;
@@ -75,51 +75,54 @@ class ionomer
         //- thermal conductivity
         autoPtr<volScalarField> k_;
 
-	//- protonic conductivity
-	autoPtr<volScalarField> kappa_;
+        //- protonic conductivity
+        autoPtr<volScalarField> kappa_;
 
-	//- molar volume of liquid water
-	dimensionedScalar VW_;
+        //- molar volume of liquid water
+        dimensionedScalar VW_;
 
-	//- molar volume of membrane
-	dimensionedScalar VM_;
+        //- molar volume of membrane
+        dimensionedScalar VM_;
 
-	//- relative humidity 
-	dimensionedScalar RH_;
+        //- relative humidity 
+        dimensionedScalar RH_;
 
-	//- diffusion coefficient of water in ionomer
-	autoPtr<volScalarField> DLambda_;
+        //- diffusion coefficient of water in ionomer
+        autoPtr<volScalarField> DLambda_;
 
-	//-  volume fraction of water in membrane
-	volScalarField f_;
+        //-  volume fraction of water in membrane
+        volScalarField f_;
 
-	//- volume fraction of water in membrane for protonic conductivity
-	volScalarField fCond_;
+        //- volume fraction of water in membrane for protonic conductivity
+        volScalarField fCond_;
 
-	//- electro-osmotic drag coefficient
-	volScalarField xi_;
+        //- electro-osmotic drag coefficient
+        volScalarField xi_;
 
-	//- heat sources
-	volScalarField sT_;
+        //- heat sources
+        volScalarField sT_;
 
-		
+        //- water content source - electro-osmotic drag
+        volScalarField sLambda_;
+
+    // Private member functions
+
+        //- update Ionomer Properties
+        void updateIonomerProperties();
+
+        //- update Source Terms
+        void updateSourceTerms();
 
 protected:
 
         //- temperature
-//        volScalarField T_;
-
         autoPtr<volScalarField> T_;
 
-	//- electrolyte potential
-//	  volScalarField phiP_;
+        //- electrolyte potential
+        autoPtr<volScalarField> phiP_;	
 
-	autoPtr<volScalarField> phiP_;	
-
-	//- water content in ionomer
-//	  volScalarField lambda_;
-
-	autoPtr<volScalarField> lambda_;
+        //- water content in ionomer
+        autoPtr<volScalarField> lambda_;
 	
 
 public:
@@ -151,25 +154,25 @@ public:
             return T_();
         }
 
-	const volScalarField& phiP() const
-	{
-	    return phiP_();
-	}
+        const volScalarField& phiP() const
+        {
+            return phiP_();
+        }
 
-	volScalarField& phiP()
-	{
-	    return phiP_();
-	}
+        volScalarField& phiP()
+        {
+            return phiP_();
+        }
 
-	const volScalarField& lambda() const
-	{
-	    return lambda_();
-	}
+        const volScalarField& lambda() const
+        {
+            return lambda_();
+        }
 
-	volScalarField& lambda()
-	{
-	    return lambda_();
-	}
+        volScalarField& lambda()
+        {
+            return lambda_();
+        }
 
 
 	virtual bool active() const
@@ -185,7 +188,7 @@ public:
 
         virtual void setCoupledEqns();
 
-	virtual void updateFields();
+        virtual void updateFields();
 };
 
 

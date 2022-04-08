@@ -96,17 +96,17 @@ SIMPLE
 
     residualControl
     {
-        T               1e-7;
-	phiP		1e-7;
-	lambda		1e-7;
+        T               1e-10;
+	phiP		1e-10;
+	lambda		1e-10;
     }
 }
 
 relaxationFactors
 {
-	T	1.0;
-	phiP	1.0;
-	lambda	1.0;
+	T	0.1;
+	phiP	0.1;
+	lambda	0.1;
 }
 
 

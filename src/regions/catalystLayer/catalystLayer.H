@@ -61,14 +61,14 @@ class catalystLayer
         //- transport properties dictionary 
         IOdictionary transportProperties_;
 
-	//- material properties dictionary 
+        //- material properties dictionary 
         IOdictionary materialProperties_;
 
-	//- electrochemical properties dictionary
-	IOdictionary electrochemicalProperties_;
-	
-	//- operating conditions dictionary
-	IOdictionary operatingConditions_;
+        //- electrochemical properties dictionary
+        IOdictionary electrochemicalProperties_;
+
+        //- operating conditions dictionary
+        IOdictionary operatingConditions_;
 
         //- specific heat
         dimensionedScalar cv_;
@@ -76,176 +76,180 @@ class catalystLayer
         //- density
         dimensionedScalar rho_;
 
-	//- permeability
-	dimensionedScalar K0_;
+        //- permeability
+        dimensionedScalar K0_;
 
         //- thermal conductivity
         autoPtr<volScalarField> k_;
 
-	//- electric conductivity
-	autoPtr<volScalarField> sigma_;
-	
-	//- protonic conductivity
-	autoPtr<volScalarField> kappa_;
+        //- electric conductivity
+        autoPtr<volScalarField> sigma_;
 
-	//- diffusion coefficient oxygen
-	dimensionedScalar DO2_;
+        //- protonic conductivity
+        autoPtr<volScalarField> kappa_;
 
-	// diffusion coefficient vapor
-	dimensionedScalar DV_;
+        //- diffusion coefficient oxygen
+        dimensionedScalar DO2_;
 
-	//- porosity
-	dimensionedScalar epsilonP_;
-	
-	//- tortuosity
-	dimensionedScalar tau_;
+        // diffusion coefficient vapor
+        dimensionedScalar DV_;
 
-	//- ionomer content
-	dimensionedScalar epsilonI_;
+        //- porosity
+        dimensionedScalar epsilonP_;
 
-	//- layer thickness
-	dimensionedScalar d_;
+        //- tortuosity
+        dimensionedScalar tau_;
 
-	//- molecular weight water;
-	dimensionedScalar MW_;
+        //- ionomer content
+        dimensionedScalar epsilonI_;
 
-	//- molar volume of liquid water
-	dimensionedScalar VW_;
+        //- layer thickness
+        dimensionedScalar d_;
 
-	//- molar volume of membrane
-	dimensionedScalar VM_;
+        //- molecular weight water;
+        dimensionedScalar MW_;
 
-	//- irreducible saturation
-	dimensionedScalar sIm_;
+        //- molar volume of liquid water
+        dimensionedScalar VW_;
 
-	//- liquid gas exchange area
-	dimensionedScalar aLG_;
+        //- molar volume of membrane
+        dimensionedScalar VM_;
 
-	//- pt Loading
-	dimensionedScalar a_;
+        //- irreducible saturation
+        dimensionedScalar sIm_;
 
-	//- symmetry factor
-	dimensionedScalar beta_;
+        //- liquid gas exchange area
+        dimensionedScalar aLG_;
 
-	//- reaction entropy
-	dimensionedScalar deltaS_;
+        //- pt Loading
+        dimensionedScalar a_;
 
-	//- reaction enthalpy
-	dimensionedScalar deltaH_;
+        //- symmetry factor
+        dimensionedScalar beta_;
 
-	//- reaction activation energy
-	dimensionedScalar ER_;
+        //- reaction entropy
+        dimensionedScalar deltaS_;
 
-	//- pre factor exchange current density
-	dimensionedScalar j0_;
+        //- reaction enthalpy
+        dimensionedScalar deltaH_;
 
-	//- opearting pressure
-	dimensionedScalar p_;
+        //- reaction activation energy
+        dimensionedScalar ER_;
 
-	//- relative humidity
-	dimensionedScalar RH_;
+        //- pre factor exchange current density
+        dimensionedScalar j0_;
 
-	//- diffusion coefficient water in ionomer
-	autoPtr<volScalarField> DLambda_;
+        //- opearting pressure
+        dimensionedScalar p_;
 
-	//- volume fraction of water in membrane
-	volScalarField f_;
+        //- relative humidity
+        dimensionedScalar RH_;
 
-	//- volume fraction of water in membrane for protonic conductivity
-	volScalarField fCond_;
+        //- diffusion coefficient water in ionomer
+        autoPtr<volScalarField> DLambda_;
 
-	//- electro-osmotic drag coefficient
-	volScalarField xi_;
+        //- volume fraction of water in membrane
+        volScalarField f_;
 
-	//- equilibrium water content in ionomer
-	volScalarField lambdaEq_;
+        //- volume fraction of water in membrane for protonic conductivity
+        volScalarField fCond_;
 
-	//- ab-/desorption rate
-	volScalarField kSorp_;
+        //- electro-osmotic drag coefficient
+        volScalarField xi_;
 
-	//- total gas species concentration
-	volScalarField c_;
+        //- equilibrium water content in ionomer
+        volScalarField lambdaEq_;
 
-	//- effective diffusion coefficient oxygen
-	autoPtr<volScalarField> DEffO2_;
+        //- ab-/desorption rate
+        volScalarField kSorp_;
 
-	//- effective diffusion coefficient vapor
-	autoPtr<volScalarField> DEffV_;
+        //- total gas species concentration
+        volScalarField c_;
 
-	//- reduced liquid water saturation
-	volScalarField sRed_;
+        //- effective diffusion coefficient oxygen
+        autoPtr<volScalarField> DEffO2_;
 
-	//- saturation vapor fraction
-	volScalarField xVSat_;
+        //- effective diffusion coefficient vapor
+        autoPtr<volScalarField> DEffV_;
 
-	//- permeability
-	autoPtr<volScalarField> K_;
+        //- reduced liquid water saturation
+        volScalarField sRed_;
 
-	//- dynamic viscosity of liquid water
-	volScalarField mu_;
+        //- saturation vapor fraction
+        volScalarField xVSat_;
 
-	//- capillary pressure derived after saturation
-	volScalarField dpCds_;
+        //- permeability
+        autoPtr<volScalarField> K_;
 
-	//- evaporation/condensation rate
-	volScalarField gamma_;
+        //- dynamic viscosity of liquid water
+        volScalarField mu_;
 
-	//- overpotential
-	volScalarField eta_;
+        //- capillary pressure derived after saturation
+        volScalarField dpCds_;
 
-	//- volumetric exchange current density
-	volScalarField j_;
+        //- evaporation/condensation rate
+        volScalarField gamma_;
 
-	//- heat sources
-	volScalarField sT_;
+        //- overpotential
+        volScalarField eta_;
 
-	//- mass source water in ionomer
-	volScalarField sLambda_;
+        //- volumetric exchange current density
+        volScalarField j_;
 
-	//- mass source vapor
-	volScalarField sV_;
+        //- heat sources
+        volScalarField sT_;
 
-	//- mass source liquid water
-	volScalarField ss_;
+        //- mass source water in ionomer
+        volScalarField sLambda_;
 
-	
+        //- mass source vapor
+        volScalarField sV_;
+
+        //- mass source liquid water
+        volScalarField ss_;
+
+    // Private member functions
+
+        //- update ionomer properties
+	void updateIonomerProperties();
+
+        //- update gas species transport parameters
+        void updateGasSpeciesTransportProperties();
+
+        //- update liquid water transport properties
+        void updateLiquidWaterTransportProperties();
+
+        //- update ab-/desorption
+        void updateAbsorptionDesorption();
+
+        //- update electrochemistry
+        void updateElectrochemistry();
+
+        //- update source terms
+        void updateSourceTerms();
 
 protected:
 
         //- temperature
-//        volScalarField T_;
-
         autoPtr<volScalarField> T_;
 
-	//- electric Potential
-//	  volScalarField phiE_;
+        //- electric Potential
+        autoPtr<volScalarField> phiE_;	
 
-	autoPtr<volScalarField> phiE_;	
+        //- electrolyte Potential
+        autoPtr<volScalarField> phiP_;
 
-	//- electrolyte Potential
-//	  volScalarField phiP_;
+        //- water content in ionomer
+        autoPtr<volScalarField> lambda_;
 
-	autoPtr<volScalarField> phiP_;
-
-	//- water content in ionomer
-//	  volScalarField lambda_;
-
-	autoPtr<volScalarField> lambda_;
-
-	//- oxygen mole fraction
-//	  volScalarField xO2_;
-
-	autoPtr<volScalarField> xO2_;
+        //- oxygen mole fraction
+        autoPtr<volScalarField> xO2_;
 
 	//- vapor mole fraction
-//	  volScalarField xv_;
+        autoPtr<volScalarField> xV_;
 
-	autoPtr<volScalarField> xV_;
-
-	//- saturation
-//	  volScalarField s_;
-
-	autoPtr<volScalarField> s_;
+        //- saturation
+        autoPtr<volScalarField> s_;
 
 public:
 
@@ -276,37 +280,37 @@ public:
             return T_();
         }
 
-	const volScalarField& phiE() const
-	{
-	    return phiE_();
-	}
+        const volScalarField& phiE() const
+        {
+            return phiE_();
+        }
 
-	volScalarField& phiE()
-	{
-	    return phiE_();
-	}
+        volScalarField& phiE()
+        {
+            return phiE_();
+        }
 
-	const volScalarField& phiP() const
-	{
-	    return phiP_();
-	}
+        const volScalarField& phiP() const
+        {
+            return phiP_();
+        }
 
-	volScalarField& phiP()
-	{
-	    return phiP_();
-	}
+        volScalarField& phiP()
+        {
+            return phiP_();
+        }
 
-	const volScalarField& lambda() const
-	{
-	    return lambda_();
-	}
+        const volScalarField& lambda() const
+        {
+            return lambda_();
+        }
 
-	volScalarField& lambda()
-	{
-	    return lambda_();
-	}
+        volScalarField& lambda()
+        {
+            return lambda_();
+        }
 
-	const volScalarField& xO2() const
+        const volScalarField& xO2() const
         {
             return xO2_();
         }
@@ -316,25 +320,25 @@ public:
             return xO2_();
         }
 
-	const volScalarField& xV() const
-	{
-	    return xV_();
-	}
+        const volScalarField& xV() const
+        {
+            return xV_();
+        }
 
-	volScalarField& xV()
-	{
-	    return xV_();
-	}
+        volScalarField& xV()
+        {
+            return xV_();
+        }
 
-	const volScalarField& s() const
-	{
-	    return s_();
-	}
+        const volScalarField& s() const
+        {
+            return s_();
+        }
 
-	volScalarField& s()
-	{
-	    return s_();
-	}
+        volScalarField& s()
+        {
+            return s_();
+        }
 
         virtual bool active() const
         {
@@ -349,7 +353,7 @@ public:
 
         virtual void setCoupledEqns();
 
-	virtual void updateFields();
+        virtual void updateFields();
 };
 
 

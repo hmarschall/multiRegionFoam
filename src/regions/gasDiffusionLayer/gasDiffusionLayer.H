@@ -61,11 +61,11 @@ class gasDiffusionLayer
         //- transport properties dictionary 
         IOdictionary transportProperties_;
 
-	//- material properties dictionary 
+        //- material properties dictionary 
         IOdictionary materialProperties_;
 
-	//- operating conditions dictionary
-	IOdictionary operatingConditions_;
+        //- operating conditions dictionary
+        IOdictionary operatingConditions_;
 
         //- specific heat
         dimensionedScalar cv_;
@@ -73,109 +73,108 @@ class gasDiffusionLayer
         //- density
         dimensionedScalar rho_;
 
-	//- permeability
-	dimensionedScalar K0_;
+        //- permeability
+        dimensionedScalar K0_;
 
         //- thermal conductivity
         autoPtr<volScalarField> k_;
 
-	//- electric conductivity
-	autoPtr<volScalarField> sigma_;
+        //- electric conductivity
+        autoPtr<volScalarField> sigma_;
 
-	//- diffusion coefficient oxygen
-	dimensionedScalar DO2_;
+        //- diffusion coefficient oxygen
+        dimensionedScalar DO2_;
 
-	//- diffusion coefficient vapor
-	dimensionedScalar DV_;
+        //- diffusion coefficient vapor
+        dimensionedScalar DV_;
 
-	//- porosity
-	dimensionedScalar epsilonP_;
+        //- porosity
+        dimensionedScalar epsilonP_;
 
-	//- tortuosity
-	dimensionedScalar tau_;
+        //- tortuosity
+        dimensionedScalar tau_;
 
-	//- molecular weight water;
-	dimensionedScalar MW_;
+        //- molecular weight water;
+        dimensionedScalar MW_;
 
-	//- molar volume of liquid water
-	dimensionedScalar VW_;
+        //- molar volume of liquid water
+        dimensionedScalar VW_;
 
-	//- irreducible saturation
-	dimensionedScalar sIm_;
+        //- irreducible saturation
+        dimensionedScalar sIm_;
 
-	//- liquid gas exchange area
-	dimensionedScalar aLG_;
+        //- liquid gas exchange area
+        dimensionedScalar aLG_;
 
-	//- opearting pressure
-	dimensionedScalar p_;
+        //- opearting pressure
+        dimensionedScalar p_;
 
-	//- relative humidity
-	dimensionedScalar RH_;
+        //- relative humidity
+        dimensionedScalar RH_;
 
-	//- total gas species concentration
-	volScalarField c_;
+        //- total gas species concentration
+        volScalarField c_;
 
-	//- effective diffusion coefficient oxygen
-	autoPtr<volScalarField> DEffO2_;
+        //- effective diffusion coefficient oxygen
+        autoPtr<volScalarField> DEffO2_;
 
-	//- effective diffusion coefficient vapor
-	autoPtr<volScalarField> DEffV_;
+        //- effective diffusion coefficient vapor
+        autoPtr<volScalarField> DEffV_;
 
-	//- reduced liquid water saturation
-	volScalarField sRed_;
+        //- reduced liquid water saturation
+        volScalarField sRed_;
 
-	//- saturation vapor fraction
-	volScalarField xVSat_;
-	
-	//- reduced permeability
-	autoPtr<volScalarField> K_;
+        //- saturation vapor fraction
+        volScalarField xVSat_;
 
-	//- dynamic viscosity of liquid water
-	volScalarField mu_;
+        //- reduced permeability
+        autoPtr<volScalarField> K_;
 
-	//- capillary pressure derived after saturation
-	volScalarField dpCds_;
+        //- dynamic viscosity of liquid water
+        volScalarField mu_;
 
-	//- evaporation/condensation rate
-	volScalarField gamma_;
+        //- capillary pressure derived after saturation
+        volScalarField dpCds_;
 
-	//- heat sources
-	volScalarField sT_;
+        //- evaporation/condensation rate
+        volScalarField gamma_;
 
-	//- mass source vapor
-	volScalarField sV_;
+        //- heat sources
+        volScalarField sT_;
 
-	//- mass source liquid water
-	volScalarField ss_;
+        //- mass source vapor
+        volScalarField sV_;
 
-	
+        //- mass source liquid water
+        volScalarField ss_;
+
+    // Private member functions	
+
+        //- update gas species transport parameters
+        void updateGasSpeciesTransportProperties();
+
+        //- update liquid water transport properties
+        void updateLiquidWaterTransportProperties();
+
+        //- update source terms
+        void updateSourceTerms();
 
 protected:
 
         //- temperature
-//        volScalarField T_;
-
         autoPtr<volScalarField> T_;
 
-	//- electric Potential
-//	  volScalarField phiE_;
+        //- electric Potential
+        autoPtr<volScalarField> phiE_;	
 
-	autoPtr<volScalarField> phiE_;	
+        //- oxygen mole fraction
+        autoPtr<volScalarField> xO2_;
 
-	//- oxygen mole fraction
-//	  volScalarField xO2_;
+        //- vapor mole fraction
+        autoPtr<volScalarField> xV_;
 
-	autoPtr<volScalarField> xO2_;
-
-	//- vapor mole fraction
-//	  volScalarField xv_;
-
-	autoPtr<volScalarField> xV_;
-
-	//- saturation
-//	  volScalarField s_;
-
-	autoPtr<volScalarField> s_;
+        //- saturation
+        autoPtr<volScalarField> s_;
 
 public:
 
@@ -206,17 +205,17 @@ public:
             return T_();
         }
 
-	const volScalarField& phiE() const
-	{
-	    return phiE_();
-	}
+        const volScalarField& phiE() const
+        {
+            return phiE_();
+        }
 
-	volScalarField& phiE()
-	{
-	    return phiE_();
-	}
+        volScalarField& phiE()
+        {
+            return phiE_();
+        }
 
-	const volScalarField& xO2() const
+        const volScalarField& xO2() const
         {
             return xO2_();
         }
@@ -226,25 +225,25 @@ public:
             return xO2_();
         }
 
-	const volScalarField& xV() const
-	{
-	    return xV_();
-	}
+        const volScalarField& xV() const
+        {
+            return xV_();
+        }
 
-	volScalarField& xV()
-	{
-	    return xV_();
-	}
+        volScalarField& xV()
+        {
+            return xV_();
+        }
 
-	const volScalarField& s() const
-	{
-	    return s_();
-	}
+        const volScalarField& s() const
+        {
+            return s_();
+        }
 
-	volScalarField& s()
-	{
-	    return s_();
-	}
+        volScalarField& s()
+        {
+            return s_();
+        }
 
         virtual bool active() const
         {
@@ -259,7 +258,7 @@ public:
 
         virtual void setCoupledEqns();
 	
-	virtual void updateFields();
+        virtual void updateFields();
 };
 
 

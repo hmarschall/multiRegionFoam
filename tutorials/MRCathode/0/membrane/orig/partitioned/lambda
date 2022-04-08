@@ -29,8 +29,7 @@ boundaryField
     }
     left
     {
-        type                    fixedValue;
-	value			uniform 10.038;
+        type                    zeroGradient;
     }
     right
     {

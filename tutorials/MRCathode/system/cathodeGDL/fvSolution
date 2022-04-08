@@ -144,21 +144,21 @@ SIMPLE
 
     residualControl
     {
-        T               1e-7;
-	phiE		1e-7;
-	xO2		1e-7;
-	xV		1e-7;
-	s		1e-7;
+        T               1e-10;
+	phiE		1e-10;
+	xO2		1e-10;
+	xV		1e-10;
+	s		1e-10;
     }
 }
 
 relaxationFactors
 {
-	T	1.0;
-	phiE	1.0;
-	xO2	1.0;
-	xV	1.0;
-	s	1.0;
+	T	0.1;
+	phiE	0.1;
+	xO2	0.1;
+	xV	0.1;
+	s	0.1;
 }
 
 
