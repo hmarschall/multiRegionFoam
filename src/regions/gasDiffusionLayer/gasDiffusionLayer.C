@@ -49,7 +49,7 @@ namespace regionTypes
 
 // * * * * * * * * * * * * * * * Private Functions * * * * * * * * * * * * * //
 
-void Foam::regionTypes::gasDiffusionLayer::calculateGasSpeciesTransportProperties()
+void Foam::regionTypes::gasDiffusionLayer::updateGasSpeciesTransportProperties()
 {
     // ideal gas concentration
     c_ = p_/(RGas_*T_());
@@ -61,7 +61,7 @@ void Foam::regionTypes::gasDiffusionLayer::calculateGasSpeciesTransportPropertie
     DEffV_() = epsilonP_/sqr(tau_)*pow((1 - s_()),3)*DV_*pow((T_()/TRef_),1.5)*(pRef_/p_);
 }
 
-void Foam::regionTypes::gasDiffusionLayer::calculateLiquidWaterTransportProperties()
+void Foam::regionTypes::gasDiffusionLayer::updateLiquidWaterTransportProperties()
 {
     // reduced liquid water saturation
     sRed_ = (s_() - sIm_)/(1 - sIm_);
@@ -89,14 +89,14 @@ void Foam::regionTypes::gasDiffusionLayer::calculateLiquidWaterTransportProperti
     }
 }
 
-void Foam::regionTypes::gasDiffusionLayer::calculateSourceTerms()
+void Foam::regionTypes::gasDiffusionLayer::updateSourceTerms()
 {
     // heat Source - joule heating electrons and condensation/evaporation heat
-    //sT_ = sigma_()*magSqr(fvc::grad(phiE_())) + gamma_*c_*(xV_() - xVSat_)*HEC_;
+    //sT_ = sigma_()*(fvc::grad(phiE_())&fvc::grad(phiE_())) + gamma_*c_*(xV_() - xVSat_)*HEC_;
     // mass source vapor
-    //sV_ = -gamma_*c_*(xV_() - xVSat_);
+    sV_ = -gamma_*c_*(xV_() - xVSat_);
     // mass source liquid water
-    //ss_ = gamma_*c_*(xV_() - xVSat_);
+    ss_ = gamma_*c_*(xV_() - xVSat_);
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -170,7 +170,7 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("c0", dimensionSet(0, -3, 0, 0, 1, 0, 0), 1.0)
+        dimensionedScalar("c0", dimensionSet(0, -3, 0, 0, 1, 0, 0), 52)
     ),
     DEffO2_(nullptr),
     DEffV_(nullptr),
@@ -185,7 +185,7 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("sRed0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.12)
+        sIm_
     ),
     xVSat_
     (
@@ -198,7 +198,7 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("xVSat0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.1)
+        dimensionedScalar("xVSat0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.2)
     ),
     K_(nullptr), 
     mu_
@@ -212,7 +212,7 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("mu", dimensionSet(1, -1, -1, 0, 0, 0, 0), 1.0)
+        dimensionedScalar("mu", dimensionSet(1, -1, -1, 0, 0, 0, 0), 1E-05)
     ), 
     dpCds_
     (
@@ -225,7 +225,7 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("dpCds0", dimensionSet(1, -1, -2, 0, 0, 0, 0), 1.0)
+        dimensionedScalar("dpCds0", dimensionSet(1, -1, -2, 0, 0, 0, 0), 1E05)
     ),
     gamma_
     (
@@ -238,7 +238,7 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("gamma0", dimensionSet(0, 0, -1, 0, 0, 0, 0), 1.0)
+        dimensionedScalar("gamma0", dimensionSet(0, 0, -1, 0, 0, 0, 0), 0)
     ), 
     sT_
     (
@@ -251,7 +251,7 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("sT0", dimensionSet(1, -1, -3, 0, 0, 0, 0), 1.0)
+        dimensionedScalar("sT0", dimensionSet(1, -1, -3, 0, 0, 0, 0), 0)
     ),
     sV_
     (
@@ -264,7 +264,7 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("sV0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 1.0)
+        dimensionedScalar("sV0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 0)
     ),
     ss_
     (
@@ -277,7 +277,7 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("ss0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 1.0)
+        dimensionedScalar("ss0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 0)
     ),
     T_(nullptr),
     phiE_(nullptr),
@@ -482,24 +482,27 @@ void Foam::regionTypes::gasDiffusionLayer::setRDeltaT()
 
 void Foam::regionTypes::gasDiffusionLayer::setCoupledEqns()
 {
-    // update fields
-    // gas species transport
-    calculateGasSpeciesTransportProperties();
+    if (runTime().timeIndex() != 0)
+    {
+        // update fields
+        // gas species transport
+        updateGasSpeciesTransportProperties();
     
-    // liquid water transport
-    calculateLiquidWaterTransportProperties();
+        // liquid water transport
+        updateLiquidWaterTransportProperties();
 
-    // source terms
-    calculateSourceTerms();
+        // source terms
+        updateSourceTerms();
+    }
 
     // set Eqns
     // fourier heat conduction
     fvScalarMatrix TEqn =
     (
         rho_*cv_*fvm::ddt(T_())
-     ==
+       ==
         fvm::laplacian(k_(), T_(), "laplacian(k,T)")
-	//+sT_
+       //+sT_
     );
 
     // ohm's law for electrons
@@ -511,63 +514,91 @@ void Foam::regionTypes::gasDiffusionLayer::setCoupledEqns()
     // fick diffusion for oxygen
     fvScalarMatrix xO2Eqn =
     (
-	c_*fvm::ddt(xO2_())
-     ==
+        c_*fvm::ddt(xO2_())
+       ==
         fvm::laplacian(c_*DEffO2_(), xO2_(), "laplacian(D,x)")
     );
 
     // fick diffusion for vapor
     fvScalarMatrix xVEqn =
     (
-	c_*fvm::ddt(xV_())
-     ==
+        c_*fvm::ddt(xV_())
+       ==
         fvm::laplacian(c_*DEffV_(), xV_(), "laplacian(D,x)")
-       //+sV_
+        +sV_
     );
 
     // liquid water transport (derived from Darcy's Law)
     fvScalarMatrix sEqn =
     (
-	1/VW_*fvm::ddt(s_())
-     ==
+        1/VW_*fvm::ddt(s_())
+       ==
         fvm::laplacian(K_()*dpCds_/(mu_*VW_), s_(), "laplacian(K,s)")
-       //+ss_
+        +ss_
     );
 
     fvScalarMatrices.set
     (
         T_().name() + mesh().name() + "Eqn",
-	new fvScalarMatrix(TEqn)
+        new fvScalarMatrix(TEqn)
     );
 
     fvScalarMatrices.set
     (
-	phiE_().name() + mesh().name() + "Eqn",
-	new fvScalarMatrix(phiEEqn)
+        phiE_().name() + mesh().name() + "Eqn",
+        new fvScalarMatrix(phiEEqn)
     );
 
     fvScalarMatrices.set
     (
-	xO2_().name() + mesh().name() + "Eqn",
-	new fvScalarMatrix(xO2Eqn)
+        xO2_().name() + mesh().name() + "Eqn",
+        new fvScalarMatrix(xO2Eqn)
     );
 
     fvScalarMatrices.set
     (
-	xV_().name() + mesh().name() + "Eqn",
-	new fvScalarMatrix(xVEqn)
+        xV_().name() + mesh().name() + "Eqn",
+        new fvScalarMatrix(xVEqn)
     );
 
     fvScalarMatrices.set
     (
-	s_().name() + mesh().name() + "Eqn",
-	new fvScalarMatrix(sEqn)
+        s_().name() + mesh().name() + "Eqn",
+        new fvScalarMatrix(sEqn)
     );
 }
 
 void Foam::regionTypes::gasDiffusionLayer::updateFields()
 {
-    // do nothing, add as required
+    Info<< "Temperature = "
+            << T_().weightedAverage(mesh().V()).value()
+            << " Min(T) = " << min(T_()).value()
+            << " Max(T) = " << max(T_()).value()
+            << endl;
+
+    Info<< "Electrode potential = "
+            << phiE_().weightedAverage(mesh().V()).value()
+            << " Min(phiE) = " << min(phiE_()).value()
+            << " Max(phiE) = " << max(phiE_()).value()
+            << endl;
+
+    Info<< "Oxygen mole fraction = "
+            << xO2_().weightedAverage(mesh().V()).value()
+            << " Min(xO2) = " << min(xO2_()).value()
+            << " Max(xO2) = " << max(xO2_()).value()
+            << endl;
+
+    Info<< "vapor mole fraction = "
+            << xV_().weightedAverage(mesh().V()).value()
+            << " Min(xV) = " << min(xV_()).value()
+            << " Max(xV) = " << max(xV_()).value()
+            << endl;
+
+    Info<< "Liquid water saturation = "
+            << s_().weightedAverage(mesh().V()).value()
+            << " Min(s) = " << min(s_()).value()
+            << " Max(s) = " << max(s_()).value()
+            << endl;
 }
 
 void Foam::regionTypes::gasDiffusionLayer::solveRegion()
