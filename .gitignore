@@ -1,0 +1,64 @@
+# git-ls-files --others --exclude-from=.git/info/exclude
+# Lines that start with '#' are comments.
+
+# editor and misc backup files - anywhere
+*~
+.*~
+*.bak
+*.bak[0-9][0-9]
+# *.orig
+# *.orig[0-9][0-9]
+\#*\#
+
+# case files
+*.gz
+*/log.*
+*.log
+*postProcessing
+*~
+*/processor*
+*/processor*/*
+[0-9]*.[0-9]*
+!0.org
+VTK
+VTK/*
+*.eMesh
+/constant/polyMesh/*
+!/constant/polyMesh/blockMeshDict
+!/constant/polyMesh/blockMeshDict.m4
+**cellToRegion
+**boundary
+**faces
+**neighbour
+**owner
+**points
+*.OpenFOAM
+
+# file-browser settings - anywhere
+.directory
+
+# KDevelop include-path files - anywhere
+.kdev_include_paths
+
+# CVS recovered versions - anywhere
+.#*
+
+# objects and archives - anywhere
+*.[oa]
+*.la
+*.so
+*.o
+*.jar
+*.dylib
+
+# derived files
+lex.yy.c
+
+# Corefiles
+core
+
+# dependency files - anywhere
+*.dep
+
+# lnInclude (symlink) folders - anywhere
+lnInclude
