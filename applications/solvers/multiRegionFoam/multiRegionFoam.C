@@ -72,7 +72,10 @@ int main(int argc, char *argv[])
 
         runTime++;
 
-        Info<< "Time = " << runTime.timeName() << nl << endl;
+        Info<< "Time = " << runTime.timeName() << nl
+            << "Time step = " << runTime.deltaT().value()
+            << " Index = " << runTime.timeIndex()
+            << nl << endl;
 
         multiRegion().updateAndCorrect();
 
