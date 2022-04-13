@@ -152,3 +152,4 @@ vagrantSandbox/.vagrant/
 # end-of-file
 src/dynamicFvMesh/
 src/coupledFvPatchFields/interfaceCoupledPressureFlux src/coupledFvPatchFields/interfaceCoupledPressureValue src/coupledFvPatchFields/interfaceCoupledVelocityFlux src/coupledFvPatchFields/interfaceCoupledVelocityValue
+tutorials/multiRegionDuineveldRisingBubble
