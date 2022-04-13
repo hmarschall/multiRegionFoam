@@ -33,6 +33,6 @@ deltaH		deltaH	[1 2 -2 0 -1 0 0] -285830;
 ER		ER  [1 2 -2 0 -1 0 0] 67000;
 
 // pre-exponent factor exchange current density - Dimensions: A/m²
-j0		j0 [0 -2 0 0 0 1 0] 2.45e-4;
+jStern		jStern [0 -2 0 0 0 1 0] 2.45e-4;
 
 // ************************************************************************* //
