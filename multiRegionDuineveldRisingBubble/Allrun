@@ -40,18 +40,15 @@ do
             cp 0/fluidA/orig/partitioned/p 0/fluidA/.
             cp 0/fluidB/orig/partitioned/p 0/fluidB/.
 
-            cp constant/fluidA/polyMesh/blockMeshDictPartitioned constant/fluidA/polyMesh/blockMeshDict 2>/dev/null
-            cp constant/fluidB/polyMesh/blockMeshDictPartitioned constant/fluidB/polyMesh/blockMeshDict 2>/dev/null
+            cp 0/fluidA/orig/partitioned/pointMotionU 0/fluidA/.
+            cp 0/fluidB/orig/partitioned/pointMotionU 0/fluidB/.
 
-            vector="(1e-5 0 0)"
-            
-            runApplication -l log.blockMesh.fluidB blockMesh -region fluidB 2>/dev/null
-            runApplication blockMesh -region fluidA 2>/dev/null
-            
-            transformPoints -translate "(1e-3 0 0)" > region fluidA 2>/dev/null >> log.transformPoints
-            transformPoints -translate "(1e-3 0 0)" > region fluidB 2>/dev/null >> log.transformPoints
-            
             # no -region option for extrudeMesh
+            # thus, copy the meshes
+            cp -r ./baseMeshes/meshA/constant/polyMesh ./constant/fluidA/.
+            cp -r ./baseMeshes/meshA/constant/faMesh ./constant/fluidA/.
+            cp -r ./baseMeshes/meshB/constant/polyMesh ./constant/fluidB/.
+            
             #runApplication extrudeMesh -region fluidA 2>/dev/null
             #runApplication -l log.extrudeMesh.fluidB extrudeMesh -region fluidB 2>/dev/null
             
@@ -60,13 +57,12 @@ do
             
             runApplication createPatch -overwrite -region fluidA 2>/dev/null
             runApplication -l log.createPatch.fluidB createPatch -overwrite -region fluidB 2>/dev/null
-            
-            transformPoints -scale "(0.0005 0.0005 0.0005)" -region fluidA 2>/dev/null >> log.transformPoints
-            transformPoints -scale "(0.0005 0.0005 0.0005)" -region fluidB 2>/dev/null >> log.transformPoints
-            
-            runApplication makeFaMesh -region fluidA 2>/dev/null 
-            runApplication -l log.makeFaMesh.fluidB makeFaMesh -region fluidB 2>/dev/null
-           
+                        
+            runApplication makeFaMesh -region fluidA 2>/dev/null
+            runApplication makeFaMesh -region fluidB 2>/dev/null
+
+            #transformPoints -scale "(0.75 0.75 0.75)" -region fluidA 2>/dev/null >> log.transformPoints
+            #transformPoints -scale "(0.75 0.75 0.75)" -region fluidB 2>/dev/null >> log.transformPoints.fluidB
 
             ./makeLinks fluidA
             ;;

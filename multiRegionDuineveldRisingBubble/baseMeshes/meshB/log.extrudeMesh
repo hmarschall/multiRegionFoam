@@ -1,0 +1,231 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default bdf2;//Euler;//backward; //
+}
+
+gradSchemes
+{
+    default extendedLeastSquares 0;//Gauss linear;//faceMDLimited extendedLeastSquares 0 0.3;
+    //Gauss linear; //extendedLeastSquares 0;//cellLimited leastSquares 0.3;//cellLimited Gauss skewCorrected linear 0.3;//cellLimited Gauss linear 0.3;
+    //-HM Gauss linear;
+    //-HM faceLimited Gauss linear 0.5;
+    //-HM cellLimited Gauss linear 1;
+    //-HM cellLimited leastSquares 1;
+}
+
+divSchemes
+{
+    default Gauss upwind;
+    div(phi,U) Gauss upwind;//Gauss linearUpwindV Gauss linear;//Gauss skewCorrected GammaVDC 1;//
+    //-HM linearUpwindV;
+    //-HM GammaVDC 0.5;
+}
+
+laplacianSchemes
+{
+    default Gauss linear corrected;// patchCorrected;//corrected;//none;
+    //laplacian(U) Gauss linear patchCorrected; //Added CP
+    //laplacian(mu,U) Gauss linear patchCorrected;
+    //laplacian((1|A(U)),p) Gauss linear patchCorrected;
+    //laplacian(1,p) Gauss linear limited 0.5;
+}
+
+interpolationSchemes
+{
+    default linear; //skewCorrected linear;//
+}
+
+snGradSchemes
+{
+    default corrected;//patchCorrected;//
+}
+
+fluxRequired
+{
+    p;
+    pcorr;
+}
+
+// ************************************************************************* //
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          PCG;
+        preconditioner
+        {
+
+            preconditioner  GAMG;
+            nVcycles        2;
+            tolerance       1e-10;
+            relTol          0;
+            smoother        ILU;//GaussSeidel;
+            //number of smoothing steps before projection
+            nSmoothingSteps 1;
+            //sweeps to perform before moving to a coarser level.
+            nPreSweeps      1;
+            //sweeps to perform after coarser level corrections
+            nPostSweeps     2;
+            nFinestSweeps   2;
+            cacheAgglomeration true;
+            nCellsInCoarsestLevel 4;
+            agglomerator    faceAreaPair;
+            //-HM alternatives: algebraicPair; faceAreaPair;
+            mergeLevels     1;
+        }
+        tolerance        1e-14;
+        relTol           0;
+        minIter          1;
+        maxIter          1000;
+    }
+
+    pcorr
+    {
+        solver          BiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-13;
+        relTol          0;
+        minIter         2;
+        maxIter         1000;
+    }
+
+    cellMotionU
+    {
+        solver          BiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          0;
+/*        solver          GMRES;*/
+/*        nDirections     6;*/
+/*        preconditioner  Cholesky;*/
+/*        tolerance       1e-15;*/
+/*        relTol          0;*/
+/*        minIter         2;*/
+/*        maxIter         600;*/
+    }
+
+}
+
+PISO
+{
+/*    nOuterCorrectors            20; //should go down with residual control */
+/*    nCorrectors                 2;//3;*/
+/*    nNonOrthogonalCorrectors    3;//3;*/
+
+/*    scale no;*/
+
+    pRefPoint (5e-4 0 0);  
+    pRefValue 0;
+}
+
+PIMPLE
+{
+    // p-U coupling
+    nOuterCorrectors            1; // SIMPLEC loops
+    nCorrectors                 3; // PISO loops
+    nNonOrthogonalCorrectors    2;
+
+    // interface tracking
+    adjustFluxFrequency         1000;
+
+    // convergence control
+    momentumTolerance           1e-7;
+    innerTolerance              1e-7;
+}
+
+/*SIMPLE*/
+/*{*/
+/*    nNonOrthogonalCorrectors 10;*/
+/*    pRefPoint (0 0.005 1e-3);*/
+/*    pRefValue 0;*/
+/*}*/
+
+relaxationFactors
+{
+/*    p 0.3;*/
+/*    U 0.7;*/
+}
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-70b064d0f326
+Exec   : extrudeMesh
+Date   : Mar 29 2022
+Time   : 15:12:33
+Host   : "coyote"
+PID    : 8140
+CtrlDict : "/mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionFoam/tutorials/multiRegionDuineveldRisingBubble/baseMeshes/meshB/system/controlDict"
+Case   : /mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionFoam/tutorials/multiRegionDuineveldRisingBubble/baseMeshes/meshB
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Selecting extrudeModel wedge
+Extruding patch lowerWedge on mesh "/mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionFoam/tutorials/multiRegionDuineveldRisingBubble/baseMeshes/meshB"
+
+Create polyMesh for time = 0
+
+Writing patch as surfaceMesh to "/mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionFoam/tutorials/multiRegionDuineveldRisingBubble/baseMeshes/meshB/lowerWedge.sMesh"
+
+Extruding patch with :
+    points     : 2031
+    faces      : 1950
+    normals[0] : (0 0 -1)
+
+Mesh bounding box : (4.980973490458728e-05 -0.002 -0.0001786692726326992) (0.002042199131088079 0.002 0.0001786692726326992)
+        with span : (0.001992389396183491 0.004 0.0003573385452653985)
+Merge distance    : 3.573385452653985e-08
+
+Collapsing edges < 3.573385452653985e-08 ...
+
+End
+

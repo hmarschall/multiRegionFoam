@@ -1,0 +1,292 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default bdf2;//Euler;//backward; //
+}
+
+gradSchemes
+{
+    default extendedLeastSquares 0;//Gauss linear;//faceMDLimited extendedLeastSquares 0 0.3;
+    //Gauss linear; //extendedLeastSquares 0;//cellLimited leastSquares 0.3;//cellLimited Gauss skewCorrected linear 0.3;//cellLimited Gauss linear 0.3;
+    //-HM Gauss linear;
+    //-HM faceLimited Gauss linear 0.5;
+    //-HM cellLimited Gauss linear 1;
+    //-HM cellLimited leastSquares 1;
+}
+
+divSchemes
+{
+    default Gauss upwind;
+    div(phi,U) Gauss upwind;//Gauss linearUpwindV Gauss linear;//Gauss skewCorrected GammaVDC 1;//Gauss linearUpwindV Gauss linear;
+    //-HM linearUpwindV;
+    //-HM GammaVDC 0.5;
+}
+
+laplacianSchemes
+{
+    default Gauss linear corrected;//patchCorrected;// corrected;//none;
+    //laplacian(U) Gauss linear patchCorrected; //Added CP
+    //laplacian(mu,U) Gauss linear patchCorrected;
+    //laplacian((1|A(U)),p) Gauss linear patchCorrected;
+    //laplacian(1,p) Gauss linear limited 0.5;
+}
+
+interpolationSchemes
+{
+    default linear; //skewCorrected linear;//
+}
+
+snGradSchemes
+{
+    default corrected;//patchCorrected;//
+}
+
+fluxRequired
+{
+    p;
+    pcorr;
+}
+
+// ************************************************************************* //
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          PCG;
+        preconditioner
+        {
+
+            preconditioner  GAMG;
+            nVcycles        2;
+            tolerance       1e-06;
+            relTol          0;
+            smoother        ILU;//GaussSeidel;
+            //number of smoothing steps before projection
+            nSmoothingSteps 1;
+            //sweeps to perform before moving to a coarser level.
+            nPreSweeps      1;
+            //sweeps to perform after coarser level corrections
+            nPostSweeps     2;
+            nFinestSweeps   2;
+            cacheAgglomeration true;
+            nCellsInCoarsestLevel 4;
+            agglomerator    faceAreaPair;
+            //-HM alternatives: algebraicPair; faceAreaPair;
+            mergeLevels     1;
+        }
+        tolerance        1e-14;
+        relTol           0;
+        minIter          1;
+        maxIter          1000;
+    }
+
+    pcorr
+    {
+        solver          BiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-13;
+        relTol          0;
+        minIter         2;
+        maxIter         1000;
+    }
+
+    cellMotionU
+    {
+        solver          BiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          0;
+/*        solver          GMRES;*/
+/*        nDirections     6;*/
+/*        preconditioner  Cholesky;*/
+/*        tolerance       1e-15;*/
+/*        relTol          0;*/
+/*        minIter         2;*/
+/*        maxIter         600;*/
+    }
+
+    "(A|B|C|P|S|Ci)"
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        minIter         2;
+        maxIter         2000;
+        tolerance       1e-11;
+        relTol          0;
+    }
+
+}
+
+PISO
+{
+/*    nOuterCorrectors            20; //should go down with residual control */
+/*    nCorrectors                 2;//3;*/
+/*    nNonOrthogonalCorrectors    3;//3;*/
+
+/*    scale no;*/
+
+    pRefPoint (5e-4 0 0); 
+    pRefValue 0;
+}
+
+PIMPLE
+{
+    // p-U coupling
+    nCoupledIt			3;
+    nOuterCorrectors            2; // SIMPLEC loops
+    nCorrectors                 2; // PISO loops
+    nNonOrthogonalCorrectors    2;
+
+    // interface tracking
+    adjustFluxFrequency         1000;
+
+    // convergence control
+    momentumTolerance           1e-7;
+    innerTolerance              1e-7;
+
+    // interface jump/transmission residuals
+    pressureJumpTol             1e-5;
+    viscousMomentumFluxTol      1e-10;
+    volumetricFluxTol           1e-6;
+}
+
+/*SIMPLE*/
+/*{*/
+/*    nNonOrthogonalCorrectors 10;*/
+/*    pRefPoint (0 0.005 1e-3);*/
+/*    pRefValue 0;*/
+/*}*/
+
+relaxationFactors
+{
+/*    p 0.3;*/
+/*    U 0.7;*/
+}
+
+
+
+// ************************************************************************* //
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-70b064d0f326
+Exec   : createPatch -overwrite
+Date   : Mar 29 2022
+Time   : 15:11:43
+Host   : "coyote"
+PID    : 7781
+CtrlDict : "/mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionFoam/tutorials/multiRegionDuineveldRisingBubble/baseMeshes/meshA/system/controlDict"
+Case   : /mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionFoam/tutorials/multiRegionDuineveldRisingBubble/baseMeshes/meshA
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+--> FOAM Warning : 
+    From function void* Foam::dlOpen(const Foam::fileName&, bool)
+    in file POSIX.C at line 1204
+    dlopen error : libfunctionObjectsST.so: cannot open shared object file: No such file or directory
+--> FOAM Warning : 
+    From function bool Foam::dlLibraryTable::open(const Foam::fileName&, bool)
+    in file db/dynamicLibrary/dlLibraryTable/dlLibraryTable.C at line 97
+    could not load "libfunctionObjectsST.so"
+Reading createPatchDict.
+
+Create polyMesh for time = 0
+
+Adding new patch interface as patch 3 from 
+{
+    type            patch;
+}
+
+Adding new patch space as patch 4 from 
+{
+    type            wall;
+}
+
+Adding new patch lowerWedge as patch 5 from 
+{
+    type            wedge;
+}
+
+Adding new patch upperWedge as patch 6 from 
+{
+    type            wedge;
+}
+
+Adding new patch centerline as patch 7 from 
+{
+    type            symmetryPlane;
+}
+
+
+Read 80 faces from faceSet interfaceFaces
+Read 80 faces from faceSet spaceFaces
+Moving faces from patch originalPatch to patch 5
+Moving faces from patch otherSide to patch 6
+Read 100 faces from faceSet centerlineFaces
+
+Doing topology modification to order faces.
+
+Synchronising points.
+
+Synchronising points.
+Points changed by average:0 max:0
+
+Removing patches with no faces in them.
+
+Removing empty patch sides at position 0
+Removing empty patch originalPatch at position 1
+Removing empty patch otherSide at position 2
+Removing patches.
+Writing repatched mesh to 0
+
+End
+

@@ -16,14 +16,19 @@ FoamFile
 
 regions
 (
+    // fluidB must be first entry since fluidA requires it for
+    // building global patch communication within interfaceTrackingFvMesh
+    // (must be also reflected in dynamicMeshDict)
     navierStokesFluid (fluidA fluidB)
 );
 
 partitionedTypeRegionInterfaces
 (
+    // The mesh of the first entry must hold a finite area mesh
+    // for motion with interfaceTrackingFvMesh
     fluidAfluidB
     (
-        (((fluidA interface)(fluidB interfaceShadow)) ())
+        (((fluidA interface) (fluidB interfaceShadow)) ())
     )
 );
 

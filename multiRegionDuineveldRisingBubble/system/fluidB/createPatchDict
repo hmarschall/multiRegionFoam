@@ -31,7 +31,7 @@ patchInfo
         name interfaceShadow;
         dictionary
         {
-            type wall;
+            type patch;
         }
         constructFrom set;
         set interfaceFaces;

@@ -10,38 +10,47 @@ FoamFile
     version     2.0;
     format      ascii;
     class       dictionary;
-    location    "constant";
     object      dynamicMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dynamicFvMesh dynamicMotionSolverFvMesh;
+/*dynamicFvMesh staticFvMesh;*/
 
-twoDMotion no;
+dynamicFvMesh interfaceTrackingFvMesh;
 
-motionPlaneNormal (1 0 0);
+solver velocityLaplacian;
 
-/*solver velocityLaplacian;*/
+diffusivity quadratic inverseDistance 1(interfaceShadow);
 
-/*diffusivity quadratic inverseFaceDistance (interfaceShadow);//inverseVolume;*/
+frozenDiffusion yes;
 
-solver laplace;
+twoDMotion yes;
 
-diffusivity quadratic;
+distancePatches 1 (interfaceShadow);
 
-distancePatches 2 (interface interfaceShadow);
 
-nNonOrthogonalCorrectors 3;
-
-distancePatches 2 (interface interfaceShadow);
-
-frozenDiffusion no;
-
-pseudoSolid
+interfaceTrackingFvMeshCoeffs
 {
-    poissonsRatio           0.3;
-    nCorrectors             3;
-    convergenceTolerance    1e-9;
-};
+    movingSurfacePatches
+    (
+/*        interfaceShadow*/
+/*        {*/
+/*            neighbourPatch   interface;*/
+/*            neighbourMesh    fluidA;*/
+
+/*            normalMotionDir yes;*/
+
+/*            // motion direction if normalMotionDir is no*/
+/*            motionDir (0 1 0);*/
+
+/*            fixedSurfacePatches 0();*/
+
+/*            pointNormalsCorrectionPatches 0();*/
+
+/*            GGICoeffs{}*/
+/*        }*/
+    );
+}
+
 
 // ************************************************************************* //

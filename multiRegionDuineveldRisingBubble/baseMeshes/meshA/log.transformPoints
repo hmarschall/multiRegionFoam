@@ -1,0 +1,33 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-70b064d0f326
+Exec   : transformPoints -translate (5e-5 0 0)
+Date   : Mar 29 2022
+Time   : 15:11:43
+Host   : "coyote"
+PID    : 7772
+CtrlDict : "/mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionFoam/tutorials/multiRegionDuineveldRisingBubble/baseMeshes/meshA/system/controlDict"
+Case   : /mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionFoam/tutorials/multiRegionDuineveldRisingBubble/baseMeshes/meshA
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+--> FOAM Warning : 
+    From function void* Foam::dlOpen(const Foam::fileName&, bool)
+    in file POSIX.C at line 1204
+    dlopen error : libfunctionObjectsST.so: cannot open shared object file: No such file or directory
+--> FOAM Warning : 
+    From function bool Foam::dlLibraryTable::open(const Foam::fileName&, bool)
+    in file db/dynamicLibrary/dlLibraryTable/dlLibraryTable.C at line 97
+    could not load "libfunctionObjectsST.so"
+Translating points by (5e-05 0 0)
+Writing points into directory "/mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionFoam/tutorials/multiRegionDuineveldRisingBubble/baseMeshes/meshA/constant/polyMesh"
+

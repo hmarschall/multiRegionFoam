@@ -21,6 +21,15 @@ fluidAinterfacefluidBinterfaceShadow
     sigma           sigma [ 1 0 -2 0 0 0 0 ] 0.0727;
 }
 
+curvatureCorrectedSurfacePatches 1( centerline );
+
+interpolatorUpdateFrequency 1;
+
+interfaceTransferMethod directMap;
+
+directMapCoeffs
+{}
+
 GGICoeffs
 {}
 

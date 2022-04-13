@@ -1,0 +1,68 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      freeSurfaceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+surfaceType interface;
+
+normalMotionDir yes;//CAVE!!
+
+motionDir (0 0 0);
+
+cleanInterface yes;
+
+muFluidA muFluidA [ 1 -1 -1 0 0 0 0 ] 8.9e-4;//8.9e-5;//
+
+muFluidB muFluidB [ 1 -1 -1 0 0 0 0 ] 1.856e-5;
+
+rhoFluidA rhoFluidA [ 1 -3  0 0 0 0 0 ] 997.3;
+
+rhoFluidB rhoFluidB [ 1 -3  0 0 0 0 0 ] 1.173;//1.3
+
+cleanSurfaceTension cleanSurfaceTension [ 1 0 -2 0 0 0 0 ] 66.69e-3;
+
+g g [ 0 1 -2 0 0 0 0 ] ( 0 9.81 0 );
+
+
+fixedSurfacePatches 0 ();
+
+pointNormalsCorrectionPatches 0 ();
+
+nSurfaceCorrectors 1;
+
+relax 0.5;
+
+interfaceDeformationLimit interfaceDeformationLimit [0 0 0 0 0 0 0 ] 1e-5;
+
+
+surfactantProperties
+{
+bulkConc            bulkConc            [ 0 -3  0 0  1 0 0 ] 1.0e-2;
+
+saturatedConc       saturatedSurfConc   [ 0 -2  0 0  1 0 0 ] 5.0e-6;
+
+adsorptionCoeff     adsorptionCoeff     [ 0  3 -1 0 -1 0 0 ] 40.0;
+
+desorptionCoeff     desorptionCoeff     [ 0 -3  0 0  1 0 0 ] 8.93e-2;
+
+bulkDiffusion       bulkDiffusion       [ 0  2 -1 0  0 0 0 ] 1.0e-9;
+
+//diffusion           diffusion           [ 0  2 -1 0  0 0 0 ] 1.0e-9;
+diffusion           diffusion           [ 0  2 -1 0  0 0 0 ] 1.0e-7;
+
+temperature         temperature         [ 0  0  0 1  0 0 0 ] 293.0;
+}
+
+// ************************************************************************* //

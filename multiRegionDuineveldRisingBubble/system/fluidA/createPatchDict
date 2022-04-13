@@ -27,25 +27,11 @@ pointSync true;
 // Patches to create.
 patchInfo
 (
-/*    {*/
-/*        name interface;*/
-/*        dictionary*/
-/*        {*/
-/*             type            mappedPatch;*/
-/*             sampleMode	     nearestPatchFace;*/
-/*             samplePatch     interfaceShadow;*/
-/* 	     offsetMode      uniform;*/
-/* 	     offset	     (0 0 0);*/
-/*        }*/
-/*        constructFrom set;*/
-/*        set interfaceFaces;*/
-/*    }*/
-
     {
         name interface;
         dictionary
         {
-            type wall;
+            type patch;
         }
         constructFrom set;
         set interfaceFaces;

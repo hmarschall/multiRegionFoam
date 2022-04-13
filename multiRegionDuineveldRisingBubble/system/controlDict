@@ -14,10 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-libs
-  (
-    "libcoupledFvPatchBCs.so"
-  );
+libs ( "libscalePatchPhi.so" "libinterfaceTrackingFvMesh.so" "libcoupledFvPatchBCs.so" "liblduSolvers.so");
   
 applicationClass multiRegionFoam;
 
@@ -27,13 +24,13 @@ startTime 0;
 
 stopAt endTime;
 
-endTime 4.5;
+endTime 1;
 
-deltaT 1e-4;
+deltaT 5e-6;
 
-writeControl adjustableRunTime; //timeStep;
+writeControl timeStep;//runTime;//
 
-writeInterval 0.05;//10
+writeInterval 5;//0.01;//
 
 cycleWrite 0; 
 
@@ -49,13 +46,23 @@ timePrecision 12;
 
 runTimeModifiable yes;
 
-adjustTimeStep yes;
+adjustTimeStep no;
 
-maxCo 0.1; 
+maxCo 0.3; 
 
-maxDeltaT 1e-04;
+maxDeltaT 1e-05;
 
 minDeltaT 1e-07; 	
+
+/*functions*/
+/*{*/
+/*    scalePatchPhi*/
+/*    {*/
+/*        type           scalePatchPhi;*/
+/*        regionName     fluidA;*/
+/*        scalePatch     space;*/
+/*    }*/
+/*}*/
 
 /*
 functions
