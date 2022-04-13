@@ -92,11 +92,11 @@ void Foam::regionTypes::gasDiffusionLayer::updateLiquidWaterTransportProperties(
 void Foam::regionTypes::gasDiffusionLayer::updateSourceTerms()
 {
     // heat Source - joule heating electrons and condensation/evaporation heat
-    //sT_ = sigma_()*(fvc::grad(phiE_())&fvc::grad(phiE_())) + gamma_*c_*(xV_() - xVSat_)*HEC_;
+    sT_ = (sigma_()*(fvc::grad(phiE_())&fvc::grad(phiE_())) + gamma_*c_*(xV_() - xVSat_)*HEC_)/T_();
     // mass source vapor
-    sV_ = -gamma_*c_*(xV_() - xVSat_);
+    sV_ = (-gamma_*c_*(xV_() - xVSat_))/xV_();
     // mass source liquid water
-    ss_ = gamma_*c_*(xV_() - xVSat_);
+    ss_ = (gamma_*c_*(xV_() - xVSat_))/s_();
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -251,7 +251,7 @@ Foam::regionTypes::gasDiffusionLayer::gasDiffusionLayer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("sT0", dimensionSet(1, -1, -3, 0, 0, 0, 0), 0)
+        dimensionedScalar("sT0", dimensionSet(1, -1, -3, -1, 0, 0, 0), 0)
     ),
     sV_
     (
@@ -499,10 +499,10 @@ void Foam::regionTypes::gasDiffusionLayer::setCoupledEqns()
     // fourier heat conduction
     fvScalarMatrix TEqn =
     (
-        rho_*cv_*fvm::ddt(T_())
-       ==
-        fvm::laplacian(k_(), T_(), "laplacian(k,T)")
-       //+sT_
+          rho_*cv_*fvm::ddt(T_())
+        - fvm::laplacian(k_(), T_(), "laplacian(k,T)")
+        ==
+          fvm::SuSp(sT_, T_())
     );
 
     // ohm's law for electrons
@@ -514,27 +514,27 @@ void Foam::regionTypes::gasDiffusionLayer::setCoupledEqns()
     // fick diffusion for oxygen
     fvScalarMatrix xO2Eqn =
     (
-        c_*fvm::ddt(xO2_())
-       ==
-        fvm::laplacian(c_*DEffO2_(), xO2_(), "laplacian(D,x)")
+          c_*fvm::ddt(xO2_())
+        ==
+          fvm::laplacian(c_*DEffO2_(), xO2_(), "laplacian(D,x)")
     );
 
     // fick diffusion for vapor
     fvScalarMatrix xVEqn =
     (
-        c_*fvm::ddt(xV_())
-       ==
-        fvm::laplacian(c_*DEffV_(), xV_(), "laplacian(D,x)")
-        +sV_
+          c_*fvm::ddt(xV_())
+        - fvm::laplacian(c_*DEffV_(), xV_(), "laplacian(D,x)")
+        ==
+          fvm::SuSp(sV_, xV_())
     );
 
     // liquid water transport (derived from Darcy's Law)
     fvScalarMatrix sEqn =
     (
-        1/VW_*fvm::ddt(s_())
-       ==
-        fvm::laplacian(K_()*dpCds_/(mu_*VW_), s_(), "laplacian(K,s)")
-        +ss_
+          1/VW_*fvm::ddt(s_())
+        - fvm::laplacian(K_()*dpCds_/(mu_*VW_), s_(), "laplacian(K,s)")
+        ==
+          fvm::SuSp(ss_, s_())
     );
 
     fvScalarMatrices.set
