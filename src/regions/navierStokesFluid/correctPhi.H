@@ -1,7 +1,4 @@
 {
-//    volScalarField pcorr("pcorr", p_);
-//    pcorr *= 0;
-
     if (mesh().changing())
     {
         forAll(U_.boundaryField(), patchi)

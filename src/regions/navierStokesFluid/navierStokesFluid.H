@@ -39,6 +39,7 @@ SourceFiles
 #include "surfaceFields.H"
 #include "IOReferencer.H"
 #include "HashPtrTable.H"
+#include "MRFZones.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -59,54 +60,56 @@ class navierStokesFluid
 
         //- name
         word regionName_;
-        
+
         //- transport properties dictionary 
         IOdictionary transportProperties_;
 
         //- density
         dimensionedScalar rhoFluid_;
-        
+
         volScalarField rho_;
-        
+
         //- viscosity
         dimensionedScalar muFluid_;
-        
+
         volScalarField mu_;           
- 
+
         //- transport
         volVectorField U_;
 
-        surfaceScalarField phi_;            
+        surfaceScalarField phi_;
+
+        surfaceScalarField phiHbyA_;
 
         volScalarField p_;
-               
+
         //- fields for poison equation for the pressure
         volScalarField AU_;
-        
+
         volVectorField HU_;
-        
+
         //- gradients
         volVectorField gradp_;
-        
+
         volTensorField gradU_;
-        
+
         //- pcorr
         wordList pcorrTypes_;
-        
+
         volScalarField pcorr_;
-        
+
         //- Under-relaxation factor
         const scalar UUrf_;
-        
+
         //- Reference pressure cell
         label pRefCell_;
 
         //- Reference pressure value
         scalar pRefValue_;
-        
+
         //- residual for inner correctors
         scalar innerResidual_;
-        
+
         //- residual for pressure outer correctors
         scalar residualPressure_;
 
@@ -115,7 +118,20 @@ class navierStokesFluid
 
         //- Current non-orthogonal corrector loop index
         label corrNonOrtho_;
-      
+
+        //- Moving reference frames
+        MRFZones mrfZones_;
+        label myTimeIndex_;
+
+        //- Adjustable time-step switch
+        const Switch adjustTimeStep_;
+
+        //- For adjustable time-step, this is the maximum Courant number
+        const scalar maxCo_;
+
+        //- For adjustable time-step, this is the maximum time-step
+        const scalar maxDeltaT_;
+
 public:
 
     TypeName("navierStokesFluid");

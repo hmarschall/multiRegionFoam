@@ -128,6 +128,18 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
 		),
 		linearInterpolate(U_) & mesh().Sf()    
     ),
+    phiHbyA_
+    (
+		IOobject
+		(
+			"phiHbyA",
+            mesh().time().timeName(),
+            mesh(),
+			IOobject::NO_READ,
+			IOobject::NO_WRITE
+		),
+		phi_   
+    ),
     p_
     (
 		IOobject
@@ -225,7 +237,24 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
     residualPressure_(1),
 
     corr_(0),
-    corrNonOrtho_(0)
+    corrNonOrtho_(0),
+
+    mrfZones_(mesh()),
+    myTimeIndex_(mesh().time().timeIndex()),
+
+    adjustTimeStep_
+    (
+        mesh().time().controlDict()
+        .lookupOrDefault<Switch>("adjustTimeStep", false)
+    ),
+    maxCo_
+    (
+        mesh().time().controlDict().lookupOrDefault<scalar>("maxCo", 1.0)
+    ),
+    maxDeltaT_
+    (
+        mesh().time().controlDict().lookupOrDefault<scalar>("maxDeltaT", GREAT)
+    )
 {
     
     for (label i = 0; i<p_.boundaryField().size(); i++)
@@ -305,18 +334,32 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
     // --- PIMPLE loop      
     pimpleControl pimple(mesh());
 
+    if (myTimeIndex_ < mesh().time().timeIndex())
+    {
+#       include "CourantNo.H"
+#       include "setDeltaT.H"
+    }
+
     if (mesh().changing())
     {
 #       include "correctPhi.H"
     }
 
-    // Make the fluxes relative to the mesh motion
-    fvc::makeRelative(phi_, U_);
+    if (myTimeIndex_ < mesh().time().timeIndex())
+    {
+        mrfZones_.translationalMRFs().correctMRF();
+    }
 
     while (pimple.loop())
     {
+        // Make the fluxes relative to the mesh motion
+        phi_ == (phi_ - fvc::meshPhi(rho_, U_));
+//        fvc::makeRelative(phi_, U_);
+
+//        mrfZones_.translationalMRFs().correctBoundaryVelocity(U_, phi_);
+
         U_.storePrevIter();
-        
+
         // Convection-diffusion matrix
         fvVectorMatrix HUEqn
         (
@@ -327,18 +370,26 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
         // Time derivative matrix
         fvVectorMatrix ddtUEqn(fvm::ddt(rho_, U_));
 
+//        if (myTimeIndex_ < mesh().time().timeIndex())
+        {
+            mrfZones_.translationalMRFs().addFrameAcceleration(ddtUEqn, rho_);
+
+//            myTimeIndex_ = mesh().time().timeIndex();
+        }
+
         // UEqn
         fvVectorMatrix UEqn(ddtUEqn + HUEqn);
-        
+
         // Save source and boundaryCoeffs
         vectorField S0 = UEqn.source();
         FieldField<Field, vector> B0 = UEqn.boundaryCoeffs();
-        
+
+
         // Relax and solve momentum equation
         UEqn.relax(UUrf_);
 
         if (pimple.momentumPredictor()) 
-        {    
+        {
             solve(UEqn == -gradp_);
         }
         
@@ -348,6 +399,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
         UEqn.source() = S0;
         UEqn.boundaryCoeffs() = B0;
 
+
         // --- PISO loop
         while (pimple.correct())
         {
@@ -356,112 +408,184 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
             AU_ = UEqn.A();
             HU_ = UEqn.H();
 
-            volVectorField HbyA("HbyA", U_);
+            U_ = HU_/AU_;
 
-            HbyA = HU_/AU_;
-            
-            surfaceScalarField phiHbyA // moved from the constructor to avoid 
-                                       // error with divide operator at runtime
+            phi_ =
             (
-                "phiHbyA",
-                (
-                    (fvc::interpolate(HU_)/fvc::interpolate(AU_))
-                    & mesh().Sf()
-                )
+                (fvc::interpolate(HU_)/fvc::interpolate(AU_))
+               & mesh().Sf()
             );
 
-            phiHbyA += fvc::ddtPhiCorr((1.0/AU_)(), rho_, U_, phiHbyA);
+//            phi_ += fvc::ddtPhiCorr((1.0/AU_)(), rho_, U_, phi_);
+
+//            phi += fvc::ddtPhiCorr
+//                (
+//                    (rho_/AU_)(),
+//                    U_,
+//                    phi_
+//                );
 
             // Global flux continuity
-            adjustPhi(phiHbyA, U_, p_);
+//            adjustPhi(phiHbyA_, U_, p_);
 
-            volScalarField AtU(AU_);
-            AtU = max(AU_ - UEqn.H1(), 0.1*AU_);
-
-            surfaceScalarField AtUf("AtUf", fvc::interpolate(AtU));
-            surfaceScalarField AUf("AUf", fvc::interpolate(AU_));
-
-            phiHbyA += (1.0/AtUf - 1.0/AUf)*fvc::snGrad(p_)*mesh().magSf();
-
-            HbyA -= (1.0/AU_ - 1.0/AtU)*gradp_;
-
-            forAll(phiHbyA.boundaryField(), patchI)
+            if (mesh().name() == "fluidB")
             {
-                if
-                (
-                    !p_.boundaryField()[patchI].fixesValue()
-                 && isA<zeroGradientFvPatchVectorField>
-                    (
-                        U_.boundaryField()[patchI]
-                    )
-                )
+                label intPatchID_ = 
+                    mesh().boundaryMesh().findPatchID("interfaceShadow");
+
+                forAll(phi_.boundaryField(), patchI)
                 {
-                    phiHbyA.boundaryField()[patchI] =
+                    if
                     (
-                        U_.boundaryField()[patchI]
-                        & mesh().Sf().boundaryField()[patchI]
-                    );
+                        !phi_.boundaryField()[patchI].coupled()
+                     && patchI != intPatchID_
+//                     && isA<zeroGradientFvPatchVectorField>
+//                        (
+//                            U_.boundaryField()[patchI]
+//                        )
+                    )
+                    {
+                        phi_.boundaryField()[patchI] ==
+                        (
+                            U_.boundaryField()[patchI]
+                            & mesh().Sf().boundaryField()[patchI]
+                        );
+                    }
                 }
             }
-                 
+
+            if (mesh().name() == "fluidA")
+            {
+                forAll(phi_.boundaryField(), patchI)
+                {
+                    if
+                    (
+                        !phi_.boundaryField()[patchI].coupled()
+                     && !p_.boundaryField()[patchI].fixesValue()
+                    )
+                    {
+                        phi_.boundaryField()[patchI] ==
+                        (
+                            U_.boundaryField()[patchI]
+                            & mesh().Sf().boundaryField()[patchI]
+                        );
+                    }
+                }
+            }
+
+            if (mesh().name() == "fluidB")
+            {
+                label intPatchID_ = 
+                    mesh().boundaryMesh().findPatchID("interfaceShadow");
+
+                phi_.boundaryField()[intPatchID_] =
+                    (
+                        U_.boundaryField()[intPatchID_]
+                      & mesh().Sf().boundaryField()[intPatchID_]
+                    );
+
+                scalarField weights =
+                    mag(phi_.boundaryField()[intPatchID_]);
+
+                if(mag(gSum(weights)) > VSMALL)
+                {
+                    weights /= gSum(weights);
+                }
+
+                phi_.boundaryField()[intPatchID_] -=
+                    weights*gSum(phi_.boundaryField()[intPatchID_]);
+
+                phi_.boundaryField()[intPatchID_] +=
+                    p_.boundaryField()[intPatchID_].snGrad()
+                   *mesh().magSf().boundaryField()[intPatchID_]
+                   /AU_.boundaryField()[intPatchID_];
+            }
+
+            if (mesh().name() == "fluidA")
+            {
+                // get space patch index
+                label scalePatchID =
+                    mesh().boundaryMesh().findPatchID("space");
+
+                //- Non-const access to flux on patch
+                fvsPatchField<scalar>& phip = 
+                    const_cast<fvsPatchField<scalar>& >
+                    (
+                        mesh().lookupObject<surfaceScalarField>("phi")
+                        .boundaryField()[scalePatchID]
+                    );
+
+                scalar inletFlux = gSum(neg(phip)*phip);
+
+                scalar outletFlux = gSum(pos(phip)*phip);
+
+                if(outletFlux < VSMALL)
+                {
+                    outletFlux = VSMALL;
+                }
+
+                scalar outflowScaling = -inletFlux/outletFlux;
+
+                phip += pos(phip)*phip*(outflowScaling - 1.0);
+            }
+
             while (pimple.correctNonOrthogonal())
             {
                 fvScalarMatrix pEqn
                 (
-                    fvm::laplacian(1.0/AtUf, p_) == fvc::div(phiHbyA)
+                    fvm::laplacian(1.0/fvc::interpolate(AU_), p_) 
+                 == fvc::div(phi_)
                 );
 
-//                label pRefCell = 0;
-//                scalar pRefValue = 0.0;
-//                bool pNeedRef = false;
-//                bool procHasRef = false;
+                label pRefCell = 0;
+                scalar pRefValue = 0.0;
+                bool pNeedRef = false;
+                bool procHasRef = false;
 
                 // Find reference cell
+                if (mesh().name() == "fluidB")
+                {
+                    point refPointi(mesh().solutionDict().subDict("PIMPLE").lookup("pRefPoint"));
+                    label refCelli = mesh().findCell(refPointi);
+                    label hasRef = (refCelli >= 0 ? 1 : 0);
+                    label sumHasRef = returnReduce<label>(hasRef, sumOp<label>());
+
+                    if (sumHasRef != 1)
+                    {
+                        FatalError<< "Unable to set reference cell for field "
+                                << p_.name()
+                                << nl << "    Reference point pRefPoint"
+                                << " found on " << sumHasRef << " domains (should be one)"
+                                << nl << exit(FatalError);
+                    }
+
+                    if (hasRef)
+                    {
+                        pRefCell = refCelli;
+                        procHasRef = true;
+                    }
+
+                    pRefValue =
+                        readScalar(mesh().solutionDict().subDict("PIMPLE").lookup("pRefValue"));
+
+//                    if (pNeedRef && procHasRef)
+                    {
+                        pEqn.source()[pRefCell] +=
+                            pEqn.diag()[pRefCell]*pRefValue;
+
+                        pEqn.diag()[pRefCell] +=
+                            pEqn.diag()[pRefCell];
+                    }
+                }
+
 //                if (mesh().name() == "fluidB")
 //                {
-//                    point refPointi(mesh().solutionDict().subDict("PIMPLE").lookup("pRefPoint"));
-//                    label refCelli = mesh().findCell(refPointi);
-//                    label hasRef = (refCelli >= 0 ? 1 : 0);
-//                    label sumHasRef = returnReduce<label>(hasRef, sumOp<label>());
+//                    point refPoint(mesh().solutionDict().subDict("PIMPLE").lookup("pRefPoint"));
+//                    pRefCell_ = mesh().findCell(refPoint);
 
-//                    if (sumHasRef != 1)
-//                    {
-//                        FatalError<< "Unable to set reference cell for field "
-//                                << p_.name()
-//                                << nl << "    Reference point pRefPoint"
-//                                << " found on " << sumHasRef << " domains (should be one)"
-//                                << nl << exit(FatalError);
-//                    }
-
-//                    if (hasRef)
-//                    {
-//                        pRefCell = refCelli;
-//                        procHasRef = true;
-//                    }
-
-//                    pRefValue =
-//                        readScalar(mesh().solutionDict().subDict("PIMPLE").lookup("pRefValue"));
-//                    if (pNeedRef && procHasRef)
-//                    {
-//                        pEqn.source()[pRefCell_] +=
-//                            pEqn.diag()[pRefCell_]*pRefValue_;
-
-//                        pEqn.diag()[pRefCell_] +=
-//                            pEqn.diag()[pRefCell_];
-//                    }
-
+//                    pEqn.setReference(pRefCell_, pRefValue_);
 //                }
-                
-                pEqn.setReference(pRefCell_, pRefValue_);
-                
-                pEqn.solve
-                (
-                    mesh().solutionDict().solver
-                    (
-                        p_.select(pimple.finalInnerIter())
-                    )
-                ); 
-                 
+
                 pEqn.solve
                 (
                     mesh().solutionDict()
@@ -470,10 +594,10 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
 
                 if (pimple.finalNonOrthogonalIter())
                 {
-                    phi_ = phiHbyA - pEqn.flux();
+                    phi_ -= pEqn.flux();
                 }                            
             }
-            
+
             //- Pressure relaxation except for last corrector
             if (!pimple.finalIter())
             {
@@ -484,12 +608,18 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
             gradp_ = fvc::grad(p_);
 
             // Momentum corrector
-            U_ = UUrf_*(HbyA - 1.0/AtU*gradp_ + (1 - UUrf_)*U_.prevIter());
+            U_ -= fvc::grad(p_)/AU_;
 
             U_.correctBoundaryConditions();
 
             // Update of velocity gradient
             gradU_ = fvc::grad(U_);       
+        }
+
+        {
+            mrfZones_.translationalMRFs().correctBoundaryVelocity(U_, phi_);
+
+            myTimeIndex_ = mesh().time().timeIndex();
         }
     }
 }
