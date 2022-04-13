@@ -1,5 +1,6 @@
 EXE_INC = \
     -DFULLDEBUG -g -O0 \
+    -I$(LIB_MRF)/lnInclude \
     -I../regions/region \
     -I../regionInterfaces/regionInterface \
     -I../regionProperties \
@@ -20,6 +21,7 @@ EXE_INC = \
 
 LIB_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
+    -lmrfZones \
     -lfiniteVolume \
     -lfiniteArea \
     -lcoupledLduMatrix \
