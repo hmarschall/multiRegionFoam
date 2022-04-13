@@ -271,18 +271,24 @@ void Foam::regionTypeList::setRDeltaT()
 
 void Foam::regionTypeList::solveRegion()
 {
-    forAll(*this, i)
-    {
-        // mesh update
+//    forAll(*this, i)
+//    {
+//        // mesh update
 //        this->operator[](i).update();
+//    }
 
-        // Solve for region-specific physics
-        // This might require outer loops if
-        // coupling is achieved only by mutual
-        // boundary condition updates
-        for (int j=0; j<5; j++)
+    for (int j=0; j<3; j++)
+    {
+        forAll(*this, i)
         {
-            this->operator[](i).solveRegion();
+            // Solve for region-specific physics
+            // This might require outer loops if
+            // coupling is achieved only by mutual
+            // boundary condition updates
+//            for (int j=0; j<5; j++)
+            {
+                this->operator[](i).solveRegion();
+            }
         }
     }
 }
