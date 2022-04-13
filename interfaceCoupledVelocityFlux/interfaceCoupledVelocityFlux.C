@@ -45,7 +45,8 @@ interfaceCoupledVelocityFlux
     phiName_("phi"),
     rhoName_("rhoA"),
     nonOrthCorr_(false),
-    secondOrder_(false)
+    secondOrder_(false),
+    curTimeIndex_(dimensionedInternalField().mesh().time().timeIndex())
 {}
 
 
@@ -66,7 +67,8 @@ interfaceCoupledVelocityFlux
     phiName_(icvf.phiName_),
     rhoName_(icvf.rhoName_),
     nonOrthCorr_(icvf.nonOrthCorr_),
-    secondOrder_(icvf.secondOrder_)
+    secondOrder_(icvf.secondOrder_),
+    curTimeIndex_(icvf.curTimeIndex_)
 {}
 
 
@@ -92,7 +94,8 @@ interfaceCoupledVelocityFlux
     phiName_(dict.lookupOrDefault<word>("phi", "phi")),
     rhoName_(dict.lookupOrDefault<word>("rho", "rho")),
     nonOrthCorr_(false),
-    secondOrder_(false)
+    secondOrder_(false),
+    curTimeIndex_(dimensionedInternalField().mesh().time().timeIndex())
 {
     fvPatchVectorField::operator=(patchInternalField());
 
@@ -126,7 +129,8 @@ interfaceCoupledVelocityFlux
     phiName_(icvf.phiName_),
     rhoName_(icvf.rhoName_),
     nonOrthCorr_(icvf.nonOrthCorr_),
-    secondOrder_(icvf.secondOrder_)
+    secondOrder_(icvf.secondOrder_),
+    curTimeIndex_(icvf.curTimeIndex_)
 {}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -154,8 +158,8 @@ tmp<vectorField> interfaceCoupledVelocityFlux::velJump() const
     areaTensorField gradSU = fac::grad(Us);
 
     // Remove component of gradient normal to surface (area)
-    gradSU -= nf*(nf & gradSU);
-    gradSU.correctBoundaryConditions();
+//    gradSU -= nf*(nf & gradSU);
+//    gradSU.correctBoundaryConditions();
 
     dimensionedScalar muFluidNbr
     (
@@ -189,22 +193,30 @@ void Foam::interfaceCoupledVelocityFlux::updateCoeffs()
         return;
     }
 
-    updateRegionInterface();
+    // Update the region interface attributes
+    const fvMesh& mesh = dimensionedInternalField().mesh();
+
+    if (curTimeIndex_ < mesh.time().timeIndex())
+    {
+        updateRegionInterface();
+
+        curTimeIndex_ = mesh.time().timeIndex();
+    }
 
     // Calculate interpolated patch field
     vectorField fluxNbrToOwn(patch().size(), pTraits<vector>::zero);
 
     // Lookup neighbouring patch field
     const volVectorField& nbrField = nbrMesh().lookupObject<volVectorField>
-        (
-            //presume same field name as on this side
-            this->dimensionedInternalField().name()
-        );
+    (
+        //presume same field name as on this side
+        this->dimensionedInternalField().name()
+    );
 
     const fvPatchVectorField& nbrPatchField =
-     (
-         nbrPatch().patchField<volVectorField, vector>(nbrField)
-     );
+    (
+        nbrPatch().patchField<volVectorField, vector>(nbrField)
+    );
      
     tmp<vectorField> tnbrFlux = 
         refCast<const interfaceCoupledVelocityValue>

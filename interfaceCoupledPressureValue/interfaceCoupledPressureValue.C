@@ -136,17 +136,58 @@ tmp<scalarField> interfaceCoupledPressureValue::valueJump() const
 
     const faMesh& aMesh = faMesh(mesh);
 
+    // surface tension 
+    areaScalarField sigma = rgInterface().sigma();  
+
     // interfacial curvature
     const areaScalarField& K = rgInterface().K();
+//    const areaScalarField& K = aMesh.faceCurvatures();
+
+    Info<< "Surface curvature: min = " << gMin(K)
+        << ", max = " << gMax(K) << ", average = " << gAverage(K) << nl;
+
+//    const scalarField& S = aMesh.S();
+
+//    vectorField nf = this->patch().nf();
+
+//    vectorField n = 
+//        -S*fac::edgeIntegrate
+//        (
+//            aMesh.Le()*aMesh.edgeLengthCorrection()
+//        )().internalField();
+
+//    forAll (n, faceI)
+//    {
+//        if (mag(n[faceI])>SMALL)
+//        {
+//            n[faceI] /= mag(n[faceI]);
+//        }
+//        else
+//        {
+//            n[faceI] = nf[faceI];
+//        }
+//    }
+
+//    vectorField surfTensionForce(n.size(), vector::zero);
+
+//    surfTensionForce =
+//        S*fac::edgeIntegrate
+//        (
+//            linearEdgeInterpolate(sigma)
+//            *aMesh.Le()*aMesh.edgeLengthCorrection()
+//        )().internalField();
+
+//    scalarField normalSurfaceTensionForceDensity = 
+//    (
+//        n & surfTensionForce
+//    )/S;
+
    
     // surface velocity terms
     const areaVectorField& Us = rgInterface().Us();
 
-    areaScalarField divUs(fac::div(Us));    
+    areaScalarField divUs(fac::div(Us));
     divUs.correctBoundaryConditions();
-
-    // surface tension 
-    areaScalarField sigma = rgInterface().sigma();  
 
     // gravity term
     vector pRefPoint(mesh.solutionDict().subDict("PISO").lookup("pRefPoint"));
@@ -176,15 +217,19 @@ tmp<scalarField> interfaceCoupledPressureValue::valueJump() const
         db().time().lookupObject<IOdictionary>("transportProperties")
         .subDict(mesh.name()).lookup("rho")
     );
-    
+
+//    dimensionedScalar sigma0("sigma0", dimensionSet(1,0,-2,0,0,0,0), 0.0727);
+
     return
     (
         2.0*(muFluidNbr.value() - muFluid.value())*divUs.internalField()
+//      - normalSurfaceTensionForceDensity
       - sigma.internalField()*K.internalField()
+//      - sigma0.value()*K.internalField()
       + (rhoFluidNbr.value() - rhoFluid.value())
         *(
             (
-                mesh.C().boundaryField()[this->patch().index()] 
+                mesh.Cf().boundaryField()[this->patch().index()] 
               - pRefPoint
             ) & g.value()
         )
@@ -199,7 +244,7 @@ void Foam::interfaceCoupledPressureValue::updateCoeffs()
         return;
     }
 
-    updateRegionInterface();
+//    updateRegionInterface();
     
     // Calculate interpolated patch field
     scalarField fieldNbrToOwn(patch().size(), 0);

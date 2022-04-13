@@ -95,7 +95,9 @@ class interfaceCoupledVelocityFlux
 
         //- Second order accuracy correction
         Switch secondOrder_;
-        
+    
+        //- Keep track when to update the interface
+        label curTimeIndex_;
 
     // Private functions
 
