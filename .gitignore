@@ -153,3 +153,4 @@ vagrantSandbox/.vagrant/
 src/dynamicFvMesh/
 src/coupledFvPatchFields/interfaceCoupledPressureFlux src/coupledFvPatchFields/interfaceCoupledPressureValue src/coupledFvPatchFields/interfaceCoupledVelocityFlux src/coupledFvPatchFields/interfaceCoupledVelocityValue
 tutorials/multiRegionDuineveldRisingBubble
+tutorials/multiRegionTwoPhaseStratifiedShearFlow/
