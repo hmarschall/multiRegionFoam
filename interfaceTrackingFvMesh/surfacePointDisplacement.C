@@ -49,8 +49,8 @@ Foam::movingInterfacePatches::pointDisplacement(const scalarField& deltaH)
 
     controlPoints() += facesDisplacementDir()*deltaH;
 
-    // Correct curvature at axis
-    if (Pstream::master())
+    // Correct for curvature at axis
+//    if (Pstream::master())
     {
         label patchID = aMesh().boundary().findPatchID("centerline");
 
@@ -98,8 +98,8 @@ Foam::movingInterfacePatches::pointDisplacement(const scalarField& deltaH)
     }
 
     // Correct controPoints next to fixed patches
-//    if (Pstream::master())
-//    {
+    if (Pstream::master())
+    {
         forAll(fixedSurfacePatches_, patchI)
         {
             label fixedPatchID =
@@ -155,7 +155,7 @@ Foam::movingInterfacePatches::pointDisplacement(const scalarField& deltaH)
                   + facesDisplacementDir()[curFace]*H;
             }
         }
-//    }
+    }
 
     // Calculate displacement of internal points
     tmp<vectorField> tdisplacement
@@ -210,9 +210,11 @@ Foam::movingInterfacePatches::pointDisplacement(const scalarField& deltaH)
             const wedgeFaPatch& wedgePatch =
                 refCast<const wedgeFaPatch>(aMesh().boundary()[patchI]);
 
-            if(wedgePatch.axisPoint() > -1)
+//            if(wedgePatch.axisPoint() > -1)
+            forAll(wedgePatch.axisPoints(), apI)
             {
-                label axisPoint = wedgePatch.axisPoint();
+//                label axisPoint = wedgePatch.axisPoint();
+                label axisPoint = wedgePatch.axisPoints()[apI];
 
                 displacement[axisPoint] =
                     pointsDisplacementDir()[axisPoint]

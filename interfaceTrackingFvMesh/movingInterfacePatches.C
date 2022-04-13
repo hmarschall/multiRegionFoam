@@ -297,6 +297,34 @@ void Foam::movingInterfacePatches::makeMotionPointsMask()
             motionPointsMask()[patchPoints[pointI]] = 0;
         }
     }
+
+    // Mark free surface boundary points
+    // at the axis of 2-D axisymmetic cases
+    forAll(aMesh().boundary(), patchI)
+    {
+        if
+        (
+            aMesh().boundary()[patchI].type()
+         == wedgeFaPatch::typeName
+        )
+        {
+            const wedgeFaPatch& wedgePatch =
+                refCast<const wedgeFaPatch>(aMesh().boundary()[patchI]);
+
+            Info << "Axis points: " << endl;
+
+//            if(wedgePatch.axisPoint() > -1)
+            forAll(wedgePatch.axisPoints(), apI)
+            {
+                motionPointsMask()[wedgePatch.axisPoints()[apI]] = 0;
+//                motionPointsMask()[wedgePatch.axisPoint()] = 0;
+
+                Info<< wedgePatch.axisPoints()[apI]
+                    << aMesh().points()[wedgePatch.axisPoints()[apI]]
+                    << endl;
+            }
+        }
+    }
 }
 
 
@@ -351,7 +379,7 @@ void Foam::movingInterfacePatches::updateDisplacementDirections()
 {
     if(normalMotionDir())
     {
-        // Update point displacement correction
+        // Update point displacement correctionengine/engineTopoChangerMesh/deformingEngineMesh/
         pointsDisplacementDir() = aMesh().pointAreaNormals();
 
         // Correct point displacement direction
@@ -511,6 +539,19 @@ void Foam::movingInterfacePatches::initializeControlPointsPosition()
             deltaH[eFaces[edgeI]] *= 2.0;
         }
     }
+
+//    {
+//        label centerLinePatchID =
+//            aMesh().boundary().findPatchID("centerline");
+
+//        const labelList& eFaces =
+//            aMesh().boundary()[centerLinePatchID].edgeFaces();
+
+//        forAll(eFaces, edgeI)
+//        {
+//            deltaH[eFaces[edgeI]] *= 2.0;
+//        }
+//    }
 
     displacement = pointDisplacement(deltaH);
 }
@@ -897,10 +938,10 @@ Foam::movingInterfacePatches::surfacePointDisplacement()
             updateInterpolatorAndGlobalPatches();
         }
 
-        const scalarField& K = aMesh().faceCurvatures().internalField();
+//        const scalarField& K = aMesh().faceCurvatures().internalField();
 
-        Info<< "Free surface curvature: min = " << gMin(K)
-            << ", max = " << gMax(K) << ", average = " << gAverage(K) << nl;
+//        Info<< "Surface curvature: min = " << gMin(K)
+//            << ", max = " << gMax(K) << ", average = " << gAverage(K) << nl;
 
         timeIndex_ = mesh().time().timeIndex();
     }
@@ -916,8 +957,11 @@ Foam::movingInterfacePatches::surfacePointDisplacement()
 
 //        if (mesh().moving())
 //        {
+//            const volVectorField& U =
+//                mesh().objectRegistry::lookupObject<volVectorField>("U");
+
 //            sweptVolCorr -=
-//                fvc::meshPhi(U())().boundaryField()[patchID()];
+//                fvc::meshPhi(U)().boundaryField()[patchID()];
 //        }
 
         pointField newMeshPoints = mesh().allPoints();
@@ -1011,6 +1055,19 @@ Foam::movingInterfacePatches::surfacePointDisplacement()
                 deltaHf[eFaces[edgeI]] *= 2.0;
             }
         }
+
+//        {
+//            label centerLinePatchID =
+//                aMesh().boundary().findPatchID("centerline");
+
+//            const labelList& eFaces =
+//                aMesh().boundary()[centerLinePatchID].edgeFaces();
+
+//            forAll(eFaces, edgeI)
+//            {
+//                deltaHf[eFaces[edgeI]] *= 2.0;
+//            }
+//        }
 
         controlPoints() += facesDisplacementDir()*deltaHf;
 
