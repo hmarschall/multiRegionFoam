@@ -160,7 +160,7 @@ void Foam::regionInterface::makeUs() const
             IOobject
             (
                 U.name() + "s",
-                runTime().constant(), 
+                runTime().timeName(), 
                 runTime(), 
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
@@ -188,7 +188,7 @@ void Foam::regionInterface::makeK() const
             IOobject
             (
                 "K",
-                runTime().constant(), 
+                runTime().timeName(), 
                 runTime(), 
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
@@ -221,7 +221,7 @@ void Foam::regionInterface::makePhis() const
             IOobject
             (
                 phi.name() + "s",
-                runTime().constant(), 
+                runTime().timeName(), 
                 runTime(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
@@ -309,7 +309,7 @@ void Foam::regionInterface::correctCurvature
         {
             FatalErrorIn("regionInterface::correctCurvature(...)")
                 << "Wrong faPatch name in the curvatureCorrectedSurfacePatches"
-                    << " list defined in the surfaceProperties dictionary"
+                    << " list defined in regionInterfaceProperties"
                     << abort(FatalError);
         }
 
@@ -694,15 +694,33 @@ void Foam::regionInterface::updatePhis()
 
 void Foam::regionInterface::updateK()
 {
-    K().internalField() = 
+    areaScalarField& curv = 
         const_cast<areaScalarField&>
         (
            aMesh().faceCurvatures()
         );
 
-    correctCurvature(K());
+    correctCurvature(curv);
 
-    K().correctBoundaryConditions();
+    curv.correctBoundaryConditions();
+
+    K() == aMesh().faceCurvatures();
+
+
+//    K().internalField() = 
+//        const_cast<areaScalarField&>
+//        (
+//           aMesh().faceCurvatures()
+//        );
+
+//    correctCurvature(K());
+
+//    K().correctBoundaryConditions();
+
+//    if (runTime().outputTime())
+//    {
+//        K().write();
+//    }
 }
 
 
