@@ -1,0 +1,126 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+
+
+// bubble radius
+
+// domain length in x,y-direction as multiple of radius
+
+//pseudo height
+
+// number of cells in circumferential direction (must be divisible by 4!)
+
+// number of cells per bubble diameter (must be divisible by 4!)
+
+// cell grading in outer domain (value bigger than 1)
+
+
+
+
+ 
+
+
+ 
+
+ 
+
+
+
+
+
+
+convertToMeters 0.001; // in mm
+
+vertices
+(
+    (1.41421356237309 -1.41421356237309 0)
+    (1.41421356237309 1.41421356237309 0)
+    (0 2.0 0)
+    (0 -2.0 0)
+    (1.41421356237309 -1.41421356237309 0.005)
+    (1.41421356237309 1.41421356237309 0.005)
+    (0 2.0 0.005)
+    (0 -2.0 0.005)
+    (11.3137084989848 11.3137084989848 0) //8
+    (0 16 0)
+    (0 -16 0)
+    (11.3137084989848 -11.3137084989848 0)
+    (11.3137084989848 11.3137084989848 0.005)
+    (0 16 0.005)
+    (0 -16 0.005)
+    (11.3137084989848 -11.3137084989848 0.005)
+);
+
+blocks
+(
+   hex (1 8 9 2 5 12 13 6) (50 15 1) simpleGrading (50 1 1)
+   hex (3 10 11 0 7 14 15 4) (50 15 1) simpleGrading (50 1 1)
+   hex (0 11 8 1 4 15 12 5) (50 50 1) simpleGrading (50 1 1)
+);
+
+edges
+(
+    arc 1 2 (1 1.732050808 0)
+    arc 3 0 (1 -1.732050808 0)
+    arc 0 1 (2.0 0 0)
+    arc 5 6 (1 1.732050808 0.005)
+    arc 7 4 (1 -1.732050808 0.005)
+    arc 4 5 (2.0 0 0.005)
+
+// add arcs for outer domain
+    arc 8 9 (8 13.856406464 0)
+    arc 12 13 (8 13.856406464 0.005)
+    arc 10 11 (8 -13.856406464 0)
+    arc 14 15 (8 -13.856406464 0.005)
+    arc 11 8 (16 0 0)
+    arc 15 12 (16 0 0.005)
+);
+
+patches
+(
+    empty lowerWedge
+    (
+        (1 2 9 8)
+        (3 0 11 10)
+        (0 1 8 11)
+    )
+    empty upperWedge
+    (
+	(5 12 13 6)
+        (7 14 15 4)
+        (4 15 12 5)
+    )
+    wall space
+    (
+        (11 8 12 15)
+        (8 9 13 12)
+        (10 11 15 14)
+    )
+    wall interface
+    (
+        (0 4 5 1)
+        (1 5 6 2)
+        (3 7 4 0)
+    )
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

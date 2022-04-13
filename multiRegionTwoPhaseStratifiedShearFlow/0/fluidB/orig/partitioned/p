@@ -1,0 +1,63 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     3.1-sfb1194                        |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0";
+    object      p;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [1 -1 -2 0 0 0 0];
+
+internalField   uniform 0;
+
+boundaryField
+{
+"proc.*"
+{
+	type	processor;
+	value	uniform 0;
+}
+// fixed values for the inlet (p(x=0)) and outlet (p(x=L))
+    inlet
+    {
+        type            fixedValue;
+        value           uniform 0;
+    }
+    outlet
+    {
+        type            fixedValue;
+        value           uniform -0.0021;
+    } 
+// zero gradient for the walls parallel to the interface  
+    Wall
+    {
+        type            zeroGradient;
+    }
+// interfacial BC    
+    interfaceShadow
+    {
+        type                    interfaceCoupledPressureFlux;
+        k                       "rho";
+        neighbourRegionName     fluidA;
+        neighbourPatchName      interface;
+        neighbourFieldName      p;
+        secondOrder             yes;
+        nonOrthCorr             yes;
+        value                   uniform 0;
+    }
+    frontAndBack
+    {
+        type                    empty;
+    }
+}
+
+// ************************************************************************* //

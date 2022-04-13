@@ -1,0 +1,41 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.0                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build    : 4.0-268bb07d15d8
+Exec     : setSet -region fluid -batch fluid.setSet
+Date     : Jul 23 2021
+Time     : 13:49:00
+Host     : coyote
+PID      : 30984
+CtrlDict : "/mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionHeatTransfer/tutorials/conjugateChannelFlow/system/controlDict"
+Case     : /mnt/dfca3cbd-fb05-48bc-8201-2509593ca904/OpenFOAM/holger-ext/applications/solvers/multiRegionHeatTransfer/tutorials/conjugateChannelFlow
+nProcs   : 1
+SigFpe   : Enabling floating point exception trapping (FOAM_SIGFPE).
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create polyMesh fluid for time = 0
+
+Time:0  cells:3750  faces:15175  points:7852  patches:5  bb:(0 0.025 0) (1 0.1 0.01)
+faceSets:
+	bottomZoneFluid	size:150
+	bottomZone	size:150
+
+Reading commands from file "fluid.setSet"
+Please type 'help', 'quit' or a set command after prompt.
+Doing:"faceSet bottomZone new patchToFace bottom;"
+    Set:bottomZone  Size:0  Action:new
+    Adding all faces of patch bottom ...
+    Found matching patch bottom with 150 faces.
+    Writing bottomZone (size 150) to "constant/polyMesh/sets/bottomZone" and to vtk file "VTK/bottomZone/bottomZone_1.vtk"
+
+Doing:"quit;"
+Quitting ...
+
+End
+

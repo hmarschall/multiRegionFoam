@@ -1,0 +1,14 @@
+#!/bin/sh
+
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+vector="(5e-5 0 0)"
+
+m4 < system/blockMeshDict.m4 > system/blockMeshDict
+
+runApplication blockMesh
+transformPoints -translate "(5e-5 0 0)" > log.transformPoints
+runApplication extrudeMesh
+runApplication setSet -batch faces.setSet
+runApplication createPatch -overwrite
+runApplication makeFaMesh

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Check for proper number of command line args.
+if [ "$#" -ne 2 ]; then
+  echo "Usage: removeSerialLinks meshACase meshBCase"
+  exit 1
+fi
+
+cd $1
+rm -rf 0/meshB
+rm -rf constant/meshB
+rm -rf system/meshB
+cd ..

@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Check for proper number of command line args.
+if [ "$#" -ne 1 ]; then
+  echo "Usage: makeLinks controlRegion"
+  exit 1
+fi
+
+echo changing into controlRegion directory
+cd ./constant
+
+echo creating links
+ln -s ./$1/polyMesh polyMesh
+cd ..
+
