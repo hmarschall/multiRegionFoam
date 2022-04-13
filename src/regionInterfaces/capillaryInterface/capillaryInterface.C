@@ -73,7 +73,6 @@ Foam::regionInterfaces::capillaryInterface::sigma() const
     )
     {
         // contaminated interface
-            
         sigmaPtr_.reset
         (
             new areaScalarField
@@ -85,7 +84,6 @@ Foam::regionInterfaces::capillaryInterface::sigma() const
     else
     {
         // clean interface
-        
         sigmaPtr_.reset
         (
             new areaScalarField
@@ -100,24 +98,27 @@ Foam::regionInterfaces::capillaryInterface::sigma() const
                 ),
                 aMesh(),
                 sigma0_,
-                zeroGradientFaPatchVectorField::typeName
+                zeroGradientFaPatchScalarField::typeName
             )
         );
     }
 
-    return tmp<areaScalarField>
+    return 
     (
-        new areaScalarField
+        tmp<areaScalarField>
         (
-            IOobject
+            new areaScalarField
             (
-                "sigma" + name(),
-                runTime().timeName(),
-                aMesh().thisDb(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            sigmaPtr_()
+                IOobject
+                (
+                    "sigma" + name(),
+                    runTime().timeName(),
+                    aMesh().thisDb(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                sigmaPtr_()
+            )
         )
     );
 }
