@@ -1,0 +1,6 @@
+include MRFZones/MRFZones.dep
+include rotationalMRFs/rotationalMRFZone.dep
+include rotationalMRFs/rotationalMRFZoneTemplates.dep
+include rotationalMRFs/rotationalMRFZones.dep
+include translationalMRFs/translationalMRFZone.dep
+include translationalMRFs/translationalMRFZones.dep
