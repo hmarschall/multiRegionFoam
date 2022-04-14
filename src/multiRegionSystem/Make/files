@@ -1,0 +1,31 @@
+mergePolyMesh.C
+
+interfaceToInterface = ./../coupledFvPatchFields/interfaceToInterfaceMappings
+$(interfaceToInterface)/interfaceToInterfaceMapping/interfaceToInterfaceMapping.C
+$(interfaceToInterface)/ggiInterfaceToInterfaceMapping/ggiInterfaceToInterfaceMapping.C
+$(interfaceToInterface)/directMapInterfaceToInterfaceMapping/directMapInterfaceToInterfaceMapping.C
+
+regions = ./../regions
+$(regions)/region/regionType.C
+$(regions)/region/newRegionType.C
+$(regions)/region/regionTypeList.C
+$(regions)/conductTemperature/conductTemperature.C
+$(regions)/transportTemperature/transportTemperature.C
+$(regions)/navierStokesFluid/navierStokesFluid.C
+
+../regionProperties/regionProperties.C
+../regionInterfaceProperties/regionInterfaceProperties.C
+
+../globalPolyPatch/globalPolyPatch.C
+
+interfaces = ./../regionInterfaces/regionInterface
+$(interfaces)/interfaceKey.C
+$(interfaces)/regionInterface.C
+$(interfaces)/regionInterfaceList.C
+$(interfaces)/newRegionInterface.C
+
+../regionInterfaces/capillaryInterface/capillaryInterface.C
+
+multiRegionSystem.C
+
+LIB = $(FOAM_USER_LIBBIN)/libmultiRegionSystem
