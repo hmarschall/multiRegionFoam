@@ -1,0 +1,23 @@
+#!/bin/sh
+
+source etc/bashrc
+
+set -x
+
+wmakeLnIncludeAll
+
+#wmakeLnInclude -f .
+
+#wmakeLnInclude -f src/.
+ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.C" "src/multiRegionSystem/mergePolyMesh.C"
+ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.H" "src/multiRegionSystem/mergePolyMesh.H"
+
+( cd dependencies/movingReferenceFrame/ && ./Allwmake )
+( cd dependencies/multiRegionFoam/ && ./Allwmake )
+
+wmake libso src/dynamicFvMesh/interfaceTrackingFvMesh/
+wmake libso src/fvPatchFields
+wmake libso src/fvSchemes
+
+wmake applications/utilities/calcCurvature
+wmake applications/utilities/checkFaMesh

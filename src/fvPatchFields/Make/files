@@ -1,4 +1,4 @@
-interfaceToInterfaceCoupleManager/interfaceToInterfaceCoupleManager.C
+$(LIB_MULTIREGION)/src/coupledFvPatchFields/interfaceToInterfaceCoupleManager/interfaceToInterfaceCoupleManager.C
 
 boundaryConditions = ./
 $(boundaryConditions)/interfaceCoupledVelocityValue/interfaceCoupledVelocityValue.C

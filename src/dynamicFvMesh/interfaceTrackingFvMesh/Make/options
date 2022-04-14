@@ -12,8 +12,8 @@ EXE_INC = \
     -I$(LIB_SRC)/dynamicMesh/meshMotion/tetMotionSolver/lnInclude \
     -I$(LIB_SRC)/tetFiniteElement/lnInclude \
     -I$(LIB_SRC)/fvMotionSolver/lnInclude \
-    -I../../globalPolyPatch \
-    -I../../coupledFvPatchFields/lnInclude \
+    -I$(LIB_MULTIREGION)/src/globalPolyPatch \
+    -I$(LIB_MULTIREGION)/src/coupledFvPatchFields/lnInclude \
     -I$(LIB_SRC_ITM)/meshMotion/lnInclude
 
 

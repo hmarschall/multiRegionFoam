@@ -1,0 +1,17 @@
+#!/bin/sh
+set -x
+
+wcleanLnIncludeAll
+rmdepall
+rmoall
+
+( cd dependencies/movingReferenceFrame/ && ./Allclean )
+( cd dependencies/multiRegionFoam/ && ./Allwclean )
+
+wclean libso src/dynamicFvMesh/interfaceTrackingFvMesh/
+wclean libso src/fvPatchFields
+wclean libso src/fvSchemes
+
+wclean applications/utilities/calcCurvature
+wclean applications/utilities/checkFaMesh
+

@@ -1,0 +1,10 @@
+#!/bin/sh
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+export LIB_ROOT_ITM=${DIR%%/etc*}
+export LIB_SRC_ITM=${DIR%%/etc*}/src
+export LIB_DEP_ITM=${DIR%%/etc*}/dependencies
+
+export LIB_MRF=$LIB_DEP_ITM/movingReferenceFrame
+export LIB_MULTIREGION=$LIB_DEP_ITM/multiRegionFoam
