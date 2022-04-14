@@ -5,8 +5,6 @@ wcleanLnIncludeAll
 rmdepall
 rmoall
 
-wclean libso src/coupledFvPatchFields
-
 wclean libso src/multiRegionSystem
 
 wclean applications/solvers/conjugateHeatFoam
