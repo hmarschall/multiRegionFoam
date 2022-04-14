@@ -10,6 +10,8 @@ wmakeLnInclude -f src/.
 ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.C" "src/multiRegionSystem/mergePolyMesh.C"
 ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.H" "src/multiRegionSystem/mergePolyMesh.H"
 
+dependencies/movingReferenceFrame/Allwmake
+
 wmake libso src/multiRegionSystem
 
 wmake applications/solvers/conjugateHeatFoam

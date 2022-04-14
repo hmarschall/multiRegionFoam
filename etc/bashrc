@@ -5,3 +5,5 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export LIB_ROOT_MULTIREGION=${DIR%%/etc*}
 export LIB_SRC_MULTIREGION=${DIR%%/etc*}/src
 export LIB_DEP_MULTIREGION=${DIR%%/etc*}/dependencies
+
+export LIB_MRF=$LIB_DEP_MULTIREGION/movingReferenceFrame
