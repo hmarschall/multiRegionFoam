@@ -126,6 +126,7 @@ relaxationFactors
 /*    U               0.7;*/
 }
 
-
+closedVolume no;
+hasSpacePatch no;
 
 // ************************************************************************* //
