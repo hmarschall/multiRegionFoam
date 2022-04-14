@@ -1,0 +1,7 @@
+DEPENDENCIES = \
+MRFZones/MRFZones.dep\
+rotationalMRFs/rotationalMRFZone.dep\
+rotationalMRFs/rotationalMRFZoneTemplates.dep\
+rotationalMRFs/rotationalMRFZones.dep\
+translationalMRFs/translationalMRFZone.dep\
+translationalMRFs/translationalMRFZones.dep
