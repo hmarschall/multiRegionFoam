@@ -1,7 +1,0 @@
-LOCAL_OBJECTS = \
-MRFZones.o\
-rotationalMRFZone.o\
-rotationalMRFZoneTemplates.o\
-rotationalMRFZones.o\
-translationalMRFZone.o\
-translationalMRFZones.o
