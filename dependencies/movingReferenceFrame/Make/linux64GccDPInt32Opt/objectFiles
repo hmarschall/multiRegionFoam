@@ -1,7 +1,0 @@
-OBJECTS = \
-$(OBJECTS_DIR)/MRFZones.o\
-$(OBJECTS_DIR)/rotationalMRFZone.o\
-$(OBJECTS_DIR)/rotationalMRFZoneTemplates.o\
-$(OBJECTS_DIR)/rotationalMRFZones.o\
-$(OBJECTS_DIR)/translationalMRFZone.o\
-$(OBJECTS_DIR)/translationalMRFZones.o

@@ -1,7 +1,0 @@
-SOURCE = \
-MRFZones/MRFZones.C\
-rotationalMRFs/rotationalMRFZone.C\
-rotationalMRFs/rotationalMRFZoneTemplates.C\
-rotationalMRFs/rotationalMRFZones.C\
-translationalMRFs/translationalMRFZone.C\
-translationalMRFs/translationalMRFZones.C
