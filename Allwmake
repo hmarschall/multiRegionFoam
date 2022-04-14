@@ -1,5 +1,7 @@
-
 #!/bin/sh
+
+source etc/bashrc
+
 set -x
 
 wmakeLnInclude -f .
@@ -8,7 +10,7 @@ wmakeLnInclude -f src/.
 ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.C" "src/multiRegionSystem/mergePolyMesh.C"
 ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.H" "src/multiRegionSystem/mergePolyMesh.H"
 
-wmake libso src/coupledFvPatchFields
+dependencies/movingReferenceFrame/Allwmake
 
 wmake libso src/multiRegionSystem
 
