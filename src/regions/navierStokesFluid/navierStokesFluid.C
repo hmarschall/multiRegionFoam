@@ -229,7 +229,12 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         mesh().solutionDict().subDict("relaxationFactors")
         .lookupOrDefault<scalar>(U_.name(), 1)   
     ), 
-    
+
+    closedVolume_
+    (
+        mesh().solutionDict()
+        .lookupOrDefault<Switch>("closedVolume", false)
+    ),
     pRefCell_(0),
     pRefValue_(0),     
     
@@ -428,7 +433,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
             // Global flux continuity
 //            adjustPhi(phiHbyA_, U_, p_);
 
-            if (mesh().name() == "fluidB")
+            if (closedVolume_)
             {
                 label intPatchID_ = 
                     mesh().boundaryMesh().findPatchID("interfaceShadow");
@@ -454,7 +459,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                 }
             }
 
-            if (mesh().name() == "fluidA")
+            if (!closedVolume_)
             {
                 forAll(phi_.boundaryField(), patchI)
                 {
@@ -473,7 +478,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                 }
             }
 
-            if (mesh().name() == "fluidB")
+            if (closedVolume_)
             {
                 label intPatchID_ = 
                     mesh().boundaryMesh().findPatchID("interfaceShadow");
@@ -501,7 +506,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                    /AU_.boundaryField()[intPatchID_];
             }
 
-            if (mesh().name() == "fluidA")
+            if (!closedVolume_)
             {
                 // get space patch index
                 label scalePatchID =
@@ -543,7 +548,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                 bool procHasRef = false;
 
                 // Find reference cell
-                if (mesh().name() == "fluidB")
+                if (closedVolume_)
                 {
                     point refPointi(mesh().solutionDict().subDict("PIMPLE").lookup("pRefPoint"));
                     label refCelli = mesh().findCell(refPointi);
@@ -578,7 +583,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                     }
                 }
 
-//                if (mesh().name() == "fluidB")
+//                if (closedVolume_)
 //                {
 //                    point refPoint(mesh().solutionDict().subDict("PIMPLE").lookup("pRefPoint"));
 //                    pRefCell_ = mesh().findCell(refPoint);

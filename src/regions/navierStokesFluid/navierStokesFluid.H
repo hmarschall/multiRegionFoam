@@ -101,6 +101,9 @@ class navierStokesFluid
         //- Under-relaxation factor
         const scalar UUrf_;
 
+        //- closed volume?
+        Switch closedVolume_;
+
         //- Reference pressure cell
         label pRefCell_;
 
