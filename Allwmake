@@ -1,5 +1,7 @@
-
 #!/bin/sh
+
+source etc/bashrc
+
 set -x
 
 wmakeLnInclude -f .
