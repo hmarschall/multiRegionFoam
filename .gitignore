@@ -149,6 +149,15 @@ src/lduSolvers/amg/amgPolicy/aamgPolicy.H
 # vagrant stuff
 vagrantSandbox/.vagrant/
 
+# vscode settings
+/.vscode
+
+# scitools understand project directory
+*.und
+
+# bouml project directory
+*.bouml
+
 # end-of-file
 src/dynamicFvMesh/
 src/coupledFvPatchFields/interfaceCoupledPressureFlux src/coupledFvPatchFields/interfaceCoupledPressureValue src/coupledFvPatchFields/interfaceCoupledVelocityFlux src/coupledFvPatchFields/interfaceCoupledVelocityValue
