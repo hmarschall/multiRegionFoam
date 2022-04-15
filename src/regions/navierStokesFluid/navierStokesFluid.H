@@ -104,6 +104,9 @@ class navierStokesFluid
         //- closed volume?
         Switch closedVolume_;
 
+        //- has space patch?
+        Switch hasSpacePatch_;
+
         //- Reference pressure cell
         label pRefCell_;
 

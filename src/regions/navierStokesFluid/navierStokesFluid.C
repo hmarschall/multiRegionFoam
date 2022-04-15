@@ -235,6 +235,11 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         mesh().solutionDict()
         .lookupOrDefault<Switch>("closedVolume", false)
     ),
+    hasSpacePatch_
+    (
+        mesh().solutionDict()
+        .lookupOrDefault<Switch>("hasSpacePatch", false)
+    ),
     pRefCell_(0),
     pRefValue_(0),     
     
@@ -506,7 +511,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                    /AU_.boundaryField()[intPatchID_];
             }
 
-            if (!closedVolume_)
+            if (!closedVolume_ && hasSpacePatch_)
             {
                 // get space patch index
                 label scalePatchID =
