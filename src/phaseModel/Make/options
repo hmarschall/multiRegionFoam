@@ -1,0 +1,20 @@
+EXE_INC = \
+    -I./lnInclude \
+    -I../regions/lnInclude \
+    -I../porosityModel/lnInclude \
+    -I../diffusivityModels/lnInclude \
+    -I../thermophysicalModels/lnInclude \
+    -I../activationOverpotentialModels/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I../nernstModel/lnInclude \
+
+LIB_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
+    -lbasicElectroThermophysicalModels \
+    -lchemistryModel \
+    -lelectroSpecie \
+    -lreactionElectroThermophysicalModels \
+    -lbasicElectroThermophysicalModels \
+    -lporosityModel \
+    -lelectroDiffusivity \
+    -lactivationOverpotentialModels

@@ -1,0 +1,5 @@
+phaseModel/phaseModel.C
+phaseModel/newPhaseModel.C
+phaseModel/phaseModels.C
+
+LIB = $(FOAM_USER_LIBBIN)/libMultiRegionFuelCellPhaseModel
