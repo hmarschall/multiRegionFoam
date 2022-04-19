@@ -1,0 +1,12 @@
+diffusivityModel/diffusivityModel.C
+diffusivityModel/newDiffusivityModel.C
+
+fixedDiffusivity/fixedDiffusivity.C
+knudsen/knudsen.C
+fsgDiffusionVolumes/fsgDiffusionVolumes.C
+fsgMolecularWeights/fsgMolecularWeights.C
+binaryFSG/binaryFSG.C
+porousFSG/porousFSG.C
+
+
+LIB = $(FOAM_USER_LIBBIN)/libelectroDiffusivity

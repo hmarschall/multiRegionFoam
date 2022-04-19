@@ -1,5 +1,45 @@
 mergePolyMesh.C
 
+phaseModel = ./../phaseModel
+$(phaseModel)/phaseModel/phaseModel.C
+$(phaseModel)/phaseModel/newPhaseModel.C
+$(phaseModel)/phaseModel/phaseModels.C
+
+porosityModel = ./../porosityModel
+$(porosityModel)/porosityModel/porosityModel.C
+$(porosityModel)/porosityModel/porosityModelNew.C
+$(porosityModel)/porosityModel/porosityModelList.C
+$(porosityModel)/porosityModel/IOporosityModelList.C
+$(porosityModel)/DarcyForchheimer/DarcyForchheimer.C
+
+diffusivityModels = ./../diffusivityModels
+$(diffusivityModels)/diffusivityModel/diffusivityModel.C
+$(diffusivityModels)/diffusivityModel/newDiffusivityModel.C
+$(diffusivityModels)/fixedDiffusivity/fixedDiffusivity.C
+$(diffusivityModels)/knudsen/knudsen.C
+$(diffusivityModels)/fsgDiffusionVolumes/fsgDiffusionVolumes.C
+$(diffusivityModels)/fsgMolecularWeights/fsgMolecularWeights.C
+$(diffusivityModels)/binaryFSG/binaryFSG.C
+$(diffusivityModels)/porousFSG/porousFSG.C
+
+sigmaModels = ./../sigmaModels
+$(sigmaModels)/sigmaModel/sigmaModel.C
+$(sigmaModels)/sigmaModel/newSigmaModel.C
+$(sigmaModels)/sigmaModel/sigmaModelList.C
+$(sigmaModels)/constantSigma/constantSigma.C
+$(sigmaModels)/porousSigma/porousSigma.C
+
+dissolvedModels = ./../dissolvedModels
+$(dissolvedModels)/dissolvedModel/dissolvedModel.C
+$(dissolvedModels)/dissolvedModel/newDissolvedModel.C
+$(dissolvedModels)/standardDWModel/standardDWModel.C
+$(dissolvedModels)/noneDWModel/noneDWModel.C
+
+saturationModels = ./../saturationModels
+$(saturationModels)/saturationModel/saturationModel.C
+$(saturationModels)/saturationModel/newSaturationModel.C
+$(saturationModels)/ArdenBuck/ArdenBuck.C
+
 regions = ./../regions
 $(regions)/region/regionType.C
 $(regions)/region/newRegionType.C
@@ -7,6 +47,9 @@ $(regions)/region/regionTypeList.C
 $(regions)/conductTemperature/conductTemperature.C
 $(regions)/transportTemperature/transportTemperature.C
 $(regions)/navierStokesFluid/navierStokesFluid.C
+$(regions)/nernstPlanckFluid/nernstPlanckFluid.C
+$(regions)/singlePhaseAnisothermalMulticomponentFluid/singlePhaseAnisothermalMulticomponentFluid.C
+$(regions)/electricConductive/electricConductive.C
 
 ../regionProperties/regionProperties.C
 ../regionInterfaceProperties/regionInterfaceProperties.C
