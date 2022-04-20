@@ -34,6 +34,17 @@ VTK/*
 **points
 *.OpenFOAM
 
+# build folders - anywhere
+linux*Gcc*/
+linux*Icc*/
+mingw*Gcc*/
+darwin*Gcc*/
+darwin*Intel*/
+linuxming*/
+SiCortex*Gcc*/
+solaris*Gcc*/
+SunOS*Gcc*/
+
 # file-browser settings - anywhere
 .directory
 
@@ -62,3 +73,16 @@ core
 
 # lnInclude (symlink) folders - anywhere
 lnInclude
+
+# vscode settings
+/.vscode
+
+# scitools understand project directory
+*.und
+
+# bouml project directory
+*.bouml
+
+# symbolic linked files
+dependencies/multiRegionFoam/src/multiRegionSystem/mergePolyMesh.C
+dependencies/multiRegionFoam/src/multiRegionSystem/mergePolyMesh.H
