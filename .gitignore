@@ -24,12 +24,12 @@
 /constant/polyMesh/*
 !/constant/polyMesh/blockMeshDict
 !/constant/polyMesh/blockMeshDict.m4
-**cellToRegion
-**boundary
-**faces
-**neighbour
-**owner
-**points
+**/cellToRegion
+**/boundary
+**/faces
+**/neighbour
+**/owner
+**/points
 *.OpenFOAM
 
 # file-browser settings - anywhere
@@ -160,6 +160,9 @@ vagrantSandbox/.vagrant/
 
 # end-of-file
 src/dynamicFvMesh/
-src/coupledFvPatchFields/interfaceCoupledPressureFlux src/coupledFvPatchFields/interfaceCoupledPressureValue src/coupledFvPatchFields/interfaceCoupledVelocityFlux src/coupledFvPatchFields/interfaceCoupledVelocityValue
+src/coupledFvPatchFields/interfaceCoupledPressureFlux 
+src/coupledFvPatchFields/interfaceCoupledPressureValue 
+src/coupledFvPatchFields/interfaceCoupledVelocityFlux 
+src/coupledFvPatchFields/interfaceCoupledVelocityValue
 tutorials/multiRegionDuineveldRisingBubble
 tutorials/multiRegionTwoPhaseStratifiedShearFlow/
