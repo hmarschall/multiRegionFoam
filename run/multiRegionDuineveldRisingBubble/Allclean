@@ -1,8 +1,10 @@
 #!/bin/sh
 
-find -type l -delete
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
 
-rm -rf 0.* [1-9]* log* proc* VTK
+cleanCase
+
+find -type l -delete
 
 rm -rf constant/fluidA/polyMesh 2>/dev/null
 rm -rf constant/fluidB/polyMesh 2>/dev/null
@@ -11,8 +13,17 @@ rm -rf constant/fluidA/faMesh 2>/dev/null
 rm -rf constant/fluidB/faMesh 2>/dev/null
 
 rm 0/fluidA/U 2>/dev/null
-rm 0/fluidA/p 2>/dev/null
-
 rm 0/fluidB/U 2>/dev/null
+
+rm 0/fluidA/p 2>/dev/null
 rm 0/fluidB/p 2>/dev/null
 
+rm 0/fluidA/pointMotionU 2>/dev/null
+rm 0/fluidB/pointMotionU 2>/dev/null
+
+cd baseMeshes/meshA
+./Allclean
+
+cd ../meshB
+./Allclean
+cd ../..

@@ -1,8 +1,8 @@
 /*--------------------------------*- C++ -*----------------------------------*\
 | =========                 |                                                 |
 | \\      /  F ield         | foam-extend: Open Source CFD                    |
-|  \\    /   O peration     | Version:     3.1                                |
-|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
 |    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 FoamFile
@@ -15,35 +15,38 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
+
 ddtSchemes
 {
-    default         backward;
 }
 
-gradSchemes
+d2dt2Schemes
 {
-    default         leastSquares;//Gauss linear; // Grad: Us, surfaceTension
-    grad(testAF)    leastSquares;
-}
-
-divSchemes
-{
-    default         Gauss linear;
-}
-
-laplacianSchemes
-{
-    default         Gauss linear corrected;
 }
 
 interpolationSchemes
 {
-    default         linear; // Interpolate: Us
 }
 
-snGradSchemes
+divSchemes
 {
-    default         none;
 }
+
+gradSchemes
+{
+}
+
+lnGradSchemes
+{
+}
+
+laplacianSchemes
+{
+}
+
+fluxRequired
+{
+}
+
 
 // ************************************************************************* //

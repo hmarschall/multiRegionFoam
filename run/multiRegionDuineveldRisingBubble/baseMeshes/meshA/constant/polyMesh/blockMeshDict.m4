@@ -22,7 +22,7 @@ define(rIn, 2.0)
 // domain length in x,y-direction as multiple of radius
 define(fac, 8)
 //pseudo height
-define(z,0.001)
+define(z,0.005)
 // number of cells in circumferential direction (must be divisible by 4!)
 define(cellsCirc, 200)
 // number of cells per bubble diameter (must be divisible by 4!)
