@@ -1,0 +1,215 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default backward;
+}
+
+gradSchemes
+{
+    default cellLimited Gauss linear 1;
+}
+
+divSchemes
+{
+    default none;
+    div(phi,U) Gauss GammaVDC 0.5;
+    div(phi,Ci) Gauss Gamma01 0.5;
+}
+
+laplacianSchemes
+{
+    default Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default linear;
+}
+
+snGradSchemes
+{
+    default corrected;
+}
+
+fluxRequired
+{
+    p;
+}
+
+// ************************************************************************* //
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          PCG;
+        preconditioner      
+        {                   
+
+            preconditioner  GAMG;
+            nVcycles        4;
+            tolerance       1e-06;
+            relTol          0;       
+            smoother        DICGaussSeidel;      
+            //number of smoothing steps before projection
+            nSmoothingSteps 5;                           
+            //sweeps to perform before moving to a coarser level. 
+            nPreSweeps      1;                                    
+            //sweeps to perform after coarser level corrections   
+            nPostSweeps     2;                                    
+            nFinestSweeps   2;                                  
+            cacheAgglomeration true;                              
+            nCellsInCoarsestLevel 16;
+            agglomerator    faceAreaPair; 
+            //-HM alternatives: algebraicPair; faceAreaPair;
+            mergeLevels     1;                                    
+        }
+        tolerance        1e-07;
+        relTol           0;   
+        minIter          1;   
+        maxIter          50;  
+    }
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-06;
+        relTol          0;
+    }
+
+    Ci
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+
+    }
+}
+
+PISO
+{
+    nOuterCorrectors            5; //6
+    nCorrectors                 3; //2
+    nNonOrthogonalCorrectors    1;
+
+    pRefPoint (0.0001 0.0001 0.0);
+    pRefValue 0;
+}
+
+ddtPhiCorr true;
+
+// ************************************************************************* //
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-11cb6dafc53a
+Exec   : improveMeshQuality
+Date   : Apr 19 2022
+Time   : 10:06:44
+Host   : "wmpc15"
+PID    : 79098
+CtrlDict : "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/interfaceTracking-archive-reactiveBubble-testcases-reactiveBubble/testcases/reactiveBubble/smallTestBubble/base/system/controlDict"
+Case   : /home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/interfaceTracking-archive-reactiveBubble-testcases-reactiveBubble/testcases/reactiveBubble/smallTestBubble/base
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Default number of loops is 10
+Default number of iterations is 50
+Default number of surface iterations is 2
+Using default quality threshold 0.1
+No constraints applied on the smoothing procedure
+Resizing points!
+Starting creating cells
+Found 21215 boundary faces 
+Found 0 corners at the surface of the volume mesh
+Found 0 edge points at the surface of the volume mesh
+Starting smoothing the mesh
+Starting untangling the mesh
+Iteration 0. Number of bad faces is 0
+Finished untangling the mesh
+Finished smoothing the mesh
+Worst non-orthogonality 46.7057 selecting faces with non-orthogonality greater than 44.1786
+Maximum skewness in the mesh is 0.538521 selecting faces with skewness greater than 0.484669
+Selected 7 out of 433190 faces
+Iteration 0. Number of worst quality faces is 7
+Worst non-orthogonality 39.6946 selecting faces with non-orthogonality greater than 37.5789
+Maximum skewness in the mesh is 0.48249 selecting faces with skewness greater than 0.434241
+Selected 4 out of 433190 faces
+Iteration 1. Number of worst quality faces is 4
+Worst non-orthogonality 39.6621 selecting faces with non-orthogonality greater than 37.5483
+Maximum skewness in the mesh is 0.48249 selecting faces with skewness greater than 0.434241
+Selected 2 out of 433190 faces
+Iteration 2. Number of worst quality faces is 2
+Worst non-orthogonality 39.6125 selecting faces with non-orthogonality greater than 37.5016
+Maximum skewness in the mesh is 0.48249 selecting faces with skewness greater than 0.434241
+Selected 1 out of 433190 faces
+Iteration 3. Number of worst quality faces is 1
+Worst non-orthogonality 39.607 selecting faces with non-orthogonality greater than 37.4964
+Maximum skewness in the mesh is 0.48249 selecting faces with skewness greater than 0.434241
+Selected 1 out of 433190 faces
+Iteration 4. Number of worst quality faces is 1
+Worst non-orthogonality 39.6065 selecting faces with non-orthogonality greater than 37.4959
+Maximum skewness in the mesh is 0.48249 selecting faces with skewness greater than 0.434241
+Selected 1 out of 433190 faces
+Iteration 5. Number of worst quality faces is 1
+Worst non-orthogonality 39.6064 selecting faces with non-orthogonality greater than 37.4958
+Maximum skewness in the mesh is 0.48249 selecting faces with skewness greater than 0.434241
+Selected 1 out of 433190 faces
+Iteration 6. Number of worst quality faces is 1
+Worst non-orthogonality 39.6064 selecting faces with non-orthogonality greater than 37.4958
+Maximum skewness in the mesh is 0.48249 selecting faces with skewness greater than 0.434241
+Selected 1 out of 433190 faces
+Iteration 7. Number of worst quality faces is 1
+Worst non-orthogonality 39.6064 selecting faces with non-orthogonality greater than 37.4958
+Maximum skewness in the mesh is 0.48249 selecting faces with skewness greater than 0.434241
+Selected 1 out of 433190 faces
+Iteration 8. Number of worst quality faces is 1
+Starting untangling the mesh
+Iteration 0. Number of bad faces is 0
+Finished untangling the mesh
+Writing mesh
+End
+

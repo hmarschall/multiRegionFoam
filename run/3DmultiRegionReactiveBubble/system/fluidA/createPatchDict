@@ -1,0 +1,79 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     3.1                                |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      createPatchDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Tolerance used in matching faces. Absolute tolerance is span of
+// face times this factor. To load incorrectly matches meshes set this
+// to a higher value.
+matchTolerance 1E-3;
+
+// Do a synchronisation of coupled points after creation of any patches.
+// Note: this does not work with points that are on multiple coupled patches
+//       with transformations.
+pointSync true;
+
+// Patches to create.
+patchInfo
+(
+    {
+        name interface;
+        dictionary
+        {
+            type patch;
+        }
+        constructFrom set;
+        set interfaceFaces;
+    }
+
+    {
+        name space;
+        dictionary
+        {
+            type wall;
+        }
+        constructFrom set;
+        set spaceFaces;
+    }
+
+    {
+        name lowerWedge;
+        dictionary
+        {
+            type wedge;
+        }
+        constructFrom patches;
+        patches ( originalPatch );
+    }
+    
+    {
+        name upperWedge;
+        dictionary
+        {
+            type wedge;
+        }
+        constructFrom patches;
+        patches ( otherSide );
+    }
+
+    {
+        name centerline;
+        dictionary
+        {
+            type symmetryPlane;
+        }
+        constructFrom set;
+        set centerlineFaces;
+    }
+);
