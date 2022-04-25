@@ -68,6 +68,12 @@ solvers
 
 }
 
+PISO
+{
+    pRefPoint (5e-5 0 0); 
+    pRefValue 0;
+}
+
 PIMPLE
 {
     // p-U coupling
