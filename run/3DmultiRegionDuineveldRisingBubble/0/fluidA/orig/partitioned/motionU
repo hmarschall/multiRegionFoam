@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       tetPointVectorField;
+    location    "0";
+    object      motionU;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+"proc.*"
+{
+	type	processor;
+	value	uniform (0 0 0);
+}
+    space
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    interface
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    "proc.*"
+    {
+    type            processor;
+    value           uniform (0 0 0);
+    }
+    global
+    {
+        type            global;
+    }
+}
+
+
+// ************************************************************************* //

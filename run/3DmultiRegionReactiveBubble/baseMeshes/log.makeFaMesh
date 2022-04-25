@@ -1,0 +1,163 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default backward;
+}
+
+gradSchemes
+{
+    default cellLimited Gauss linear 1;
+}
+
+divSchemes
+{
+    default none;
+    div(phi,U) Gauss GammaVDC 0.5;
+    div(phi,Ci) Gauss Gamma01 0.5;
+}
+
+laplacianSchemes
+{
+    default Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default linear;
+}
+
+snGradSchemes
+{
+    default corrected;
+}
+
+fluxRequired
+{
+    p;
+}
+
+// ************************************************************************* //
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          PCG;
+        preconditioner      
+        {                   
+
+            preconditioner  GAMG;
+            nVcycles        4;
+            tolerance       1e-06;
+            relTol          0;       
+            smoother        DICGaussSeidel;      
+            //number of smoothing steps before projection
+            nSmoothingSteps 5;                           
+            //sweeps to perform before moving to a coarser level. 
+            nPreSweeps      1;                                    
+            //sweeps to perform after coarser level corrections   
+            nPostSweeps     2;                                    
+            nFinestSweeps   2;                                  
+            cacheAgglomeration true;                              
+            nCellsInCoarsestLevel 16;
+            agglomerator    faceAreaPair; 
+            //-HM alternatives: algebraicPair; faceAreaPair;
+            mergeLevels     1;                                    
+        }
+        tolerance        1e-07;
+        relTol           0;   
+        minIter          1;   
+        maxIter          50;  
+    }
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-06;
+        relTol          0;
+    }
+
+    Ci
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+
+    }
+}
+
+PISO
+{
+    nOuterCorrectors            5; //6
+    nCorrectors                 3; //2
+    nNonOrthogonalCorrectors    1;
+
+    pRefPoint (0.0001 0.0001 0.0);
+    pRefValue 0;
+}
+
+ddtPhiCorr true;
+
+// ************************************************************************* //
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-11cb6dafc53a
+Exec   : makeFaMesh
+Date   : Apr 19 2022
+Time   : 10:06:49
+Host   : "wmpc15"
+PID    : 79423
+CtrlDict : "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/interfaceTracking-archive-reactiveBubble-testcases-reactiveBubble/testcases/reactiveBubble/smallTestBubble/base/system/controlDict"
+Case   : /home/local/CSI/ha13nihi/foam/ha13nihi-4.1/run/interfaceTracking-archive-reactiveBubble-testcases-reactiveBubble/testcases/reactiveBubble/smallTestBubble/base
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create mesh for time = 0
+
+Create faMesh ... Done
+Add faPatches ... Done
+Write finite area mesh ... Done

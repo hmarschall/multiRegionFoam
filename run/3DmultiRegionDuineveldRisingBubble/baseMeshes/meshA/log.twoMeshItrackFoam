@@ -1,0 +1,230 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default backward;//Euler; //
+}
+
+gradSchemes
+{
+    default Gauss linear;//faceMDLimited extendedLeastSquares 0 0.3;
+    //Gauss linear; //extendedLeastSquares 0;//cellLimited leastSquares 0.3;//cellLimited Gauss skewCorrected linear 0.3;//cellLimited Gauss linear 0.3;
+    //-HM Gauss linear;
+    //-HM faceLimited Gauss linear 0.5;
+    //-HM cellLimited Gauss linear 1;
+    //-HM cellLimited leastSquares 1;
+}
+
+divSchemes
+{
+    default Gauss linear;
+    div(phi,U) Gauss GammaVDC 0.5;//Gauss linearUpwindV Gauss linear;//Gauss skewCorrected GammaVDC 1;//Gauss linearUpwindV Gauss linear;
+    //-HM linearUpwindV;
+    //-HM GammaVDC 0.5;
+}
+
+laplacianSchemes
+{
+    default Gauss linear corrected;//patchCorrected;// corrected;//none;
+    //laplacian(U) Gauss linear patchCorrected; //Added CP
+    //laplacian(mu,U) Gauss linear patchCorrected;
+    //laplacian((1|A(U)),p) Gauss linear patchCorrected;
+    //laplacian(1,p) Gauss linear limited 0.5;
+}
+
+interpolationSchemes
+{
+    default linear; //skewCorrected linear;//
+}
+
+snGradSchemes
+{
+    default corrected;//patchCorrected;//
+}
+
+fluxRequired
+{
+    p;
+    pcorr;
+}
+
+// ************************************************************************* //
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          PCG;
+        preconditioner
+        {
+
+            preconditioner  GAMG;
+            nVcycles        2;
+            tolerance       1e-06;
+            relTol          0;
+            smoother        ILU;//GaussSeidel;
+            //number of smoothing steps before projection
+            nSmoothingSteps 1;
+            //sweeps to perform before moving to a coarser level.
+            nPreSweeps      1;
+            //sweeps to perform after coarser level corrections
+            nPostSweeps     2;
+            nFinestSweeps   2;
+            cacheAgglomeration true;
+            nCellsInCoarsestLevel 4;
+            agglomerator    faceAreaPair;
+            //-HM alternatives: algebraicPair; faceAreaPair;
+            mergeLevels     1;
+        }
+        tolerance        1e-14;
+        relTol           0;
+        minIter          1;
+        maxIter          1000;
+    }
+
+    pcorr
+    {
+        solver          BiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-13;
+        relTol          0;
+        minIter         2;
+        maxIter         1000;
+    }
+
+    cellMotionU
+    {
+        solver          BiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          0;
+/*        solver          GMRES;*/
+/*        nDirections     6;*/
+/*        preconditioner  Cholesky;*/
+/*        tolerance       1e-15;*/
+/*        relTol          0;*/
+/*        minIter         2;*/
+/*        maxIter         600;*/
+    }
+
+    "(A|B|C|P|S|Ci)"
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        minIter         2;
+        maxIter         2000;
+        tolerance       1e-11;
+        relTol          0;
+    }
+
+}
+
+PISO
+{
+    pRefPoint (1e-5 0 0); 
+    pRefValue 0;
+}
+
+PIMPLE
+{
+    // p-U coupling
+    nCoupledIt			2;
+    nOuterCorrectors            1; // SIMPLEC loops
+    nCorrectors                 1; // PISO loops
+    nNonOrthogonalCorrectors    1;
+
+    // interface tracking
+    adjustFluxFrequency         1e10;
+
+    // convergence control
+    momentumTolerance           1e-7;
+    innerTolerance              1e-7;
+
+    velTolerance              	1e-8;
+    momTolerance              	1e-8;
+
+    betaSqrEps      betaSqrEps [0 -2 2 0 0 0 0] 10;//0.09;
+    gamma0          1;
+}
+
+relaxationFactors
+{
+}
+
+
+
+// ************************************************************************* //
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-11cb6dafc53a
+Exec   : twoMeshItrackFoam
+Date   : Dec 03 2020
+Time   : 15:23:24
+Host   : "wmpc15"
+PID    : 30228
+CtrlDict : "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/applications/solvers/fe40interfacetracking/testcases/2meshBubble/threeD/duineveld_05/meshA/system/controlDict"
+Case   : /home/local/CSI/ha13nihi/foam/ha13nihi-4.1/applications/solvers/fe40interfacetracking/testcases/2meshBubble/threeD/duineveld_05/meshA
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+Create dynamic mesh for time = 0
+
+Selecting dynamicFvMesh dynamicMotionSolverFvMesh
+
+
+--> FOAM FATAL ERROR: 
+Cannot find file "points" in directory "polyMesh" in times 0 down to constant
+
+    From function Time::findInstance(const fileName&, const word&, const IOobject::readOption, const word&)
+    in file db/Time/findInstance.C at line 203.
+
+FOAM exiting
+

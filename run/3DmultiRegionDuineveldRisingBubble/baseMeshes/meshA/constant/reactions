@@ -1,0 +1,18 @@
+species
+(
+    A
+    B
+    P
+    SP
+);
+
+reactions
+(
+    irreversibleConstRateReaction
+    A + B = P
+    (50 50)
+
+    irreversibleConstRateReaction
+    P + B = SP
+    (500 500)
+);

@@ -1,0 +1,31 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  3.0.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      satapathyVelocity;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+centerAxis (0 1 0); // rise direction
+
+center (0.0 0.0 0.0); // bubble center
+
+riseVelocity  riseVelocity [0 1 -1 0 0 0 0] 0.029301;//0.03508;
+
+bubbleRadius  bubbleRadius [0 1 0 0 0 0 0] 0.002;
+
+outerRadius   outerRadius [0 1 0 0 0 0 0] 0.016;
+
+viscosityRatio viscosityRatio [0 0 0 0 0 0 0] 4.0348E-5;//1.0E-4;
+
+
+// ************************************************************************* //
