@@ -44,47 +44,46 @@ do
             cp 0/fluidB/orig/partitioned/pointMotionU 0/fluidB/.
 
             # no -region option for extrudeMesh
-            # thus, copy the meshes
+            # thus, create and copy the meshes
+            # create meshA
+            cd baseMeshes/meshA
+            ./Allrun
+            # create meshB
+            cd ../meshB
+            ./Allrun
+            cd ../..
+            # copy meshA
             cp -r ./baseMeshes/meshA/constant/polyMesh ./constant/fluidA/.
             cp -r ./baseMeshes/meshA/constant/faMesh ./constant/fluidA/.
+            # copy meshB
             cp -r ./baseMeshes/meshB/constant/polyMesh ./constant/fluidB/.
-            
-            #runApplication extrudeMesh -region fluidA 2>/dev/null
-            #runApplication -l log.extrudeMesh.fluidB extrudeMesh -region fluidB 2>/dev/null
-            
-            runApplication -l log.setSet.fluidB setSet -region fluidB -batch faces.setSet 2>/dev/null
-            runApplication setSet -region fluidA -batch faces.setSet 2>/dev/null
-            
-            runApplication createPatch -overwrite -region fluidA 2>/dev/null
-            runApplication -l log.createPatch.fluidB createPatch -overwrite -region fluidB 2>/dev/null
-                        
-            runApplication makeFaMesh -region fluidA 2>/dev/null
-            runApplication makeFaMesh -region fluidB 2>/dev/null
-
-            #transformPoints -scale "(0.75 0.75 0.75)" -region fluidA 2>/dev/null >> log.transformPoints
-            #transformPoints -scale "(0.75 0.75 0.75)" -region fluidB 2>/dev/null >> log.transformPoints.fluidB
 
             ./makeLinks fluidA
             ;;
 
         -m|--monolithic)
-            cp 0/fluidA/orig/monolithic/T 0/fluidA/.
-            cp 0/fluidA/orig/monolithic/alpha 0/fluidA/.
-            cp 0/fluidB/orig/monolithic/T 0/fluidB/.
-            cp 0/fluidB/orig/monolithic/alpha 0/fluidB/.
 
-            cp constant/fluidA/polyMesh/blockMeshDictMonolithic constant/fluidA/polyMesh/blockMeshDict 2>/dev/null
-            cp constant/fluidB/polyMesh/blockMeshDictMonolithic constant/fluidB/polyMesh/blockMeshDict 2>/dev/null
+            echo "monolithic cuppling currently not supported"
+            shift
+            break
 
-            runApplication -l log.blockMesh.fluidB blockMesh -region fluidB 2>/dev/null
-            runApplication -l log.setSet.fluidB setSet -region fluidB -batch fluidB.setSet 2>/dev/null
-            runApplication -l log.setsToZones.fluidB setsToZones -region fluidB -noFlipMap 2>/dev/null
+            #cp 0/fluidA/orig/monolithic/T 0/fluidA/.
+            #cp 0/fluidA/orig/monolithic/alpha 0/fluidA/.
+            #cp 0/fluidB/orig/monolithic/T 0/fluidB/.
+            #cp 0/fluidB/orig/monolithic/alpha 0/fluidB/.
 
-            runApplication blockMesh -region fluidA 2>/dev/null
-            runApplication setSet -region fluidA -batch fluidA.setSet 2>/dev/null
-            runApplication setsToZones -region fluidA -noFlipMap 2>/dev/null
+            #cp constant/fluidA/polyMesh/blockMeshDictMonolithic constant/fluidA/polyMesh/blockMeshDict 2>/dev/null
+            #cp constant/fluidB/polyMesh/blockMeshDictMonolithic constant/fluidB/polyMesh/blockMeshDict 2>/dev/null
 
-            ./makeLinks fluidA
+            #runApplication -l log.blockMesh.fluidB blockMesh -region fluidB 2>/dev/null
+            #runApplication -l log.setSet.fluidB setSet -region fluidB -batch fluidB.setSet 2>/dev/null
+            #runApplication -l log.setsToZones.fluidB setsToZones -region fluidB -noFlipMap 2>/dev/null
+
+            #runApplication blockMesh -region fluidA 2>/dev/null
+            #runApplication setSet -region fluidA -batch fluidA.setSet 2>/dev/null
+            #runApplication setsToZones -region fluidA -noFlipMap 2>/dev/null
+
+            #./makeLinks fluidA
             ;;
 
         -S|--serial)

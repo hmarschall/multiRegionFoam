@@ -25,36 +25,6 @@ solvers
         relTol          0;
     }
 
-/*    p*/
-/*    {*/
-/*        solver          PCG;*/
-/*        preconditioner*/
-/*        {*/
-
-/*            preconditioner  GAMG;*/
-/*            nVcycles        2;*/
-/*            tolerance       1e-06;*/
-/*            relTol          0;*/
-/*            smoother        GaussSeidel;*/
-/*            //number of smoothing steps before projection*/
-/*            nSmoothingSteps 1;*/
-/*            //sweeps to perform before moving to a coarser level.*/
-/*            nPreSweeps      1;*/
-/*            //sweeps to perform after coarser level corrections*/
-/*            nPostSweeps     2;*/
-/*            nFinestSweeps   2;*/
-/*            cacheAgglomeration false;*/
-/*            nCellsInCoarsestLevel 4;*/
-/*            agglomerator    faceAreaPair;*/
-/*            //-HM alternatives: algebraicPair; faceAreaPair;*/
-/*            mergeLevels     1;*/
-/*        }*/
-/*        tolerance        1e-7;*/
-/*        relTol           0;*/
-/*        minIter          1;*/
-/*        maxIter          1000;*/
-/*    }*/
-
     pcorr
     {
         solver          BiCGStab;
@@ -96,16 +66,12 @@ solvers
 /*        maxIter         600;*/
     }
 
-    "(A|B|C|P|S|Ci)"
-    {
-        solver          PBiCG;
-        preconditioner  DILU;
-        minIter         2;
-        maxIter         2000;
-        tolerance       1e-11;
-        relTol          0;
-    }
+}
 
+PISO
+{
+    pRefPoint (5e-5 0 0); 
+    pRefValue 0;
 }
 
 PIMPLE
@@ -116,7 +82,6 @@ PIMPLE
     nNonOrthogonalCorrectors    1;
 
     pRefPoint (5e-4 0 0);
-/*    pRefPoint (1e-7 0 0);*/
     pRefValue 0;
 
     residualControl
@@ -142,3 +107,4 @@ closedVolume yes;
 
 
 // ************************************************************************* //
+
