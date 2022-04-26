@@ -118,7 +118,7 @@ void Foam::translationalMRFZone::readMRFCentreControl()
 void Foam::translationalMRFZone::setMRFCentreControl()
 {
     if (centreControl_ == Mesh)
-    {
+    {   
         if (mesh().objectRegistry::parent().foundObject<fvMesh>(regionName_))
         {
             const fvMesh& centreMesh = mesh().objectRegistry::parent()
@@ -136,6 +136,8 @@ void Foam::translationalMRFZone::setMRFCentreControl()
                 << regionName_
                 << " not found" 
                 << endl;
+            FatalErrorIn("setMRFCentreControl")
+		    << abort(FatalError);
         }
     }
     else if (centreControl_ == Field)
@@ -354,7 +356,7 @@ Foam::translationalMRFZone::translationalMRFZone(const fvMesh& mesh, Istream& is
     readMRFCentreControl();
 
     // set MRF centre control method
-    setMRFCentreControl();
+    //setMRFCentreControl();
 
     // If restart file present, use it
     readRestart();
