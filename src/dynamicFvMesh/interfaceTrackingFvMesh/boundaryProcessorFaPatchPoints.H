@@ -5,19 +5,21 @@
     label patchID = -1;
     label edgeID = -1;
 
-    for (const label curEdgei : curPointEdges)
+    forAll (curPointEdges, edgeI)
     {
-        if (edgeFaces[curEdgei].size() == 1)
+        label curEdge = curPointEdges[edgeI];
+
+        if (edgeFaces[curEdge].size() == 1)
         {
             forAll(aMesh().boundary(), patchI)
             {
                 const labelList& curEdges = aMesh().boundary()[patchI];
 
-                label index = curEdges.find(curEdgei);
+                label index = findIndex(curEdges, curEdge);
 
                 if (index != -1)
                 {
-                    if
+                    if 
                     (
                         aMesh().boundary()[patchI].type()
                      != processorFaPatch::typeName
