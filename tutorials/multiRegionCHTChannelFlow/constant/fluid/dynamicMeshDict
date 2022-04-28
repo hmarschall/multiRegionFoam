@@ -9,39 +9,12 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      alpha;
+    class       dictionary;
+    object      dynamicMeshDict;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// solid region
+dynamicFvMesh staticFvMesh;
 
-dimensions      [0 2 -1 0 0 0 0];
 
-internalField   uniform 100;
-
-boundaryField
-{
-    top
-    {
-        type            chtRcThermalDiffusivitySlave;
-        remoteField     alpha;
-        value           uniform 100;
-    }
-    bottom
-    {
-        type            zeroGradient;
-    }
-    left
-    {
-        type            zeroGradient;
-    }
-    right
-    {
-        type            zeroGradient;
-    }
-    frontAndBack
-    {
-        type            empty;
-    }
-}
+// ************************************************************************* //
