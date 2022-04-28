@@ -25,11 +25,32 @@ solvers
         minIter         2;
         maxIter         50;
     };
+
+    Tcoupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
 }
 
 SIMPLE
 {
-    nNonOrthogonalCorrectors 0;
+    nNonOrthogonalCorrectors 3;
+
+    residualControl
+    {
+        T               1e-7;
+    }
 }
 
 relaxationFactors
