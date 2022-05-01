@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application     chtMultiRegionFoam;
+application     multiRegionFoam;
 
 startFrom       startTime;
 
@@ -33,7 +33,7 @@ writeInterval   .000005;
 
 purgeWrite      0;
 
-writeFormat     binary;
+writeFormat     ascii;
 
 writePrecision  6;
 
@@ -52,43 +52,7 @@ InfoSwitches
      allowSystemOperations 1;
 }
 
-functions
-{
 /*
-forces
-
-{
-type forces;
-
-libs ("libforces.so");
-
-patches ( Symmetry );
-
-region  fluid ;
-
-rhoName rho;
-
-pName p;
-
-UName U;
-
-CofR (0 0 0);
-
-rhoInf 1000;
-
-name forces;
-
-uitype forces;
-
-writeControl timeStep;
-
-writeInterval 1;
-
-format ascii;
-}
-*/
-
-
 heatTransferCoeff
     {
         type            heatTransferCoeff;
@@ -104,56 +68,7 @@ heatTransferCoeff
     log             true;
         region          fluid;
     }
-
-/*
-//    #includeFunc residuals(region = fluid, p_rgh, U, h)
-//    #includeFunc residuals(region = solid, h)
-
-heatTransferCoeff1
-{
-    // Mandatory entries (unmodifiable)
-    type            heatTransferCoeff;
-    libs            (fieldFunctionObjects);
-    field           T;
-    patches         (Symmetry);
-    htcModel        fixedReferenceTemperature;
-    UInf            (20 0 0);
-    Cp              CpInf;
-    CpInf           1000;
-    rho             rhoInf;
-    rhoInf          1.2;
-
-    // Optional (inherited) entries
-
-    result          <fieldResult>;
-    region          region0;
-    enabled         true;
-    log             true;
-    timeStart       0;
-    timeEnd         1000;
-    executeControl  timeStep;
-    executeInterval 1;
-    writeControl    timeStep;
-    writeInterval   1;
-zzzzzzzzzzzzzzzzzzzzzzz
-{
-    htc
-    {
-        type            heatTransferCoeff;
-        libs            (fieldFunctionObjects);
-        field           T;
-        writeControl    outputTime;
-        writeInterval   1;
-        htcModel        fixedReferenceTemperature;
-        patches         (ceiling);
-        TRef            373;
-    }
-}
-
-zzzzzzzzzzzzzzzzzzzzzzzzz
-}
 */
-}
 
 
 // ************************************************************************* //
