@@ -70,18 +70,18 @@ Foam::regionTypes::transportTemperature::transportTemperature
         ),
         mesh()
     ),
-    phi_
-    (
-		IOobject
-		(
-			"phi",
-            mesh().time().timeName(),
-            mesh(),
-			IOobject::READ_IF_PRESENT,
-			IOobject::AUTO_WRITE
-		),
-		linearInterpolate(U_) & mesh().Sf()    
-    ),
+//    phi_
+//    (
+//		IOobject
+//		(
+//			"phi",
+//            mesh().time().timeName(),
+//            mesh(),
+//			IOobject::READ_IF_PRESENT,
+//			IOobject::AUTO_WRITE
+//		),
+//		linearInterpolate(U_) & mesh().Sf()    
+//    ),
 
     transportProperties_
     (
@@ -125,6 +125,7 @@ Foam::regionTypes::transportTemperature::transportTemperature
 //        *this
 //    )
     alpha_(nullptr),
+    phi_(nullptr),
     T_(nullptr)
 {
     alpha_.reset
@@ -185,6 +186,36 @@ void Foam::regionTypes::transportTemperature::setRDeltaT()
 
 void Foam::regionTypes::transportTemperature::setCoupledEqns()
 {
+    // look up flux field from object registry
+    if (mesh().foundObject<surfaceScalarField>("phi"))
+    {
+        phi_.reset
+        (
+            new surfaceScalarField
+            (
+                mesh().lookupObject<surfaceScalarField>("phi")
+            )
+        );
+    }
+    else // use pre-set velocity field
+    {
+        phi_.reset
+        (
+            new surfaceScalarField
+            (
+		        IOobject
+		        (
+			        "phi",
+                    mesh().time().timeName(),
+                    mesh(),
+			        IOobject::NO_READ,
+			        IOobject::AUTO_WRITE
+		        ),
+		        linearInterpolate(U_) & mesh().Sf()
+            )
+        );
+    }
+
     fvScalarMatrix TEqn =
     (
         fvm::ddt(T_())
