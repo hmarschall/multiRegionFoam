@@ -22,15 +22,15 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::fluidSolidInterface.C
+    Foam::defaultInterface.C
 
 SourceFiles
-    fluidSolidInterface.C
+    defaultInterface.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef fluidSolidInterface_H
-#define fluidSolidInterface_H
+#ifndef defaultInterface_H
+#define defaultInterface_H
 
 #include "regionInterface.H"
 #include "IOReferencer.H"
@@ -44,21 +44,21 @@ namespace regionInterfaces
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class fluidSolidInterface Declaration
+                           Class defaultInterface Declaration
 \*---------------------------------------------------------------------------*/
 
-class fluidSolidInterface
+class defaultInterface
 :
     public regionInterface
 {
 
 public:
 
-    TypeName("fluidSolidInterface");
+    TypeName("defaultInterface");
 
     // Constructors
 
-        fluidSolidInterface
+        defaultInterface
         (
             const Time& runTime,
             const fvPatch& patchA,
@@ -66,7 +66,7 @@ public:
         );
 
     // Destructor
-    virtual ~fluidSolidInterface()
+    virtual ~defaultInterface()
     {}
 };
 

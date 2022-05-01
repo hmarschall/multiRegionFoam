@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "fluidSolidInterface.H"
+#include "defaultInterface.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -33,12 +33,12 @@ namespace Foam
 {
 namespace regionInterfaces
 {
-    defineTypeNameAndDebug(fluidSolidInterface, 0);
+    defineTypeNameAndDebug(defaultInterface, 0);
 
     addToRunTimeSelectionTable
     (
         regionInterface, 
-        fluidSolidInterface, 
+        defaultInterface, 
         IOdictionary 
     );
 }
@@ -46,7 +46,7 @@ namespace regionInterfaces
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
     
-Foam::regionInterfaces::fluidSolidInterface::fluidSolidInterface
+Foam::regionInterfaces::defaultInterface::defaultInterface
 ( 
     const Time& runTime,   
     const fvPatch& patchA, 
