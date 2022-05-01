@@ -25,6 +25,7 @@ $(interfaces)/regionInterfaceList.C
 $(interfaces)/newRegionInterface.C
 
 ../regionInterfaces/capillaryInterface/capillaryInterface.C
+../regionInterfaces/defaultInterface/defaultInterface.C
 
 multiRegionSystem.C
 
