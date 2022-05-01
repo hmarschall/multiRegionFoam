@@ -1,10 +1,4 @@
 interfaceToInterfaceCoupleManager/interfaceToInterfaceCoupleManager.C
 
-boundaryConditions = ./
-$(boundaryConditions)/interfaceCoupledVelocityValue/interfaceCoupledVelocityValue.C
-$(boundaryConditions)/interfaceCoupledVelocityFlux/interfaceCoupledVelocityFlux.C
-$(boundaryConditions)/interfaceCoupledPressureFlux/interfaceCoupledPressureFlux.C
-$(boundaryConditions)/interfaceCoupledPressureValue/interfaceCoupledPressureValue.C
-
 LIB = $(FOAM_USER_LIBBIN)/libcoupledFvPatchBCs
 
