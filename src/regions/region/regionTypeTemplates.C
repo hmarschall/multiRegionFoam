@@ -94,6 +94,20 @@ fvMatrix<tensor>& regionType::getCoupledEqn
     return *fvTensorMatrices[name];
 }
 
+bool regionType::foundCoupledEqn
+(
+    word name
+)
+{
+    return 
+    (
+        fvScalarMatrices.found(name) ||
+        fvVectorMatrices.found(name) ||
+        fvSymmTensorMatrices.found(name) ||
+        fvTensorMatrices.found(name)
+    );
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
