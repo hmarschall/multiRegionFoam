@@ -23,7 +23,7 @@ boundaryField
 {
     Wall
     {
-        type            noSlip;
+        type            fixedValue;
         value           uniform (0 0 0);
     }
     Symmetry
@@ -31,11 +31,25 @@ boundaryField
         type            symmetryPlane;
         value           $internalField;
     }
-//
-    In
+    InWallFluid
     {
         type            fixedValue;
-        value           $internalField;
+        value           uniform (0 0 0);
+    }
+    OutWallFluid
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    CyclicFluid
+    {
+        type            cyclic;
+        //value           $internalField;
+    }
+    fluid_to_solid
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
     }
 //
 /*
@@ -72,15 +86,6 @@ boundaryField
     #};
      }
 */
-    Out
-    {
-        type            zeroGradient;
-    }
-    fluid_to_solid
-    {
-        type            noSlip;
-        value           uniform (0 0 0);
-    }
 }
 
 

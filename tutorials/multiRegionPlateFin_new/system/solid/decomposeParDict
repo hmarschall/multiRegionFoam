@@ -16,6 +16,11 @@ FoamFile
 
 numberOfSubdomains 4;
 
+globalFaceZones
+(
+    CyclicSolid_faces
+);
+
 method		simple;
 
 simpleCoeffs

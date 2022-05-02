@@ -9,12 +9,12 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       labelList;
-    location    "constant/polyMesh";
-    object      boundaryRegionAddressing;
+    class       dictionary;
+    object      MRFZones;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-5(0 1 2 3 4)
+0()
+
 
 // ************************************************************************* //
