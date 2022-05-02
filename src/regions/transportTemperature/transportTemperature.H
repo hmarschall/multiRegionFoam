@@ -62,7 +62,7 @@ class transportTemperature
         //- transport
         volVectorField U_;
 
-        surfaceScalarField phi_;
+        //surfaceScalarField phi_;
 
         //- transport properties dictionary 
         IOdictionary transportProperties_;
@@ -78,6 +78,9 @@ class transportTemperature
 
         //- thermal diffusivity
         autoPtr<volScalarField> alpha_;
+
+        //- flux
+        autoPtr<surfaceScalarField> phi_;
 
 protected:
 
