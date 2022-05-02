@@ -19,6 +19,14 @@ regionInterfaceType defaultInterface;
 fluidfluid_to_solidsolidsolid_to_fluid
 {}
 
+/*
+fluidInWallFluidsolidOutSolid
+{}
+
+fluidOutWallFluidsolidInSolid
+{}
+*/
+
 curvatureCorrectedSurfacePatches 0();
 
 interpolatorUpdateFrequency 1;

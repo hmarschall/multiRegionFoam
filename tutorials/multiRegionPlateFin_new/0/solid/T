@@ -28,15 +28,33 @@ boundaryField
     }
     Symmetry
     {
-        type            zeroGradient;
+        type            symmetryPlane;
     }
-    In
+    InSolid
     {
-        type            zeroGradient;
+        type                    zeroGradient;
+        /*
+        type                     regionCoupleHeatFlux;
+        neighbourRegionName      fluid;
+        neighbourPatchName       OutWallFluid;
+        neighbourFieldName       T;
+        value                    $internalField;
+        */
     }
-    Out
+    CyclicSolid
     {
-        type            zeroGradient;
+        type           cyclic;
+    }
+    OutSolid
+    {
+        type                    zeroGradient;
+        /*
+        type                     regionCoupleHeatFlux;
+        neighbourRegionName      fluid;
+        neighbourPatchName       InWallFluid;
+        neighbourFieldName       T;
+        value                    $internalField;
+        */
     }
     solid_to_fluid
     {

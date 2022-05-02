@@ -31,14 +31,34 @@ boundaryField
         type            symmetryPlane;
         value           $internalField;
     }
-    In
+    InWallFluid
     {
-        type            fixedValue;
-        value           $internalField;
+        type                    zeroGradient;
+        /*
+        type                    regionCoupleTemperature;
+        neighbourRegionName     solid;
+        neighbourPatchName      OutSolid;
+        neighbourFieldName      T;
+        K                       1.0;
+        value                   $internalField;
+        */
     }
-    Out
+    CyclicFluid
     {
-        type            zeroGradient;
+        type            cyclic;
+        //value           $internalField;
+    }
+    OutWallFluid
+    {
+        type                    zeroGradient;
+        /*
+        type                    regionCoupleTemperature;
+        neighbourRegionName     solid;
+        neighbourPatchName      InSolid;
+        neighbourFieldName      T;
+        K                       1.0;
+        value                   $internalField;
+        */
     }
     fluid_to_solid
     {

@@ -164,6 +164,12 @@ public:
             word name
         );
 
+        // Check if region holds fvMatrix 
+        bool foundCoupledEqn
+        (
+            word name
+        );
+
         // Get a ref to the fields 
         template<class T>
         const T& getObject(const word& name);

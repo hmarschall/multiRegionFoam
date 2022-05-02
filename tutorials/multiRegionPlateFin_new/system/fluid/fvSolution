@@ -40,21 +40,39 @@ solvers
 /*        maxIter         50;*/
 /*    };*/
 
-    Tcoupled
+    p
     {
-        solver           BiCGStab;
-        
-        preconditioner      
-        {                   
-            preconditioner  Cholesky;
-        }
+        solver          BICCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
 
-        tolerance        1e-15;
-        relTol           0;
+    pcorr
+    {
+        solver          BiCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
 
-        minIter          0;
-        maxIter          200;
-    };
+    pFinal
+    {
+        solver          BICCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-6;
+        relTol          0;
+        minIter         2;
+        maxIter         1000;
+    }
 }
 
 SIMPLE
@@ -65,6 +83,20 @@ SIMPLE
     {
         T               1e-4;
     }
+}
+
+PISO
+{
+    pRefPoint (0.0015 0.0003 0.001); 
+    pRefValue 0;
+}
+
+PIMPLE
+{
+    // p-U coupling
+    nOuterCorrectors            3; // SIMPLEC loops
+    nCorrectors                 1; // PISO loops
+    nNonOrthogonalCorrectors    1;
 }
 
 relaxationFactors

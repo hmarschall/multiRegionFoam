@@ -131,12 +131,19 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
     // assemble and solve all matrices one-by-one
     forAll (regions_(), regI)
     {
-        // Check if coupled field is registered to region 
+        regionType& rg = const_cast<regionType&>(regions_()[regI]);
+        // Check if coupled field is registered to region mesh
         // and if it is of correct type
+        // and if this region holds the equation
         if
         (
             !(
-                regions_()[regI].mesh().thisDb().foundObject
+                rg.foundCoupledEqn
+                (
+                    fldName + rg.mesh().name() + "Eqn"
+                ) 
+                && 
+                rg.mesh().thisDb().foundObject
                 <GeometricField<T, fvPatchField, volMesh> >
                 (
                     fldName
@@ -171,7 +178,6 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             mesh.surfaceInterpolation::movePoints();
         }
 
-        regionType& rg = const_cast<regionType&>(regions_()[regI]);
 
         fvMatrix<T>& eqn =
             rg.getCoupledEqn<T>

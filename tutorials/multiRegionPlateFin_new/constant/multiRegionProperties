@@ -16,17 +16,27 @@ FoamFile
 
 regions
 (
-    //navierStokesFluid (fluid)
+    navierStokesFluid (fluid)
     transportTemperature (fluid)
     conductTemperature (solid)
 );
 
 partitionedTypeRegionInterfaces
 (
-    fluidSolid 
+    fluidSolid
     (
         (((fluid fluid_to_solid)(solid solid_to_fluid)) (T))
     )
+    /*
+    fluidSolid2
+    (
+        (((fluid InWallFluid)(solid OutSolid)) (T))
+    )
+    fluidSolid3
+    (
+        (((fluid OutWallFluid)(solid InSolid)) (T))
+    )
+    */
 );
 
 monolithicTypeRegionInterfaces
