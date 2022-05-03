@@ -60,7 +60,7 @@ class transportTemperature
         word regionName_;
 
         //- transport
-        volVectorField U_;
+        //volVectorField U_;
 
         //surfaceScalarField phi_;
 
@@ -75,6 +75,9 @@ class transportTemperature
 
         //- density
         dimensionedScalar rho_;
+
+        //- transport
+        autoPtr<volVectorField> U_;
 
         //- thermal diffusivity
         autoPtr<volScalarField> alpha_;
