@@ -79,14 +79,7 @@ void Foam::regionTypes::gasDiffusionLayer::updateLiquidWaterTransportProperties(
     K_() = (1e-6 + pow(sRed_,3))*K0_;
 
     // evaporation/condensation rate
-    if(xV_() < xVSat_) // evaporation
-    {
-        gamma_ = 5e-4*sqrt(RGas_*T_()/(2*pi_*MW_))*aLG_*sRed_;
-    }
-    else // condensation
-    {
-        gamma_ = 6e-3*sqrt(RGas_*T_()/(2*pi_*MW_))*aLG_*sRed_;
-    }
+    gamma_ = (pos(xV_() - xVSat_)*6e-3*(1-sRed_) + (1 - pos(xV_() - xVSat_))*5e-4*sRed_)*aLG_*sqrt(RGas_*T_()/(2*pi_*MW_));
 }
 
 void Foam::regionTypes::gasDiffusionLayer::updateSourceTerms()

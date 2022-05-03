@@ -70,9 +70,6 @@ void Foam::regionTypes::ionomer::updateSourceTerms()
 {
     // heat source - joule heating protons
     sT_ = (kappa_()*(fvc::grad(phiP_())&fvc::grad(phiP_())))/T_();
-
-    // water content source - electro-osmotic drag
-    sLambda_ = (fvc::laplacian(xi_*kappa_()/FConst_, phiP_()))/lambda_();
 }	
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -352,8 +349,7 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
     (
           1/VM_*fvm::ddt(lambda_())
         - fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")
-        ==
-          fvm::SuSp(sLambda_, lambda_())
+        + fvc::laplacian(xi_*kappa_()/FConst_, phiP_(), "laplacian(kappa,phiP)") 
     );
     
     fvScalarMatrices.set
