@@ -41,7 +41,7 @@ const fvMesh& mesh = this->mesh();
 
 if (mesh.nInternalFaces())
 {
-    surfaceScalarField magPhi = mag(phi_);
+    surfaceScalarField magPhi = mag(phi_());
 
     surfaceScalarField SfUfbyDelta =
         mesh.surfaceInterpolation::deltaCoeffs()*magPhi;
