@@ -804,46 +804,49 @@ tmp<vectorField> movingInterfacePatches::pointDisplacement(const scalarField& de
 
             label patchID = aMesh().boundary().findPatchID("centerline");
 
-            const labelList& eFaces =
-                aMesh().boundary()[patchID].edgeFaces();
-
-//            const labelList& eFaces =
-//                aMesh().boundary()[fixedPatchID].edgeFaces();
-
-            const labelListList& fFaces = aMesh().patch().faceFaces();
-            const vectorField& fCentres =
-                aMesh().areaCentres().internalField();
-
-            forAll(eFaces, edgeI)
+            if (patchID != -1)
             {
-                const label& curFace = eFaces[edgeI];
-                const labelList& curFaceFaces = fFaces[curFace];
+                const labelList& eFaces =
+                    aMesh().boundary()[patchID].edgeFaces();
+                
+    //            const labelList& eFaces =
+    //                aMesh().boundary()[fixedPatchID].edgeFaces();
 
-                scalar H = 0.0;
-                label counter = 0;
+                const labelListList& fFaces = aMesh().patch().faceFaces();
+                const vectorField& fCentres =
+                    aMesh().areaCentres().internalField();
 
-                forAll(curFaceFaces, faceI)
+                forAll(eFaces, edgeI)
                 {
-                    label index = findIndex(eFaces, curFaceFaces[faceI]);
+                    const label& curFace = eFaces[edgeI];
+                    const labelList& curFaceFaces = fFaces[curFace];
 
-                    if (index == -1)
+                    scalar H = 0.0;
+                    label counter = 0;
+
+                    forAll(curFaceFaces, faceI)
                     {
-                        H +=
-                            facesDisplacementDir()[curFaceFaces[faceI]]
-                          & (
-                                controlPoints()[curFaceFaces[faceI]]
-                              - fCentres[curFaceFaces[faceI]]
-                            );
+                        label index = findIndex(eFaces, curFaceFaces[faceI]);
 
-                        counter++;
+                        if (index == -1)
+                        {
+                            H +=
+                                facesDisplacementDir()[curFaceFaces[faceI]]
+                            & (
+                                    controlPoints()[curFaceFaces[faceI]]
+                                - fCentres[curFaceFaces[faceI]]
+                                );
+
+                            counter++;
+                        }
                     }
+
+                    H /= counter;
+
+                    controlPoints()[curFace] =
+                        fCentres[curFace]
+                    + facesDisplacementDir()[curFace]*H;
                 }
-
-                H /= counter;
-
-                controlPoints()[curFace] =
-                    fCentres[curFace]
-                  + facesDisplacementDir()[curFace]*H;
             }
         }
 
