@@ -91,8 +91,6 @@ do
             ;;
 
         -P|--parallel)
-            # runApplication makeFaMesh -region fluidA
-
             runApplication decomposePar -region fluidA
             runApplication -l log.decomposePar.fluidB decomposePar -region fluidB
 
