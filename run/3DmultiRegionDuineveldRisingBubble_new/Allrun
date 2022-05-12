@@ -43,20 +43,32 @@ do
             cp 0/fluidA/orig/partitioned/pointMotionU 0/fluidA/.
             cp 0/fluidB/orig/partitioned/pointMotionU 0/fluidB/.
 
+            # create hexmesh
             # no -region option for extrudeMesh
             # thus, create and copy the meshes
             # create meshA
-            cd baseMeshes/meshA
-            ./Allrun
+            #cd hexBaseMeshes/meshA
+            #./Allrun
             # create meshB
-            cd ../meshB
-            ./Allrun
-            cd ../..
+            #cd ../meshB
+            #./Allrun
+            #cd ../..
             # copy meshA
-            cp -r ./baseMeshes/meshA/constant/polyMesh ./constant/fluidA/.
-            cp -r ./baseMeshes/meshA/constant/faMesh ./constant/fluidA/.
+            #cp -r ./hexBaseMeshes/meshA/constant/polyMesh ./constant/fluidA/.
+            #cp -r ./hexBaseMeshes/meshA/constant/faMesh ./constant/fluidA/.
             # copy meshB
-            cp -r ./baseMeshes/meshB/constant/polyMesh ./constant/fluidB/.
+            #cp -r ./hexBaseMeshes/meshB/constant/polyMesh ./constant/fluidB/.
+
+            # create polymeshes
+            cd polyBaseMeshes
+            ./Allrun
+            cd ..
+
+            # copy meshA
+            cp -r ./polyBaseMeshes/constant/domain0/polyMesh/ ./constant/fluidA/ 
+            cp -r ./polyBaseMeshes/constant/domain0/faMesh/ ./constant/fluidA/
+            # copy meshB
+            cp -r ./polyBaseMeshes/constant/domain1/polyMesh/ ./constant/fluidB/
 
             ./makeLinks fluidA
             ;;
