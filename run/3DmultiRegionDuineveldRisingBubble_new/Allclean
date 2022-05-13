@@ -21,9 +21,13 @@ rm 0/fluidB/p 2>/dev/null
 rm 0/fluidA/pointMotionU 2>/dev/null
 rm 0/fluidB/pointMotionU 2>/dev/null
 
-cd baseMeshes/meshA
+cd hexBaseMeshes/meshA
 ./Allclean
 
 cd ../meshB
 ./Allclean
 cd ../..
+
+cd polyBaseMeshes
+./Allclean
+cd ..
