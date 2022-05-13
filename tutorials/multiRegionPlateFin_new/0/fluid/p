@@ -38,7 +38,7 @@ boundaryField
     {
         type fan;
         patchType cyclic;
-        f List<scalar> 1(10.0);
+        f List<scalar> 1(0);
         value uniform 0;
     }
     OutWallFluid

@@ -16,9 +16,12 @@ FoamFile
 
 regions
 (
-    navierStokesFluid (fluid)
     transportTemperature (fluid)
+    navierStokesFluid (fluid)
     conductTemperature (solid)
+
+    // fluid (navierStokesFluid transportTemperature)
+    // solid (conductTemperature)
 );
 
 partitionedTypeRegionInterfaces
