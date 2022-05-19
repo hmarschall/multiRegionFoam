@@ -59,6 +59,11 @@ minDeltaT 1e-07;
 //        commsType       blocking;
 //}
 
+DebugSwitches
+{
+    regionInterface 1;
+}
+
 /*functions*/
 /*{*/
 /*    scalePatchPhi*/
