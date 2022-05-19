@@ -46,6 +46,12 @@ void Foam::regionInterface::makeGlobalPatches() const
             << "Pointer already set!" << abort(FatalError);
     }
 
+    Info<< "Creating global patches : "
+    << patchA().name() << " and "
+    << patchB().name() << " for regionInterface "
+    << name()
+    << endl;
+
     globalPatchAPtr_.set(new globalPolyPatch(patchA().name(), meshA()));
     globalPatchBPtr_.set(new globalPolyPatch(patchB().name(), meshB()));
 }
@@ -507,6 +513,24 @@ Foam::regionInterface::regionInterface
     // Force creation of interface-to-interface object 
     // as they may need to read fields on restart
     interfaceToInterface();
+
+    if (debug)
+    {
+        //Output region interface information
+        Pout << "regionInterface Info: " << name() << nl 
+            << "    local patchA: " << nl 
+            << "        name: " << patchA_.name() << " size: " << patchA_.size()  << " nPoints: " << patchA_.patch().nPoints() << " nEdges: " << patchA_.patch().nEdges()<< nl
+            << "    local patchB: " << nl
+            << "        name: " << patchB_.name() << " size: " << patchB_.size() << " nPoints: " << patchB_.patch().nPoints() << " nEdges: " << patchB_.patch().nEdges()<< nl  
+            << "    global patchA: " << nl 
+            << "        name: " << globalPatchAPtr_->patchName() << " size: " << globalPatchAPtr_->globalPatch().size()
+                    << " nPoints: " << globalPatchAPtr_->globalPatch().nPoints() << " nEdges: " << globalPatchAPtr_->globalPatch().nEdges()<< nl
+            << "    global patchB: " << nl 
+            << "        name: " << globalPatchBPtr_->patchName() << " size: " << globalPatchBPtr_->globalPatch().size()
+                    << " nPoints: " << globalPatchBPtr_->globalPatch().nPoints() << " nEdges: " << globalPatchBPtr_->globalPatch().nEdges()<< nl
+            << endl;
+
+    }
 }
 
 
