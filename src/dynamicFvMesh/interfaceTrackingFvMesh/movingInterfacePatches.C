@@ -679,7 +679,8 @@ void Foam::movingInterfacePatches::makeGlobalPatches() const
 
     Info<< "Creating global patches : "
         << patch().name() << "and "
-        << nbrPatch().name()
+        << nbrPatch().name() << " for movingInterfacePatches "
+        << name_
         << endl;
 
     globalPatchPtr_.set(new globalPolyPatch(patch().name(), mesh()));
@@ -1180,8 +1181,8 @@ Foam::movingInterfacePatches::shadowPointDisplacement
     vectorField globalDisplacement =
         globalPatch().patchPointToGlobal(displacement);
 
-    // Create global displacement field of same size
-    vectorField globalShadowDisplacement(globalDisplacement.size());
+    // Create global displacement field for globalNbrPatch
+    vectorField globalShadowDisplacement(globalNbrPatchPtr_->globalPatch().nPoints());
 
     // Interpolate globally patch-to-patch
     interfaceToInterface().transferPointsZoneToZone
