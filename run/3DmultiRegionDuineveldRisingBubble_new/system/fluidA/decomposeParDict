@@ -14,16 +14,16 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-numberOfSubdomains 3;
+numberOfSubdomains 4;
 
-method		simple;
+method		metis; //simple;
 
 //globalFaceZones ( fluidFaceZone solidFaceZone );
 
 
 simpleCoeffs
 {
-    n               (3 1 1);
+    n               (2 2 1);
     delta           0.001;
 }
 

@@ -25,7 +25,7 @@ curvatureCorrectedSurfacePatches 0();
 
 interpolatorUpdateFrequency 1;
 
-interfaceTransferMethod GGI; //directMap;
+interfaceTransferMethod directMap; //GGI;
 
 directMapCoeffs
 {}

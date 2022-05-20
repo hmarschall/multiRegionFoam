@@ -62,6 +62,7 @@ minDeltaT 1e-07;
 DebugSwitches
 {
     regionInterface 1;
+    globalPolyPatch 1;
 }
 
 /*functions*/
