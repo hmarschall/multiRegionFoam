@@ -106,7 +106,7 @@ do
             runApplication decomposePar -region fluidA
             runApplication -l log.decomposePar.fluidB decomposePar -region fluidB
 
-            mpirun -np 3 multiRegionFoam -noFunctionObjects -parallel 2>&1 > log.multiRegionFoam            
+            mpirun -np 4 multiRegionFoam -noFunctionObjects -parallel 2>&1 > log.multiRegionFoam            
             ;;
 
         --)

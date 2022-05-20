@@ -51,7 +51,7 @@ interfaceTrackingFvMeshCoeffs
 
             pointNormalsCorrectionPatches 0();
 
-            interfaceTransferMethod GGI;
+            interfaceTransferMethod directMap; //GGI; 
 
             directMapCoeffs{}
 

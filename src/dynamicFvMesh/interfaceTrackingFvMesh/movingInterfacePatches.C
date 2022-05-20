@@ -1626,7 +1626,7 @@ const Foam::globalPolyPatch& Foam::movingInterfacePatches::globalNbrPatch() cons
 
 void Foam::movingInterfacePatches::updateInterpolatorAndGlobalPatches()
 {
-    Info << "Updating interpolator and global patches" << endl;
+    Info << "Updating interpolator and global patches for movingInterfacePatches" << endl;
 
     if (interfaceToInterfacePtr_.empty())
     {
@@ -1641,11 +1641,12 @@ void Foam::movingInterfacePatches::updateInterpolatorAndGlobalPatches()
             ) == 0
         )
         {
-            // Re-create interpolators
-            interfaceToInterface();
-
             // Enforce topology update
             updateTopology();
+
+            // Re-create interpolators
+            interfaceToInterfacePtr_.clear();
+            interfaceToInterface();
         }
     }
 }

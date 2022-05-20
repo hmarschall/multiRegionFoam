@@ -25,6 +25,7 @@ License
 
 #include "globalPolyPatch.H"
 #include "polyPatchID.H"
+#include "FieldSumOp.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -123,10 +124,15 @@ void Foam::globalPolyPatch::calcGlobalPatch() const
             << abort(FatalError);
     }
 
-    // Record current points to add
+    // Record current points and faces to add
     pointField zonePoints(nZonePoints);
     faceList zoneFaces(nZoneFaces);
-    
+
+    // PC, 15/12/17
+    // I will keep track of duplicate points with this set
+    HashTable<label, point, Hash<point> > zonePointsSet(nZonePoints);
+    label nDuplicatePoints = 0;
+
     label nCurPoints = 0;
     label nCurFaces = 0;
 
@@ -144,13 +150,41 @@ void Foam::globalPolyPatch::calcGlobalPatch() const
         {
             // Note: possible removal of duplicate points here
             // HJ, 28/Dec/2016
+            // PC, 15/Dec/2017: the edge loops are wrong unless the duplicates
+            // are removed, because the internal patch faces will not be
+            // connected across the processor boundaries. So I will keep track
+            // of the duplicates with a HashTable and remove them
 
-            // Add the point
-            zonePoints[nCurPoints] = curProcPoints[pointI];
+            // Current point
+            const point& curPoint = curProcPoints[pointI];
 
-            // Record point mapping
-            pointMap[pointI] = nCurPoints;
-            nCurPoints++;
+            // Check if the point has already been added
+            HashTable<label, point, Hash<point> >::iterator iter =
+                zonePointsSet.find(curPoint);
+
+            if (iter == zonePointsSet.end())
+            {
+                // This is a new point; add it and record the index
+                zonePointsSet.insert(curPoint, nCurPoints);
+
+                // Add the point
+                zonePoints[nCurPoints] = curPoint;
+
+                // Record point mapping
+                pointMap[pointI] = nCurPoints;
+                nCurPoints++;
+            }
+            else
+            {
+                // This point has already been added so we will not add it again
+                nDuplicatePoints++;
+
+                // Lookup previous instance of the point
+                const label pID = iter();
+
+                // Set the map to point to the previous instance of the point
+                pointMap[pointI] = pID;
+            }
         }
 
         // Add faces from all processors
@@ -185,6 +219,18 @@ void Foam::globalPolyPatch::calcGlobalPatch() const
         }
     }
 
+    if (debug)
+    {
+        Pout << nl 
+             << "nDuplicatePoints: " << nDuplicatePoints
+             << " on global patch: " << patchName_ << nl
+             << "resizing zonePoints from " 
+             << zonePoints.size() << " to " << nCurPoints << endl;
+    }
+
+    // Resize the points list
+    zonePoints.resize(nCurPoints);
+
     // All points and faces are collected.  Make a patch
     globalPatchPtr_ = new standAlonePatch(zoneFaces, zonePoints);
 
@@ -194,6 +240,175 @@ void Foam::globalPolyPatch::calcGlobalPatch() const
             << "Finished calculating primitive patch"
             << endl;
     }
+}
+
+
+void Foam::globalPolyPatch::calcGlobalMasterToCurrentProcPointAddr() const
+{
+    if (globalMasterToCurrentProcPointAddrPtr_)
+    {
+        FatalErrorIn
+        (
+            "void globalPolyPatch::calcGlobalMasterToCurrentProcPointAddr() "
+            "const"
+        )   << "pointer already set"
+            << abort(FatalError);
+    }
+
+    globalMasterToCurrentProcPointAddrPtr_ =
+        new labelList(globalPatch().nPoints(), -1);
+    labelList& curMap = *globalMasterToCurrentProcPointAddrPtr_;
+
+    vectorField fzGlobalPoints = globalPatch().localPoints();
+
+    // Set all slave points to zero because only the master order is used
+    if (!Pstream::master())
+    {
+        fzGlobalPoints = vector::zero;
+    }
+
+    // Pass points to all procs
+    reduce(fzGlobalPoints, FieldSumOp<vector>());
+
+    // Now every proc has the master's list of FZ points
+    // every proc must now find the mapping from their local FZ points to
+    // the master FZ points
+
+    const vectorField& fzLocalPoints = globalPatch().localPoints();
+
+    const edgeList& fzLocalEdges = globalPatch().edges();
+
+    const labelListList& fzPointEdges = globalPatch().pointEdges();
+
+    scalarField minEdgeLength(fzLocalPoints.size(), GREAT);
+
+    forAll(minEdgeLength, pI)
+    {
+        const labelList& curPointEdges = fzPointEdges[pI];
+
+        forAll(curPointEdges, eI)
+        {
+            scalar Le = fzLocalEdges[curPointEdges[eI]].mag(fzLocalPoints);
+
+            if (Le < minEdgeLength[pI])
+            {
+                minEdgeLength[pI] = Le;
+            }
+        }
+    }
+
+    forAll(fzGlobalPoints, globalPointI)
+    {
+        boolList visited(fzLocalPoints.size(), false);
+
+        forAll(fzLocalPoints, procPointI)
+        {
+            if (!visited[procPointI])
+            {
+                visited[procPointI] = true;
+
+                label nextPoint = procPointI;
+
+                scalar curDist =
+                    mag
+                    (
+                        fzLocalPoints[nextPoint]
+                      - fzGlobalPoints[globalPointI]
+                    );
+
+                if (curDist < 1e-4*minEdgeLength[nextPoint])
+                {
+                    curMap[globalPointI] = nextPoint;
+                    break;
+                }
+
+                label found = false;
+
+                while (nextPoint != -1)
+                {
+                    const labelList& nextPointEdges =
+                        fzPointEdges[nextPoint];
+
+                    scalar minDist = GREAT;
+                    label index = -1;
+                    forAll(nextPointEdges, edgeI)
+                    {
+                        label curNgbPoint =
+                            fzLocalEdges
+                            [
+                                nextPointEdges[edgeI]
+                            ].otherVertex(nextPoint);
+
+                        if (!visited[curNgbPoint])
+                        {
+                            visited[curNgbPoint] = true;
+
+                            scalar curDist =
+                                mag
+                                (
+                                    fzLocalPoints[curNgbPoint]
+                                  - fzGlobalPoints[globalPointI]
+                                );
+
+                            if (curDist < 1e-4*minEdgeLength[curNgbPoint])
+                            {
+                                curMap[globalPointI] = curNgbPoint;
+                                found = true;
+                                break;
+                            }
+                            else if (curDist < minDist)
+                            {
+                                minDist = curDist;
+                                index = curNgbPoint;
+                            }
+                        }
+                    }
+
+                    nextPoint = index;
+                }
+
+                if (found)
+                {
+                    break;
+                }
+            }
+        }
+    }
+
+    forAll(curMap, globalPointI)
+    {
+        if (curMap[globalPointI] == -1)
+        {
+            FatalErrorIn
+            (
+                type() + "::calcGlobalMasterToCurrentProcPointAddr()"
+            )   << "point map is not correct!"
+                << abort(FatalError);
+        }
+    }
+}
+
+
+void Foam::globalPolyPatch::calcInterp() const
+{
+    if (debug)
+    {
+        InfoIn("void globalPolyPatch::calcInterp() const")
+            << "Calculating patch interpolator"
+            << endl;
+    }
+
+    if (interpPtr_)
+    {
+        FatalErrorIn
+        (
+            "void globalPolyPatch::calcInterp() const"
+        )   << "pointer already set"
+            << abort(FatalError);
+    }
+
+    interpPtr_ =
+        new PrimitivePatchInterpolation<standAlonePatch>(globalPatch());
 }
 
 
@@ -213,9 +428,10 @@ void Foam::globalPolyPatch::check() const
 void Foam::globalPolyPatch::clearOut() const
 {
     deleteDemandDrivenData(globalPatchPtr_);
-
     deleteDemandDrivenData(pointToGlobalAddrPtr_);
     deleteDemandDrivenData(faceToGlobalAddrPtr_);
+    deleteDemandDrivenData(globalMasterToCurrentProcPointAddrPtr_);
+    deleteDemandDrivenData(interpPtr_);
 }
 
 
@@ -233,7 +449,9 @@ Foam::globalPolyPatch::globalPolyPatch
     patch_(mesh_.boundaryMesh()[mesh_.boundaryMesh().findPatchID(patchName_)]),
     globalPatchPtr_(NULL),
     pointToGlobalAddrPtr_(NULL),
-    faceToGlobalAddrPtr_(NULL)
+    faceToGlobalAddrPtr_(NULL),
+    globalMasterToCurrentProcPointAddrPtr_(NULL),
+    interpPtr_(NULL)
 {
     check();
 }
@@ -251,7 +469,9 @@ Foam::globalPolyPatch::globalPolyPatch
     patch_(mesh_.boundaryMesh()[mesh_.boundaryMesh().findPatchID(patchName_)]),
     globalPatchPtr_(NULL),
     pointToGlobalAddrPtr_(NULL),
-    faceToGlobalAddrPtr_(NULL)
+    faceToGlobalAddrPtr_(NULL),
+    globalMasterToCurrentProcPointAddrPtr_(NULL),
+    interpPtr_(NULL)
 {
     check();
 }
@@ -284,6 +504,18 @@ const Foam::standAlonePatch& Foam::globalPolyPatch::globalPatch() const
 }
 
 
+const Foam::PrimitivePatchInterpolation<Foam::standAlonePatch>&
+Foam::globalPolyPatch::interpolator() const
+{
+    if (!interpPtr_)
+    {
+        calcInterp();
+    }
+
+    return *interpPtr_;
+}
+
+
 const Foam::labelList& Foam::globalPolyPatch::pointToGlobalAddr() const
 {
     if (!pointToGlobalAddrPtr_)
@@ -303,6 +535,18 @@ const Foam::labelList& Foam::globalPolyPatch::faceToGlobalAddr() const
     }
 
     return *faceToGlobalAddrPtr_;
+}
+
+
+const Foam::labelList&
+Foam::globalPolyPatch::globalMasterToCurrentProcPointAddr() const
+{
+    if (!globalMasterToCurrentProcPointAddrPtr_)
+    {
+        calcGlobalMasterToCurrentProcPointAddr();
+    }
+
+    return *globalMasterToCurrentProcPointAddrPtr_;
 }
 
 
