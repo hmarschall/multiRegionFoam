@@ -54,6 +54,9 @@ void Foam::regionInterface::makeGlobalPatches() const
 
     globalPatchAPtr_.set(new globalPolyPatch(patchA().name(), meshA()));
     globalPatchBPtr_.set(new globalPolyPatch(patchB().name(), meshB()));
+
+    globalPatchAPtr_().globalPatch();
+    globalPatchBPtr_().globalPatch();
 }
 
 void Foam::regionInterface::clearGlobalPatches()
@@ -578,7 +581,7 @@ const Foam::globalPolyPatch& Foam::regionInterface::globalPatchB() const
 
 void Foam::regionInterface::updateInterpolatorAndGlobalPatches()
 {
-    Info << "Updating interpolator and global patches" << endl;
+    Info << "Updating interpolator and global patches for regionInterface" << endl;
 
     if (interfaceToInterfacePtr_.empty())
     {
