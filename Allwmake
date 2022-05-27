@@ -15,7 +15,7 @@ ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.H" "src/mult
 ( cd dependencies/movingReferenceFrame/ && ./Allwmake )
 ( cd dependencies/multiRegionFoam/ && ./Allwmake )
 
-wmake libso src/dynamicFvMesh/interfaceTrackingFvMesh/
+wmake libso src/dynamicFvMesh
 wmake libso src/fvPatchFields
 wmake libso src/fvSchemes
 

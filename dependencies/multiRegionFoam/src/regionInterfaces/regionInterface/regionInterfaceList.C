@@ -280,13 +280,13 @@ void Foam::regionInterfaceList::detach()
 
 void Foam::regionInterfaceList::update()
 {
-//    forAll(*this, i)
-//    {
-//        if(this->operator[](i).changing())
-//        {
-//            this->operator[](i).updateInterpolatorAndGlobalPatches();
-//        }
-//    }
+   forAll(*this, i)
+   {
+       if(this->operator[](i).changing())
+       {
+           this->operator[](i).updateInterpolatorAndGlobalPatches();
+       }
+   }
 }
 
 

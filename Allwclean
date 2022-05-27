@@ -8,7 +8,7 @@ rmoall
 ( cd dependencies/movingReferenceFrame/ && ./Allclean )
 ( cd dependencies/multiRegionFoam/ && ./Allwclean )
 
-wclean libso src/dynamicFvMesh/interfaceTrackingFvMesh/
+wclean libso src/dynamicFvMesh
 wclean libso src/fvPatchFields
 wclean libso src/fvSchemes
 
