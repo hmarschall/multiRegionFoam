@@ -47,7 +47,10 @@ tmp<Field<Type> > regionInterface::transferFacesFromA
         "not implemented"
     );
 
-    tmp<Field<Type> > ttoField(new Field<Type>(fromField.size()));
+    tmp<Field<Type> > ttoField
+    (
+        new Field<Type>(globalPatchB().globalPatch().size())
+    );
 
     return ttoField;
 }
@@ -58,7 +61,10 @@ tmp<Field<scalar> > regionInterface::transferFacesFromA
     const Field<scalar>& fromField
 ) const
 {
-    tmp<Field<scalar> > ttoField(new Field<scalar>(fromField));
+    tmp<Field<scalar> > ttoField
+    (
+        new Field<scalar>(globalPatchB().globalPatch().size())
+    );
     Field<scalar>& toField = ttoField();
 
     interfaceToInterface().transferFacesZoneToZone
@@ -78,7 +84,10 @@ tmp<Field<vector> > regionInterface::transferFacesFromA
     const Field<vector>& fromField
 ) const
 {
-    tmp<Field<vector> > ttoField(new Field<vector>(fromField));
+    tmp<Field<vector> > ttoField
+    (
+        new Field<vector>(globalPatchB().globalPatch().size())
+    );
     Field<vector>& toField = ttoField();
 
     interfaceToInterface().transferFacesZoneToZone
@@ -108,7 +117,10 @@ tmp<Field<Type> > regionInterface::transferFacesFromB
         "not implemented"
     );
 
-    tmp<Field<Type> > ttoField(new Field<Type>(fromField.size()));
+    tmp<Field<Type> > ttoField
+    (
+        new Field<Type>(globalPatchA().globalPatch().size())
+    );
 
     return ttoField;
 }
@@ -119,7 +131,10 @@ tmp<Field<scalar> > regionInterface::transferFacesFromB
     const Field<scalar>& fromField
 ) const
 {
-    tmp<Field<scalar> > ttoField(new Field<scalar>(fromField.size()));
+    tmp<Field<scalar> > ttoField
+    (
+        new Field<scalar>(globalPatchA().globalPatch().size())
+    );
     Field<scalar>& toField = ttoField();
 
     interfaceToInterface().transferFacesZoneToZone
@@ -139,7 +154,10 @@ tmp<Field<vector> > regionInterface::transferFacesFromB
     const Field<vector>& fromField
 ) const
 {
-    tmp<Field<vector> > ttoField(new Field<vector>(fromField.size()));
+    tmp<Field<vector> > ttoField
+    (
+        new Field<vector>(globalPatchA().globalPatch().size())
+    );
     Field<vector>& toField = ttoField();
 
     interfaceToInterface().transferFacesZoneToZone
