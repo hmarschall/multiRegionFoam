@@ -57,7 +57,7 @@ const Foam::NamedEnum
 
 // * * * * * * * * * * * * * * * Private functions * * * * * * * * * * * * * //
 
-template<class T>
+template< template<class> class M, class T>
 void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
 (
     PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
@@ -105,8 +105,8 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
 
         regionType& rg = const_cast<regionType&>(regions_()[regI]);
 
-        fvMatrix<T>& eqn =
-            rg.getCoupledEqn<T>
+        M<T>& eqn =
+            rg.getCoupledEqn<M,T>
             (
                 fldName + rg.mesh().name() + "Eqn"
             );
@@ -122,7 +122,7 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
     );
 }
 
-template<class T>
+template< template<class> class M, class T>
 void Foam::multiRegionSystem::assembleAndSolveEqns
 (
     word fldName
@@ -178,9 +178,8 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             mesh.surfaceInterpolation::movePoints();
         }
 
-
-        fvMatrix<T>& eqn =
-            rg.getCoupledEqn<T>
+        auto& eqn =
+            rg.getCoupledEqn<M,T>
             (
                 fldName + rg.mesh().name() + "Eqn"
             );
@@ -190,12 +189,14 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             << " in " << rg.mesh().name()
             << endl;
 
+        // TODO: Each region type can have its own solution control
         // inner coupling loop
         simpleControl simpleControlRegion(rg.mesh());
 
         while (simpleControlRegion.correctNonOrthogonal())
         {
-            eqn.relax();
+            //eqn.relax();
+            rg.relaxEqn<T>(eqn);
             eqn.solve();
 
             rg.updateFields();
@@ -296,6 +297,7 @@ Foam::multiRegionSystem::multiRegionSystem
     vectorFlds_(2),
     symmTensorFlds_(2),
     tensorFlds_(2),
+    vector4Flds_(2),
 
     fldNames_(2),
 
@@ -333,6 +335,7 @@ Foam::multiRegionSystem::multiRegionSystem
     assembleCoupledFields<vector>(vectorFlds_, fldNames_);
     assembleCoupledFields<tensor>(tensorFlds_, fldNames_);
     assembleCoupledFields<symmTensor>(symmTensorFlds_, fldNames_);
+    assembleCoupledFields<vector4>(vector4Flds_, fldNames_);
 }
 
 
@@ -381,9 +384,10 @@ void Foam::multiRegionSystem::solve()
         // outer coupling loop
         for (int coupleIter=1; coupleIter<=maxCoupleIter_; coupleIter++)
         {
-            assembleAndSolveEqns<scalar>(fldName);
-            assembleAndSolveEqns<vector>(fldName);
-            assembleAndSolveEqns<tensor>(fldName);
+            assembleAndSolveEqns<fvMatrix, scalar>(fldName);
+            assembleAndSolveEqns<fvMatrix, vector>(fldName);
+            assembleAndSolveEqns<fvMatrix, tensor>(fldName);
+            assembleAndSolveEqns<fvBlockMatrix, vector4>(fldName);
             // assembleAndSolveEqns<symmTensor>(fldName);
         }
     }
@@ -396,10 +400,11 @@ void Foam::multiRegionSystem::solve()
     {
         word fldName = fldNames_[1][fldI];
 
-        assembleAndSolveCoupledMatrix<scalar>(scalarFlds_[1], fldName);
-        assembleAndSolveCoupledMatrix<vector>(vectorFlds_[1], fldName);
-        assembleAndSolveCoupledMatrix<tensor>(tensorFlds_[1], fldName);
+        assembleAndSolveCoupledMatrix<fvMatrix, scalar>(scalarFlds_[1], fldName);
+        assembleAndSolveCoupledMatrix<fvMatrix, vector>(vectorFlds_[1], fldName);
+        assembleAndSolveCoupledMatrix<fvMatrix, tensor>(tensorFlds_[1], fldName);
         // assembleAndSolveCoupledMatrix<symmTensor>(symmTensorFlds_[1], fldName);
+        // assembleAndSolveCoupledMatrix<fvBlockMatrix, vector4>(vector4Flds_[1], fldName);
     }
 }
 
