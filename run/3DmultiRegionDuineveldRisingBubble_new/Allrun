@@ -3,9 +3,9 @@
 # Source tutorial run functions
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
 
-usage() { 
+usage() {
         echo ""
-        echo "Usage:" 
+        echo "Usage:"
         echo "($0 [-p or --partitioned | -m or --monolithic] [-S or --serial | -P or --parallel]"
         echo ""
         exit 0
@@ -19,8 +19,8 @@ usage() {
 options=$(getopt -l "help,partitioned,monolithic:,serial,parallel" -o "hpm:SP" -a -- "$@")
 
 # set --:
-# If no arguments follow this option, then the positional parameters are unset. 
-# Otherwise, the positional parameters are set to the arguments, even if some 
+# If no arguments follow this option, then the positional parameters are unset.
+# Otherwise, the positional parameters are set to the arguments, even if some
 # of them begin with a ‘-’.
 eval set -- "$options"
 
@@ -28,7 +28,7 @@ while true
 do
     case $1 in
 
-        -h|--help) 
+        -h|--help)
             usage
             exit 0
             ;;
@@ -36,7 +36,7 @@ do
         -p|--partitioned)
             cp 0/fluidA/orig/partitioned/U 0/fluidA/.
             cp 0/fluidB/orig/partitioned/U 0/fluidB/.
-            
+
             cp 0/fluidA/orig/partitioned/p 0/fluidA/.
             cp 0/fluidB/orig/partitioned/p 0/fluidB/.
 
@@ -75,7 +75,7 @@ do
 
         -m|--monolithic)
 
-            echo "monolithic cuppling currently not supported"
+            echo "monolithic p-U coupling currently not supported"
             shift
             break
 
@@ -106,7 +106,7 @@ do
             runApplication decomposePar -region fluidA
             runApplication -l log.decomposePar.fluidB decomposePar -region fluidB
 
-            mpirun -np 4 multiRegionFoam -noFunctionObjects -parallel 2>&1 > log.multiRegionFoam            
+            mpirun -np 8 multiRegionFoam -noFunctionObjects -parallel 2>&1 > log.multiRegionFoam &
             ;;
 
         --)

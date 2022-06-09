@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-numberOfSubdomains 4;
+numberOfSubdomains 8;
 
 method		metis; //simple;
 
@@ -23,7 +23,7 @@ method		metis; //simple;
 
 simpleCoeffs
 {
-    n               (2 2 1);
+    n               (2 2 2);
     delta           0.001;
 }
 
