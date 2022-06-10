@@ -15,7 +15,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-libs ( "libinterfaceTrackingFvMesh.so" "libinterfaceTrackingBCs.so" "libfvSchemes.so");
+libs ( "libmultiRegionSystem.so" "libinterfaceTrackingFvMesh.so" "libinterfaceTrackingBCs.so" "libfvSchemes.so");
 
 applicationClass    icoDyMFoam;
 
