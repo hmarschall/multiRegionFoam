@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-libs ( "libscalePatchPhi.so" "libinterfaceTrackingFvMesh.so" "libcoupledFvPatchBCs.so" "liblduSolvers.so");
+libs ( "libscalePatchPhi.so" "libinterfaceTrackingFvMesh.so" "libinterfaceTrackingBCs.so" "liblduSolvers.so");
   
 applicationClass multiRegionFoam;
 
