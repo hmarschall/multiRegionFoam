@@ -1,0 +1,32 @@
+#!/bin/sh
+
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+cleanFaMesh ()
+{
+    rm -rf ./constant/faMesh/faceLabels* \
+           ./constant/faMesh/faBoundary* \
+           > /dev/null 2>&1
+}
+
+cleanHistoryFolder ()
+{
+    rm -rf ./history \
+        > /dev/null 2>&1
+}
+
+cleanVTK()
+{
+    rm -rf ./VTK \
+        > /dev/null 2>&1
+}
+
+cleanSets()
+{
+    rm -rf ./constant/polyMesh/sets
+}
+cleanHistoryFolder
+cleanTimeDirectories
+cleanFaMesh
+cleanVTK
+cleanSets
