@@ -1,0 +1,69 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     3.1-sfb1194                        |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    location    "0";
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (0 1e-06 0);
+
+boundaryField
+{
+"proc.*"
+{
+	type	processor;
+	value	uniform (0 0 0);
+}
+//No-slip at the walls parallel to the interface
+    Wall
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+// zero-gradient BC on the left side (inlet) and the right side (outlet)
+    inlet
+    {
+/*        type            zeroGradient;*/
+        type            outletInlet;
+        outletValue     uniform (0 0 0);
+        value           uniform (0 0 0);
+    }
+    outlet
+    {
+/*        type            zeroGradient;*/
+        type            pressureInletOutletVelocity;//inletOutlet;//
+        inletValue      uniform (0 0 0);
+        value           uniform (0 0 0);
+    }
+// interfacial BC       
+    interfaceShadow
+    {
+        type                    interfaceCoupledVelocityValue;
+        k                       "mu";
+        neighbourRegionName     fluidA;
+        neighbourPatchName      interface;
+        neighbourFieldName      U;
+        secondOrder             yes;
+        nonOrthCorr             yes;
+        value                   uniform (0 0 0);
+    }
+    frontAndBack
+    {
+        type                    empty;
+    }
+}
+
+
+// ************************************************************************* //

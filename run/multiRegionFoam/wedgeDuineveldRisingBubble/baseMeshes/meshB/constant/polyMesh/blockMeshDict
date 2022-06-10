@@ -1,0 +1,120 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+
+
+// bubble radius mm
+
+// pseudo height
+ 
+// domain length in x,y-direction as multiple of radius
+
+// number of cells in circumferential direction (must be divisible by 4!)
+
+// number of cells per bubble diameter
+
+// cell grading in inner domain (value smaller than 1)
+ //0.05
+
+ // point on bubble along the diagonal
+ 
+ 
+
+ 
+ 
+ 
+
+
+
+
+
+convertToMeters 0.001; // in mm
+
+vertices
+(
+    (1.1 -1.1 0) //0
+    (1.41421356237309 -1.41421356237309 0)
+    (1.41421356237309 1.41421356237309 0)
+    (1.1 1.1 0) //3
+    (0 1.41421356237309 0)
+    (0 2.0 0)
+    (0 -2.0 0)
+    (0 -1.41421356237309 0)  //7
+    (1.1 -1.1 0.001)
+    (1.41421356237309 -1.41421356237309 0.001)
+    (1.41421356237309 1.41421356237309 0.001)
+    (1.1 1.1 0.001)//11
+    (0 1.41421356237309 0.001)
+    (0 2.0 0.001)
+    (0 -2.0 0.001)
+    (0 -1.41421356237309 0.001)//15
+);
+
+blocks
+(
+    hex (0 3 4 7 8 11 12 15) (50 15 1) simpleGrading (1 1 1)
+    hex (3 2 5 4 11 10 13 12) (15 15 1) simpleGrading (0.4 1 1)
+    hex (7 6 1 0 15 14 9 8) (15 15 1) simpleGrading (0.4 1 1)
+    hex (0 1 2 3 8 9 10 11) (15 50 1) simpleGrading (0.4 1 1)
+);
+
+edges
+(
+    arc 2 5 (1 1.732050808 0)
+    arc 6 1 (1 -1.732050808 0)
+    arc 1 2 (2.0 0 0)
+    arc 10 13 (1 1.732050808 0.001)
+    arc 14 9 (1 -1.732050808 0.001)
+    arc 9 10 (2.0 0 0.001)
+
+    arc 3 4 (0.6 1.3 0)
+    arc 7 0 (0.6 -1.3 0)
+    arc 0 3 (1.41421356237309 0 0)
+    arc 11 12 (0.6 1.3 0.001)
+    arc 15 8 (0.6 -1.3 0.001)
+    arc 8 11 (1.41421356237309 0 0.001)
+);
+
+patches
+(
+    empty lowerWedge
+    (
+        (0 7 4 3)
+        (3 4 5 2)
+        (0 3 2 1)
+        (7 0 1 6)
+    )
+    empty upperWedge
+    (
+        (8 11 12 15)
+        (11 10 13 12)
+        (8 9 10 11)
+        (15 14 9 8)
+    )
+    wall interfaceShadow
+    (
+        (1 2 10 9)
+        (2 5 13 10)
+        (6 1 9 14)
+    )
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

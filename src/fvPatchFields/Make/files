@@ -6,5 +6,8 @@ $(boundaryConditions)/interfaceCoupledVelocityFlux/interfaceCoupledVelocityFlux.
 $(boundaryConditions)/interfaceCoupledPressureFlux/interfaceCoupledPressureFlux.C
 $(boundaryConditions)/interfaceCoupledPressureValue/interfaceCoupledPressureValue.C
 
-LIB = $(FOAM_USER_LIBBIN)/libcoupledFvPatchBCs
+$(boundaryConditions)/freeSurfacePressure/freeSurfacePressureFvPatchScalarField.C
+$(boundaryConditions)/freeSurfaceVelocity/freeSurfaceVelocityFvPatchVectorField.C
+
+LIB = $(FOAM_USER_LIBBIN)/libinterfaceTrackingBCs
 

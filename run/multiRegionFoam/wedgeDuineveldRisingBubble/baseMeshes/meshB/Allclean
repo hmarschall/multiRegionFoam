@@ -1,0 +1,23 @@
+#!/bin/sh
+
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+cleanFaMesh ()
+{
+    rm -rf ./constant/faMesh/faceLabels* \
+           ./constant/faMesh/faBoundary* \
+           > /dev/null 2>&1
+}
+
+cleanMesh()
+{
+    rm -rf ./constant/polyMesh/boundary \
+           ./constant/polyMesh/*.gz \
+        > /dev/null 2>&1
+}
+
+cleanCase
+cleanFaMesh
+cleanMesh
+
+rm -r *.sMesh 2> /dev/null

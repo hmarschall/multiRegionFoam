@@ -1,0 +1,56 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     3.1                                |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      dynamicMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dynamicFvMesh interfaceTrackingFvMesh;
+
+solver velocityLaplacian;
+/*solver totalVelocityLaplacian;*/
+/*solver laplace;//laplaceCellDecomposition;*/
+
+diffusivity quadratic inverseDistance 1(freeSurface);
+/*diffusivity quadratic;*/
+/*diffusivity exponential;*/
+
+frozenDiffusion yes;
+
+twoDMotion no;
+
+distancePatches 1 (freeSurface);
+
+
+interfaceTrackingFvMeshCoeffs
+{
+    movingSurfacePatches
+    (
+        freeSurface
+        {
+/*            neighbourPatch   freeSurfaceShadow;*/
+/*            neighbourMesh    fluidB;*/
+
+            normalMotionDir yes;
+
+            // motion direction if normalMotionDir is no
+            motionDir (0 1 0);
+
+            fixedSurfacePatches 0();
+
+            pointNormalsCorrectionPatches 0();
+        }
+    );
+}
+
+
+// ************************************************************************* //

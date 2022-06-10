@@ -1,0 +1,105 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      tetFemSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+/*
+    motionU
+    {
+        solver amgSolver;
+        cycle W-cycle;// F/V/W
+        policy PAMG;// AAMG/SAMG/PAMG
+        nPreSweeps 2;
+        nPostSweeps 2;
+        groupSize 4;
+        minCoarseEqns 5;
+        nMaxLevels 100;
+        scale off;
+        smoother GaussSeidel;//DICGaussSeidel;
+
+        minIter 0;
+        maxIter 100;
+        tolerance 1e-7;
+        relTol 0;
+    };
+*/
+
+/*    motionU*/
+/*    {*/
+/*        solver          PCG;*/
+/*        preconditioner */
+/*        {*/
+/*            preconditioner GAMG;*/
+/*            cycle V-cycle;*/
+
+/*            nMaxLevels 100;*/
+/*            scale off; */
+/*            policy AAMG;*/
+/*            groupSize 4;*/
+/*            minCoarseEqns 20;*/
+/*            smoother GaussSeidel;*/
+/*            nPreSweeps 2;*/
+/*            nPostSweeps 2;*/
+
+/*            scaleCorrection true;*/
+/*            directSolveCoarsest false;*/
+/*            cacheAgglomeration false;*/
+/*            nCellsInCoarsestLevel 10;*/
+/*            agglomerator faceAreaPair;*/
+/*            mergeLevels 1;*/
+/*        }*/
+/*        tolerance        1e-9;*/
+/*        relTol           1e-6;*/
+/*        minIter          3;*/
+/*        maxIter          50;*/
+/*    }*/
+
+
+    motionU
+    {
+        solver          PCG;// ICCG;
+        preconditioner  Cholesky;// DIC;
+        tolerance       1e-10;
+        relTol          1e-6;
+        maxIter         500;
+        minIter         5;
+   }
+
+/*    motionU*/
+/*    {*/
+/*        solver          GMRES;*/
+/*        nDirections     6;*/
+/*        preconditioner  Cholesky;*/
+/*        tolerance       5e-08;*/
+/*        relTol          5e-04;*/
+/*        minIter         5;*/
+/*        maxIter         500;*/
+/*    };*/
+    // using new solver syntax:
+    // motionU ICCG 1e-9 1e-6;
+/*
+    motionU
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-09;
+        relTol          1e-06;
+    }
+*/
+}
+
+// ************************************************************************* //
