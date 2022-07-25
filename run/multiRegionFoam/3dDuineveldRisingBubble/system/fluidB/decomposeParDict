@@ -16,7 +16,7 @@ FoamFile
 
 numberOfSubdomains 8;
 
-method		metis; //simple;
+method		simple;
 
 //globalFaceZones ( fluidFaceZone solidFaceZone );
 

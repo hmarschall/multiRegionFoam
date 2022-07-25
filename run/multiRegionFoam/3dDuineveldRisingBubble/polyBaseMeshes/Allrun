@@ -2,9 +2,8 @@
 
 . $WM_PROJECT_DIR/bin/tools/RunFunctions
 
-runApplication ideasUnvToFoam constant/geometry/freeBubble.unv
-runApplication polyDualMesh 75
-runApplication improveMeshQuality
+runApplication createPatch -overwrite
 runApplication splitMeshRegions -overwrite
-cp -r constant/faMesh constant/domain0/faMesh
-runApplication makeFaMesh -region domain0
+cp -r constant/faMesh constant/domain1/faMesh
+runApplication makeFaMesh -region domain1
+

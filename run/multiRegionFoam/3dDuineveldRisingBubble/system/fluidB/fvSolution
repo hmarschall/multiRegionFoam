@@ -17,43 +17,43 @@ FoamFile
 
 solvers
 {
-    p
-    {
-        solver          BICCG;
-        preconditioner  SymGaussSeidel;
-        tolerance       1e-12;
-        relTol          0;
-    }
-
 /*    p*/
 /*    {*/
-/*        solver          PCG;*/
-/*        preconditioner*/
-/*        {*/
-
-/*            preconditioner  GAMG;*/
-/*            nVcycles        2;*/
-/*            tolerance       1e-06;*/
-/*            relTol          0;*/
-/*            smoother        GaussSeidel;*/
-/*            //number of smoothing steps before projection*/
-/*            nSmoothingSteps 1;*/
-/*            //sweeps to perform before moving to a coarser level.*/
-/*            nPreSweeps      1;*/
-/*            //sweeps to perform after coarser level corrections*/
-/*            nPostSweeps     2;*/
-/*            nFinestSweeps   2;*/
-/*            cacheAgglomeration false;*/
-/*            nCellsInCoarsestLevel 4;*/
-/*            agglomerator    faceAreaPair;*/
-/*            //-HM alternatives: algebraicPair; faceAreaPair;*/
-/*            mergeLevels     1;*/
-/*        }*/
-/*        tolerance        1e-7;*/
-/*        relTol           0;*/
-/*        minIter          1;*/
-/*        maxIter          1000;*/
+/*        solver          BICCG;*/
+/*        preconditioner  DILU;*/
+/*        tolerance       1e-12;*/
+/*        relTol          0;*/
 /*    }*/
+
+    p
+    {
+        solver          PCG;
+        preconditioner
+        {
+
+            preconditioner  GAMG;
+            nVcycles        2;
+            tolerance       1e-06;
+            relTol          0;
+            smoother        GaussSeidel;
+            //number of smoothing steps before projection
+            nSmoothingSteps 1;
+            //sweeps to perform before moving to a coarser level.
+            nPreSweeps      1;
+            //sweeps to perform after coarser level corrections
+            nPostSweeps     2;
+            nFinestSweeps   2;
+            cacheAgglomeration false;
+            nCellsInCoarsestLevel 4;
+            agglomerator    faceAreaPair;
+            //-HM alternatives: algebraicPair; faceAreaPair;
+            mergeLevels     1;
+        }
+        tolerance        1e-7;
+        relTol           0;
+        minIter          1;
+        maxIter          1000;
+    }
 
     pcorr
     {
@@ -117,26 +117,25 @@ PISO
 PIMPLE
 {
     // p-U coupling
-    nOuterCorrectors            3; // SIMPLEC loops
+    nOuterCorrectors            2; // SIMPLEC loops
     nCorrectors                 2; // PISO loops
-    nNonOrthogonalCorrectors    1;
+    nNonOrthogonalCorrectors    3;
 
-    pRefPoint (5e-4 0 0);
-/*    pRefPoint (1e-7 0 0);*/
+    pRefPoint (0 0 0);
     pRefValue 0;
 
     residualControl
     {
         p
         {
-            relTol         0.01;
-            tolerance      0.0001;
+            relTol         0;
+            tolerance      0;
         }
 
         U
         {
-            relTol         0.01;
-            tolerance      0.0001;
+            relTol         0;
+            tolerance      0;
         }
     }
 }
