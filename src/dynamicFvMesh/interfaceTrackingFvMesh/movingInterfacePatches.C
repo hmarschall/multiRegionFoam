@@ -83,6 +83,32 @@ void Foam::movingInterfacePatches::initializeData()
         motionDict_.lookupOrDefault<Switch>("smoothing", false)
     );
 
+    if
+    (
+        motionDict_.subDict("smoothSurfaceMeshCoeffs")
+        .found("smoothingFrequency")
+    )
+    {
+        smoothingFrequency_ = readInt
+        (
+            motionDict_.subDict("smoothSurfaceMeshCoeffs")
+            .lookup("smoothingFrequency")
+        );
+    }
+
+    if 
+    (
+        motionDict_.subDict("smoothSurfaceMeshCoeffs")
+        .found("smoothingTolerance")
+    )
+    {
+        smoothingTolerance_ = readScalar
+        (
+            motionDict_.subDict("smoothSurfaceMeshCoeffs")
+            .lookup("smoothingTolerance")
+        );
+    }
+
     // Set surface patch index
     {
         const word surfacePatchName(name_);
@@ -753,6 +779,8 @@ Foam::movingInterfacePatches::movingInterfacePatches
     ),
     motionDir_(pTraits<vector>::zero),
     smoothing_(false),
+    smoothingFrequency_(1),
+    smoothingTolerance_(1e-3),
     rigidFreeSurface_
     (
         motionDict_.lookupOrDefault<Switch>("rigidFreeSurface", false)
@@ -927,7 +955,7 @@ Foam::movingInterfacePatches::surfacePointDisplacement()
 
     if (timeIndex_ != mesh().time().timeIndex())
     {
-        if (smoothing_ && !rigidFreeSurface_)
+        if (!rigidFreeSurface_)
         {
             clearControlPoints();
         }
@@ -1205,6 +1233,334 @@ Foam::movingInterfacePatches::shadowPointDisplacement
 
     // Return
     return shadowDisplacement;
+}
+
+Foam::tmp<vectorField>
+movingInterfacePatches::smoothSurfaceMesh()
+{
+    const pointField& points = aMesh().patch().localPoints();
+
+    tmp<vectorField> tdisplacement
+    (
+        new vectorField
+        (
+            points.size(),
+            vector::zero
+        )
+    );
+
+    if
+    (
+        !smoothing_
+     || (mesh().time().timeIndex() % smoothingFrequency_) != 0
+    )
+    {
+        return tdisplacement;
+    }
+
+    vectorField& displacement = tdisplacement();
+
+    const vectorField& oldPoints = aMesh().patch().localPoints();
+
+    vectorField newPoints = oldPoints;
+
+    const labelListList& pointEdges = aMesh().patch().pointEdges();
+                
+    const labelListList& pointFaces = aMesh().patch().pointFaces();
+
+    const edgeList& edges = aMesh().patch().edges();
+
+    const faceList& faces = aMesh().patch().localFaces();
+
+    const labelList& boundaryPoints = aMesh().patch().boundaryPoints();
+
+    Info << "Smoothing free-surface mesh" << endl;
+
+    // Average edge length
+    scalar avgEdgeLength = 0;
+
+    forAll(edges, edgeI)
+    {
+        avgEdgeLength += edges[edgeI].mag(oldPoints);
+    }
+    avgEdgeLength /= edges.size();
+
+    // Smooth boundary points
+    forAll(aMesh().boundary(), patchI)
+    {
+        if (aMesh().boundary()[patchI].coupled())
+        {
+            continue;
+        }
+
+        const labelList& pPointLabels = 
+            aMesh().boundary()[patchI].pointLabels();
+
+        const labelListList& pPointEdges = 
+            aMesh().boundary()[patchI].pointEdges();
+
+        const edgeList::subList pEdges = 
+            aMesh().boundary()[patchI].patchSlice(aMesh().edges());
+
+
+        // Find fixed points
+        boolList fixedPoints(pPointLabels.size(), false);
+
+        forAll(fixedPoints, pointI)
+        {
+            if (pPointEdges[pointI].size() == 1)
+            {
+                fixedPoints[pointI] = true;
+            }
+        }
+
+
+        // Performe smoothing
+        scalarField residual(pPointLabels.size(), 0);
+        label counter = 0;
+        do
+        {
+            counter++;
+
+            forAll(pPointLabels, pointI)
+            {
+                if (!fixedPoints[pointI])
+                {
+                    vector curNewPoint = vector::zero;
+                
+                    forAll(pPointEdges[pointI], eI)
+                    {
+                        label curEdgeIndex = pPointEdges[pointI][eI];
+                                
+                        const edge& curEdge = pEdges[curEdgeIndex];
+                    
+                        vector d =  
+                            newPoints
+                            [
+                                curEdge.otherVertex(pPointLabels[pointI])
+                            ]
+                          - newPoints[pPointLabels[pointI]];
+       
+                        curNewPoint += d;
+                    }
+
+                    curNewPoint /= pPointEdges[pointI].size();
+                    
+                    curNewPoint += newPoints[pPointLabels[pointI]];
+
+
+                    // Project new point to the interface
+                    label nearestPointID = -1;
+                    scalar minDist = GREAT;
+                    forAll(pPointLabels, pI)
+                    {
+                        label curPoint = pPointLabels[pI];
+
+                        scalar dist = mag(curNewPoint - oldPoints[curPoint]);
+
+                        if (dist < minDist)
+                        {
+                            nearestPointID = pI;
+                            minDist = dist;
+                        }
+                    }
+
+                    bool foundProjection = false;
+                    forAll(pPointEdges[nearestPointID], edgeI)
+                    {
+                        label edgeID = pPointEdges[nearestPointID][edgeI];
+                        
+                        vector eTilda = 
+                            oldPoints
+                            [
+                                pEdges[edgeID]
+                               .otherVertex(pPointLabels[nearestPointID])
+                            ]
+                          - oldPoints[pPointLabels[nearestPointID]];
+
+                        scalar eMag = mag(eTilda);
+
+                        eTilda /= mag(eTilda);
+
+                        vector t =
+                            eTilda
+                           *(
+                                eTilda
+                               &(
+                                    curNewPoint 
+                                  - oldPoints[pPointLabels[nearestPointID]]
+                                )
+                            );
+
+                        if
+                        (
+                            ((t&eTilda) >= 0)
+                         && ((t&eTilda) <= eMag)
+                        )
+                        {
+                            curNewPoint = 
+                                oldPoints[pPointLabels[nearestPointID]] + t;
+                            foundProjection = true;
+                            break;
+                        }   
+                    }
+
+                    if (!foundProjection)
+                    {
+                        FatalErrorIn("movingInterfacePatches::smoothMesh()")
+                            << "Could not project patch point to surface"
+                                << abort(FatalError);
+                    }
+
+                    residual[pointI] = 
+                        mag(curNewPoint - newPoints[pPointLabels[pointI]])
+                       /(
+                           mag(curNewPoint - oldPoints[pPointLabels[pointI]]) 
+                         + SMALL
+                        );
+
+                    newPoints[pPointLabels[pointI]] = curNewPoint;
+                }
+            }
+        }
+        while(max(residual) > smoothingTolerance_);
+
+        Info << "Patch: " << aMesh().boundary()[patchI].name()
+            << ", max residual: " << max(residual) 
+            << ", num of iterations: " << counter << endl;
+    }
+
+
+    // Smooth internal points
+    boolList fixedPoints(newPoints.size(), false);
+
+    forAll(boundaryPoints, pointI)
+    {
+        fixedPoints[boundaryPoints[pointI]] = true;
+    }
+                
+    scalarField residual(newPoints.size(), 0);
+    label counter = 0;
+    do
+    {
+        counter++;
+
+        forAll(newPoints, pointI)
+        {
+            if (!fixedPoints[pointI])
+            {
+                vector curNewPoint = vector::zero;
+                
+                scalar sumW = 0;
+
+                forAll(pointEdges[pointI], eI)
+                {
+                    label curEdgeIndex = pointEdges[pointI][eI];
+                                
+                    const edge& curEdge = edges[curEdgeIndex];
+
+                    vector d =
+                        newPoints[curEdge.otherVertex(pointI)]
+                      - newPoints[pointI];
+
+//                     scalar w = 1.0;
+                    scalar w = curEdge.mag(newPoints)/avgEdgeLength;
+
+                    curNewPoint += w*d;
+
+                    sumW += w;
+                }
+
+                curNewPoint /= sumW;
+
+                curNewPoint += newPoints[pointI];
+
+
+                // Project new point to the interface
+                label nearestPointID = -1;
+                scalar minDist = GREAT;
+                forAll(oldPoints, pI)
+                {
+                    scalar dist = mag(curNewPoint - oldPoints[pI]);
+
+                    if (dist < minDist)
+                    {
+                        nearestPointID = pI;
+                        minDist = dist;
+                    }
+                }
+
+                const vector& n = aMesh().pointAreaNormals()[nearestPointID];
+
+                pointHit ph(curNewPoint);
+
+                forAll(pointFaces[nearestPointID], faceI)
+                {
+                    label faceID = pointFaces[nearestPointID][faceI];
+
+                    ph = faces[faceID].ray(curNewPoint, n, oldPoints);
+
+                    if (ph.hit())
+                    {
+                        curNewPoint = ph.hitPoint();
+                        break;
+                    }
+                }
+
+                // if (!ph.hit())
+                // {
+                //     Info << counter << ", " << pointI << endl;
+
+                //     FatalErrorIn("movingInterfacePatches::smoothMesh()")
+                //         << "Could not project point to surface"
+                //             << abort(FatalError);
+                // }
+
+                residual[pointI] = 
+                    mag(curNewPoint - newPoints[pointI])
+                   /(
+                        mag(curNewPoint - oldPoints[pointI]) 
+                      + SMALL
+                    );
+
+                newPoints[pointI] = curNewPoint;
+            }
+        }
+    }
+    while(max(residual) > 1e-3);
+
+    Info << "Internal points, max residual: " << max(residual) 
+            << ", num of iterations: " << counter << endl;
+
+    // Mesh statistic
+    scalar minEdge = GREAT;
+    scalar avgEdge = 0;
+    scalar maxEdge = SMALL;
+
+    forAll(edges, edgeI)
+    {
+        scalar curEdgeLength = edges[edgeI].mag(newPoints);
+
+        if (curEdgeLength < minEdge)
+        {
+            minEdge = curEdgeLength;
+        }
+
+        if (curEdgeLength > maxEdge)
+        {
+            maxEdge = curEdgeLength;
+        }
+
+        avgEdge += curEdgeLength;
+    }
+    avgEdge /= edges.size();
+
+    Info << "Edge length, min: " << minEdge
+        << ", max: " << maxEdge << ", avg: " << avgEdge << endl;
+
+    displacement = newPoints - oldPoints;
+
+    return tdisplacement;
 }
 
 void movingInterfacePatches::correctPointNormals()

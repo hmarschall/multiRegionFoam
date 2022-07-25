@@ -108,8 +108,14 @@ class movingInterfacePatches
         //  if not normal motion direction
         vector motionDir_;
 
-        //- Interface smoothing at the beginning of time step
+        //- Interface smoothing
         Switch smoothing_;
+
+        //- Smoothing frequency
+        label smoothingFrequency_;
+
+        //- Smoothing tolerance
+        scalar smoothingTolerance_;
 
         //- Rigid free-surface
         Switch rigidFreeSurface_;
@@ -401,6 +407,9 @@ public:
         (
             const vectorField& displacement
         );
+
+        //- Smooth surface mesh using Laplacian smoothing
+        virtual tmp<vectorField> smoothSurfaceMesh();
 
         //- Update topology
         void updateTopology();
