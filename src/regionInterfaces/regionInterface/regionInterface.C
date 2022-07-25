@@ -24,6 +24,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+#include "fixedGradientFaPatchFields.H"
 #include "regionInterface.H"
 #include "OFstream.H"
 
@@ -704,6 +705,13 @@ void Foam::regionInterface::detach()
     }
 }
 
+void Foam::regionInterface::updateFaMesh()
+{
+    if (changing())
+    {
+        aMesh().movePoints();
+    }
+}
 
 void Foam::regionInterface::updateUs()
 {
@@ -721,6 +729,8 @@ void Foam::regionInterface::updatePhis()
 
 void Foam::regionInterface::updateK()
 {
+    updateFaMesh();
+
     areaScalarField& curv = 
         const_cast<areaScalarField&>
         (
