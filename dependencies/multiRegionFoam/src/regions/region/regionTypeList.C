@@ -277,7 +277,7 @@ void Foam::regionTypeList::solveRegion()
 //        this->operator[](i).update();
 //    }
 
-    for (int j=0; j<3; j++)
+    for (int j=0; j<5; j++)
     {
         forAll(*this, i)
         {
