@@ -27,14 +27,21 @@ solvers
         relTol          0;
     }
 
-    K
+    Ks
     {
-        solver          BiCGStab;
-        preconditioner  DILU;
+        solver          GMRES;
+        nDirections     6;
+        preconditioner  Cholesky;
+        tolerance       1e-08;
+        relTol          1e-04;
         minIter         2;
-        maxIter         2000;
-        tolerance       1e-12;
-        relTol          0;
+        maxIter         50;
+/*        solver          BiCGStab;*/
+/*        preconditioner  DILU;*/
+/*        minIter         2;*/
+/*        maxIter         2000;*/
+/*        tolerance       1e-12;*/
+/*        relTol          0;*/
     }
 }
 

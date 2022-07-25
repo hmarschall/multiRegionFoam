@@ -56,6 +56,15 @@ interfaceTrackingFvMeshCoeffs
             directMapCoeffs{}
 
             GGICoeffs{}
+
+            smoothing yes;
+
+            smoothSurfaceMeshCoeffs
+            {
+                smoothingFrequency 2;
+                smoothingTolerance 1e-4;
+            }
+
         }
     );
 }

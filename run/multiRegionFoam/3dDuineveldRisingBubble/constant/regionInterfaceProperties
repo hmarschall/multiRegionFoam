@@ -18,7 +18,7 @@ regionInterfaceType capillaryInterface;
 
 fluidAinterfacefluidBinterfaceShadow
 {
-    sigma           sigma [ 1 0 -2 0 0 0 0 ] 0.0727;
+    sigma           sigma [ 1 0 -2 0 0 0 0 ] 0.02;//0.0727;
 }
 
 curvatureCorrectedSurfacePatches 0();

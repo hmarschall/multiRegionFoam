@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-libs ( "libscalePatchPhi.so" "libinterfaceTrackingFvMesh.so" "libinterfaceTrackingBCs.so" "liblduSolvers.so");
+libs ( "libinterfaceTrackingFvMesh.so" "libinterfaceTrackingBCs.so" "liblduSolvers.so");
   
 applicationClass multiRegionFoam;
 
@@ -59,10 +59,16 @@ minDeltaT 1e-07;
 //        commsType       blocking;
 //}
 
-DebugSwitches
-{
-    regionInterface 1;
-    globalPolyPatch 1;
-}
+/*OptimisationSwitches*/
+/*{*/
+/*    quadricsFit 1;   */
+/*}*/
+
+
+/*DebugSwitches*/
+/*{*/
+/*    regionInterface 1;*/
+/*    globalPolyPatch 1;*/
+/*}*/
 
 // ************************************************************************* //

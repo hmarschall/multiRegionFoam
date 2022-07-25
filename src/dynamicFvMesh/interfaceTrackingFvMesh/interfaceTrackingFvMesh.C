@@ -219,7 +219,9 @@ bool Foam::interfaceTrackingFvMesh::update()
             vectorField surfacePointDisplacement
                 (movingInterfaces_[patchName]->surfacePointDisplacement());
 
-            // TODO: Debug parallel issues
+            surfacePointDisplacement += 
+                movingInterfaces_[patchName]->smoothSurfaceMesh();
+
             motionUPatch ==
                 surfacePointDisplacement/mesh().time().deltaT().value();
 
@@ -312,6 +314,9 @@ bool Foam::interfaceTrackingFvMesh::update()
             vectorField surfacePointDisplacement
                 (movingInterfaces_[patchName]->surfacePointDisplacement());
 
+            surfacePointDisplacement += 
+                movingInterfaces_[patchName]->smoothSurfaceMesh();
+
             if (movingInterfaces_[patchName]->moving())
             {
                 tetPolyPatchInterpolation tppiPatch
@@ -383,12 +388,14 @@ bool Foam::interfaceTrackingFvMesh::update()
 
     fvMesh::movePoints(motionPtr_->curPoints());
 
-    // Correct point normals
+    // Correct point normals and finite area mesh
     forAll (movingInterfaceEntries_, surfI)
     {
         word patchName = movingInterfaceEntries_[surfI].keyword();
 
         movingInterfaces_[patchName]->correctPointNormals();
+
+        movingInterfaces_[patchName]->aMesh().movePoints();
     }
 
     return true;

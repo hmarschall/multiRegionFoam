@@ -117,7 +117,7 @@ PISO
 PIMPLE
 {
     // p-U coupling
-    nOuterCorrectors            3; // SIMPLEC loops
+    nOuterCorrectors            2; // SIMPLEC loops
     nCorrectors                 2; // PISO loops
     nNonOrthogonalCorrectors    1;
 
@@ -126,13 +126,13 @@ PIMPLE
         p
         {
             relTol         0;
-            tolerance      0.0001;
+            tolerance      0;
         }
 
         U
         {
             relTol         0;
-            tolerance      0.0001;
+            tolerance      0;
         }
     }
 }

@@ -60,16 +60,27 @@ do
             #cp -r ./hexBaseMeshes/meshB/constant/polyMesh ./constant/fluidB/.
 
             # create polymeshes
-            cd polyBaseMeshes
-            ./Allrun
-            cd ..
+            #cd polyBaseMeshes
+            #./Allrun
+            #cd ..
 
+            # copy polymeshes
             # copy meshA
             cp -r ./polyBaseMeshes/constant/domain0/polyMesh/ ./constant/fluidA/ 
             cp -r ./polyBaseMeshes/constant/domain0/faMesh/ ./constant/fluidA/
             # copy meshB
             cp -r ./polyBaseMeshes/constant/domain1/polyMesh/ ./constant/fluidB/
 
+            # copy meshA
+            cp -r ./polyBaseMeshes/constant/domain1/polyMesh/ ./constant/fluidA/ 
+            cp -r ./polyBaseMeshes/constant/domain1/faMesh/ ./constant/fluidA/
+            # copy meshB
+            cp -r ./polyBaseMeshes/constant/domain0/polyMesh/ ./constant/fluidB/
+            
+            # scale to bubble with radius 0.5mm
+            transformPoints -scale "(0.0005 0.0005 0.0005)" -region fluidB
+            transformPoints -scale "(0.0005 0.0005 0.0005)" -region fluidA
+            
             ./makeLinks fluidA
             ;;
 
