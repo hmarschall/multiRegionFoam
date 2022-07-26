@@ -137,7 +137,7 @@ class catalystLayer
         dimensionedScalar ER_;
 
         //- pre factor exchange current density
-        dimensionedScalar j0_;
+        dimensionedScalar jStern_;
 
         //- opearting pressure
         dimensionedScalar p_;
@@ -190,10 +190,19 @@ class catalystLayer
         //- evaporation/condensation rate
         volScalarField gamma_;
 
+        //- reaction exchange current density
+        volScalarField j0_;
+
+        //- Galvani potential difference
+        volScalarField deltaPhi_;
+
+        //- reversible potential difference
+        volScalarField deltaPhi0_;
+
         //- overpotential
         volScalarField eta_;
 
-        //- volumetric exchange current density
+        //- volumetric current density source
         volScalarField j_;
 
         //- heat sources

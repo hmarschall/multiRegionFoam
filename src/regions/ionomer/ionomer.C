@@ -69,10 +69,10 @@ void Foam::regionTypes::ionomer::updateIonomerProperties()
 void Foam::regionTypes::ionomer::updateSourceTerms()
 {
     // heat source - joule heating protons
-    //sT_ = kappa_()*(fvc::grad(phiP_())&fvc::grad(phiP_()));
+    sT_ = (kappa_()*(fvc::grad(phiP_())&fvc::grad(phiP_())))/T_();
 
     // water content source - electro-osmotic drag
-    sLambda_ = fvc::laplacian(xi_*kappa_()/FConst_, phiP_());
+    sLambda_ = (fvc::laplacian(xi_*kappa_()/FConst_, phiP_()))/lambda_();
 }	
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -178,7 +178,7 @@ Foam::regionTypes::ionomer::ionomer
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("sT0", dimensionSet(1, -1, -3, 0, 0, 0, 0), 0)
+        dimensionedScalar("sT0", dimensionSet(1, -1, -3, -1, 0, 0, 0), 0)
     ),
     sLambda_
     (
@@ -335,10 +335,10 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
     // fourier heat conduction
     fvScalarMatrix TEqn =
     (
-        rho_*cv_*fvm::ddt(T_())
-     ==
-        fvm::laplacian(k_(), T_(), "laplacian(k,T)")
-       //+sT_
+          rho_*cv_*fvm::ddt(T_())
+        - fvm::laplacian(k_(), T_(), "laplacian(k,T)")
+        ==
+          fvm::SuSp(sT_, T_())
     );
 
     // ohm's law for protons
@@ -350,10 +350,10 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
     // water transport in ionomer
     fvScalarMatrix lambdaEqn =
     (
-        1/VM_*fvm::ddt(lambda_())
-       ==
-        fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")
-        +sLambda_
+          1/VM_*fvm::ddt(lambda_())
+        - fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")
+        ==
+          fvm::SuSp(sLambda_, lambda_())
     );
     
     fvScalarMatrices.set
