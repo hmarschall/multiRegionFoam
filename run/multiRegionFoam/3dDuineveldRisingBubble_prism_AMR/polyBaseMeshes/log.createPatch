@@ -1,0 +1,173 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSchemes;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+ddtSchemes
+{
+    default none;
+    ddt(rho,U) backward;
+    ddt(U) backward;
+    ddt(c1) backward;
+}
+
+gradSchemes
+{
+    default Gauss linear;
+}
+
+divSchemes
+{
+    default none;
+	div(phi,c1) Gauss linear corrected;
+    div(phi,U) Gauss GammaVDC 0.5;
+}
+
+laplacianSchemes
+{
+    default Gauss linear corrected;
+    laplacian(mu,U) Gauss linear corrected;
+    laplacian((1|A(U)),p) Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default linear;
+}
+
+snGradSchemes
+{
+    default corrected;
+}
+
+fluxRequired
+{
+    p;
+}
+
+// ************************************************************************* //
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-06;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-05;
+        relTol          0;
+    }
+
+    c1
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-05;
+        relTol          0;
+    }
+}
+
+PISO
+{
+    nOuterCorrectors            6; //6
+    nCorrectors                 2; //2
+    nNonOrthogonalCorrectors    1;
+
+    pRefPoint (0 0 0);
+    pRefValue 0;
+}
+
+// ************************************************************************* //
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  | For copyright notice see file Copyright         |
+\*---------------------------------------------------------------------------*/
+Build  : 4.1-11cb6dafc53a
+Exec   : createPatch -overwrite
+Date   : Jul 15 2022
+Time   : 14:50:04
+Host   : "wmpc15"
+PID    : 60240
+CtrlDict : "/home/local/CSI/ha13nihi/foam/ha13nihi-4.1/applications/solvers/interfaceTracking/run/multiRegionFoam/3dDuineveldRisingBubbleMesh/polyBaseMeshesRun/system/controlDict"
+Case   : /home/local/CSI/ha13nihi/foam/ha13nihi-4.1/applications/solvers/interfaceTracking/run/multiRegionFoam/3dDuineveldRisingBubbleMesh/polyBaseMeshesRun
+nProcs : 1
+sigFpe : Enabling floating point exception trapping (FOAM_SIGFPE).
+allowSystemOperations : Disallowing user-supplied system call operations
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+Create time
+
+--> FOAM Warning : 
+    From function void* Foam::dlOpen(const Foam::fileName&, bool)
+    in file POSIX.C at line 1204
+    dlopen error : libgaussFaGradPure.so: cannot open shared object file: No such file or directory
+--> FOAM Warning : 
+    From function bool Foam::dlLibraryTable::open(const Foam::fileName&, bool)
+    in file db/dynamicLibrary/dlLibraryTable/dlLibraryTable.C at line 97
+    could not load "libgaussFaGradPure.so"
+Reading createPatchDict.
+
+Create polyMesh for time = 0
+
+
+--> FOAM Warning : 
+    From function polyBoundaryMesh::patchSet(const wordReList&, const bool, const bool) const
+    in file meshes/polyMesh/polyBoundaryMesh/polyBoundaryMesh.C at line 746
+    Cannot find any patch or group names matching freeSurfaceShadow
+--> FOAM Warning : 
+    From function polyBoundaryMesh::patchSet(const wordReList&, const bool, const bool) const
+    in file meshes/polyMesh/polyBoundaryMesh/polyBoundaryMesh.C at line 746
+    Cannot find any patch or group names matching freeSurface
+
+Doing topology modification to order faces.
+
+Synchronising points.
+
+Synchronising points.
+Points changed by average:0 max:0
+
+Removing patches with no faces in them.
+
+No patches removed.
+Writing repatched mesh to 0
+
+End
+
