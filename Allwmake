@@ -4,6 +4,14 @@ source etc/bashrc
 
 set -x
 
+# Replace files in the main foam libraries
+(cd filesToReplace && ./Allcheck)
+if [ $? -ne 0 ]
+then
+    echo "Please fix the filesToReplaceInOF above!"
+    exit 1
+fi
+
 wmakeLnIncludeAll
 
 #wmakeLnInclude -f .
@@ -14,6 +22,7 @@ ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.H" "src/mult
 
 ( cd dependencies/movingReferenceFrame/ && ./Allwmake )
 ( cd dependencies/multiRegionFoam/ && ./Allwmake )
+( cd dependencies/amrloadbalancing/ && ./Allwmake )
 
 wmake libso src/dynamicFvMesh
 wmake libso src/fvPatchFields
