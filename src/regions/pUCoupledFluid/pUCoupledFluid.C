@@ -119,6 +119,8 @@ Foam::regionTypes::pUCoupledFluid::pUCoupledFluid
         mesh().time().controlDict()
         .lookupOrDefault<Switch>("adjustTimeStep", false)
     ),
+    mrfZones_(mesh()),
+    myTimeIndex_(mesh().time().timeIndex()),
     maxCo_
     (
         mesh().time().controlDict().lookupOrDefault<scalar>("maxCo", 1.0)
@@ -399,11 +401,7 @@ void Foam::regionTypes::pUCoupledFluid::correct()
 {
     if (mesh().changing())
     {
-        // Make the fluxes absolute
-        fvc::makeAbsolute(phi_(), U_());
         #include "correctPhi.H"
-        // Make the fluxes relative to the mesh motion
-        fvc::makeRelative(phi_(), U_());
     }
 }
 
@@ -416,6 +414,9 @@ void Foam::regionTypes::pUCoupledFluid::setRDeltaT()
 
 void Foam::regionTypes::pUCoupledFluid::setCoupledEqns()
 {   
+    // Store p field for outer correction loop
+    p_().storePrevIter();
+
     // Up equation name
     word UpEqnName = Up_().name() + mesh().name() + "Eqn";
     // Initialize the Up block system
@@ -427,6 +428,14 @@ void Foam::regionTypes::pUCoupledFluid::setCoupledEqns()
 
     fvBlockMatrix<vector4>& UpEqn = getCoupledEqn<fvBlockMatrix,vector4>(UpEqnName);
 
+    if (myTimeIndex_ < mesh().time().timeIndex())
+    {
+        mrfZones_.translationalMRFs().correctMRF();
+    }
+
+    // Make the fluxes relative to the mesh motion
+    fvc::makeRelative(phi_(), U_());
+
     // Assemble and insert momentum equation
     #include "UEqn.H"
 
@@ -436,7 +445,7 @@ void Foam::regionTypes::pUCoupledFluid::setCoupledEqns()
     // Assemble and insert coupling terms
     #include "couplingTerms.H"
 
-
+    myTimeIndex_ = mesh().time().timeIndex();
         
 }
 
@@ -458,7 +467,10 @@ void Foam::regionTypes::pUCoupledFluid::updateFields()
 
     #include "boundPU.H"
 
+    mrfZones_.translationalMRFs().correctBoundaryVelocity(U_(), phi_());
+
     p_().relax();
+
 }
 
 
