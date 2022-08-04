@@ -1,0 +1,11 @@
+#!/bin/sh
+set -x
+
+wcleanLnIncludeAll
+rmdepall
+rmoall
+
+wclean libso src/loadBalancing
+
+wclean application/solver/interLBDyMFoam
+wclean application/utility/updateMesh

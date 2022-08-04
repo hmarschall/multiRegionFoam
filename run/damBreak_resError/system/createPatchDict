@@ -1,0 +1,79 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      createPatchDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Tolerance used in matching faces. Absolute tolerance is span of
+// face times this factor. To load incorrectly matches meshes set this
+// to a higher value.
+matchTolerance 1E-3;
+
+// Do a synchronisation of coupled points after creation of any patches.
+// Note: this does not work with points that are on multiple coupled patches
+//       with transformations.
+pointSync true;
+
+// Patches to create.
+patchInfo
+(
+    {
+        name leftWall;
+        dictionary
+        {
+            type patch;
+        }
+        constructFrom patches;
+        patches ( auto0 );
+    }
+
+    {
+        name rightWall;
+        dictionary
+        {
+            type patch;
+        }
+        constructFrom patches;
+        patches ( auto2 );
+    }
+
+    {
+        name lowerWall;
+        dictionary
+        {
+            type patch;
+        }
+        constructFrom patches;
+        patches ( auto1 auto3 auto4 auto5 auto7 );
+    }
+
+    {
+        name atmosphere;
+        dictionary
+        {
+            type patch;
+        }
+        constructFrom patches;
+        patches ( auto6 );
+    }
+
+    {
+        name defaultFaces;
+        dictionary
+        {
+            type empty;
+        }
+        constructFrom patches;
+        patches ( auto8 auto9 );
+    }
+);
