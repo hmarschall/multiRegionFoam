@@ -8,5 +8,4 @@ export LIB_DEP_ITM=${DIR%%/etc*}/dependencies
 
 export LIB_MRF=$LIB_DEP_ITM/movingReferenceFrame
 export LIB_MULTIREGION=$LIB_DEP_ITM/multiRegionFoam
-#export LIB_AMRLOADBALANCING=$LIB_DEP_ITM/amrloadbalancing
-export LIB_AMRLOADBALANCING=/home/constantin/foam/constantin-4.1/amrloadbalancing
+export LIB_AMRLOADBALANCING=$LIB_DEP_ITM/amrloadbalancing
