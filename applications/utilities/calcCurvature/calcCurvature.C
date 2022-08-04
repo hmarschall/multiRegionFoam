@@ -41,6 +41,7 @@ Description
 
 int main(int argc, char *argv[])
 {
+#   include "addRegionOption.H"
     //argList::validOptions.insert("diameter","scalar");
     timeSelector::addOptions(true, false);
 
@@ -49,7 +50,8 @@ int main(int argc, char *argv[])
 #   include "createTime.H"
     instantList timeDirs = timeSelector::select0(runTime, args);
 
-#   include "createDynamicFvMesh.H"
+//#   include "createDynamicFvMesh.H"
+#   include "createNamedDynamicFvMesh.H"
 
 #   include "createFields.H"
 
