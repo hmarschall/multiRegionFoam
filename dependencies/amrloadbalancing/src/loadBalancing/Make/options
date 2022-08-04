@@ -1,0 +1,28 @@
+EXE_INC = \
+    -I./lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/dynamicMesh/dynamicMesh/lnInclude \
+    -I$(LIB_SRC)/dynamicMesh/dynamicFvMesh/lnInclude \
+    -I$(LIB_SRC)/dynamicMesh/topoChangerFvMesh/lnInclude \
+    -I$(LIB_SRC)/dynamicMesh/dynamicTopoFvMesh/lnInclude \
+    -I$(LIB_SRC)/decompositionMethods/decompositionMethods/lnInclude \
+    -I$(LIB_SRC)/decompositionMethods/decomposeReconstruct/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude \
+    -I$(LIB_SRC)/dynamicMesh/meshMotion/solidBodyMotion/lnInclude \
+    -I$(LIB_SRC)/tetFiniteElement/lnInclude \
+    -I$(LIB_SRC)/sampling/lnInclude \
+    -I$(LIB_SRC)/dynamicMesh/meshMotion/tetMotionSolver/lnInclude
+
+
+LIB_LIBS = \
+    -lfiniteVolume \
+    -ldynamicFvMesh \
+    -ldynamicMesh \
+    -ltopoChangerFvMesh \
+    -lmeshTools \
+    -ldecompositionMethods \
+    -ldecomposeReconstruct \
+    -lsolidBodyMotion \
+    -ltetFiniteElement \
+    -lsampling \
+    -ltetMotionSolver

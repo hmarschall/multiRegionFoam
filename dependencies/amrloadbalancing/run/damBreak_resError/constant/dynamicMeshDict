@@ -1,0 +1,253 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.1.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      dynamicMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dynamicFvMesh loadBalanceDynamicPolyRefinementFvMesh;
+//dynamicFvMesh loadBalanceFvMesh;
+/*dynamicFvMesh dynamicPolyMultiRefinementFvMesh;*/
+
+dynamicRefineFvMeshCoeffs
+{
+    // Global refinement configuration
+
+    // Maximum refinement level
+    maxRefinementLevel   3;
+
+    // Refine every refineInterval step
+    refineInterval   1;
+
+    // Unrefine every unrefineInterval step
+    unrefineInterval 1;
+
+    // Separate refinement/unrefinement steps. In case this is switched on,
+    // if both refinement and unrefinement should have been performed in a
+    // single step, unrefinement is skipped. Switched off by default, meaning
+    // that it should be safe to perform both at the same time
+    separateUpdates true;
+
+    // Dynamic mesh procedure controls
+
+    // Polyhedral refinement engine controls
+    active yes;
+
+    // Maximum number of cells to allow (not strictly controlled)
+    maxCells             2000000;
+
+    // Number of buffer layers between refinement levels
+    nRefinementBufferLayers        1;
+
+    // Number of buffer layers for unrefinement in order to run away from the
+    // region that is getting refined at the same time in order to avoid point
+    // level inconsistencies
+    nUnrefinementBufferLayers      3;
+
+    // Whether to use edge based consistency check. Needed when one allows more
+    // than 2 refinement levels (automatically switched on)
+    edgeBasedConsistency           yes;
+
+    refinements
+    (
+        refineBasedOnAlphaResiduals
+		{
+		    refineInterval   1;
+		    unrefineInterval 1;
+		    maxRefinementLevel 1;
+		    separateUpdates false;
+
+		    // Refinement selection criteria
+		    // Refinement selection criteria
+            refinementSelection
+            {
+                type        codedFieldBoundsRefinement;
+                fieldName   magResError;
+                lowerBound  0;
+                upperBound  1;
+        
+                // Whether to use cell-point-cell smoothing for selecting
+                // refinement candidates. Off by default
+                cellPointCellSmoothing on;
+        
+                codeInclude
+                #{
+                    #include "errorEstimate.H"
+                    #include "resError.H"
+                #};
+        
+                code
+                #{
+                    Info << "*** dynamicCode ***" << endl;
+                    // Return immediately if 1st timeStep, also skips updateMesh
+                    // as phi is not yet defined there
+                    if (mesh().time().timeIndex() <= 1)
+                    {
+                        return labelList().xfer();
+                    }
+        
+                    // Get refs to involved fields
+                    const auto& phi = mesh().lookupObject<surfaceScalarField>("phi");
+                    //const auto& U = mesh().lookupObject<volVectorField>("U");
+                    //const auto& nu = mesh().lookupObject<volScalarField>("nu");
+                    //const auto& p = mesh().lookupObject<volScalarField>("p");
+                    //const auto& rho = mesh().lookupObject<volScalarField>("rho");
+                    const auto& alpha1 = mesh().lookupObject<volScalarField>("alpha1");
+                    //const auto& rhoPhi = mesh().lookupObject<surfaceScalarField>("rho*phi");
+        
+                    // Estimate the error vector
+                    /*errorEstimate<vector> ee
+                    (
+                        resError::div(phi, U) - resError::laplacian(nu, U) + fvc::grad(p/rho)
+                    );*/
+
+                    errorEstimate<scalar> ee = resError::div(phi, alpha1);
+
+                    //volScalarField magResError = mag(ee.error());
+                    volScalarField magResError = mag(ee.residual());
+
+                    scalar maxResErr = gMax(magResError);
+                    scalar minResErr = gMin(magResError);
+
+                    Info << "max residual error: " << maxResErr << endl;
+                    Info << "min residual error: " << minResErr << endl;
+                    
+                    field_.internalField() = magResError.internalField();
+
+                    //magResError.write();
+                    //mesh().write();
+                    
+                    // Knowing the range of error values, refine cells which fall in the upper 30% section of that range:
+                    lowerBound_ = minResErr + 0.05*(maxResErr - minResErr);
+                    upperBound_ = 2*maxResErr;
+                    Info << "lowerBound_" << lowerBound_ << endl;
+                    Info << "upperBound" << upperBound_ << endl; 
+                #};
+        
+                codeLibs
+                #{
+                    -lerrorEstimation
+                #};
+        
+                codeOptions
+                #{
+                    -I$(LIB_SRC)/errorEstimation/lnInclude
+                #};
+            }
+		}
+
+        refineBasedOnUResiduals
+        {
+            refineInterval   1;
+            unrefineInterval 1;
+            maxRefinementLevel 1;
+            separateUpdates false;
+
+            // Refinement selection criteria
+            // Refinement selection criteria
+            refinementSelection
+            {
+                type        codedFieldBoundsRefinement;
+                fieldName   magResError;
+                lowerBound  0;
+                upperBound  1;
+        
+                // Whether to use cell-point-cell smoothing for selecting
+                // refinement candidates. Off by default
+                cellPointCellSmoothing on;
+        
+                codeInclude
+                #{
+                    #include "errorEstimate.H"
+                    #include "resError.H"
+                #};
+        
+                code
+                #{
+                    Info << "*** dynamicCode ***" << endl;
+                    // Return immediately if 1st timeStep, also skips updateMesh
+                    // as phi is not yet defined there
+                    if (mesh().time().timeIndex() <= 1)
+                    {
+                        return labelList().xfer();
+                    }
+        
+                    // Get refs to involved fields
+                    const auto& phi = mesh().lookupObject<surfaceScalarField>("phi");
+                    const auto& U = mesh().lookupObject<volVectorField>("U");
+                    const auto& nu = mesh().lookupObject<volScalarField>("nu");
+                    const auto& p = mesh().lookupObject<volScalarField>("p");
+                    const auto& rho = mesh().lookupObject<volScalarField>("rho");
+                    //const auto& alpha1 = mesh().lookupObject<volScalarField>("alpha1");
+                    //const auto& rhoPhi = mesh().lookupObject<surfaceScalarField>("rho*phi");
+        
+                    // Estimate the error vector
+                    errorEstimate<vector> ee
+                    (
+                        resError::div(phi, U) - resError::laplacian(nu, U) + fvc::grad(p/rho)
+                    );
+
+                    //volScalarField magResError = mag(ee.error());
+                    volScalarField magResError = mag(ee.error());
+
+                    scalar maxResErr = gMax(magResError);
+                    scalar minResErr = gMin(magResError);
+
+                    Info << "max residual error: " << maxResErr << endl;
+                    Info << "min residual error: " << minResErr << endl;
+                    
+                    field_.internalField() = magResError.internalField();
+
+                    //magResError.write();
+                    //mesh().write();
+                    
+                    // Knowing the range of error values, refine cells which fall in the upper 30% section of that range:
+                    lowerBound_ = minResErr + 0.05*(maxResErr - minResErr);
+                    upperBound_ = 2*maxResErr;
+                    Info << "lowerBound_" << lowerBound_ << endl;
+                    Info << "upperBound" << upperBound_ << endl; 
+                #};
+        
+                codeLibs
+                #{
+                    -lerrorEstimation
+                #};
+        
+                codeOptions
+                #{
+                    -I$(LIB_SRC)/errorEstimation/lnInclude
+                #};
+            }
+        }
+    );
+}
+
+loadBalanceFvMeshCoeffs
+{
+    // Load Balancing
+
+    imbalanceTrigger 0.2;
+
+    numberOfSubdomains 2;
+
+    method          hierarchical;
+
+    hierarchicalCoeffs
+	{
+	    n               ( 2 1 1 );
+	    delta           0.001;
+	    order           xyz;
+	}
+}
+
+// ************************************************************************* //
