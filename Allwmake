@@ -4,14 +4,6 @@ source etc/bashrc
 
 set -x
 
-# Replace files in the main foam libraries
-(cd filesToReplace && ./Allcheck)
-if [ $? -ne 0 ]
-then
-    echo "Please fix the filesToReplaceInOF above!"
-    exit 1
-fi
-
 wmakeLnIncludeAll
 
 #wmakeLnInclude -f .
@@ -30,3 +22,11 @@ wmake libso src/fvSchemes
 
 wmake applications/utilities/calcCurvature
 wmake applications/utilities/checkFaMesh
+
+# Replace files in the main foam libraries
+(cd filesToReplace && ./Allcheck)
+if [ $? -ne 0 ]
+then
+    echo "Please consider to fix the filesToReplaceInOF above if you want to cases wih AMR!"
+    exit 1
+fi

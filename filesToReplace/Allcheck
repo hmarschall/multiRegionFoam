@@ -40,6 +40,12 @@ checkAndReport \
     "$FOAM_SRC/foam"
 if [ $? -ne 0 ]; then result=1; fi
 
+checkAndReport \
+    "faMeshUpdate.C" \
+    "$FOAM_SRC/finiteArea/faMesh/" \
+    "$FOAM_SRC/finiteArea"
+if [ $? -ne 0 ]; then result=1; fi
+
 if [ "$result" -ne 0 ]
 then
     echo

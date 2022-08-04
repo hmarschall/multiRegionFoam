@@ -28,9 +28,6 @@ Description
 
 #include "faMesh.H"
 #include "foamTime.H"
-#include "mapPolyMesh.H"
-#include "MapFaFields.H"
-#include "faMeshMapper.H"
 #include "areaFields.H"
 #include "edgeFields.H"
 
@@ -174,12 +171,6 @@ bool Foam::faMesh::movePoints() const
 //     tmp<scalarField> tresult(new scalarField(nEdges(), 0.0));
 
 //     return tresult;
-}
-
-// Temporary fix for faMesh not yet able to handle topo changes
-bool Foam::faMesh::updateMesh(const mapPolyMesh& mpm) const
-{
-    return true;
 }
 
 // ************************************************************************* //
