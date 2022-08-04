@@ -79,10 +79,10 @@ dynamicRefineFvMeshCoeffs
     maxRefinementLevel   2;
 
     // Refine every refineInterval step
-    refineInterval   5;
+    refineInterval   2;
 
     // Unrefine every unrefineInterval step
-    unrefineInterval 5;
+    unrefineInterval 2;
 
     // Separate refinement/unrefinement steps. In case this is switched on,
     // if both refinement and unrefinement should have been performed in a
@@ -112,7 +112,7 @@ dynamicRefineFvMeshCoeffs
 
     refinements
     (
-        refineBasedOnVorticity
+        /*refineBasedOnVorticity
         {
             // Refinement-specific configuration
 
@@ -131,9 +131,9 @@ dynamicRefineFvMeshCoeffs
                 // candidates. Off by default
                 cellPointCellSmoothing off;
             }
-        }
+        }*/
 
-        /*refineBasedOnPatchDistance
+        refineBasedOnPatchDistance
         {
             // Refinement selection criteria
             refinementSelection
@@ -141,7 +141,7 @@ dynamicRefineFvMeshCoeffs
                 type        codedFieldBoundsRefinement;
                 fieldName   patchDistance;
                 lowerBound  0.0009;
-                upperBound  0.002;
+                upperBound  0.001;
                 distancePatches (interface);
         
                 // Whether to use cell-point-cell smoothing for selecting
@@ -212,7 +212,7 @@ dynamicRefineFvMeshCoeffs
                     -I$(LIB_SRC)/meshTools/lnInclude
                 #};
             }
-        }*/
+        }
     );
 }
 
