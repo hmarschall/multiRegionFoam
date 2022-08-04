@@ -1,0 +1,19 @@
+interfaceTrackingFvMesh/movingInterfacePatches.C
+interfaceTrackingFvMesh/interfaceTrackingFvMesh.C
+interfaceTrackingFvMesh/surfacePointDisplacement.C
+
+interfaceTrackingFvMesh/correctedFvPatchFields/correctedFvPatchField/correctedFvPatchFields.C
+
+basicCorrectedFvPatchFields = interfaceTrackingFvMesh/correctedFvPatchFields/basicCorrectedFvPatchFields
+$(basicCorrectedFvPatchFields)/fixedGradient/fixedGradientCorrectedFvPatchFields.C
+$(basicCorrectedFvPatchFields)/fixedValue/fixedValueCorrectedFvPatchFields.C
+$(basicCorrectedFvPatchFields)/zeroGradient/zeroGradientCorrectedFvPatchFields.C
+
+interfaceTrackingFvMesh/patchCorrectedSnGrad/patchCorrectedSnGrads.C
+
+interfaceTrackingFvMesh/faMesh.C
+
+interfaceTrackingLBDyPolyRefineFvMesh/interfaceTrackingLBDyPolyRefineFvMesh.C
+
+LIB = $(FOAM_USER_LIBBIN)/libinterfaceTrackingFvMesh
+

@@ -134,7 +134,7 @@ tmp<scalarField> interfaceCoupledPressureValue::valueJump() const
 {
     const fvMesh& mesh = patch().boundaryMesh().mesh();
 
-    const faMesh& aMesh = faMesh(mesh);
+    //const faMesh& aMesh = faMesh(mesh);
 
     // surface tension 
     areaScalarField sigma = rgInterface().sigma();  

@@ -1,0 +1,6 @@
+/* dynamicCode:
+ * SHA1 = b30975726288a68b1a09207309e0b5f088bb938d
+ */
+codedFieldBoundsRefinementTemplate.C
+
+LIB = $(PWD)/../platforms/$(WM_OPTIONS)/lib/libcodedRefinement_refineBasedOnPatchDistance_b30975726288a68b1a09207309e0b5f088bb938d

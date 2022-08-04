@@ -70,7 +70,7 @@ namespace Foam
 
 class interfaceTrackingFvMesh
 :
-    public topoChangerFvMesh
+    virtual public topoChangerFvMesh
 {
     // Private Data
 
@@ -118,6 +118,13 @@ public:
 
 
     // Member Functions
+
+        //- Return access to dictionary
+        inline const dictionary& motionDict() const
+        {
+            return motionDict_;
+        }
+
 
         //- Return reference to finite volume mesh
         fvMesh& mesh()

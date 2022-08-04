@@ -1,0 +1,102 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM Extend Project: Open Source CFD        |
+|  \\    /   O peration     | Version:  1.6-ext                               |
+|   \\  /    A nd           | Web:      www.extend-project.de                 |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    p
+    {
+        solver          PCG;
+        preconditioner
+        {
+
+            preconditioner  GAMG;
+            nVcycles        4;
+            tolerance       1e-06;
+            relTol          0;
+            smoother        DICGaussSeidel;
+            //number of smoothing steps before projection
+            nSmoothingSteps 1;
+            //sweeps to perform before moving to a coarser level.
+            nPreSweeps      0;
+            //sweeps to perform after coarser level corrections
+            nPostSweeps     2;
+            nFinestSweeps   2;
+            cacheAgglomeration true;
+            nCellsInCoarsestLevel 4;
+            agglomerator    algebraicPair;
+            //-HM alternatives: algebraicPair; faceAreaPair;
+            mergeLevels     1;
+        }
+        tolerance        1e-10;
+        relTol           0;
+        minIter          1;
+        maxIter          50;
+    }
+
+    pcorr
+    {
+        solver          BiCGStab;
+        preconditioner  DILU;
+        tolerance       1e-10;
+        relTol          0;
+    }
+
+    U
+    {
+        solver          PBiCG;
+        preconditioner  DILU;
+        tolerance       1e-12;
+        relTol          0;
+    }
+
+    cellMotionU
+    {
+        solver          GMRES;
+        nDirections     6;
+        preconditioner  Cholesky;
+        tolerance       1e-07;
+        relTol          1e-05;
+        minIter         2;
+        maxIter         600;
+    }
+
+}
+
+PISO
+{
+    pRefPoint (1e-3 0 0); 
+    pRefValue 0;
+}
+
+PIMPLE
+{
+    // p-U coupling
+    nCoupledIt			3;
+    nOuterCorrectors            2; // SIMPLEC loops
+    nCorrectors                 3;//3; // PISO loops
+    nNonOrthogonalCorrectors    2;
+
+    // interface tracking
+    adjustFluxFrequency         20000;
+
+    // convergence control
+    momentumTolerance           1e-4;
+    innerTolerance              1e-4;
+}
+
+relaxationFactors
+{}

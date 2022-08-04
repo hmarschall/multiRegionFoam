@@ -1,0 +1,32 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       polyTopoChanger;
+    location    "constant/polyMesh";
+    object      meshModifiers;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+1
+(
+prismatic2DRefinement
+{
+    type prismatic2DRefinement;
+    maxCells 2000000;
+    maxRefinementLevel 1;
+    edgeBasedConsistency yes;
+    nRefinementBufferLayers 1;
+    nUnrefinementBufferLayers 3;
+    active true;
+}
+)
+
+// ************************************************************************* //

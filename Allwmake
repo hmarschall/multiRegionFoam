@@ -14,10 +14,19 @@ ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.H" "src/mult
 
 ( cd dependencies/movingReferenceFrame/ && ./Allwmake )
 ( cd dependencies/multiRegionFoam/ && ./Allwmake )
+( cd dependencies/amrloadbalancing/ && ./Allwmake )
 
-wmake libso src/dynamicFvMesh/interfaceTrackingFvMesh/
+wmake libso src/dynamicFvMesh
 wmake libso src/fvPatchFields
 wmake libso src/fvSchemes
 
 wmake applications/utilities/calcCurvature
 wmake applications/utilities/checkFaMesh
+
+# Replace files in the main foam libraries
+(cd filesToReplace && ./Allcheck)
+if [ $? -ne 0 ]
+then
+    echo "Please consider to fix the filesToReplaceInOF above if you want to cases wih AMR!"
+    exit 1
+fi
