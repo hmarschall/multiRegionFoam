@@ -189,19 +189,20 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             << " in " << rg.mesh().name()
             << endl;
 
-        // TODO: Each region type can have its own solution control
-        // correction loop
+
         simpleControl simpleControlRegion(rg.mesh());
 
         while (simpleControlRegion.correctNonOrthogonal())
         {
-            //eqn.relax();
             rg.relaxEqn<T>(eqn);
-            // TODO: getCoupledEqn and setCoupledEqn have to be called again 
-            // in oder to really do non-orthorgonal/outer correction loop
+
             eqn.solve();
 
             rg.updateFields();
+
+            // Assemble and get equation for new subloop step
+            rg.setCoupledEqns();
+            eqn = rg.getCoupledEqn<M,T>(fldName + rg.mesh().name() + "Eqn");
         }
     }
 }
