@@ -27,11 +27,6 @@ VTK/*
 !/constant/polyMesh/blockMeshDict
 !/constant/polyMesh/blockMeshDict.m4
 **cellToRegion
-**boundary
-**faces
-**neighbour
-**owner
-**points
 *.OpenFOAM
 
 # build folders - anywhere
