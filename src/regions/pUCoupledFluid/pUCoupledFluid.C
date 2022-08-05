@@ -113,14 +113,21 @@ Foam::regionTypes::pUCoupledFluid::pUCoupledFluid
         .lookupOrDefault<Switch>("hasSpacePatch", false)
     ),
     pRefCell_(0),
-    pRefValue_(0),
+    pRefValue_
+    (
+        readScalar
+        (
+            mesh().solutionDict().subDict("blockSolver").lookup("pRefValue")
+        )
+    ),
+    whichProcHasRef_(Pstream::nProcs(), 0),
+    mrfZones_(mesh()),
+    myTimeIndex_(mesh().time().timeIndex()),
     adjustTimeStep_
     (
         mesh().time().controlDict()
         .lookupOrDefault<Switch>("adjustTimeStep", false)
     ),
-    mrfZones_(mesh()),
-    myTimeIndex_(mesh().time().timeIndex()),
     maxCo_
     (
         mesh().time().controlDict().lookupOrDefault<scalar>("maxCo", 1.0)
@@ -368,26 +375,7 @@ Foam::regionTypes::pUCoupledFluid::pUCoupledFluid
 
     mesh().schemesDict().setFluxRequired(p_().name());
 
-    // const objectRegistry& dbParent = mesh().thisDb().parent();
-    // const objectRegistry& db = mesh().thisDb();
-
-    // Info << nl <<"Objects registered to parent of region: " << mesh().name() << nl << endl;
-
-    // forAllConstIter(HashTable<regIOobject*>, dbParent, iter)
-    // {
-    //     Info << " name : " << iter()->name() << nl
-    //         << " type : " << iter()->type() << nl
-    //         << endl;
-    // }
-
-    // Info << nl <<"Objects registered to mesh of region: " << mesh().name() << nl << endl;
-
-    // forAllConstIter(HashTable<regIOobject*>, db, iter)
-    // {
-    //     Info << " name : " << iter()->name() << nl
-    //         << " type : " << iter()->type() << nl
-    //         << endl;
-    // }
+    #include "setRefCell.H"
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -399,10 +387,7 @@ Foam::regionTypes::pUCoupledFluid::~pUCoupledFluid()
 
 void Foam::regionTypes::pUCoupledFluid::correct()
 {
-    if (mesh().changing())
-    {
         #include "correctPhi.H"
-    }
 }
 
 void Foam::regionTypes::pUCoupledFluid::setRDeltaT()

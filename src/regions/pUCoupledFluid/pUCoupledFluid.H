@@ -106,6 +106,9 @@ class pUCoupledFluid
 
         //- Reference pressure value
         scalar pRefValue_;
+
+        //- List of lable indicating if proc holds pRefCell
+        labelList whichProcHasRef_;
         
         //- block solver residual
         // BlockSolverPerformance<vector4> residual_;

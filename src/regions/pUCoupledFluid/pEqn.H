@@ -22,6 +22,10 @@ fvScalarMatrices.set
     new fvScalarMatrix(pEqn)
 );
 
-pEqn.setReference(pRefCell_, pRefValue_);
+#include "setRefCell.H"
+if (whichProcHasRef_[Pstream::myProcNo()])
+{
+    pEqn.setReference(pRefCell_, pRefValue_);
+}
 
 UpEqn.insertEquation(3, pEqn);
