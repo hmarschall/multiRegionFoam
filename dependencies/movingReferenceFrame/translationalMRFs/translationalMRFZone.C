@@ -449,6 +449,14 @@ void Foam::translationalMRFZone::addFrameAcceleration
     UEqn += rho*aF_;
 }
 
+void Foam::translationalMRFZone::addFrameAcceleration
+(
+    fvVectorMatrix& UEqn
+)
+{
+    UEqn += aF_;
+}
+
 
 void Foam::translationalMRFZone::correctBoundaryVelocity
 (

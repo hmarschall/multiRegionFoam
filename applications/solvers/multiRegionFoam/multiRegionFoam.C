@@ -47,11 +47,11 @@ int main(int argc, char *argv[])
     #include "createFields.H"
     #include "createTimeControls.H"
 
-    if (!LTS)
-    {
+//     if (!LTS)
+//     {
 //        #include "multiRegionCourantNo.H"
 //        #include "setInitialMultiRegionDeltaT.H"
-    }
+//     }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -59,16 +59,16 @@ int main(int argc, char *argv[])
 
     while (runTime.run())
     {
-        if (!LTS)
-        {
-            #include "createTimeControls.H"
+//         if (!LTS)
+//         {
+              #include "createTimeControls.H"
 //            #include "multiRegionCourantNo.H"
 //            #include "setMultiRegionDeltaT.H"
-        }
-        else
-        {
-            multiRegion().setRDeltaT();
-        }
+//         }
+//         else
+//         {
+               multiRegion().setRDeltaT();
+//         }
 
         runTime++;
 

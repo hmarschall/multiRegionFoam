@@ -67,36 +67,37 @@ class navierStokesFluid
         //- density
         dimensionedScalar rhoFluid_;
 
-        volScalarField rho_;
+        autoPtr<volScalarField> rho_;
 
         //- viscosity
         dimensionedScalar muFluid_;
 
-        volScalarField mu_;           
+        autoPtr<volScalarField> mu_;           
 
         //- transport
-        volVectorField U_;
+        word velocityName_;
+        autoPtr<volVectorField> U_;
 
-        surfaceScalarField phi_;
+        autoPtr<surfaceScalarField> phi_;
 
-        surfaceScalarField phiHbyA_;
+        autoPtr<surfaceScalarField> phiHbyA_;
 
-        volScalarField p_;
+        autoPtr<volScalarField> p_;
 
         //- fields for poison equation for the pressure
-        volScalarField AU_;
+        autoPtr<volScalarField> AU_;
 
-        volVectorField HU_;
+        autoPtr<volVectorField> HU_;
 
         //- gradients
-        volVectorField gradp_;
+        autoPtr<volVectorField> gradp_;
 
-        volTensorField gradU_;
+        autoPtr<volTensorField> gradU_;
 
         //- pcorr
         wordList pcorrTypes_;
 
-        volScalarField pcorr_;
+        autoPtr<volScalarField> pcorr_;
 
         //- Under-relaxation factor
         const scalar UUrf_;
@@ -159,22 +160,22 @@ public:
         // Access
         const volVectorField& U() const
         {
-            return U_;
+            return U_();
         }
 
         const volScalarField& p() const
         {
-            return p_;
+            return p_();
         }        
 
         volVectorField& U()
         {
-            return U_;
+            return U_();
         }
 
         volScalarField& p()
         {
-            return p_;
+            return p_();
         }
 
         // Access by name

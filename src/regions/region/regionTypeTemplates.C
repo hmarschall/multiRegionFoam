@@ -41,8 +41,8 @@ SourceFiles
 namespace Foam
 {
 
-template<class T>
-fvMatrix<T>& regionType::getCoupledEqn
+template< template<class> class M, class T>
+M<T>& regionType::getCoupledEqn
 (
     word name
 )
@@ -92,6 +92,30 @@ fvMatrix<tensor>& regionType::getCoupledEqn
 )
 {
     return *fvTensorMatrices[name];
+}
+
+template<>
+fvBlockMatrix<vector4>& regionType::getCoupledEqn
+(
+    word name
+)
+{
+    return *fvVector4Matrices[name];
+}
+
+bool regionType::foundCoupledEqn
+(
+    word name
+)
+{
+    return 
+    (
+        fvScalarMatrices.found(name) ||
+        fvVectorMatrices.found(name) ||
+        fvSymmTensorMatrices.found(name) ||
+        fvTensorMatrices.found(name) ||
+        fvVector4Matrices.found(name)
+    );
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

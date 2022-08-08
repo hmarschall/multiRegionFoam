@@ -455,8 +455,6 @@ public:
             // Update surface flux
             void updatePhis();
         
-            // Update surface tension
-            virtual tmp<areaScalarField> sigma() const = 0;
 };
 
 

@@ -88,6 +88,11 @@ public:
             const volScalarField& rho
         );
 
+        void addFrameAcceleration
+        (
+            fvVectorMatrix& UEqn
+        );
+
         //- Correct the boundary velocity for the rotation of the MRF region
         void correctBoundaryVelocity
         (
