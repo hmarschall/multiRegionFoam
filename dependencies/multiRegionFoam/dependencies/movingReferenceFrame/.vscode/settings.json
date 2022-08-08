@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "translationalMRFZone.C": "cpp",
-        "translationalMRFZones.C": "cpp",
-        "MRFZones.H": "cpp",
-        "MRFZones.C": "cpp",
-        "rotationalMRFZone.C": "cpp"
-    }
-}

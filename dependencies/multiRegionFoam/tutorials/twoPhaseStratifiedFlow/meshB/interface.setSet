@@ -1,2 +1,0 @@
-faceSet interfaceFaces new patchToFace interfaceShadow
-cellSet interfaceCells new faceToCell interfaceFaces any
