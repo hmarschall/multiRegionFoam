@@ -1,0 +1,4 @@
+interfaceToInterfaceCoupleManager/interfaceToInterfaceCoupleManager.C
+
+LIB = $(FOAM_USER_LIBBIN)/libcoupledFvPatchBCs
+

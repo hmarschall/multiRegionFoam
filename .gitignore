@@ -20,25 +20,17 @@
 */processor*/*
 [0-9]*.[0-9]*
 !0.org
-VTK
-VTK/*
 *.eMesh
 /constant/polyMesh/*
 !/constant/polyMesh/blockMeshDict
 !/constant/polyMesh/blockMeshDict.m4
-**cellToRegion
+**/cellToRegion
+**/boundary
+**/faces
+**/neighbour
+**/owner
+**/points
 *.OpenFOAM
-
-# build folders - anywhere
-linux*Gcc*/
-linux*Icc*/
-mingw*Gcc*/
-darwin*Gcc*/
-darwin*Intel*/
-linuxming*/
-SiCortex*Gcc*/
-solaris*Gcc*/
-SunOS*Gcc*/
 
 # file-browser settings - anywhere
 .directory
@@ -68,6 +60,94 @@ core
 
 # lnInclude (symlink) folders - anywhere
 lnInclude
+lnInclude/*
+
+# A hidden file created by the Mac OS X Finder.
+.DS_Store
+
+# build folders - anywhere
+linux*Gcc*/
+linux*Icc*/
+mingw*Gcc*/
+darwin*Gcc*/
+darwin*Intel*/
+linuxming*/
+SiCortex*Gcc*/
+solaris*Gcc*/
+SunOS*Gcc*/
+
+# debian/ derived files
+build-stamp
+debian/files
+debian/openfoam170.debhelper.log
+debian/openfoam170.substvars
+debian/openfoam170/
+debian/stamp-patched
+
+# reinstate wmake/rules that might look like build folders
+!wmake/rules/*/
+
+# doxygen generated documentation
+doc/[Dd]oxygen/html
+doc/[Dd]oxygen/latex
+doc/[Dd]oxygen/man
+
+# generated files in the main directory (e.g. ReleaseNotes-?.?.html)
+/*.html
+
+# patch residue
+*.rej
+
+# pyFoam-stuff
+PlyParser_FoamFileParser_parsetab.py
+
+# python-compile
+*.pyc
+
+# other stuff
+.build
+.hgignore
+.timeStamp
+
+# source packages - anywhere
+*.tar.bz2
+*.tar.gz
+*.tar
+*.tgz
+*.gtgz
+
+# ignore the persistent .build tag in the main directory
+/.build
+
+# ignore .timeStamp in the main directory
+/.timeStamp
+
+# ignore .tags in the main directory
+/.tags
+
+# ignore - changes to the configuration
+etc/cshrc
+etc/bashrc
+etc/settings.csh
+etc/settings.sh
+etc/prefs.csh
+etc/prefs.sh
+
+# make sure that this settings file is not used
+etc/bashrc.preset
+
+#Test-Harness generated stuff
+
+# The following files are blacklisted because of a DMCA complaint by ANSYS.
+src/lduSolvers/tools/PriorityArray.C
+src/lduSolvers/tools/PriorityArray.H
+src/lduSolvers/amg/amgPolicy/samgPolicy.C
+src/lduSolvers/amg/amgPolicy/samgPolicy.H
+src/lduSolvers/amg/amgPolicy/aamgPolicy.C
+src/lduSolvers/amg/amgPolicy/aamgPolicy.H
+
+# vagrant stuff
+vagrantSandbox/.vagrant/
 
 # vscode settings
 /.vscode
@@ -78,6 +158,16 @@ lnInclude
 # bouml project directory
 *.bouml
 
-# symbolic linked files
-dependencies/multiRegionFoam/src/multiRegionSystem/mergePolyMesh.C
-dependencies/multiRegionFoam/src/multiRegionSystem/mergePolyMesh.H
+# end-of-file
+src/dynamicFvMesh/
+src/coupledFvPatchFields/interfaceCoupledPressureFlux 
+src/coupledFvPatchFields/interfaceCoupledPressureValue 
+src/coupledFvPatchFields/interfaceCoupledVelocityFlux 
+src/coupledFvPatchFields/interfaceCoupledVelocityValue
+src/multiRegionSystem/mergePolyMesh.*
+tutorials/multiRegionDuineveldRisingBubble
+tutorials/multiRegionTwoPhaseStratifiedShearFlow/
+src/multiRegionSystem/mergePolyMesh.C
+src/multiRegionSystem/mergePolyMesh.H
+
+

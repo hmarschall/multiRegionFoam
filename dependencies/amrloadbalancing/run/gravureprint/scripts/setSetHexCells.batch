@@ -1,3 +1,0 @@
-cellSet hexCells new shapeToCell hex
-faceSet hexCellFaces new cellToFace hexCells all
-quit

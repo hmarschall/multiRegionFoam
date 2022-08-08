@@ -1,0 +1,73 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  plus                                  |
+|   \\  /    A nd           | Web:      www.OpenFOAM.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    note        "mesh decomposition control dictionary";
+    object      decomposeParDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+//- The total number of domains (mandatory)
+numberOfSubdomains	 4;
+
+method manual;
+
+simpleCoeffs
+{
+    n		(1 3 1);
+    delta	0.001;
+}
+
+
+metisCoeffs
+{
+    processorWeights
+    (
+	8
+	1
+	1
+    );
+}
+
+manualCoeffs
+{
+	dataFile   "cellDecomposition2";
+}
+
+//globalFaceZones (interfaceZones);
+//preservePatches (interface);
+//preserveFaceZones (interfaceZones);
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+// Decomposition constraints
+
+/*constraints
+{
+    singleProcessorFaceSets
+    {
+//        //- Keep all of faceSet on a single processor. This puts all cells
+//        //  connected with a point, edge or face on the same processor.
+//        //  (just having face connected cells might not guarantee a balanced
+//        //  decomposition)
+//        // The processor can be -1 (the decompositionMethod chooses the
+//        // processor for a good load balance) or explicitly provided (upsets
+//        // balance)
+        type    singleProcessorFaceSets;
+        singleProcessorFaceSets ((interfaceFaces 0));
+    }
+}*/
+
+// comment 'constraints' block and uncomment the following line to use in
+// foam-extend
+//singleProcessorFaceSets ((interfaceFaces 0));
+
+// ************************************************************************* //

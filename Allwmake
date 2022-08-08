@@ -1,32 +1,35 @@
-#!/bin/bash
+#!/bin/sh
 
 source etc/bashrc
 
 set -x
 
-wmakeLnIncludeAll
+wmakeLnInclude -f .
 
-#wmakeLnInclude -f .
-
-#wmakeLnInclude -f src/.
+wmakeLnInclude -f src/.
 ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.C" "src/multiRegionSystem/mergePolyMesh.C"
 ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.H" "src/multiRegionSystem/mergePolyMesh.H"
 
-( cd dependencies/movingReferenceFrame/ && ./Allwmake )
-( cd dependencies/multiRegionFoam/ && ./Allwmake )
-( cd dependencies/amrloadbalancing/ && ./Allwmake )
+while getopts ":withBear" option; do
+   case $option in
+      withBear) # compile with bear
+         bear dependencies/movingReferenceFrame/Allwmake
 
-wmake libso src/dynamicFvMesh
-wmake libso src/fvPatchFields
-wmake libso src/fvSchemes
+         bear -a wmake libso src/multiRegionSystem
 
-wmake applications/utilities/calcCurvature
-wmake applications/utilities/checkFaMesh
+         bear -a wmake applications/solvers/conjugateHeatFoam
+         bear -a wmake applications/solvers/multiRegionFoam
+         
+         exit;;
+     \?) # Invalid option
+         echo "Error: Invalid option"
+         exit;;
+   esac
+done
 
-# Replace files in the main foam libraries
-(cd filesToReplace && ./Allcheck)
-if [ $? -ne 0 ]
-then
-    echo "Please consider to fix the filesToReplaceInOF above if you want to cases wih AMR!"
-    exit 1
-fi
+dependencies/movingReferenceFrame/Allwmake
+
+wmake libso src/multiRegionSystem
+
+wmake applications/solvers/conjugateHeatFoam
+wmake applications/solvers/multiRegionFoam

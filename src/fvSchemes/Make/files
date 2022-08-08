@@ -1,8 +1,0 @@
-ddtSchemes = ddtSchemes
-$(ddtSchemes)/bdf2/bdf2DdtSchemes.C
-
-d2dt2Schemes = d2dt2Schemes
-$(d2dt2Schemes)/backward2D2dt2/backward2D2dt2Schemes.C
-$(d2dt2Schemes)/Euler1D2dt2/Euler1D2dt2Schemes.C
-
-LIB = $(FOAM_LIBBIN)/libfvSchemes

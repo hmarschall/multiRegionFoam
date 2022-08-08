@@ -5,14 +5,10 @@ wcleanLnIncludeAll
 rmdepall
 rmoall
 
-( cd dependencies/movingReferenceFrame/ && ./Allclean )
-( cd dependencies/multiRegionFoam/ && ./Allwclean )
-( cd dependencies/amrloadbalancing/ && ./Allclean )
+dependencies/movingReferenceFrame/Allwclean
 
-wclean libso src/dynamicFvMesh
-wclean libso src/fvPatchFields
-wclean libso src/fvSchemes
+wclean libso src/multiRegionSystem
 
-wclean applications/utilities/calcCurvature
-wclean applications/utilities/checkFaMesh
+wclean applications/solvers/conjugateHeatFoam
+wclean applications/solvers/multiRegionFoam
 

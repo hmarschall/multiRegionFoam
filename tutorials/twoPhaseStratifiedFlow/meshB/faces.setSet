@@ -1,0 +1,5 @@
+faceSet centerlineFaces new patchToFace sides
+faceSet centerlineFaces subset boxToFace (0 -1 -1) (1.1e-3 1 1)
+
+faceSet interfaceFaces new patchToFace sides
+faceSet interfaceFaces subset boxToFace (0 -1.002 -1.002) (1.0025 1.002 1.002)

@@ -1,0 +1,7 @@
+../../../src/coupleManager/coupleManager.C
+../../../src/coupledFvPatchFields/regionCoupleTemperature/regionCoupleTemperatureFvPatchScalarField.C
+../../../src/coupledFvPatchFields/regionCoupleHeatFlux/regionCoupleHeatFluxFvPatchScalarField.C
+
+conjugateHeatFoam.C
+
+EXE = $(FOAM_USER_APPBIN)/conjugateHeatFoam

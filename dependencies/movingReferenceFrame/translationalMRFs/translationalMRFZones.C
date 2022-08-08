@@ -78,6 +78,17 @@ void Foam::translationalMRFZones::addFrameAcceleration
     }
 }
 
+void Foam::translationalMRFZones::addFrameAcceleration
+(
+    fvVectorMatrix& UEqn
+)
+{
+    forAll (*this, i)
+    {
+        operator[](i).addFrameAcceleration(UEqn);
+    }
+}
+
 
 void Foam::translationalMRFZones::correctBoundaryVelocity
 (
