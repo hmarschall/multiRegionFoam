@@ -80,7 +80,7 @@ public:
     // Access  
  
     // Member Functions	
-    virtual tmp<areaScalarField> sigma() const; 
+    tmp<areaScalarField> sigma() const; 
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

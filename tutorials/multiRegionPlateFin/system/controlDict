@@ -47,6 +47,11 @@ runTimeModifiable on;
 
 adjustTimeStep  off;
 
+InfoSwitches
+{
+     allowSystemOperations 1;
+}
+
 functions
 {
 /*

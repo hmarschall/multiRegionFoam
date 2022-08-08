@@ -1,7 +1,7 @@
 labelList whichProcHasRef(Pstream::nProcs(), 0);
 
 // Find reference cell
-if (p_.needReference())
+if (p_().needReference())
 {
     point refPointi(mesh().solutionDict().subDict("PISO").lookup("pRefPoint"));
     label refCelli = mesh().findCell(refPointi);
@@ -15,7 +15,7 @@ if (p_.needReference())
         {
             FatalErrorIn("setRefCell")
                 << "Unable to set reference cell for field "
-                    << p_.name()
+                    << p_().name()
                     << nl << "    Reference point pdRefPoint"
                     << " found on " << sumHasRef << " domains (should be one)"
                     << nl << exit(FatalError);
