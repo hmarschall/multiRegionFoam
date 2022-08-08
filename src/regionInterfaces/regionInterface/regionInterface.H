@@ -443,6 +443,9 @@ public:
             //- Detach the mesh interface using mesh modifier
             virtual void detach();
 
+            // Update finite area mesh
+            void updateFaMesh();
+
             // Update surface velocity
             void updateUs();
 

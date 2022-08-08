@@ -167,3 +167,7 @@ src/coupledFvPatchFields/interfaceCoupledVelocityValue
 src/multiRegionSystem/mergePolyMesh.*
 tutorials/multiRegionDuineveldRisingBubble
 tutorials/multiRegionTwoPhaseStratifiedShearFlow/
+src/multiRegionSystem/mergePolyMesh.C
+src/multiRegionSystem/mergePolyMesh.H
+
+

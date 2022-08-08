@@ -25,6 +25,7 @@ License
 
 #include "globalPolyPatch.H"
 #include "polyPatchID.H"
+#include "FieldSumOp.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -218,16 +219,20 @@ void Foam::globalPolyPatch::calcGlobalPatch() const
         }
     }
 
+    if (debug)
+    {
+        Pout << nl 
+             << "nDuplicatePoints: " << nDuplicatePoints
+             << " on global patch: " << patchName_ << nl
+             << "resizing zonePoints from " 
+             << zonePoints.size() << " to " << nCurPoints << endl;
+    }
+
     // Resize the points list
     zonePoints.resize(nCurPoints);
 
     // All points and faces are collected.  Make a patch
     globalPatchPtr_ = new standAlonePatch(zoneFaces, zonePoints);
-
-    if (debug)
-    {
-        Info<< "    nDuplicatePoints: " << nDuplicatePoints << endl;
-    }
 
     if (debug)
     {
@@ -263,7 +268,7 @@ void Foam::globalPolyPatch::calcGlobalMasterToCurrentProcPointAddr() const
     }
 
     // Pass points to all procs
-    reduce(fzGlobalPoints, sumOp<vectorField>());
+    reduce(fzGlobalPoints, FieldSumOp<vector>());
 
     // Now every proc has the master's list of FZ points
     // every proc must now find the mapping from their local FZ points to

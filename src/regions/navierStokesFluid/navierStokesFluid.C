@@ -112,8 +112,10 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
         .lookupOrDefault<Switch>("hasSpacePatch", false)
     ),
     pRefCell_(0),
-    pRefValue_(0),     
-    
+    pRefValue_
+    (
+        readScalar(mesh().solutionDict().subDict("PISO").lookup("pRefValue"))
+    ),
     innerResidual_(1),
     residualPressure_(1),
 
@@ -631,6 +633,9 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
 #       include "setDeltaT.H"
     }
 
+    // Get pressure reference cell
+#   include "setRefCell.H"
+
     if (mesh().changing())
     {
 #       include "correctPhi.H"
@@ -828,6 +833,7 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                  == fvc::div(phi_())
                 );
 
+<<<<<<< HEAD
                 label pRefCell = 0;
                 scalar pRefValue = 0.0;
                 bool pNeedRef = false;
@@ -876,6 +882,12 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
 
 //                    pEqn.setReference(pRefCell_, pRefValue_);
 //                }
+=======
+               if (closedVolume_)
+               {
+                   pEqn.setReference(pRefCell_, pRefValue_);
+               }
+>>>>>>> 1257eff5c7cbdc994debab8d3acbf55f8e5a0ef3
 
                 pEqn.solve
                 (
