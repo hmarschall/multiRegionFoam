@@ -1,8 +1,12 @@
 
+    fvVectorMatrix ddtUEqn(fvm::ddt(U_()));
+
+    mrfZones_.translationalMRFs().addFrameAcceleration(ddtUEqn);
+    
     // Momentum equation
     fvVectorMatrix UEqn
     (
-        fvm::ddt(U_())
+        ddtUEqn
       + fvm::div(phi_(), U_())
       - fvm::laplacian(nu_(), U_())
     );

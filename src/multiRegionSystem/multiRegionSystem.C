@@ -189,17 +189,20 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             << " in " << rg.mesh().name()
             << endl;
 
-        // TODO: Each region type can have its own solution control
-        // inner coupling loop
+
         simpleControl simpleControlRegion(rg.mesh());
 
         while (simpleControlRegion.correctNonOrthogonal())
         {
-            //eqn.relax();
             rg.relaxEqn<T>(eqn);
+
             eqn.solve();
 
             rg.updateFields();
+
+            // Assemble and get equation for new subloop step
+            rg.setCoupledEqns();
+            eqn = rg.getCoupledEqn<M,T>(fldName + rg.mesh().name() + "Eqn");
         }
     }
 }

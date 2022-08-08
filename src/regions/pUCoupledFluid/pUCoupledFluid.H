@@ -106,6 +106,9 @@ class pUCoupledFluid
 
         //- Reference pressure value
         scalar pRefValue_;
+
+        //- List of lable indicating if proc holds pRefCell
+        labelList whichProcHasRef_;
         
         //- block solver residual
         // BlockSolverPerformance<vector4> residual_;
@@ -116,8 +119,8 @@ class pUCoupledFluid
         // label corr_;
 
         //- Moving reference frames
-        // MRFZones mrfZones_;
-        // label myTimeIndex_;
+        MRFZones mrfZones_;
+        label myTimeIndex_;
 
         //- Adjustable time-step switch
         const Switch adjustTimeStep_;

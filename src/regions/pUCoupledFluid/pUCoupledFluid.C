@@ -113,7 +113,16 @@ Foam::regionTypes::pUCoupledFluid::pUCoupledFluid
         .lookupOrDefault<Switch>("hasSpacePatch", false)
     ),
     pRefCell_(0),
-    pRefValue_(0),
+    pRefValue_
+    (
+        readScalar
+        (
+            mesh().solutionDict().subDict("blockSolver").lookup("pRefValue")
+        )
+    ),
+    whichProcHasRef_(Pstream::nProcs(), 0),
+    mrfZones_(mesh()),
+    myTimeIndex_(mesh().time().timeIndex()),
     adjustTimeStep_
     (
         mesh().time().controlDict()
@@ -366,26 +375,7 @@ Foam::regionTypes::pUCoupledFluid::pUCoupledFluid
 
     mesh().schemesDict().setFluxRequired(p_().name());
 
-    // const objectRegistry& dbParent = mesh().thisDb().parent();
-    // const objectRegistry& db = mesh().thisDb();
-
-    // Info << nl <<"Objects registered to parent of region: " << mesh().name() << nl << endl;
-
-    // forAllConstIter(HashTable<regIOobject*>, dbParent, iter)
-    // {
-    //     Info << " name : " << iter()->name() << nl
-    //         << " type : " << iter()->type() << nl
-    //         << endl;
-    // }
-
-    // Info << nl <<"Objects registered to mesh of region: " << mesh().name() << nl << endl;
-
-    // forAllConstIter(HashTable<regIOobject*>, db, iter)
-    // {
-    //     Info << " name : " << iter()->name() << nl
-    //         << " type : " << iter()->type() << nl
-    //         << endl;
-    // }
+    #include "setRefCell.H"
 }
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -397,14 +387,7 @@ Foam::regionTypes::pUCoupledFluid::~pUCoupledFluid()
 
 void Foam::regionTypes::pUCoupledFluid::correct()
 {
-    if (mesh().changing())
-    {
-        // Make the fluxes absolute
-        fvc::makeAbsolute(phi_(), U_());
         #include "correctPhi.H"
-        // Make the fluxes relative to the mesh motion
-        fvc::makeRelative(phi_(), U_());
-    }
 }
 
 void Foam::regionTypes::pUCoupledFluid::setRDeltaT()
@@ -416,6 +399,9 @@ void Foam::regionTypes::pUCoupledFluid::setRDeltaT()
 
 void Foam::regionTypes::pUCoupledFluid::setCoupledEqns()
 {   
+    // Store p field for outer correction loop
+    p_().storePrevIter();
+
     // Up equation name
     word UpEqnName = Up_().name() + mesh().name() + "Eqn";
     // Initialize the Up block system
@@ -427,6 +413,14 @@ void Foam::regionTypes::pUCoupledFluid::setCoupledEqns()
 
     fvBlockMatrix<vector4>& UpEqn = getCoupledEqn<fvBlockMatrix,vector4>(UpEqnName);
 
+    if (myTimeIndex_ < mesh().time().timeIndex())
+    {
+        mrfZones_.translationalMRFs().correctMRF();
+    }
+
+    // Make the fluxes relative to the mesh motion
+    fvc::makeRelative(phi_(), U_());
+
     // Assemble and insert momentum equation
     #include "UEqn.H"
 
@@ -436,7 +430,7 @@ void Foam::regionTypes::pUCoupledFluid::setCoupledEqns()
     // Assemble and insert coupling terms
     #include "couplingTerms.H"
 
-
+    myTimeIndex_ = mesh().time().timeIndex();
         
 }
 
@@ -458,7 +452,10 @@ void Foam::regionTypes::pUCoupledFluid::updateFields()
 
     #include "boundPU.H"
 
+    mrfZones_.translationalMRFs().correctBoundaryVelocity(U_(), phi_());
+
     p_().relax();
+
 }
 
 
