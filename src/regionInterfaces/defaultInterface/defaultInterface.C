@@ -58,4 +58,9 @@ Foam::regionInterfaces::defaultInterface::defaultInterface
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+void Foam::regionInterfaces::defaultInterface::correct()
+{
+    // do nothing
+}
+
 // ************************************************************************* //

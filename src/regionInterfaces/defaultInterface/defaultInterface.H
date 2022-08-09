@@ -68,6 +68,10 @@ public:
     // Destructor
     virtual ~defaultInterface()
     {}
+
+
+    // Correct interface physics
+    void correct();
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -454,6 +454,9 @@ public:
 
             // Update surface flux
             void updatePhis();
+
+            // Correct interface physics
+            virtual void correct() = 0;
         
 };
 

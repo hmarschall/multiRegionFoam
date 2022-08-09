@@ -59,68 +59,31 @@ Foam::regionInterfaces::capillaryInterface::capillaryInterface
     (
         interfaceProperties().subDict(name()).lookup("sigma")
     ),
-    sigmaPtr_(NULL)
+    sigma_
+    (
+        areaScalarField
+        (
+            IOobject
+            (
+                "sigma" + aMesh().mesh().name() + patchA.name(),
+                runTime.timeName(),
+                aMesh().thisDb(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            aMesh(),
+            sigma0_,
+            zeroGradientFaPatchScalarField::typeName
+        )
+    )
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-tmp<areaScalarField>
-Foam::regionInterfaces::capillaryInterface::sigma() const
+void Foam::regionInterfaces::capillaryInterface::correct()
 {
-    if
-    (
-        runTime().foundObject<areaScalarField>("sigma")
-    )
-    {
-        // contaminated interface
-        sigmaPtr_.reset
-        (
-            new areaScalarField
-            (
-                meshA().lookupObject<areaScalarField>("sigma")
-            )
-        );   
-    }
-    else
-    {
-        // clean interface
-        sigmaPtr_.reset
-        (
-            new areaScalarField
-            (
-                IOobject
-                (
-                    "sigmaPtr",
-                    runTime().timeName(),
-                    aMesh().thisDb(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                aMesh(),
-                sigma0_,
-                zeroGradientFaPatchScalarField::typeName
-            )
-        );
-    }
-
-    return 
-    (
-        tmp<areaScalarField>
-        (
-            new areaScalarField
-            (
-                IOobject
-                (
-                    "sigma" + name(),
-                    runTime().timeName(),
-                    aMesh().thisDb(),
-                    IOobject::NO_READ,
-                    IOobject::NO_WRITE
-                ),
-                sigmaPtr_()
-            )
-        )
-    );
+    //TO-Do call function to calculate new sigma_ with interface equation of state 
+    // for contaminated surfaces 
 }
 
 
