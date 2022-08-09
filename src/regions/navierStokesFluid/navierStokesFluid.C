@@ -598,7 +598,16 @@ Foam::regionTypes::navierStokesFluid::~navierStokesFluid()
 
 void Foam::regionTypes::navierStokesFluid::correct()
 {
-    // do nothing, add as required
+    // --- PIMPLE loop      
+    pimpleControl pimple(mesh());
+
+        // Get pressure reference cell
+#   include "setRefCell.H"
+
+    if (mesh().changing())
+    {
+#       include "correctPhiAfterMeshUpdate.H"
+    }
 }
 
 
