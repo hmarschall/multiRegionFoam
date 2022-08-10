@@ -105,13 +105,13 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
 
         regionType& rg = const_cast<regionType&>(regions_()[regI]);
 
-        M<T>& eqn =
+        M<T>* eqn =
             rg.getCoupledEqn<M,T>
             (
                 fldName + rg.mesh().name() + "Eqn"
             );
 
-        coupledEqns.set(nReg, &eqn);
+        coupledEqns.set(nReg, eqn);
 
         nReg++;
     }
@@ -178,14 +178,14 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             mesh.surfaceInterpolation::movePoints();
         }
 
-        auto& eqn =
+        auto* eqn =
             rg.getCoupledEqn<M,T>
             (
                 fldName + rg.mesh().name() + "Eqn"
             );
 
         Info<< nl 
-            << "Solving for " << eqn.psi().name() 
+            << "Solving for " << eqn->psi().name() 
             << " in " << rg.mesh().name()
             << endl;
 
@@ -196,7 +196,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
         {
             rg.relaxEqn<T>(eqn);
 
-            eqn.solve();
+            eqn->solve();
 
             rg.updateFields();
 

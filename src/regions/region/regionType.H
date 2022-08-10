@@ -159,13 +159,13 @@ public:
         virtual void updateFields() = 0;
 
         template<class T>
-        void relaxEqn(fvMatrix<T>& eqn)
+        void relaxEqn(fvMatrix<T>* eqn)
         {
-            eqn.relax();
+            eqn->relax();
         }
 
         template<class T>
-        void relaxEqn(fvBlockMatrix<T>& eqn)
+        void relaxEqn(fvBlockMatrix<T>* eqn)
         {
             //TODO: Relaxation of fvBlockMatricies currently not supported
         }
@@ -174,7 +174,7 @@ public:
 
         // Get a ref to the fvMatrix 
         template< template<class> class M, class T>
-        M<T>& getCoupledEqn
+        M<T>* getCoupledEqn
         (
             word name
         );
