@@ -11,17 +11,17 @@
             const fvPatchVectorField& Up = U_().boundaryField()[patchI];
 
             // Warning: hacked for nuEff in viscosity
-            const scalarField nutpMagSf =
-                nu_().boundaryField()[patchI]*
+            const scalarField mutpMagSf =
+                mu_().boundaryField()[patchI]*
                 mesh().magSf().boundaryField()[patchI];
 
             // Get boundary condition contribution to matrix diagonal
             tensorField patchDiag =
-                -Up.blockGradientInternalCoeffs()().asSquare()*nutpMagSf;
+                -Up.blockGradientInternalCoeffs()().asSquare()*mutpMagSf;
 
             // Get matrix diagonal
             CoeffField<vector4>::squareTypeField& blockDiag =
-                UpEqn.diag().asSquare();
+                UpEqn->diag().asSquare();
 
             forAll (fc, faceI)
             {
@@ -40,10 +40,10 @@
 
          // Get boundary condition contribution to matrix source
          vectorField patchSource =
-             -Up.blockGradientBoundaryCoeffs()*nutpMagSf;
+             -Up.blockGradientBoundaryCoeffs()*mutpMagSf;
 
          // Get matrix source
-         Field<vector4>& blockSource = UpEqn.source();
+         Field<vector4>& blockSource = UpEqn->source();
 
             forAll (fc, faceI)
             {

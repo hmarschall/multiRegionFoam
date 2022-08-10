@@ -10,6 +10,6 @@
     // Last argument in insertBlockCoupling says if the column direction
     // should be incremented. This is needed for arbitrary positioning
     // of U and p in the system. This could be better. VV, 30/April/2014
-    UpEqn.insertBlockCoupling(0, 3, pInU, true);
-    UpEqn.insertBlockCoupling(3, 0, UInp, false);
+    UpEqn->insertBlockCoupling(0, 3, pInU, true);
+    UpEqn->insertBlockCoupling(3, 0, UInp, false);
 }

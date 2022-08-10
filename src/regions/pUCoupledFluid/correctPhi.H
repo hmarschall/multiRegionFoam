@@ -1,14 +1,14 @@
 {
-    volScalarField pcorr("pcorr", p_());
-    pcorr *= 0;
+    pcorr_() *= 0;
 
     // Initialise flux with interpolated velocity
     phi_() = fvc::interpolate(U_()) & mesh().Sf();
 
-    adjustPhi(phi_(), U_(), pcorr);
 
     if (!closedVolume_ && hasSpacePatch_)
     {
+        adjustPhi(phi_(), U_(), pcorr_());
+
         // get space patch index
         label scalePatchID =
             mesh().boundaryMesh().findPatchID("space");
@@ -35,13 +35,13 @@
         phip += pos(phip)*phip*(outflowScaling - 1.0);
     }
 
-    mesh().schemesDict().setFluxRequired(pcorr.name());
+    mesh().schemesDict().setFluxRequired(pcorr_().name());
 
     // while (pimple.correctNonOrthogonal())
     {
         fvScalarMatrix pcorrEqn
         (
-            fvm::laplacian(rAU_(), pcorr) == fvc::div(phi_())
+            fvm::laplacian(rAU_(), pcorr_()) == fvc::div(phi_())
         );
 
         pcorrEqn.setReference(pRefCell_, pRefValue_);

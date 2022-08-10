@@ -28,4 +28,4 @@ if (whichProcHasRef_[Pstream::myProcNo()])
     pEqn.setReference(pRefCell_, pRefValue_);
 }
 
-UpEqn.insertEquation(3, pEqn);
+UpEqn->insertEquation(3, pEqn);

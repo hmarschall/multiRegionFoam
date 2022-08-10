@@ -1,14 +1,14 @@
 
-    fvVectorMatrix ddtUEqn(fvm::ddt(U_()));
+    fvVectorMatrix ddtUEqn(fvm::ddt(rho_(), U_()));
 
-    mrfZones_.translationalMRFs().addFrameAcceleration(ddtUEqn);
+    mrfZones_.translationalMRFs().addFrameAcceleration(ddtUEqn, rho_());
     
     // Momentum equation
     fvVectorMatrix UEqn
     (
         ddtUEqn
-      + fvm::div(phi_(), U_())
-      - fvm::laplacian(nu_(), U_())
+      + fvm::div(fvc::interpolate(rho_())*phi_(), U_(), "div(phi,U)")
+      - fvm::laplacian(mu_(), U_())
     );
 
     rAU_() = 1.0/UEqn.A();
@@ -17,7 +17,7 @@
     UEqn.relax();
 
     // Insert momentum equation
-    UpEqn.insertEquation(0, UEqn);
+    UpEqn->insertEquation(0, UEqn);
 
 #   include "addBlockCoupledBC.H"
 

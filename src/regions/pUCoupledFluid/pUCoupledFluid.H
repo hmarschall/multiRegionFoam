@@ -80,6 +80,14 @@ class pUCoupledFluid
         //- reverse coefficient field of U for pressure poisson equation
         autoPtr<volScalarField> rAU_;
 
+        //- gradients
+        autoPtr<volVectorField> gradp_;
+        autoPtr<volTensorField> gradU_;
+
+        //- pcorr
+        wordList pcorrTypes_;
+        autoPtr<volScalarField> pcorr_;
+
         //- pressure field bounds
         dimensionedScalar pMin_;
         dimensionedScalar pMax_;
@@ -91,9 +99,13 @@ class pUCoupledFluid
         //- transport properties dictionary 
         IOdictionary transportProperties_;
 
+        //- density
+        dimensionedScalar rhoFluid_;
+        autoPtr<volScalarField> rho_;
+
         //- viscosity
-        dimensionedScalar nuFluid_;
-        autoPtr<volScalarField> nu_;
+        dimensionedScalar muFluid_;
+        autoPtr<volScalarField> mu_;
 
         //- closed volume?
         Switch closedVolume_;
@@ -130,6 +142,9 @@ class pUCoupledFluid
 
         //- For adjustable time-step, this is the maximum time-step
         const scalar maxDeltaT_;
+
+        //- Indicator to correct phi after first solution step
+        bool firstUpdate_;
 
 public:
 
