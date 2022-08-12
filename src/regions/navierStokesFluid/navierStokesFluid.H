@@ -210,7 +210,7 @@ public:
 
         virtual void setCoupledEqns();
         
-        virtual void updateFields();
+        virtual void postSolve();
 };
 
 

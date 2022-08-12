@@ -110,7 +110,7 @@ public:
         void reset(const regionProperties& region);
 
         //- Update the meshes and correct model properties
-        void updateAndCorrect();
+        void preSolve();
 
         //- Set reverse time step
         void setRDeltaT();
@@ -122,7 +122,7 @@ public:
         void setCoupledEqns();
 
         //- Update fields after solution
-        void updateFields();
+        void postSolve();
 
         //- Clear regions
         void clear();

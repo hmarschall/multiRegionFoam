@@ -624,7 +624,7 @@ void Foam::regionTypes::navierStokesFluid::setCoupledEqns()
 }
 
 
-void Foam::regionTypes::navierStokesFluid::updateFields()
+void Foam::regionTypes::navierStokesFluid::postSolve()
 {
     // do nothing, add as required
 }

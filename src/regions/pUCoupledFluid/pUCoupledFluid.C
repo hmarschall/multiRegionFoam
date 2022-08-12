@@ -618,7 +618,7 @@ void Foam::regionTypes::pUCoupledFluid::setCoupledEqns()
 }
 
 
-void Foam::regionTypes::pUCoupledFluid::updateFields()
+void Foam::regionTypes::pUCoupledFluid::postSolve()
 {
     // Retrieve solution
     word UpEqnName = Up_().name() + mesh().name() + "Eqn";

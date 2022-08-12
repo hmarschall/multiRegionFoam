@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
             << " Index = " << runTime.timeIndex()
             << nl << endl;
 
-        multiRegion().updateAndCorrect();
+        multiRegion().preSolve();
 
         multiRegion().solve();
 

@@ -143,7 +143,7 @@ public:
 
     // Member Functions
 
-        void updateAndCorrect();
+        void preSolve();
 
         void solve();
 
@@ -151,7 +151,7 @@ public:
 
         void setRDeltaT();
         
-        void updateFields();
+        void postSolve();
 
         // Access
 

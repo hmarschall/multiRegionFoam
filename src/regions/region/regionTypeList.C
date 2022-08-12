@@ -247,7 +247,7 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
 }
 
 
-void Foam::regionTypeList::updateAndCorrect()
+void Foam::regionTypeList::preSolve()
 {
     forAll(*this, i)
     {
@@ -301,11 +301,11 @@ void Foam::regionTypeList::setCoupledEqns()
     }
 }
 
-void Foam::regionTypeList::updateFields()
+void Foam::regionTypeList::postSolve()
 {
     forAll(*this, i)
     {
-        this->operator[](i).updateFields();
+        this->operator[](i).postSolve();
     }
 }
 

@@ -314,7 +314,7 @@ void Foam::regionTypes::transportTemperature::setCoupledEqns()
     );
 }
 
-void Foam::regionTypes::transportTemperature::updateFields()
+void Foam::regionTypes::transportTemperature::postSolve()
 {
     // do nothing, add as required
 }

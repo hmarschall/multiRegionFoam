@@ -200,7 +200,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
 
             eqn->solve();
 
-            rg.updateFields();
+            rg.postSolve();
 
             // Assemble and get equation for new subloop step
             rg.setCoupledEqns();
@@ -354,10 +354,10 @@ Foam::multiRegionSystem::~multiRegionSystem()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
-void Foam::multiRegionSystem::updateAndCorrect()
+void Foam::multiRegionSystem::preSolve()
 {
     // Correct region properties and update meshes
-    regions_->updateAndCorrect();
+    regions_->preSolve();
 
     // Update interfaces on mesh change (motion or topology)
     interfaces_->update();

@@ -156,7 +156,7 @@ public:
 
         virtual void setCoupledEqns() = 0;
         
-        virtual void updateFields() = 0;
+        virtual void postSolve() = 0;
 
         template<class T>
         void relaxEqn(fvMatrix<T>* eqn)
