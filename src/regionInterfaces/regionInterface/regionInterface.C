@@ -758,32 +758,15 @@ void Foam::regionInterface::updatePhis()
 
 void Foam::regionInterface::updateK()
 {
-//    areaScalarField& curv = 
-//        const_cast<areaScalarField&>
-//        (
-//           aMesh().faceCurvatures()
-//        );
+    areaScalarField& curv = 
+        const_cast<areaScalarField&>
+        (
+           aMesh().faceCurvatures()
+        );
 
-//    correctCurvature(curv);
+    correctCurvature(curv);
 
-//    curv.correctBoundaryConditions();
-
-//    K() == aMesh().faceCurvatures();
-
-//    K().internalField() = 
-//        const_cast<areaScalarField&>
-//        (
-//           aMesh().faceCurvatures()
-//        );
-
-//    correctCurvature(K());
-
-//    K().correctBoundaryConditions();
-
-//    if (runTime().outputTime())
-//    {
-//        K().write();
-//    }
+    curv.correctBoundaryConditions();
 }
 
 
