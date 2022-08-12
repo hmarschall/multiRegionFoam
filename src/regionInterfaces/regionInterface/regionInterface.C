@@ -106,7 +106,11 @@ void Foam::regionInterface::makeFaMesh() const
             << abort(FatalError);
     }
 
-    aMeshPtr_.set(new faMesh(meshA())); 
+    aMeshPtr_.set(new faMesh(meshA()));
+
+    // automatic update as meshObject
+    // requires unique name
+    aMeshPtr_->rename(name() + "FaMesh");
 }
 
 void Foam::regionInterface::makeUs() const
@@ -171,7 +175,7 @@ void Foam::regionInterface::makeUs() const
             (
                 U.name() + "s",
                 runTime().timeName(), 
-                runTime(), 
+                meshA(), 
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             ),
@@ -182,33 +186,33 @@ void Foam::regionInterface::makeUs() const
     );
 }
 
-void Foam::regionInterface::makeK() const
-{
-    if (!KPtr_.empty())
-    {
-        FatalErrorIn("regionInterface::makeK()")
-            << "surface curvature field already exists"
-            << abort(FatalError);
-    }
+//void Foam::regionInterface::makeK() const
+//{
+//    if (!KPtr_.empty())
+//    {
+//        FatalErrorIn("regionInterface::makeK()")
+//            << "surface curvature field already exists"
+//            << abort(FatalError);
+//    }
 
-    KPtr_.set
-    (
-        new areaScalarField
-        (
-            IOobject
-            (
-                "K",
-                runTime().timeName(), 
-                runTime(), 
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            aMesh(),
-            dimensioned<scalar>("K", dimless/dimLength, pTraits<scalar>::zero),
-            zeroGradientFaPatchVectorField::typeName
-        )
-    );
-}
+//    KPtr_.set
+//    (
+//        new areaScalarField
+//        (
+//            IOobject
+//            (
+//                "K",
+//                runTime().timeName(), 
+//                runTime(), 
+//                IOobject::NO_READ,
+//                IOobject::NO_WRITE
+//            ),
+//            aMesh(),
+//            dimensioned<scalar>("K", dimless/dimLength, pTraits<scalar>::zero),
+//            zeroGradientFaPatchVectorField::typeName
+//        )
+//    );
+//}
 
 
 void Foam::regionInterface::makePhis() const
@@ -232,7 +236,7 @@ void Foam::regionInterface::makePhis() const
             (
                 phi.name() + "s",
                 runTime().timeName(), 
-                runTime(),
+                meshA(),
                 IOobject::NO_READ,
                 IOobject::NO_WRITE
             ),
@@ -464,6 +468,20 @@ Foam::regionInterface::regionInterface
     interfaceToInterfacePtr_(),
     meshA_(patchA_.boundaryMesh().mesh()),
     meshB_(patchB_.boundaryMesh().mesh()),
+//    meshA_
+//    (
+//        runTime.lookupObject<dynamicFvMesh>
+//        (
+//            patchA_.boundaryMesh().mesh().name()
+//        )
+//    ),
+//    meshB_
+//    (
+//        runTime.lookupObject<dynamicFvMesh>
+//        (
+//            patchB_.boundaryMesh().mesh().name()
+//        )
+//    ),
     attachedA_(false),
     attachedB_(false),
     changing_(false),
@@ -472,13 +490,12 @@ Foam::regionInterface::regionInterface
         regionInterfaceProperties_
         .lookupOrDefault<int>("interpolatorUpdateFrequency", 1)
     ),
-    aMeshPtr_(),
+    aMeshPtr_(), //new faMesh(meshA_)
     curvatureCorrectedSurfacePatches_
     (
         regionInterfaceProperties_.lookup("curvatureCorrectedSurfacePatches")
     ),
     UsPtr_(),
-    KPtr_(),
     phisPtr_()
 {
     // Create global patches
@@ -521,19 +538,32 @@ Foam::regionInterface::regionInterface
     if (debug)
     {
         //Output region interface information
-        Pout << "regionInterface Info: " << name() << nl 
-            << "    local patchA: " << nl 
-            << "        name: " << patchA_.name() << " size: " << patchA_.size()  << " nPoints: " << patchA_.patch().nPoints() << " nEdges: " << patchA_.patch().nEdges()<< nl
-            << "    local patchB: " << nl
-            << "        name: " << patchB_.name() << " size: " << patchB_.size() << " nPoints: " << patchB_.patch().nPoints() << " nEdges: " << patchB_.patch().nEdges()<< nl  
-            << "    global patchA: " << nl 
-            << "        name: " << globalPatchAPtr_->patchName() << " size: " << globalPatchAPtr_->globalPatch().size()
-                    << " nPoints: " << globalPatchAPtr_->globalPatch().nPoints() << " nEdges: " << globalPatchAPtr_->globalPatch().nEdges()<< nl
-            << "    global patchB: " << nl 
-            << "        name: " << globalPatchBPtr_->patchName() << " size: " << globalPatchBPtr_->globalPatch().size()
-                    << " nPoints: " << globalPatchBPtr_->globalPatch().nPoints() << " nEdges: " << globalPatchBPtr_->globalPatch().nEdges()<< nl
+        Pout<< "regionInterface Info: " << name() << nl
+            << "local patchA: " << nl
+            << " name: " << patchA_.name()
+            << " size: " << patchA_.size()
+            << " nPoints: " << patchA_.patch().nPoints()
+            << " nEdges: " << patchA_.patch().nEdges()
+            << nl
+            << "local patchB: " << nl
+            << " name: " << patchB_.name()
+            << " size: " << patchB_.size()
+            << " nPoints: " << patchB_.patch().nPoints()
+            << " nEdges: " << patchB_.patch().nEdges()
+            << nl
+            << "global patchA: " << nl
+            << " name: " << globalPatchAPtr_->patchName()
+            << " size: " << globalPatchAPtr_->globalPatch().size()
+            << " nPoints: " << globalPatchAPtr_->globalPatch().nPoints()
+            << " nEdges: " << globalPatchAPtr_->globalPatch().nEdges()
+            << nl
+            << "global patchB: " << nl
+            << " name: " << globalPatchBPtr_->patchName()
+            << " size: " << globalPatchBPtr_->globalPatch().size()
+            << " nPoints: " << globalPatchBPtr_->globalPatch().nPoints()
+            << " nEdges: " << globalPatchBPtr_->globalPatch().nEdges()
+            << nl
             << endl;
-
     }
 }
 
@@ -705,12 +735,11 @@ void Foam::regionInterface::detach()
     }
 }
 
-void Foam::regionInterface::updateFaMesh()
+void Foam::regionInterface::update()
 {
-    if (changing())
-    {
-        aMesh().movePoints();
-    }
+    updateUs();
+    updateK();
+    updatePhis();
 }
 
 void Foam::regionInterface::updateUs()
@@ -729,20 +758,17 @@ void Foam::regionInterface::updatePhis()
 
 void Foam::regionInterface::updateK()
 {
-    updateFaMesh();
+//    areaScalarField& curv = 
+//        const_cast<areaScalarField&>
+//        (
+//           aMesh().faceCurvatures()
+//        );
 
-    areaScalarField& curv = 
-        const_cast<areaScalarField&>
-        (
-           aMesh().faceCurvatures()
-        );
+//    correctCurvature(curv);
 
-    correctCurvature(curv);
+//    curv.correctBoundaryConditions();
 
-    curv.correctBoundaryConditions();
-
-    K() == aMesh().faceCurvatures();
-
+//    K() == aMesh().faceCurvatures();
 
 //    K().internalField() = 
 //        const_cast<areaScalarField&>
