@@ -178,6 +178,8 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             mesh.surfaceInterpolation::movePoints();
         }
 
+        // set and get coupled equation with the possibly updated boundary conditions
+        rg.setCoupledEqns();
         auto* eqn =
             rg.getCoupledEqn<M,T>
             (
