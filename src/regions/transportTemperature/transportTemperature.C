@@ -324,4 +324,19 @@ void Foam::regionTypes::transportTemperature::solveRegion()
     // do nothing, add as required
 }
 
+void Foam::regionTypes::transportTemperature::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::transportTemperature::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::transportTemperature::pressureCorrector()
+{
+    // do nothing, add as required
+}
+
 // ************************************************************************* //

@@ -206,9 +206,15 @@ public:
 
         virtual void setRDeltaT();
 
+        virtual void setCoupledEqns();
+
         virtual void solveRegion();
 
-        virtual void setCoupledEqns();
+        virtual void prePredictor();
+
+        virtual void momentumPredictor();
+
+        virtual void pressureCorrector();
         
         virtual void postSolve();
 };

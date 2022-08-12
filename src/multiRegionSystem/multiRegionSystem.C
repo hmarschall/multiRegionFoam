@@ -30,7 +30,7 @@ License
 #include "HashPtrTable.H"
 #include "IOobjectList.H"
 
-#include "simpleControl.H"
+#include "pimpleControl.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -192,9 +192,9 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             << endl;
 
 
-        simpleControl simpleControlRegion(rg.mesh());
+        pimpleControl pimpleControlRegion(rg.mesh());
 
-        while (simpleControlRegion.correctNonOrthogonal())
+        while (pimpleControlRegion.correctNonOrthogonal())
         {
             rg.relaxEqn<T>(eqn);
 
@@ -380,6 +380,8 @@ void Foam::multiRegionSystem::solve()
     // Solve each region physics
     regions_->solveRegion();
 
+    // Solve pressure-velocity system using PIMPLE
+    regions_->solvePIMPLE();
 
     // Solve region-region coupling (partitioned)
     forAll (fldNames_[0], fldI)

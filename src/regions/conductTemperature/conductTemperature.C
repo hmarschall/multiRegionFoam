@@ -227,5 +227,19 @@ void Foam::regionTypes::conductTemperature::solveRegion()
     // do nothing, add as required
 }
 
+void Foam::regionTypes::conductTemperature::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::conductTemperature::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::conductTemperature::pressureCorrector()
+{
+    // do nothing, add as required
+}
 
 // ************************************************************************* //

@@ -139,6 +139,12 @@ public:
 
         virtual void solveRegion();
 
+        virtual void prePredictor();
+
+        virtual void momentumPredictor();
+
+        virtual void pressureCorrector();
+
         virtual void setCoupledEqns();
         
         virtual void postSolve();

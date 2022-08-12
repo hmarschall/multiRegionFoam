@@ -293,6 +293,10 @@ void Foam::regionTypeList::solveRegion()
     }
 }
 
+void Foam::regionTypeList::solvePIMPLE()
+{
+}
+
 void Foam::regionTypeList::setCoupledEqns()
 {
     forAll(*this, i)

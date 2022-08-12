@@ -934,4 +934,19 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
     }
 }
 
+void Foam::regionTypes::navierStokesFluid::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::navierStokesFluid::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::navierStokesFluid::pressureCorrector()
+{
+    // do nothing, add as required
+}
+
 // ************************************************************************* //

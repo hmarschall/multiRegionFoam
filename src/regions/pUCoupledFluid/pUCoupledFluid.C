@@ -648,8 +648,22 @@ void Foam::regionTypes::pUCoupledFluid::postSolve()
 
 }
 
-
 void Foam::regionTypes::pUCoupledFluid::solveRegion()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::pUCoupledFluid::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::pUCoupledFluid::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::pUCoupledFluid::pressureCorrector()
 {
     // do nothing, add as required
 }
