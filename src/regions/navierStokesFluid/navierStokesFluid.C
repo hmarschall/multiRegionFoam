@@ -511,6 +511,14 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
                     p_().boundaryField().size(),
                     zeroGradientFvPatchScalarField::typeName
                 );
+    
+    for (label i = 0; i<p_().boundaryField().size(); i++)
+    {
+        if (p_().boundaryField()[i].fixesValue())
+        {
+            pcorrTypes_[i] = fixedValueFvPatchScalarField::typeName;
+        }
+    };  
 
     // look up pressure correction field from object registry
     if (mesh().foundObject<volScalarField>("pcorr"))
@@ -549,14 +557,6 @@ Foam::regionTypes::navierStokesFluid::navierStokesFluid
             )
         );
     }
-
-    for (label i = 0; i<p_().boundaryField().size(); i++)
-    {
-        if (p_().boundaryField()[i].fixesValue())
-        {
-            pcorrTypes_[i] = fixedValueFvPatchScalarField::typeName;
-        }
-    };  
     
     gradU_().checkIn();
     gradp_().checkIn();
@@ -606,7 +606,8 @@ void Foam::regionTypes::navierStokesFluid::correct()
 
     if (mesh().changing())
     {
-#       include "correctPhiAfterMeshUpdate.H"
+//#       include "correctPhiAfterMeshUpdate.H"
+#       include "correctPhi.H"
     }
 }
 
@@ -926,6 +927,10 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
 
             myTimeIndex_ = mesh().time().timeIndex();
         }
+
+        Info<< mesh().name() <<": Pressure max: " << gMax(p_()) << " min: " << gMin(p_()) << " mean: " << gAverage(p_())
+        << nl << mesh().name() << ": Velocity max: " << gMax(U_()) << " min: " << gMax(U_()) << " mean: " << gAverage(U_())
+        << endl;
     }
 }
 
