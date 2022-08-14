@@ -252,6 +252,9 @@ void Foam::regionTypeList::preSolve()
     forAll(*this, i)
     {
         // mesh update (one sweep before solving)
+        // Note: multiple coupled regions require an
+        // updated system meshes prior to solution
+        // (see Peric)
         this->operator[](i).update();
 
         // correct properties
@@ -271,12 +274,6 @@ void Foam::regionTypeList::setRDeltaT()
 
 void Foam::regionTypeList::solveRegion()
 {
-//    forAll(*this, i)
-//    {
-//        // mesh update
-//        this->operator[](i).update();
-//    }
-
     for (int j=0; j<5; j++)
     {
         forAll(*this, i)
@@ -306,6 +303,12 @@ void Foam::regionTypeList::solvePIMPLE()
     //- PIMPLE loop
     for (int oCorr=0; oCorr<nOuterCorr; oCorr++)
     {
+//        forAll(*this, i)
+//        {
+//            // mesh update
+//            this->operator[](i).update();
+//        }
+
         forAll(*this, i)
         {
             this->operator[](i).prePredictor();

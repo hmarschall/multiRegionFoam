@@ -928,9 +928,16 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
             myTimeIndex_ = mesh().time().timeIndex();
         }
 
-        Info<< mesh().name() <<": Pressure max: " << gMax(p_()) << " min: " << gMin(p_()) << " mean: " << gAverage(p_())
-        << nl << mesh().name() << ": Velocity max: " << gMax(U_()) << " min: " << gMax(U_()) << " mean: " << gAverage(U_())
-        << endl;
+        Info<< nl
+            << mesh().name() << " Pressure:" << nl
+            << "  max: " << gMax(p_()) << nl
+            << "  min: " << gMin(p_()) << nl
+            << "  mean: " << gAverage(p_()) << nl
+            << mesh().name() << " Velocity:" << nl
+            << "  max: " << gMax(U_()) << nl
+            << "  min: "<< gMax(U_()) << nl
+            << "  mean: " << gAverage(U_()) << nl
+            << endl;
     }
 }
 

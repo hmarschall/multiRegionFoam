@@ -5,7 +5,7 @@ wcleanLnIncludeAll
 rmdepall
 rmoall
 
-dependencies/movingReferenceFrame/Allwclean
+(cd dependencies/movingReferenceFrame/ && ./Allwclean )
 
 wclean libso src/coupledFvPatchFields
 

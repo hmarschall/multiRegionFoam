@@ -12,8 +12,8 @@ $(regions)/region/regionTypeList.C
 $(regions)/conductTemperature/conductTemperature.C
 $(regions)/transportTemperature/transportTemperature.C
 $(regions)/navierStokesFluid/navierStokesFluid.C
-$(regions)/pimpleFluid/pimpleFluid.C
-$(regions)/pUCoupledFluid/pUCoupledFluid.C
+$(regions)/icoFluid/icoFluid.C
+$(regions)/pUCoupledIcoFluid/pUCoupledIcoFluid.C
 
 ../regionProperties/regionProperties.C
 ../regionInterfaceProperties/regionInterfaceProperties.C

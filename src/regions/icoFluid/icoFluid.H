@@ -22,26 +22,26 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::pUCoupledFluid.C
+    Foam::icoFluid.C
 
 SourceFiles
-    pUCoupledFluid.C
+    icoFluid.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef pUCoupledFluid_H 
-#define pUCoupledFluid_H 
+#ifndef icoFluid_H 
+#define icoFluid_H 
 
 #include "regionType.H"
+#include "MRFZones.H"
 #include "dimensionedScalar.H"
 #include "multiRegionSystem.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "IOReferencer.H"
 #include "HashPtrTable.H"
-#include "MRFZones.H"
-#include "fvCFD.H"
-#include "fvBlockMatrix.H"
+#include "pimpleControl.H"
+#include "solutionControl.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -52,60 +52,60 @@ namespace regionTypes
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class pUCoupledFluid Declaration
+                           Class icoFluid Declaration
 \*---------------------------------------------------------------------------*/
 
-class pUCoupledFluid
+class icoFluid
 :
     public regionType
 {       
 
         //- name
-        word regionName_;      
-
-        //- transport
-        autoPtr<volVectorField> U_;
-
-        autoPtr<surfaceScalarField> phi_;
-
-        autoPtr<volScalarField> p_;
-
-        //- source term of pressure poisson equation
-        autoPtr<surfaceScalarField> presSource_;
-
-        //- Block vector field for velocity (first entry) and pressure (second
-        //  entry)
-        autoPtr<volVector4Field> Up_;
-
-        //- reverse coefficient field of U for pressure poisson equation
-        autoPtr<volScalarField> rAU_;
-
-        //- gradients
-        autoPtr<volVectorField> gradp_;
-        autoPtr<volTensorField> gradU_;
-
-        //- pcorr
-        wordList pcorrTypes_;
-        autoPtr<volScalarField> pcorr_;
-
-        //- pressure field bounds
-        dimensionedScalar pMin_;
-        dimensionedScalar pMax_;
-
-        //- velocity field bounds
-        dimensionedScalar UMax_;
-        dimensionedScalar smallU_;
+        word regionName_;
 
         //- transport properties dictionary 
         IOdictionary transportProperties_;
 
+        //- PIMPLE control
+        pimpleControl pimple_;
+
         //- density
         dimensionedScalar rhoFluid_;
+
         autoPtr<volScalarField> rho_;
 
         //- viscosity
         dimensionedScalar muFluid_;
-        autoPtr<volScalarField> mu_;
+
+        autoPtr<volScalarField> mu_;           
+
+        //- transport
+        word velocityName_;
+        autoPtr<volVectorField> U_;
+
+        autoPtr<surfaceScalarField> phi_;
+
+        autoPtr<surfaceScalarField> phiHbyA_;
+
+        autoPtr<volScalarField> p_;
+
+        //- fields for poison equation for the pressure
+        autoPtr<volScalarField> AU_;
+
+        autoPtr<volVectorField> HU_;
+
+        //- gradients
+        autoPtr<volVectorField> gradp_;
+
+        autoPtr<volTensorField> gradU_;
+
+        //- pcorr
+        wordList pcorrTypes_;
+
+        autoPtr<volScalarField> pcorr_;
+
+        //- Under-relaxation factor
+        const scalar UUrf_;
 
         //- closed volume?
         Switch closedVolume_;
@@ -119,16 +119,17 @@ class pUCoupledFluid
         //- Reference pressure value
         scalar pRefValue_;
 
-        //- List of lable indicating if proc holds pRefCell
-        labelList whichProcHasRef_;
-        
-        //- block solver residual
-        // BlockSolverPerformance<vector4> residual_;
-        // scalar maxResidual;
-        // scalar convergenceCriterion;
+        //- residual for inner correctors
+        scalar innerResidual_;
 
-        // //- Current corrector loop index
-        // label corr_;
+        //- residual for pressure outer correctors
+        scalar residualPressure_;
+
+        //- Current corrector loop index
+        label corr_;
+
+        //- Current non-orthogonal corrector loop index
+        label corrNonOrtho_;
 
         //- Moving reference frames
         MRFZones mrfZones_;
@@ -143,23 +144,24 @@ class pUCoupledFluid
         //- For adjustable time-step, this is the maximum time-step
         const scalar maxDeltaT_;
 
-        //- Indicator to correct phi after first solution step
-        bool firstUpdate_;
+        //- Cached momentum matrix
+        //  shared between the momentum predictor and pressure corrector
+        tmp<fvVectorMatrix> tUEqn;
 
 public:
 
-    TypeName("pUCoupledFluid");
+    TypeName("icoFluid");
 
     // Constructors
 
-        pUCoupledFluid
+        icoFluid
         (
             const Time& runTime,
             const word& regionName
         );
 
     //- Destructor
-    virtual ~pUCoupledFluid();
+    virtual ~icoFluid();
 
 
     // Member Functions

@@ -30,7 +30,7 @@
         mesh().time().deltaT().value()
     );
 
-    while (pimple.correctNonOrthogonal())
+    while (pimple_.correctNonOrthogonal())
     {
         fvScalarMatrix pcorrEqn
         (
@@ -45,7 +45,7 @@
         pcorrEqn.setReference(pRefCell_, pRefValue_);
         pcorrEqn.solve();
 
-        if (pimple.finalNonOrthogonalIter())
+        if (pimple_.finalNonOrthogonalIter())
         {
             phi_() -= pcorrEqn.flux();
         }

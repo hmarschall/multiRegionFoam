@@ -22,13 +22,12 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 \*---------------------------------------------------------------------------*/
-        
+
+#include "icoFluid.H"
+
 #include "fvCFD.H"
-#include "pimpleFluid.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
-#include "pimpleControl.H"
-#include "solutionControl.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -36,12 +35,12 @@ namespace Foam
 {
 namespace regionTypes
 {
-    defineTypeNameAndDebug(pimpleFluid, 0);
+    defineTypeNameAndDebug(icoFluid, 0);
 
     addToRunTimeSelectionTable
     (
         regionType,
-        pimpleFluid,
+        icoFluid,
         dictionary
     );
 }
@@ -49,7 +48,7 @@ namespace regionTypes
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::regionTypes::pimpleFluid::pimpleFluid
+Foam::regionTypes::icoFluid::icoFluid
 (
     const Time& runTime,
     const word& regionName
@@ -70,6 +69,7 @@ Foam::regionTypes::pimpleFluid::pimpleFluid
             IOobject::NO_WRITE
         )
     ),
+    pimple_(mesh()),
     rhoFluid_
     (
         transportProperties_.subDict(regionName_).lookup("rho")
@@ -139,7 +139,7 @@ Foam::regionTypes::pimpleFluid::pimpleFluid
         mesh().time().controlDict().lookupOrDefault<scalar>("maxDeltaT", GREAT)
     )
 {
-    // look up desity field from object registry
+    // look up density field from object registry
     if (mesh().foundObject<volScalarField>("rho"))
     {
         Info << nl << "Using already existing desity field in region "
@@ -156,7 +156,7 @@ Foam::regionTypes::pimpleFluid::pimpleFluid
             )
         );
     }
-    else // create new desity field
+    else // create new density field
     {
         rho_.reset
         (
@@ -193,7 +193,7 @@ Foam::regionTypes::pimpleFluid::pimpleFluid
             )
         );
     }
-    else // create new desity field
+    else // create new density field
     {
         mu_.reset
         (
@@ -591,51 +591,49 @@ Foam::regionTypes::pimpleFluid::pimpleFluid
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::regionTypes::pimpleFluid::~pimpleFluid()
+Foam::regionTypes::icoFluid::~icoFluid()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::regionTypes::pimpleFluid::correct()
+void Foam::regionTypes::icoFluid::correct()
 {
-    // --- PIMPLE loop      
-    pimpleControl pimple(mesh());
-
-        // Get pressure reference cell
+    // Get pressure reference cell
 #   include "setRefCell.H"
 
     if (mesh().changing())
     {
-//#       include "correctPhiAfterMeshUpdate.H"
 #       include "correctPhi.H"
     }
 }
 
 
-void Foam::regionTypes::pimpleFluid::setRDeltaT()
+void Foam::regionTypes::icoFluid::setRDeltaT()
 {
     // do nothing, add as required
 }
 
 
-void Foam::regionTypes::pimpleFluid::setCoupledEqns()
+void Foam::regionTypes::icoFluid::setCoupledEqns()
 {  
     // do nothing, add as required
 }
 
 
-void Foam::regionTypes::pimpleFluid::postSolve()
+void Foam::regionTypes::icoFluid::postSolve()
 {
     // do nothing, add as required
 }
 
 
-void Foam::regionTypes::pimpleFluid::solveRegion()
+void Foam::regionTypes::icoFluid::solveRegion()
 {
-    Info << nl << "Solving for " << mesh().name() << endl;
+    // do nothing, add as required
+}
 
-    // --- PIMPLE loop      
-    pimpleControl pimple(mesh());
+void Foam::regionTypes::icoFluid::prePredictor()
+{
+    Info << nl << "Pre-predictor for " << mesh().name() << endl;
 
     if (myTimeIndex_ < mesh().time().timeIndex())
     {
@@ -655,9 +653,12 @@ void Foam::regionTypes::pimpleFluid::solveRegion()
     {
         mrfZones_.translationalMRFs().correctMRF();
     }
+}
 
-    while (pimple.loop())
-    {
+void Foam::regionTypes::icoFluid::momentumPredictor()
+{
+    Info << nl << "Momentum predictor for " << mesh().name() << endl;
+
         // Make the fluxes relative to the mesh motion
         phi_() == (phi_() - fvc::meshPhi(rho_(), U_()));
 //        fvc::makeRelative(phi_(), U_());
@@ -684,7 +685,8 @@ void Foam::regionTypes::pimpleFluid::solveRegion()
         }
 
         // UEqn
-        fvVectorMatrix UEqn(ddtUEqn + HUEqn);
+        tUEqn = ddtUEqn + HUEqn;
+        fvVectorMatrix& UEqn = tUEqn();
 
         // Save source and boundaryCoeffs
         vectorField S0 = UEqn.source();
@@ -694,259 +696,165 @@ void Foam::regionTypes::pimpleFluid::solveRegion()
         // Relax and solve momentum equation
         UEqn.relax(UUrf_);
 
-        if (pimple.momentumPredictor()) 
+        if (pimple_.momentumPredictor()) 
         {
             solve(UEqn == -gradp_());
         }
-        
+
         // reset equation to ensure relaxation parameter 
         // is not causing problems with time consistency
         UEqn = (ddtUEqn + HUEqn);
         UEqn.source() = S0;
         UEqn.boundaryCoeffs() = B0;
+}
 
+void Foam::regionTypes::icoFluid::pressureCorrector()
+{
+    Info << nl << "Pressure corrector for " << mesh().name() << endl;
 
-        // --- PISO loop
-        while (pimple.correct())
+    fvVectorMatrix& UEqn = tUEqn();
+
+    // --- PISO loop
+    while (pimple_.correct())
+    {
+        p_().storePrevIter();   
+
+        AU_() = UEqn.A();
+        HU_() = UEqn.H();
+
+        U_() = HU_()/AU_();
+
+        phi_() =
+        (
+            (fvc::interpolate(HU_())/fvc::interpolate(AU_()))
+          & mesh().Sf()
+        );
+
+//        phi_() += fvc::ddtPhiCorr((1.0/AU_())(), rho_, U_(), phi_());
+
+//        phi += fvc::ddtPhiCorr
+//            (
+//                (rho_/AU_())(),
+//                U_(),
+//                phi_()
+//            );
+
+        // Global flux continuity
+//        adjustPhi(phiHbyA_(), U_(), p_());
+
+#       include "correctPatchPhi.H"
+
+        while (pimple_.correctNonOrthogonal())
         {
-            p_().storePrevIter();   
-                 
-            AU_() = UEqn.A();
-            HU_() = UEqn.H();
-
-            U_() = HU_()/AU_();
-
-            phi_() =
+            fvScalarMatrix pEqn
             (
-                (fvc::interpolate(HU_())/fvc::interpolate(AU_()))
-               & mesh().Sf()
+                fvm::laplacian(1.0/fvc::interpolate(AU_()), p_()) 
+             == fvc::div(phi_())
             );
 
-//            phi_() += fvc::ddtPhiCorr((1.0/AU_())(), rho_, U_(), phi_());
+            label pRefCell = 0;
+            scalar pRefValue = 0.0;
+            bool pNeedRef = false;
+            bool procHasRef = false;
 
-//            phi += fvc::ddtPhiCorr
-//                (
-//                    (rho_/AU_())(),
-//                    U_(),
-//                    phi_()
-//                );
-
-            // Global flux continuity
-//            adjustPhi(phiHbyA_(), U_(), p_());
-
+            // Find reference cell
             if (closedVolume_)
             {
-                label intPatchID_ = 
-                    mesh().boundaryMesh().findPatchID("interfaceShadow");
-
-                forAll(phi_().boundaryField(), patchI)
-                {
-                    if
-                    (
-                        !phi_().boundaryField()[patchI].coupled()
-                     && patchI != intPatchID_
-//                     && isA<zeroGradientFvPatchVectorField>
-//                        (
-//                            U_().boundaryField()[patchI]
-//                        )
-                    )
-                    {
-                        phi_().boundaryField()[patchI] ==
-                        (
-                            U_().boundaryField()[patchI]
-                            & mesh().Sf().boundaryField()[patchI]
-                        );
-                    }
-                }
-            }
-
-            if (!closedVolume_)
-            {
-                forAll(phi_().boundaryField(), patchI)
-                {
-                    if
-                    (
-                        !phi_().boundaryField()[patchI].coupled()
-                     && !p_().boundaryField()[patchI].fixesValue()
-                    )
-                    {
-                        phi_().boundaryField()[patchI] ==
-                        (
-                            U_().boundaryField()[patchI]
-                            & mesh().Sf().boundaryField()[patchI]
-                        );
-                    }
-                }
-            }
-
-            if (closedVolume_)
-            {
-                label intPatchID_ = 
-                    mesh().boundaryMesh().findPatchID("interfaceShadow");
-
-                phi_().boundaryField()[intPatchID_] =
-                    (
-                        U_().boundaryField()[intPatchID_]
-                      & mesh().Sf().boundaryField()[intPatchID_]
-                    );
-
-                scalarField weights =
-                    mag(phi_().boundaryField()[intPatchID_]);
-
-                if(mag(gSum(weights)) > VSMALL)
-                {
-                    weights /= gSum(weights);
-                }
-
-                phi_().boundaryField()[intPatchID_] -=
-                    weights*gSum(phi_().boundaryField()[intPatchID_]);
-
-                phi_().boundaryField()[intPatchID_] +=
-                    p_().boundaryField()[intPatchID_].snGrad()
-                   *mesh().magSf().boundaryField()[intPatchID_]
-                   /AU_().boundaryField()[intPatchID_];
-            }
-
-            if (!closedVolume_ && hasSpacePatch_)
-            {
-                // get space patch index
-                label scalePatchID =
-                    mesh().boundaryMesh().findPatchID("space");
-
-                //- Non-const access to flux on patch
-                fvsPatchField<scalar>& phip = 
-                    const_cast<fvsPatchField<scalar>& >
-                    (
-                        mesh().lookupObject<surfaceScalarField>("phi")
-                        .boundaryField()[scalePatchID]
-                    );
-
-                scalar inletFlux = gSum(neg(phip)*phip);
-
-                scalar outletFlux = gSum(pos(phip)*phip);
-
-                if(outletFlux < VSMALL)
-                {
-                    outletFlux = VSMALL;
-                }
-
-                scalar outflowScaling = -inletFlux/outletFlux;
-
-                phip += pos(phip)*phip*(outflowScaling - 1.0);
-            }
-
-            while (pimple.correctNonOrthogonal())
-            {
-                fvScalarMatrix pEqn
+                point refPointi
                 (
-                    fvm::laplacian(1.0/fvc::interpolate(AU_()), p_()) 
-                 == fvc::div(phi_())
+                    mesh().solutionDict().subDict("PIMPLE").lookup("pRefPoint")
                 );
+                label refCelli = mesh().findCell(refPointi);
+                label hasRef = (refCelli >= 0 ? 1 : 0);
+                label sumHasRef = returnReduce<label>(hasRef, sumOp<label>());
 
-                label pRefCell = 0;
-                scalar pRefValue = 0.0;
-                bool pNeedRef = false;
-                bool procHasRef = false;
-
-                // Find reference cell
-                if (closedVolume_)
+                if (sumHasRef != 1)
                 {
-                    point refPointi(mesh().solutionDict().subDict("PIMPLE").lookup("pRefPoint"));
-                    label refCelli = mesh().findCell(refPointi);
-                    label hasRef = (refCelli >= 0 ? 1 : 0);
-                    label sumHasRef = returnReduce<label>(hasRef, sumOp<label>());
+                    FatalError<< "Unable to set reference cell for field "
+                              << p_().name()<< nl 
+                              << "Reference point pRefPoint"
+                              << " found on " << sumHasRef 
+                              << " domains (should be one)"
+                              << nl << exit(FatalError);
+                }
 
-                    if (sumHasRef != 1)
-                    {
-                        FatalError<< "Unable to set reference cell for field "
-                                << p_().name()
-                                << nl << "    Reference point pRefPoint"
-                                << " found on " << sumHasRef << " domains (should be one)"
-                                << nl << exit(FatalError);
-                    }
+                if (hasRef)
+                {
+                     pRefCell = refCelli;
+                     procHasRef = true;
+                }
 
-                    if (hasRef)
-                    {
-                        pRefCell = refCelli;
-                        procHasRef = true;
-                    }
-
-                    pRefValue =
-                        readScalar(mesh().solutionDict().subDict("PIMPLE").lookup("pRefValue"));
+                pRefValue =
+                    readScalar(mesh().solutionDict()
+                    .subDict("PIMPLE").lookup("pRefValue"));
 
 //                    if (pNeedRef && procHasRef)
-                    {
-                        pEqn.source()[pRefCell] +=
-                            pEqn.diag()[pRefCell]*pRefValue;
-
-                        pEqn.diag()[pRefCell] +=
-                            pEqn.diag()[pRefCell];
-                    }
-                }
-
-//                if (closedVolume_)
-//                {
-//                    point refPoint(mesh().solutionDict().subDict("PIMPLE").lookup("pRefPoint"));
-//                    pRefCell_ = mesh().findCell(refPoint);
-
-//                    pEqn.setReference(pRefCell_, pRefValue_);
-//                }
-
-                pEqn.solve
-                (
-                    mesh().solutionDict()
-                    .solver(p_().select(pimple.finalInnerIter()))
-                );
-
-                if (pimple.finalNonOrthogonalIter())
                 {
-                    phi_() -= pEqn.flux();
-                }                            
+                    pEqn.source()[pRefCell] +=
+                        pEqn.diag()[pRefCell]*pRefValue;
+
+                    pEqn.diag()[pRefCell] +=
+                        pEqn.diag()[pRefCell];
+                }
             }
 
-            //- Pressure relaxation except for last corrector
-            if (!pimple.finalIter())
+//            if (closedVolume_)
+//            {
+//                point refPoint
+//                (
+//                    mesh().solutionDict().subDict("PIMPLE").lookup("pRefPoint")
+//                );
+//                pRefCell_ = mesh().findCell(refPoint);
+
+//                pEqn.setReference(pRefCell_, pRefValue_);
+//            }
+
+            pEqn.solve
+            (
+                 mesh().solutionDict()
+                 .solver(p_().select(pimple_.finalInnerIter()))
+            );
+
+            if (pimple_.finalNonOrthogonalIter())
             {
-                p_().relax();
-            }
-
-            // Update of pressure gradient
-            gradp_() = fvc::grad(p_());
-
-            // Momentum corrector
-            U_() -= fvc::grad(p_())/AU_();
-
-            U_().correctBoundaryConditions();
-
-            // Update of velocity gradient
-            gradU_() = fvc::grad(U_());       
+                phi_() -= pEqn.flux();
+            }                            
         }
 
+        //- Pressure relaxation except for last corrector
+        if (!pimple_.finalIter())
         {
-            mrfZones_.translationalMRFs().correctBoundaryVelocity(U_(), phi_());
-
-            myTimeIndex_ = mesh().time().timeIndex();
+            p_().relax();
         }
 
-        Info<< mesh().name() <<": Pressure max: " << gMax(p_()) << " min: " << gMin(p_()) << " mean: " << gAverage(p_())
-        << nl << mesh().name() << ": Velocity max: " << gMax(U_()) << " min: " << gMax(U_()) << " mean: " << gAverage(U_())
-        << endl;
+        // Update of pressure gradient
+        gradp_() = fvc::grad(p_());
+
+        // Momentum corrector
+        U_() -= fvc::grad(p_())/AU_();
+
+        U_().correctBoundaryConditions();
+
+        // Update of velocity gradient
+        gradU_() = fvc::grad(U_());       
     }
-}
 
-void Foam::regionTypes::pimpleFluid::prePredictor()
-{
-    // do nothing, add as required
-}
+    {
+        mrfZones_.translationalMRFs().correctBoundaryVelocity(U_(), phi_());
 
-void Foam::regionTypes::pimpleFluid::momentumPredictor()
-{
-    // do nothing, add as required
-}
+        myTimeIndex_ = mesh().time().timeIndex();
+    }
 
-void Foam::regionTypes::pimpleFluid::pressureCorrector()
-{
-    // do nothing, add as required
+    Info<< nl
+        << mesh().name() << " Pressure:" << nl
+        << "  max: " << gMax(p_()) << nl
+        << "  min: " << gMin(p_()) << nl
+        << "  mean: " << gAverage(p_()) << nl
+        << mesh().name() << " Velocity:" << nl
+        << "  max: " << gMax(U_()) << nl
+        << "  min: "<< gMax(U_()) << nl
+        << "  mean: " << gAverage(U_()) << nl
+        << endl;
 }
 
 // ************************************************************************* //

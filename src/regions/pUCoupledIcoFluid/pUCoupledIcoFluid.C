@@ -24,7 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
         
 #include "fvCFD.H"
-#include "pUCoupledFluid.H"
+#include "pUCoupledIcoFluid.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
 
@@ -34,12 +34,12 @@ namespace Foam
 {
 namespace regionTypes
 {
-    defineTypeNameAndDebug(pUCoupledFluid, 0);
+    defineTypeNameAndDebug(pUCoupledIcoFluid, 0);
 
     addToRunTimeSelectionTable
     (
         regionType,
-        pUCoupledFluid,
+        pUCoupledIcoFluid,
         dictionary
     );
 }
@@ -47,7 +47,7 @@ namespace regionTypes
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::regionTypes::pUCoupledFluid::pUCoupledFluid
+Foam::regionTypes::pUCoupledIcoFluid::pUCoupledIcoFluid
 (
     const Time& runTime,
     const word& regionName
@@ -555,12 +555,12 @@ Foam::regionTypes::pUCoupledFluid::pUCoupledFluid
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::regionTypes::pUCoupledFluid::~pUCoupledFluid()
+Foam::regionTypes::pUCoupledIcoFluid::~pUCoupledIcoFluid()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::regionTypes::pUCoupledFluid::correct()
+void Foam::regionTypes::pUCoupledIcoFluid::correct()
 {
     if(firstUpdate_)
     {
@@ -572,14 +572,14 @@ void Foam::regionTypes::pUCoupledFluid::correct()
     }
 }
 
-void Foam::regionTypes::pUCoupledFluid::setRDeltaT()
+void Foam::regionTypes::pUCoupledIcoFluid::setRDeltaT()
 {
     #include "CourantNo.H"
     #include "setDeltaT.H"
 }
 
 
-void Foam::regionTypes::pUCoupledFluid::setCoupledEqns()
+void Foam::regionTypes::pUCoupledIcoFluid::setCoupledEqns()
 {   
     // Store p field for outer correction loop
     p_().storePrevIter();
@@ -618,16 +618,23 @@ void Foam::regionTypes::pUCoupledFluid::setCoupledEqns()
 }
 
 
-void Foam::regionTypes::pUCoupledFluid::postSolve()
+void Foam::regionTypes::pUCoupledIcoFluid::postSolve()
 {
     // Retrieve solution
     word UpEqnName = Up_().name() + mesh().name() + "Eqn";
     fvVector4Matrices[UpEqnName]->retrieveSolution(0, U_().internalField());
     fvVector4Matrices[UpEqnName]->retrieveSolution(3, p_().internalField());
 
-    Info<< "Pressure max: " << gMax(p_()) << " min: " << gMin(p_()) << " mean: " << gAverage(p_())
-    << nl << "Velocity max: " << gMax(U_()) << " min: " << gMax(U_()) << " mean: " << gAverage(U_())
-    << endl;
+    Info<< nl
+        << mesh().name() << " Pressure:" << nl
+        << "  max: " << gMax(p_()) << nl
+        << "  min: " << gMin(p_()) << nl
+        << "  mean: " << gAverage(p_()) << nl
+        << mesh().name() << " Velocity:" << nl
+        << "  max: " << gMax(U_()) << nl
+        << "  min: "<< gMax(U_()) << nl
+        << "  mean: " << gAverage(U_()) << nl
+        << endl;
 
     U_().correctBoundaryConditions();
     p_().correctBoundaryConditions();
@@ -648,22 +655,22 @@ void Foam::regionTypes::pUCoupledFluid::postSolve()
 
 }
 
-void Foam::regionTypes::pUCoupledFluid::solveRegion()
+void Foam::regionTypes::pUCoupledIcoFluid::solveRegion()
 {
     // do nothing, add as required
 }
 
-void Foam::regionTypes::pUCoupledFluid::prePredictor()
+void Foam::regionTypes::pUCoupledIcoFluid::prePredictor()
 {
     // do nothing, add as required
 }
 
-void Foam::regionTypes::pUCoupledFluid::momentumPredictor()
+void Foam::regionTypes::pUCoupledIcoFluid::momentumPredictor()
 {
     // do nothing, add as required
 }
 
-void Foam::regionTypes::pUCoupledFluid::pressureCorrector()
+void Foam::regionTypes::pUCoupledIcoFluid::pressureCorrector()
 {
     // do nothing, add as required
 }
