@@ -31,7 +31,7 @@ License
 
 Foam::regionInterfaceList::regionInterfaceList
 (
-    const fvMesh& mesh
+    const Time& runTime
 )
 :
     PtrList<regionInterface>(),
@@ -39,16 +39,16 @@ Foam::regionInterfaceList::regionInterfaceList
     interfaceNames_(),
     monolithicCoupledFields_(),
     partitionedCoupledFields_(),
-    mesh_(mesh),
-    monolithicTypeInterfaces_(mesh_.time(), "monolithic"),
-    partitionedTypeInterfaces_(mesh_.time(), "partitioned"),
+    runTime_(runTime),
+    monolithicTypeInterfaces_(runTime_.time(), "monolithic"),
+    partitionedTypeInterfaces_(runTime_.time(), "partitioned"),
     pcFldNames_(),
     mcFldNames_()
 {
-
     if (partitionedTypeInterfaces_.size() > 0)
     {
         reset(partitionedTypeInterfaces_);
+
         setFieldNamesPartitionedCoupling(partitionedTypeInterfaces_);
     }
 
@@ -60,12 +60,6 @@ Foam::regionInterfaceList::regionInterfaceList
 
     // coupled(true);
 }
-
-
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::regionInterfaceList::~regionInterfaceList()
-{}
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -121,7 +115,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
                 interfaces[interfaceI].first().second();
 
             const fvMesh& firstRegion = 
-                mesh_.time().lookupObject<fvMesh>
+                runTime_.lookupObject<fvMesh>
                 (
                     firstRegionPatchPair.first()
                 );
@@ -136,7 +130,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
                 firstRegion.boundary()[firstPatchID];
 
             const fvMesh& secondRegion = 
-                mesh_.time().lookupObject<fvMesh>
+                runTime_.lookupObject<fvMesh>
                 (
                     secondRegionPatchPair.first()
                 );
@@ -155,7 +149,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
                 index_++,
                 regionInterface::New
                 (
-                    mesh_.time(),
+                    runTime_,
                     firstPatch,
                     secondPatch
                 )
@@ -284,49 +278,16 @@ void Foam::regionInterfaceList::detach()
    }
 }
 
-void Foam::regionInterfaceList::move()
-{
-
-    // error: ‘class Foam::regionInterface’ has no member named ‘move’
-//    forAll(*this, i)
-//    {
-//        this->operator[](i).move();
-//    }
-}
-
-
-void Foam::regionInterfaceList::transferFaces()
-{
-    // error: ‘class Foam::regionInterface’ has no member named ‘transferFaces’
-//    forAll(*this, i)
-//    {
-//        this->operator[](i).transferFaces();
-//    }
-}
-
-
-void Foam::regionInterfaceList::makeUs() const
+void Foam::regionInterfaceList::update()
 {
    forAll(*this, i)
    {
-       this->operator[](i).makeUs();
+       if(this->operator[](i).changing())
+       {
+           this->operator[](i).updateInterpolatorAndGlobalPatches();
+       }
    }
 }
 
-void Foam::regionInterfaceList::makeK() const
-{
-   forAll(*this, i)
-   {
-       this->operator[](i).makeK();
-   }
-}
-
-void Foam::regionInterfaceList::makePhis() const
-{
-   forAll(*this, i)
-   {
-       this->operator[](i).makePhis();
-   }
-}
 
 // ************************************************************************* //

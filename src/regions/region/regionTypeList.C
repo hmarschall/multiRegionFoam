@@ -32,37 +32,38 @@ License
 
 Foam::regionTypeList::regionTypeList
 (
-    const fvMesh& mesh
+    const Time& runTime
 )
 :
     PtrList<regionType>(),
-    superMeshPtr_
-    (
-        new fvMesh
-        (
-            Foam::IOobject
-            (
-                mesh.name(),
-                mesh.time().timeName(),
-                mesh.time(),
-                Foam::IOobject::MUST_READ
-            )
-        )
-    ),
+//    superMeshPtr_
+//    (
+//        new dynamicFvMesh
+//        (
+//            Foam::IOobject
+//            (
+//                mesh.name(),
+//                mesh.time().timeName(),
+//                mesh.time(),
+//                Foam::IOobject::MUST_READ
+//            )
+//        )
+//    ),
     dict_
     (
         IOobject
         (
             "multiRegionProperties",
-            mesh.time().constant(),
-            mesh.time(),
+            runTime.constant(),
+            runTime,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
     ),
-    superMeshRegions_(dict_.lookup("superMeshRegions")),
-    mesh_(mesh),
-    region_(mesh.time())
+//    superMeshRegions_(dict_.lookup("superMeshRegions")),
+//    mesh_(mesh),
+    runTime_(runTime),
+    region_(runTime)
 {
     reset(region_);
 
@@ -70,92 +71,86 @@ Foam::regionTypeList::regionTypeList
 }
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::regionTypeList::~regionTypeList()
-{}
-
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-const Foam::fvMesh& Foam::regionTypeList::superMesh()
-{
-    mergePolyMesh seedMesh(superMeshPtr_);
+//const Foam::dynamicFvMesh& Foam::regionTypeList::superMesh()
+//{
+//    mergePolyMesh seedMesh(superMeshPtr_);
 
-    hashedWordList superMeshRegionNames;
+//    hashedWordList superMeshRegionNames;
 
-    forAllConstIter(HashTable<wordList>, superMeshRegions_, iter)
-    {
-        const wordList& regions = iter();
+//    forAllConstIter(HashTable<wordList>, superMeshRegions_, iter)
+//    {
+//        const wordList& regions = iter();
 
-        forAll(regions, regionI)
-        {
-            if (!superMeshRegionNames.contains(regions[regionI]))
-            {
-                superMeshRegionNames.append(regions[regionI]);
-            }
-        }
-    }
+//        forAll(regions, regionI)
+//        {
+//            if (!superMeshRegionNames.contains(regions[regionI]))
+//            {
+//                superMeshRegionNames.append(regions[regionI]);
+//            }
+//        }
+//    }
 
-    forAll(*this, i)
-    {
-        regionType& meshToAdd = const_cast<regionType&>(this->operator[](i));
+//    forAll(*this, i)
+//    {
+//        regionType& meshToAdd = const_cast<regionType&>(this->operator[](i));
 
-        if 
-        (
-            superMeshRegionNames.contains(meshToAdd.name())
-         && meshToAdd.name() != mesh_.name() //since created from this mesh
-        )
-        {
-            seedMesh.addMesh(meshToAdd);
-            seedMesh.merge();
-        }
-    }
+//        if 
+//        (
+//            superMeshRegionNames.contains(meshToAdd.name())
+//         && meshToAdd.name() != mesh_.name() //since created from this mesh
+//        )
+//        {
+//            seedMesh.addMesh(meshToAdd);
+//            seedMesh.merge();
+//        }
+//    }
 
-    // Make a copy of the current mesh components as they will be transferred
-    // to the mesh
-    pointField pointsCopy = seedMesh.allPoints();
-    faceList facesCopy = seedMesh.faces();
-    labelList allOwnerCopy = seedMesh.faceOwner();
-    labelList allNeighbourCopy = seedMesh.faceNeighbour();
+//    // Make a copy of the current mesh components as they will be transferred
+//    // to the mesh
+//    pointField pointsCopy = seedMesh.allPoints();
+//    faceList facesCopy = seedMesh.faces();
+//    labelList allOwnerCopy = seedMesh.faceOwner();
+//    labelList allNeighbourCopy = seedMesh.faceNeighbour();
 
-    // Create the super-mesh
-    superMeshPtr_.reset
-    (
-        new fvMesh
-        (
-            IOobject
-            (
-                "superMesh",
-                mesh_.time().timeName(),
-                mesh_.time(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            xferMove(pointsCopy),
-            xferMove(facesCopy),
-            xferMove(allOwnerCopy),
-            xferMove(allNeighbourCopy)
-        )
-    );
+//    // Create the super-mesh
+//    superMeshPtr_.reset
+//    (
+//        new dynamicFvMesh
+//        (
+//            IOobject
+//            (
+//                "superMesh",
+//                mesh_.time().timeName(),
+//                mesh_.time(),
+//                IOobject::NO_READ,
+//                IOobject::NO_WRITE
+//            ),
+//            xferMove(pointsCopy),
+//            xferMove(facesCopy),
+//            xferMove(allOwnerCopy),
+//            xferMove(allNeighbourCopy)
+//        )
+//    );
 
-    // Add the boundary patches by copy the current mesh boundary
-    List<polyPatch*> meshBoundary(seedMesh.boundaryMesh().size());
-    forAll(seedMesh.boundaryMesh(), patchI)
-    {
-        meshBoundary[patchI] =
-            seedMesh.boundaryMesh()[patchI].clone
-            (
-                superMeshPtr_().boundaryMesh(),
-                patchI,
-                seedMesh.boundaryMesh()[patchI].size(),
-                seedMesh.boundaryMesh()[patchI].start()
-            ).ptr();
-    }
-    superMeshPtr_().addFvPatches(meshBoundary);
+//    // Add the boundary patches by copy the current mesh boundary
+//    List<polyPatch*> meshBoundary(seedMesh.boundaryMesh().size());
+//    forAll(seedMesh.boundaryMesh(), patchI)
+//    {
+//        meshBoundary[patchI] =
+//            seedMesh.boundaryMesh()[patchI].clone
+//            (
+//                superMeshPtr_().boundaryMesh(),
+//                patchI,
+//                seedMesh.boundaryMesh()[patchI].size(),
+//                seedMesh.boundaryMesh()[patchI].start()
+//            ).ptr();
+//    }
+//    superMeshPtr_().addFvPatches(meshBoundary);
 
-    return superMeshPtr_;
-}
+//    return superMeshPtr_;
+//}
 
 bool Foam::regionTypeList::active(const bool warn) const
 {
@@ -216,7 +211,7 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
                     i++,
                     regionType::New
                     (
-                        mesh_,
+                        runTime_,
                         regions[regionI],
                         modelType
                     )
@@ -228,7 +223,7 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
     // attach patches of regionCouplePolyPatch type
     forAll(*this, i)
     {
-        regionType& mesh = const_cast<regionType&>(this->operator[](i));
+        dynamicFvMesh& mesh = const_cast<dynamicFvMesh&>(this->operator[](i).mesh());
 
         {
             const polyPatchList& patches = mesh.boundaryMesh();
@@ -252,10 +247,17 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
 }
 
 
-void Foam::regionTypeList::correct()
+void Foam::regionTypeList::preSolve()
 {
     forAll(*this, i)
     {
+        // mesh update (one sweep before solving)
+        // Note: multiple coupled regions require an
+        // updated system meshes prior to solution
+        // (see Peric)
+        this->operator[](i).update();
+
+        // correct properties
         this->operator[](i).correct();
     }
 }
@@ -272,9 +274,55 @@ void Foam::regionTypeList::setRDeltaT()
 
 void Foam::regionTypeList::solveRegion()
 {
-    forAll(*this, i)
+    for (int j=0; j<5; j++)
     {
-        this->operator[](i).solveRegion();
+        forAll(*this, i)
+        {
+            // Solve for region-specific physics
+            // This might require outer loops if
+            // coupling is achieved only by mutual
+            // boundary condition updates
+//            for (int j=0; j<5; j++)
+            {
+                this->operator[](i).solveRegion();
+            }
+        }
+    }
+}
+
+void Foam::regionTypeList::solvePIMPLE()
+{
+    // We do not have a top-level mesh. Construct the fvSolution for
+    // the runTime instead.
+    fvSolution solutionDict(runTime_);
+
+    const dictionary& pimple = solutionDict.subDict("PIMPLE");
+
+    int nOuterCorr(readInt(pimple.lookup("nOuterCorrectors")));
+
+    //- PIMPLE loop
+    for (int oCorr=0; oCorr<nOuterCorr; oCorr++)
+    {
+//        forAll(*this, i)
+//        {
+//            // mesh update
+//            this->operator[](i).update();
+//        }
+
+        forAll(*this, i)
+        {
+            this->operator[](i).prePredictor();
+        }
+
+        forAll(*this, i)
+        {
+            this->operator[](i).momentumPredictor();
+        }
+
+        forAll(*this, i)
+        {
+            this->operator[](i).pressureCorrector();
+        }
     }
 }
 
@@ -286,11 +334,19 @@ void Foam::regionTypeList::setCoupledEqns()
     }
 }
 
-void Foam::regionTypeList::updateFields()
+void Foam::regionTypeList::postSolve()
 {
     forAll(*this, i)
     {
-        this->operator[](i).updateFields();
+        this->operator[](i).postSolve();
+    }
+}
+
+void Foam::regionTypeList::clear()
+{
+    forAll(*this, i)
+    {
+        this->operator[](i).clear();
     }
 }
 

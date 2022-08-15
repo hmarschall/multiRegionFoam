@@ -28,287 +28,148 @@ License
 
 // * * * * * * * * * * * * * Public Member Functions  * * * * * * * * * * * //
 
+namespace Foam
+{
+
 template<class Type>
-tmp<Field<Type> > Foam::regionInterface::transferFacesFromA
+tmp<Field<Type> > regionInterface::transferFacesFromA
 (
     const Field<Type>& fromField
 ) const
 {
-//    Field<Type> toField(patch().size(), pTraits<Type>::zero);
-    tmp<Field<Type> > ttoField(new Field<Type>(patchA().size()));
-    Field<Type>& toField = ttoField();
-
-    transferFacesZoneToZone
+    notImplemented
     (
-        meshA().name(),                     // from region name
-        meshB().name(),                     // to region name
+        "regionInterfaceTemplates.C\n"
+        "tmp<Field<Type> > regionInterface::transferFacesFromA\n"
+        "(\n"
+        "const Field<Type>& fromField\n"
+        ") const\n"
+        "not implemented"
+    );
+
+    tmp<Field<Type> > ttoField
+    (
+        new Field<Type>(globalPatchB().globalPatch().size())
+    );
+
+    return ttoField;
+}
+
+template<>
+tmp<Field<scalar> > regionInterface::transferFacesFromA
+(
+    const Field<scalar>& fromField
+) const
+{
+    tmp<Field<scalar> > ttoField
+    (
+        new Field<scalar>(globalPatchB().globalPatch().size())
+    );
+    Field<scalar>& toField = ttoField();
+
+    interfaceToInterface().transferFacesZoneToZone
+    (
         globalPatchA().globalPatch(),       // from zone
         globalPatchB().globalPatch(),       // to zone
         fromField,                          // from field
         toField                             // to field
     );
 
-//    return tmp<Field<Type> >(toField);
+    return ttoField;
+}
+
+template<>
+tmp<Field<vector> > regionInterface::transferFacesFromA
+(
+    const Field<vector>& fromField
+) const
+{
+    tmp<Field<vector> > ttoField
+    (
+        new Field<vector>(globalPatchB().globalPatch().size())
+    );
+    Field<vector>& toField = ttoField();
+
+    interfaceToInterface().transferFacesZoneToZone
+    (
+        globalPatchA().globalPatch(),       // from zone
+        globalPatchB().globalPatch(),       // to zone
+        fromField,                          // from field
+        toField                             // to field
+    );
+
     return ttoField;
 }
 
 template<class Type>
-void Foam::regionInterface::transferFacesAToB
+tmp<Field<Type> > regionInterface::transferFacesFromB
 (
-    const Field<Type>& fromField,
-    Field<Type>& toField
+    const Field<Type>& fromField
 ) const
 {
-    transferFacesZoneToZone
+    notImplemented
     (
-        meshA().name(),                     // from region name
-        meshB().name(),                     // to region name
-        globalPatchA().globalPatch(),       // from zone
-        globalPatchB().globalPatch(),       // to zone
-        fromField,                          // from field
-        toField                             // to field
+        "regionInterfaceTemplates.C\n"
+        "tmp<Field<Type> > regionInterface::transferFacesFromB\n"
+        "(\n"
+        "const Field<Type>& fromField\n"
+        ") const\n"
+        "not implemented"
     );
+
+    tmp<Field<Type> > ttoField
+    (
+        new Field<Type>(globalPatchA().globalPatch().size())
+    );
+
+    return ttoField;
 }
 
-template<class Type>
-void Foam::regionInterface::transferFacesBToA
+template<>
+tmp<Field<scalar> > regionInterface::transferFacesFromB
 (
-    const Field<Type>& fromField,
-    Field<Type>& toField
+    const Field<scalar>& fromField
 ) const
 {
-    transferFacesZoneToZone
+    tmp<Field<scalar> > ttoField
     (
-        meshB().name(),                     // from region name
-        meshA().name(),                     // to region name
+        new Field<scalar>(globalPatchA().globalPatch().size())
+    );
+    Field<scalar>& toField = ttoField();
+
+    interfaceToInterface().transferFacesZoneToZone
+    (
         globalPatchB().globalPatch(),       // from zone
         globalPatchA().globalPatch(),       // to zone
         fromField,                          // from field
         toField                             // to field
     );
+
+    return ttoField;
 }
 
-template<class Type>
-void Foam::regionInterface::transferFacesZoneToZone
+template<>
+tmp<Field<vector> > regionInterface::transferFacesFromB
 (
-    const word& fromRegion,          // from region name
-    const word& toRegion,            // to region name
-    const standAlonePatch& fromZone, // from zone
-    const standAlonePatch& toZone,   // to zone
-    const Field<Type>& fromField,    // from field
-    Field<Type>& toField             // to field
+    const Field<vector>& fromField
 ) const
 {
-    // Check field sizes are correct
-    if (fromField.size() != fromZone.size())
-    {
-        FatalErrorIn
-        (
-            "Foam::tmp< Field<Type> >\n"
-            "Foam::regionInterface::transferFacesZoneToZone\n"
-            "(\n"
-            "    const standAlonePatch& fromZone,\n"
-            "    const standAlonePatch& toZone,\n"
-            "    const Field<Type>& fromField,\n"
-            "    Field<Type>& toField\n"
-            ") const"
-        )   << "fromField is wrong size!" << nl
-            << "fromField size: " << fromField.size()
-            << ", fromZone size: " << fromZone.size()
-            << abort(FatalError);
-    }
+    tmp<Field<vector> > ttoField
+    (
+        new Field<vector>(globalPatchA().globalPatch().size())
+    );
+    Field<vector>& toField = ttoField();
 
-    if (toField.size() != toZone.size())
-    {
-        FatalErrorIn
-        (
-            "Foam::tmp< Field<Type> >\n"
-            "Foam::regionInterface::transferFacesZoneToZone\n"
-            "(\n"
-            "    const standAlonePatch& fromZone,\n"
-            "    const standAlonePatch& toZone,\n"
-            "    const Field<Type>& fromField,\n"
-            "    Field<Type>& toField\n"
-            ") const"
-        )   << "toField is wrong size!" << nl
-            << "toField size: " << toField.size()
-            << ", toZone size: " << toZone.size()
-            << abort(FatalError);
-    }
+    interfaceToInterface().transferFacesZoneToZone
+    (
+        globalPatchB().globalPatch(),       // from zone
+        globalPatchA().globalPatch(),       // to zone
+        fromField,                          // from field
+        toField                             // to field
+    );
 
-    if (transferMethod_ == directMap)
-    {
-        FatalErrorIn
-        (
-            "Foam::tmp< Field<Type> >\n"
-            "Foam::regionInterface::transferFacesZoneToZone\n"
-            "(\n"
-            "    const standAlonePatch& fromZone,\n"
-            "    const standAlonePatch& toZone,\n"
-            "    const Field<Type>& fromField,\n"
-            "    Field<Type>& toField\n"
-            ") const"
-        )   << "Transfer method not implemented."
-            << abort(FatalError);
+    return ttoField;
+}
 
-//        if (fromRegion == fluidMesh().name() && toRegion == solidMesh().name())
-//        {
-//            const labelList& fluidToSolidMap = fluidToSolidFaceMap();
-//            forAll(toField, faceI)
-//            {
-//                toField[faceI] = fromField[fluidToSolidMap[faceI]];
-//            }
-//        }
-//        else if
-//        (
-//            fromRegion == solidMesh().name() && toRegion == fluidMesh().name()
-//        )
-//        {
-//            const labelList& solidToFluidMap = solidToFluidFaceMap();
-//            forAll(toField, faceI)
-//            {
-//                toField[faceI] = fromField[solidToFluidMap[faceI]];
-//            }
-//        }
-//        else
-//        {
-//            FatalErrorIn
-//            (
-//                "Foam::tmp< Field<Type> >\n"
-//                "Foam::regionInterface::transferFacesZoneToZone\n"
-//                "(\n"
-//                "    const standAlonePatch& fromZone,\n"
-//                "    const standAlonePatch& toZone,\n"
-//                "    const Field<Type>& fromField,\n"
-//                "    Field<Type>& toField\n"
-//                ") const"
-//            )   << "Unknown regions:  " << fromRegion
-//                << " and/or " << toRegion << abort(FatalError);
-//        }
-    }
-    else if (transferMethod_ == RBF)
-    {
-        FatalErrorIn
-        (
-            "Foam::tmp< Field<Type> >\n"
-            "Foam::regionInterface::transferFacesZoneToZone\n"
-            "(\n"
-            "    const standAlonePatch& fromZone,\n"
-            "    const standAlonePatch& toZone,\n"
-            "    const Field<Type>& fromField,\n"
-            "    Field<Type>& toField\n"
-            ") const"
-        )   << "Transfer method not implemented."
-            << abort(FatalError);
-
-//        Info<< "Interpolating from " << fromRegion << " to " << toRegion
-//            << " using RBF interpolation" << endl;
-
-//        matrix fromRbfField(fromField.size(), int(pTraits<Type>::nComponents));
-//        matrix toRbfField(toField.size(), int(pTraits<Type>::nComponents));
-
-//        for(int cmptI = 0; cmptI < pTraits<Type>::nComponents; cmptI++)
-//        {
-//            const scalarField fromFieldCmptI = fromField.component(cmptI);
-
-//            forAll(fromField, faceI)
-//            {
-//                fromRbfField(faceI, cmptI) = fromFieldCmptI[faceI];
-//            }
-//        }
-
-//        if (fromRegion == fluidMesh().name() && toRegion == solidMesh().name())
-//        {
-//            rbfFluidToSolid()->interpolate(fromRbfField, toRbfField);
-//        }
-//        else if
-//        (
-//            fromRegion == solidMesh().name() && toRegion == fluidMesh().name()
-//        )
-//        {
-//            rbfSolidToFluid()->interpolate(fromRbfField, toRbfField);
-//        }
-//        else
-//        {
-//            FatalErrorIn
-//            (
-//                "Foam::tmp< Field<Type> >\n"
-//                "Foam::regionInterface::transferFacesZoneToZone\n"
-//                "(\n"
-//                "    const standAlonePatch& fromZone,\n"
-//                "    const standAlonePatch& toZone,\n"
-//                "    const Field<Type>& fromField,\n"
-//                "    Field<Type>& toField\n"
-//                ") const"
-//            )   << "Unknown regions:  " << fromRegion
-//                << " and/or " << toRegion << abort(FatalError);
-//        }
-
-//        for(int cmptI = 0; cmptI < pTraits<Type>::nComponents; cmptI++)
-//        {
-//            scalarField toFieldCmptI(toField.size(), 0.0);
-
-//            forAll(toField, faceI)
-//            {
-//                toFieldCmptI[faceI] = toRbfField(faceI, cmptI);
-//            }
-
-//            toField.replace(cmptI, toFieldCmptI);
-//        }
-    }
-    else if (transferMethod_ == GGI)
-    {
-        if (debug)
-        {
-            Info<< "Interpolating from " << fromRegion << " to " << toRegion
-                << " using GGI interpolation" << endl;
-        }
-
-        if (fromRegion == meshB().name() && toRegion == meshA().name())
-        {
-            // fluid is the master; solid is the slave
-            toField = ggiInterpolator().masterToSlave(fromField);
-        }
-        else if
-        (
-            fromRegion == meshA().name() && toRegion == meshB().name()
-        )
-        {
-            toField = ggiInterpolator().slaveToMaster(fromField);
-        }
-        else
-        {
-            FatalErrorIn
-            (
-                "Foam::tmp< Field<Type> >\n"
-                "Foam::regionInterface::transferFacesZoneToZone\n"
-                "(\n"
-                "    const standAlonePatch& fromZone,\n"
-                "    const standAlonePatch& toZone,\n"
-                "    const Field<Type>& fromField,\n"
-                "    Field<Type>& toField\n"
-                ") const"
-            )   << "Unknown regions:  " << fromRegion
-                << " and/or " << toRegion << abort(FatalError);
-        }
-    }
-    else
-    {
-        FatalErrorIn
-        (
-            "Foam::tmp< Field<Type> >\n"
-            "Foam::regionInterface::transferFacesZoneToZone\n"
-            "(\n"
-            "    const standAlonePatch& fromZone,\n"
-            "    const standAlonePatch& toZone,\n"
-            "    const Field<Type>& fromField,\n"
-            "    Field<Type>& toField\n"
-            ") const"
-        )   << "Unknown transferMethod:  "
-            << interfaceTransferMethodNames_[transferMethod_] << nl
-            << "Available transfer methods are: "
-            << interfaceTransferMethodNames_
-            << abort(FatalError);
-    }
 }
 

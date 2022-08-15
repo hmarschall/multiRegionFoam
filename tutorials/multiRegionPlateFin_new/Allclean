@@ -1,0 +1,15 @@
+#!/bin/sh
+
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+find -type l -delete 
+
+mv constant/polyMesh_whole constant/polyMesh 2>/dev/null
+rm setSet.batch
+
+rm -r dynamicCode 2>/dev/null
+
+rm -r constant/fluid/polyMesh
+rm -r constant/solid/polyMesh
+
+cleanCase

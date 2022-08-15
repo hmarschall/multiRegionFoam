@@ -2,9 +2,9 @@
 
 Info << "Creating multi-region system\n" << endl;
 
-multiRegionSystem multiRegion(mesh);
+autoPtr<multiRegionSystem> multiRegion(new multiRegionSystem(runTime));
 
-regionTypeList& regions = multiRegion.regions();
+regionTypeList& regions = multiRegion().regions();
 
 bool LTS = false;
 

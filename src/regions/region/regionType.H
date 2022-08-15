@@ -39,8 +39,10 @@ SourceFiles
 #include "runTimeSelectionTables.H"
 
 #include "volFields.H"
-#include "fvMesh.H"
+#include "dynamicFvMesh.H"
 #include "fvMatrix.H"
+#include "fvCFD.H"
+#include "fvBlockMatrix.H"
 #include "HashPtrTable.H"
 
 #include "mergePolyMesh.H"
@@ -59,21 +61,23 @@ class multiRegionSystem;
 
 class regionType
 :
-    public fvMesh
+    public IOdictionary
 {
+    // Private data
+
+        //- Mesh
+        autoPtr<dynamicFvMesh> meshPtr_;
 
 protected:
 
     // Protected data
-
-        //- mesh
-        const fvMesh& mesh_;
 
         //- coupled governing equations
         HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
         HashPtrTable<fvMatrix<vector> > fvVectorMatrices;
         HashPtrTable<fvMatrix<symmTensor> > fvSymmTensorMatrices;
         HashPtrTable<fvMatrix<tensor> > fvTensorMatrices;
+        HashPtrTable<fvBlockMatrix<vector4> > fvVector4Matrices;
 
 public:
 
@@ -88,31 +92,54 @@ public:
             regionType,
             dictionary,
             (
-                const fvMesh& mesh,
+                const Time& runTime,
                 const word& name
             ),
-            (mesh, name)
+            (runTime, name)
         );
 
     // Constructors
         regionType
         (
-            const fvMesh& mesh,
+            const Time& runTime,
             const word& name
         );
 
     //- Destructor
-    virtual ~regionType();
+    virtual ~regionType(){}
 
         // Selectors
         static autoPtr<regionType> New
         (
-            const fvMesh& mesh,
+            const Time& runTime,
             const word& name,
             const word& modelType
         );
 
     // Member Functions
+
+        //- Return reference to the mesh
+        dynamicFvMesh& mesh()
+        {
+            return meshPtr_();
+        }
+
+        //- Return const reference to the mesh
+        const dynamicFvMesh& mesh() const
+        {
+            return meshPtr_();
+        }
+
+        //- Return time
+        const Time& runTime() const
+        {
+            return meshPtr_().time();
+        }
+
+        bool update()
+        {
+            return mesh().update();
+        }
 
         // virtual functions
 
@@ -127,13 +154,39 @@ public:
 
         virtual void solveRegion() = 0;
 
+        virtual void prePredictor() = 0;
+
+        virtual void momentumPredictor() = 0;
+
+        virtual void pressureCorrector() = 0;
+
         virtual void setCoupledEqns() = 0;
         
-        virtual void updateFields() = 0;
+        virtual void postSolve() = 0;
+
+        template<class T>
+        void relaxEqn(fvMatrix<T>* eqn)
+        {
+            eqn->relax();
+        }
+
+        template<class T>
+        void relaxEqn(fvBlockMatrix<T>* eqn)
+        {
+            //TODO: Relaxation of fvBlockMatricies currently not supported
+        }
+
+//        virtual void clear() = 0;
 
         // Get a ref to the fvMatrix 
-        template<class T>
-        fvMatrix<T>& getCoupledEqn
+        template< template<class> class M, class T>
+        M<T>* getCoupledEqn
+        (
+            word name
+        );
+
+        // Check if region holds fvMatrix 
+        bool foundCoupledEqn
         (
             word name
         );

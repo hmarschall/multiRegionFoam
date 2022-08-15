@@ -37,7 +37,7 @@ SourceFiles
 #include "IOReferencer.H"
 #include "IOdictionary.H"
 #include "hashedWordList.H"
-#include "fvMesh.H"
+#include "dynamicFvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 
@@ -66,8 +66,8 @@ class multiRegionSystem
 {
     // Private data
 
-        //- Reference to the mesh
-        const fvMesh& mesh_;
+        //- Reference to runTime
+        const Time& runTime_;
 
         //- lists of regions
         autoPtr<regionTypeList> regions_;
@@ -81,6 +81,7 @@ class multiRegionSystem
         List<PtrList<volVectorField> > vectorFlds_;
         List<PtrList<volSymmTensorField> > symmTensorFlds_;
         List<PtrList<volTensorField> > tensorFlds_;
+        List<PtrList<volVector4Field> > vector4Flds_;
 
         //- List of unique lists of coupled field names
         //  per coupling method
@@ -99,14 +100,14 @@ class multiRegionSystem
             const List<hashedWordList>& fldNms
         ) const;
 
-        template<class T>
+        template< template<class> class M, class T>
         void assembleAndSolveCoupledMatrix
         (
             PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
             word fldName
         ) const;
 
-        template<class T>
+        template< template<class> class M, class T>
         void assembleAndSolveEqns
         (
             word fldName
@@ -122,8 +123,8 @@ public:
 
     // Constructors
 
-        //- Construct from fvMesh
-        multiRegionSystem(const fvMesh&);
+        //- Construct from dynamicFvMesh
+        multiRegionSystem(const Time& runTime);
 
 
     //- Destructor
@@ -142,8 +143,7 @@ public:
 
     // Member Functions
 
-        // Correct
-        void correct();
+        void preSolve();
 
         void solve();
 
@@ -151,7 +151,7 @@ public:
 
         void setRDeltaT();
         
-        void updateFields();
+        void postSolve();
 
         // Access
 

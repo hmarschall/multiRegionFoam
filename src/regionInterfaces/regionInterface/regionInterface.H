@@ -36,30 +36,31 @@ SourceFiles
 #ifndef regionInterface_H
 #define regionInterface_H
 
-#include "Ostream.H"
 #include "IOdictionary.H"
+#include "interfaceKey.H"
+
+#include "Ostream.H"
 #include "dynamicFvMesh.H"
 #include "autoPtr.H"
 #include "runTimeSelectionTables.H"
 #include "foamTime.H"
 
-#include "interfaceKey.H"
-
-//#include "volFields.H"
-//#include "primitivePatchInterpolation.H"
-//#include "fvPatch.H"
 #include "standAlonePatch.H"
-//#include "fvPatchFields.H"
-//#include "volFields.H"
-//#include "fvPatchFieldMapper.H"
 #include "fvCFD.H"
 #include "faCFD.H"
+
+#include "wedgeFaPatch.H"
+#include "wallFvPatch.H"
+#include "wedgeFaPatchFields.H"
+#include "slipFaPatchFields.H"
+#include "fixedValueFaPatchFields.H"
+#include "slipFvPatchFields.H"
+#include "symmetryFvPatchFields.H"
 
 #include "globalPolyPatch.H"
 #include "regionCouplePolyPatch.H"
 
-#include "ggiInterpolation.H"
-#include "RBFInterpolation.H"
+#include "interfaceToInterfaceMapping.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -82,6 +83,9 @@ class regionInterface
 
         //- interface properties dictionary
         IOdictionary regionInterfaceProperties_;
+        
+        //- gravitationalProperties
+        IOdictionary gravitationalProperties_;
 
         //- Reference to time
         const Time& runTime_;
@@ -91,30 +95,6 @@ class regionInterface
 
         const fvPatch& patchB_;
 
-        //- Reference to fvMesh A
-        const fvMesh& meshA_;
-
-        //- Reference to fvMesh B
-        const fvMesh& meshB_;
-
-        //- Swicth : attached/detached state of mesh interface
-        Switch attachedA_;
-
-        Switch attachedB_;
-
-        //- Interpolator update frequency
-        label interpolatorUpdateFrequency_;
-
-        //- A face zone current points
-        mutable autoPtr<vectorField> currentAZonePointsPtr_;
-
-        //- A face zone primitive patch in current configuration
-        mutable autoPtr<standAlonePatch> currentAZonePatchPtr_;
-
-        //- GGI interpolator between two standAlone patches
-        mutable autoPtr< GGIInterpolation<standAlonePatch, standAlonePatch> >
-            ggiInterpolatorPtr_;
-
         //- Global poly patch
         //  This is a copy of a patch which is reconstructed in full on each
         //  processor. This is convenient for interpolating between two patches
@@ -123,17 +103,40 @@ class regionInterface
         mutable autoPtr<globalPolyPatch> globalPatchAPtr_;
         //- B-side
         mutable autoPtr<globalPolyPatch> globalPatchBPtr_;
+
+        //- Mapping object for passing fields between the pairs of interfaces
+        //  e.g. this could be GGI or a direct map or other
+        mutable autoPtr<interfaceToInterfaceMapping> interfaceToInterfacePtr_;
+
+        //- Reference to fvMesh A
+        const fvMesh& meshA_;
+
+        //- Reference to fvMesh B
+        const fvMesh& meshB_;
+
+        //- Switch : attached/detached state of mesh interface
+        Switch attachedA_;
+
+        Switch attachedB_;
+
+        //- Adjacent meshes changing?
+        bool changing_;
+
+        //- Interpolator update frequency
+        label interpolatorUpdateFrequency_;
         
-        //- finite area mesh
+        //- Finite area mesh
         mutable autoPtr<faMesh> aMeshPtr_;
+
+        //- Surface patches requiring curvature correction
+        //- e.g. fixedSurfacePatches or centerlinePatches (wedge cases)
+        wordList curvatureCorrectedSurfacePatches_;
+
 
 protected:
 
         //- surface velocity field
         mutable autoPtr<areaVectorField> UsPtr_;
-
-        //- interfacial curvature
-        mutable autoPtr<areaScalarField> KPtr_;
 
         //- surface flux field
         mutable autoPtr<edgeScalarField> phisPtr_;
@@ -143,14 +146,37 @@ private:
 
     // Private Member Functions
 
-        //- Calculate A-to-B / B-to-A ggi interpolator
-        void calcGgiInterpolator() const;
+        //- Make global poly patch
+        void makeGlobalPatches() const;
 
-        //- Calculate current A zone primitive patch
-        void calcCurrentAZonePatch() const;
+        //- Clear global poly patch
+        void clearGlobalPatches();
 
-        //- Calculate current A zone points
-        void calcCurrentAZonePoints() const;
+        //- Make interface-to-interface
+        void makeInterfaceToInterface() const;
+
+        //- Create/update interface physics
+        void makeFaMesh() const;
+
+        //- Make surface velocity
+        void makeUs() const;
+
+        //- Make surface flux
+        void makePhis() const;
+
+        //- Helper functions
+
+        //-- Return velocity field on patch
+        const vectorField& Up();
+            
+        //-- Correct surface velocity b.c.
+        void correctUsBoundaryConditions();
+            
+        //-- Calculate interface curvature at wedge axis
+        void correctCurvature
+        (
+            areaScalarField& K
+        );
 
         //- Disallow default bitwise copy construct
         regionInterface(const regionInterface&);
@@ -205,29 +231,12 @@ public:
 
     // Destructor
 
-        virtual ~regionInterface(){}
+        virtual ~regionInterface()
+        {}
 
-
-    // Public enumerations
-
-        //- Method for transferring information between the solid and the fluid
-        //  interfaces
-        enum interfaceTransferMethod
-        {
-            directMap,
-            RBF,
-            GGI
-        };
-
-        //- interfaceTransferMethod names
-        static const NamedEnum<interfaceTransferMethod, 3>
-            interfaceTransferMethodNames_;
-
-private:
-        //- Transfer method
-        interfaceTransferMethod transferMethod_;
 
 public:
+
     // Member Functions
 
         // Access
@@ -244,6 +253,12 @@ public:
                 return regionInterfaceProperties_;
             }
 
+            //- Return reference to gravitation properties
+            const IOdictionary& gravitationalProperties() const
+            {
+                return gravitationalProperties_;
+            }
+            
 			//- Return reference to DB
 			const Time& runTime() const
 			{
@@ -306,8 +321,20 @@ public:
                 
                 return aMeshPtr_();
             }
+
+            const bool& changing()
+            {
+                if (meshA().changing() || meshB().changing())
+                {
+                    changing_ = true;
+                }
+
+                return changing_;
+            }
+
+            //- interfacial transport
         
-            // return surface velocity    
+            //-- return surface velocity    
             Foam::areaVectorField& Us() 
             {
                 if (UsPtr_.empty())
@@ -328,7 +355,7 @@ public:
                 return UsPtr_();
             }
 
-            // return surface flux
+            //-- return surface flux
             edgeScalarField& Phis()
             {
                 if (phisPtr_.empty())
@@ -349,85 +376,61 @@ public:
                 return phisPtr_();
             }
 
-            // return interfacial curvature
-            Foam::areaScalarField& K()
-            {
-                if (KPtr_.empty())
-                {
-                    makeK();
-                }
+            //-- return interfacial curvature
+/*            Foam::areaScalarField& K()*/
+/*            {*/
+/*                if (KPtr_.empty())*/
+/*                {*/
+/*                    makeK();*/
+/*                }*/
 
-                return KPtr_();
-            }
+/*                return KPtr_();*/
 
-            const Foam::areaScalarField& K() const
-            {
-                if (KPtr_.empty())
-                {
-                    makeK();
-                }
+/*                return K_;*/
+/*            }*/
 
-                return KPtr_();
-            }
+/*            const Foam::areaScalarField& K() const*/
+/*            {*/
+/*                if (KPtr_.empty())*/
+/*                {*/
+/*                    makeK();*/
+/*                }*/
 
-            //- Return GGI interpolator (B-to-A)
-            const GGIInterpolation
-            <
-                standAlonePatch, standAlonePatch
-            >& ggiInterpolator() const;
+/*                return KPtr_();*/
 
-            //- Make the global poly patch
-            void makeGlobalPatches() const;
+/*                K_ == aMesh().faceCurvatures();*/
 
-            //- Return const-access to the global poly patch A
+/*                return K_;*/
+/*            }*/
+
+            //- Global poly patch
+
+            //-- Return const-access to the global poly patch A
             const globalPolyPatch& globalPatchA() const;
 
-            //- Return const-access to the global poly patch B
+            //-- Return const-access to the global poly patch B
             const globalPolyPatch& globalPatchB() const;
 
-            //- Clear global poly patch
-            void clearGlobalPatches() const;
 
-            //- Return current A zone patch
-            const standAlonePatch& currentAZonePatch() const;
+            //- interface-to-interface interpolation
 
-            //- Return current A zone points
-            const vectorField& currentAZonePoints() const;
+            //-- Return const access to the interface-to-interface object
+            const interfaceToInterfaceMapping& interfaceToInterface() const;
 
-            //- Transfer/map/interpolate from one zone faces to another zone
-            //  faces
-            template<class Type>
-            void transferFacesZoneToZone
-            (
-                const word& fromRegion,          // from region name
-                const word& toRegion,            // to region name
-                const standAlonePatch& fromZone, // from zone
-                const standAlonePatch& toZone,   // to zone
-                const Field<Type>& fromField,    // from field
-                Field<Type>& toField             // to field
-            ) const;
-
-            //- Transfer/map/interpolate from zone A faces to zone B
-            //  faces and vice versa
-            template<class Type>
-            void transferFacesAToB
-            (
-                const Field<Type>& fromField,    // from field
-                Field<Type>& toField             // to field
-            ) const;
-
-            template<class Type>
-            void transferFacesBToA
-            (
-                const Field<Type>& fromField,    // from field
-                Field<Type>& toField             // to field
-            ) const;
-
+            //-- Transfer/map/interpolate 
+            //   from zone A/B faces (to zone B/A faces)
             template<class Type>
             tmp<Field<Type> > transferFacesFromA
             (
                 const Field<Type>& fromField
             ) const;
+
+            template<class Type>
+            tmp<Field<Type> > transferFacesFromB
+            (
+                const Field<Type>& fromField
+            ) const;
+
 
         // Edit
 
@@ -440,18 +443,21 @@ public:
             //- Detach the mesh interface using mesh modifier
             virtual void detach();
 
-            // interface-specific physics
-            void makeFaMesh() const;
+            // Update surface transport
+            void update();
 
-            virtual void makeUs() const = 0;
-            virtual void makeK() const = 0;
-            virtual void makePhis() const = 0;
+            // Update surface velocity
+            void updateUs();
 
-        // Write
+            // Update interfacial curvature
+            void updateK();
 
-           //- Write entries for patches
-//           void writeEntries(Ostream& os) const;
-            
+            // Update surface flux
+            void updatePhis();
+
+            // Correct interface physics
+            virtual void correct() = 0;
+        
 };
 
 
@@ -459,11 +465,6 @@ public:
 
 } // End namespace Foam
 
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#ifdef NoRepository
-#   include "regionInterfaceTemplates.C"
-#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

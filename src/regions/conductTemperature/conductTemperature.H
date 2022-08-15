@@ -55,9 +55,6 @@ class conductTemperature
 :
     public regionType
 {
-        //- mesh
-        const fvMesh& mesh_;
-
         //- name
         word regionName_;
 
@@ -81,8 +78,6 @@ class conductTemperature
 protected:
 
         //- temperature
-//        volScalarField T_;
-
         autoPtr<volScalarField> T_;
 
 public:
@@ -93,7 +88,7 @@ public:
 
         conductTemperature
         (
-            const fvMesh& mesh,
+            const Time& runTime,
             const word& regionName
         );
 
@@ -120,7 +115,7 @@ public:
         {
             return
             (
-                this->thisDb().lookupObject<T>(name)
+                mesh().thisDb().lookupObject<T>(name)
             );
         }
 
@@ -129,7 +124,7 @@ public:
         {
             return
             (
-                const_cast<const T&>(this->thisDb().lookupObject<T>(name))
+                const_cast<const T&>(mesh().thisDb().lookupObject<T>(name))
             );
         }
 
@@ -144,9 +139,15 @@ public:
 
         virtual void solveRegion();
 
+        virtual void prePredictor();
+
+        virtual void momentumPredictor();
+
+        virtual void pressureCorrector();
+
         virtual void setCoupledEqns();
         
-        virtual void updateFields();
+        virtual void postSolve();
 };
 
 

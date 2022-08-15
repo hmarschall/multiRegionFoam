@@ -50,13 +50,12 @@ namespace regionTypes
 
 Foam::regionTypes::conductTemperature::conductTemperature
 (
-    const fvMesh& mesh,
+    const Time& runTime,
     const word& regionName
 )
 :
-    regionType(mesh, regionName),
+    regionType(runTime, regionName),
 
-    mesh_(mesh),
     regionName_(regionName),
 
     transportProperties_
@@ -64,8 +63,8 @@ Foam::regionTypes::conductTemperature::conductTemperature
         IOobject
         (
             "transportProperties",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -75,12 +74,12 @@ Foam::regionTypes::conductTemperature::conductTemperature
         IOobject
         (
             "cv",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar(transportProperties_.lookup("cv"))
     ),
     rho_
@@ -88,12 +87,12 @@ Foam::regionTypes::conductTemperature::conductTemperature
         IOobject
         (
             "rho",
-            this->time().timeName(),
-            *this,
+            mesh().time().timeName(),
+            mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
-        *this,
+        mesh(),
         dimensionedScalar(transportProperties_.lookup("rho"))
     ),
 
@@ -136,12 +135,12 @@ Foam::regionTypes::conductTemperature::conductTemperature
             IOobject
             (
                 "alpha",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             dimensionedScalar("alpha", dimensionSet(0,2,-1,0,0,0,0), 0)
         )
     );
@@ -153,12 +152,12 @@ Foam::regionTypes::conductTemperature::conductTemperature
             IOobject
             (
                 "k",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            *this,
+            mesh(),
             dimensionedScalar(transportProperties_.lookup("k"))
         )
     );
@@ -170,12 +169,12 @@ Foam::regionTypes::conductTemperature::conductTemperature
             IOobject
             (
                 "T",
-                this->time().timeName(),
-                *this,
+                mesh().time().timeName(),
+                mesh(),
                 IOobject::MUST_READ,
                 IOobject::AUTO_WRITE
             ),
-            *this
+            mesh()
         )
     );
 
@@ -213,12 +212,12 @@ void Foam::regionTypes::conductTemperature::setCoupledEqns()
 
     fvScalarMatrices.set
     (
-        T_().name() + this->name() + "Eqn",
+        T_().name() + mesh().name() + "Eqn",
         new fvScalarMatrix(TEqn)
     );
 }
 
-void Foam::regionTypes::conductTemperature::updateFields()
+void Foam::regionTypes::conductTemperature::postSolve()
 {
     // do nothing, add as required
 }
@@ -228,5 +227,19 @@ void Foam::regionTypes::conductTemperature::solveRegion()
     // do nothing, add as required
 }
 
+void Foam::regionTypes::conductTemperature::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::conductTemperature::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::conductTemperature::pressureCorrector()
+{
+    // do nothing, add as required
+}
 
 // ************************************************************************* //

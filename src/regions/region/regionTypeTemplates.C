@@ -32,7 +32,7 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#include "fvMesh.H"
+#include "dynamicFvMesh.H"
 #include "fvMatrix.H"
 
 
@@ -41,8 +41,8 @@ SourceFiles
 namespace Foam
 {
 
-template<class T>
-fvMatrix<T>& regionType::getCoupledEqn
+template< template<class> class M, class T>
+M<T>* regionType::getCoupledEqn
 (
     word name
 )
@@ -50,7 +50,7 @@ fvMatrix<T>& regionType::getCoupledEqn
     notImplemented
     (
         "regionTypeTemplates.C\n"
-        "fvMatrix<T>& regionType::getCoupledEqn\n"
+        "fvMatrix<T>* regionType::getCoupledEqn\n"
         "(\n"
         "word name\n"
         ")\n"
@@ -59,39 +59,63 @@ fvMatrix<T>& regionType::getCoupledEqn
 }
 
 template<>
-fvMatrix<scalar>& regionType::getCoupledEqn
+fvMatrix<scalar>* regionType::getCoupledEqn
 (
     word name
 )
 {
-    return *fvScalarMatrices[name];
+    return fvScalarMatrices[name];
 }
 
 template<>
-fvMatrix<vector>& regionType::getCoupledEqn
+fvMatrix<vector>* regionType::getCoupledEqn
 (
     word name
 )
 {
-    return *fvVectorMatrices[name];
+    return fvVectorMatrices[name];
 }
 
 template<>
-fvMatrix<symmTensor>& regionType::getCoupledEqn
+fvMatrix<symmTensor>* regionType::getCoupledEqn
 (
     word name
 )
 {
-    return *fvSymmTensorMatrices[name];
+    return fvSymmTensorMatrices[name];
 }
 
 template<>
-fvMatrix<tensor>& regionType::getCoupledEqn
+fvMatrix<tensor>* regionType::getCoupledEqn
 (
     word name
 )
 {
-    return *fvTensorMatrices[name];
+    return fvTensorMatrices[name];
+}
+
+template<>
+fvBlockMatrix<vector4>* regionType::getCoupledEqn
+(
+    word name
+)
+{
+    return fvVector4Matrices[name];
+}
+
+bool regionType::foundCoupledEqn
+(
+    word name
+)
+{
+    return 
+    (
+        fvScalarMatrices.found(name) ||
+        fvVectorMatrices.found(name) ||
+        fvSymmTensorMatrices.found(name) ||
+        fvTensorMatrices.found(name) ||
+        fvVector4Matrices.found(name)
+    );
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

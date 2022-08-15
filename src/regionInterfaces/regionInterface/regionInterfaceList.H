@@ -89,8 +89,8 @@ protected:
 
     // Protected data
 
-        //- Reference to the mesh database
-        const fvMesh& mesh_;
+        //- Reference to the database
+        const Time& runTime_;
 
         //- Tables of coupling interfaces
         regionInterfaceProperties monolithicTypeInterfaces_;
@@ -106,10 +106,11 @@ protected:
 public:
 
     // Constructor
-    regionInterfaceList(const fvMesh& mesh);
+    regionInterfaceList(const Time& runTime);
 
     // Destructor
-    ~regionInterfaceList();
+    virtual ~regionInterfaceList()
+    {}
 
 
     // Member Functions
@@ -164,11 +165,8 @@ public:
         //- Detach interface
         void detach();
 
-        //- Move boundary
-        void move();
-
-        //- Interpolate/map/transfer face values
-        void transferFaces();
+        //- Update boundary
+        void update();
         
         //- Interfacial transport
         void makeUs() const;
@@ -177,7 +175,6 @@ public:
         
         //- Interface properties
         void makeFaMesh() const;
-     
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

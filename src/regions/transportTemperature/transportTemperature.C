@@ -50,47 +50,46 @@ namespace regionTypes
 
 Foam::regionTypes::transportTemperature::transportTemperature
 (
-    const fvMesh& mesh,
+    const Time& runTime,
     const word& regionName
 )
 :
-    regionType(mesh, regionName),
+    regionType(runTime, regionName),
 
-    mesh_(mesh),
     regionName_(regionName),
 
-    U_
-    (
-        IOobject
-        (
-            "U",
-            this->time().timeName(),
-            *this,
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        *this
-    ),
-    phi_
-    (
-		IOobject
-		(
-			"phi",
-            this->time().timeName(),
-            *this,
-			IOobject::READ_IF_PRESENT,
-			IOobject::AUTO_WRITE
-		),
-		linearInterpolate(U_) & (*this).Sf()    
-    ),
+    // U_
+    // (
+    //     IOobject
+    //     (
+    //         "U",
+    //         mesh().time().timeName(),
+    //         mesh(),
+    //         IOobject::MUST_READ,
+    //         IOobject::AUTO_WRITE
+    //     ),
+    //     mesh()
+    // ),
+//    phi_
+//    (
+//		IOobject
+//		(
+//			"phi",
+//            mesh().time().timeName(),
+//            mesh(),
+//			IOobject::READ_IF_PRESENT,
+//			IOobject::AUTO_WRITE
+//		),
+//		linearInterpolate(U_) & mesh().Sf()    
+//    ),
 
     transportProperties_
     (
         IOobject
         (
             "transportProperties",
-            this->time().constant(),
-            *this,
+            mesh().time().constant(),
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -125,43 +124,157 @@ Foam::regionTypes::transportTemperature::transportTemperature
 //        ),
 //        *this
 //    )
+    U_(nullptr),
     alpha_(nullptr),
+    phi_(nullptr),
     T_(nullptr)
 {
-    alpha_.reset
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "alpha",
-                this->time().timeName(),
-                *this,
-                IOobject::READ_IF_PRESENT,
-                IOobject::NO_WRITE
-            ),
-            *this,
-            k_/(rho_*cp_)
-        )
-    );
+    // look up velocity field from object registry
+    if (mesh().foundObject<volVectorField>("U"))
+    {
+        Info << nl << "Using already existing velocity field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
 
-    T_.reset
-    (
-        new volScalarField
+        U_.reset
         (
-            IOobject
+            const_cast<volVectorField*>
             (
-                "T",
-                this->time().timeName(),
-                *this,
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            *this
-        )
-    );
+                &mesh().lookupObject<volVectorField>("U")
+            )
+        );
+    }
+    else // read velocity field
+    {
+        U_.reset
+        (
+            new volVectorField
+            (
+                IOobject
+                (
+                    "U",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::MUST_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh()
+            )
+        );
+    }
 
-    alpha_() = k_/(rho_*cp_);
+    // look up flux field from object registry
+    if (mesh().foundObject<surfaceScalarField>("phi"))
+    {
+        Info << nl << "Using already existing flux field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
+
+        phi_.reset
+        (
+            const_cast<surfaceScalarField*>
+            (
+                &mesh().lookupObject<surfaceScalarField>("phi")
+            )
+        );
+    }
+    else // use pre-set velocity field
+    {
+        phi_.reset
+        (
+            new surfaceScalarField
+            (
+		        IOobject
+		        (
+			        "phi",
+                    mesh().time().timeName(),
+                    mesh(),
+			        IOobject::NO_READ,
+			        IOobject::AUTO_WRITE
+		        ),
+		        linearInterpolate(U_()) & mesh().Sf()
+            )
+        );
+    }
+
+    // look up thermal diffusivity field from object registry
+    if (mesh().foundObject<volScalarField>("alpha"))
+    {
+        WarningIn("transportTemperature(const Time& runTime, const word& regionName)")
+            << "An alpha Field has already been created for region "
+            << mesh().name()
+            << " by another regionType."
+            << " Make sure that this alpha field represents the thermal diffusivity"
+            << endl;
+        
+        alpha_.reset
+        (
+            const_cast<volScalarField*>
+            (
+                &mesh().lookupObject<volScalarField>("alpha")
+            )
+        );
+
+    }
+    else // use pre-set velocity field
+    {
+        alpha_.reset
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "alpha",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::NO_WRITE
+                ),
+                mesh(),
+                k_/(rho_*cp_)
+            )
+        );
+    }
+
+    // look up temperature field from object registry
+    if (mesh().foundObject<volScalarField>("T"))
+    {
+        Info << nl << "Using already existing temperature field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
+
+        T_.reset
+        (
+            const_cast<volScalarField*>
+            (   
+                &mesh().lookupObject<volScalarField>("T")
+            )
+        );
+    }
+    else // read temperature field
+    {
+        T_.reset
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "T",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::MUST_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh()
+            )
+        );
+    }
 }
 
 
@@ -189,24 +302,39 @@ void Foam::regionTypes::transportTemperature::setCoupledEqns()
     fvScalarMatrix TEqn =
     (
         fvm::ddt(T_())
-      + fvm::div(phi_, T_())
+      + fvm::div(phi_(), T_())
      ==
         fvm::laplacian(alpha_(), T_())
     );
 
     fvScalarMatrices.set
     (
-        T_().name() + this->name() + "Eqn",
+        T_().name() + mesh().name() + "Eqn",
         new fvScalarMatrix(TEqn)
     );
 }
 
-void Foam::regionTypes::transportTemperature::updateFields()
+void Foam::regionTypes::transportTemperature::postSolve()
 {
     // do nothing, add as required
 }
 
 void Foam::regionTypes::transportTemperature::solveRegion()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::transportTemperature::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::transportTemperature::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::transportTemperature::pressureCorrector()
 {
     // do nothing, add as required
 }

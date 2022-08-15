@@ -37,29 +37,69 @@ namespace Foam
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 Foam::regionType::regionType
 (
-    const fvMesh& mesh,
+    const Time& runTime,
     const word& regionName
 )
 :
-    fvMesh
+    IOdictionary
     (
         IOobject
         (
-            regionName,
-            mesh.time().timeName(),
-            mesh.time(),
-            IOobject::MUST_READ
+            regionName + "Dict",
+//            // If region == "region0" then read from the main case
+//            // Otherwise, read from the region/sub-mesh directory
+//            bool(regionName == dynamicFvMesh::defaultRegion)
+//          ? fileName(runTime.caseConstant())
+//          : fileName(runTime.caseConstant()/regionName),
+            runTime.constant(),
+            runTime,
+            IOobject::NO_READ,
+            IOobject::NO_WRITE,
+            false
         )
     ),
+    // meshPtr_
+    // (
+    //     dynamicFvMesh::New
+    //     (
+    //         IOobject
+    //         (
+    //             regionName,
+    //             runTime.timeName(),
+    //             runTime,
+    //             IOobject::MUST_READ
+    //         )
+    //     )
+    // )
+    meshPtr_(nullptr)
+{
 
-    mesh_(mesh)
-{}
-
-
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::regionType::~regionType()
-{}
+    // look up mesh from object registry
+    if (runTime.foundObject<dynamicFvMesh>(regionName))
+    {
+        meshPtr_.reset
+        (
+            const_cast<dynamicFvMesh*>
+            (
+                &runTime.lookupObject<dynamicFvMesh>(regionName)
+            )
+        );
+    }
+    // or create new mesh
+    else
+    {
+        meshPtr_ = dynamicFvMesh::New
+                    (
+                        IOobject
+                        (
+                            regionName,
+                            runTime.timeName(),
+                            runTime,
+                            IOobject::MUST_READ
+                        )
+                    );
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

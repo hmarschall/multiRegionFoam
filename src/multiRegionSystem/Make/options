@@ -1,7 +1,10 @@
 EXE_INC = \
+    -I$(LIB_MRF)/lnInclude \
+    -DFULLDEBUG -g -O0 \
     -I../regions/region \
     -I../regionInterfaces/regionInterface \
     -I../regionProperties \
+    -I../globalPolyPatch \
     -I../regionInterfaceProperties \
     -I../../lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
@@ -10,15 +13,20 @@ EXE_INC = \
     -I$(LIB_SRC)/dynamicMesh/lnInclude \
     -I$(LIB_SRC)/dynamicMesh/dynamicMesh/lnInclude \
     -I$(LIB_SRC)/dynamicMesh/dynamicFvMesh/lnInclude \
+    -I$(LIB_SRC)/dynamicMesh/dynamicFvMesh/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
     -I$(LIB_SRC)/conjugateHeatTransfer/lnInclude \
     -I$(FOAM_UTILITIES)/mesh/manipulation/mergeMeshes
 
 LIB_LIBS = \
+    -L$(FOAM_USER_LIBBIN) -lmrfZones \
     -lfiniteVolume \
     -lfiniteArea \
     -lcoupledLduMatrix \
     -ldynamicMesh \
+    -ldynamicFvMesh \
+    -ldynamicFvMesh \
     -lmeshTools \
+    -lcoupledFvPatchBCs \
     -lconjugateHeatTransfer 
