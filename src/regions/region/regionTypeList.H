@@ -59,14 +59,8 @@ private:
 
     // Private Data
 
-        //- super-mesh spanning across regions
-//        autoPtr<dynamicFvMesh> superMeshPtr_;
-
         //- dictionary
         const IOdictionary dict_;
-
-        //- meshes to build super-mesh from
-//        HashTable<wordList> superMeshRegions_;
 
         //- runTime
         const Time& runTime_;
@@ -83,9 +77,6 @@ protected:
 
     // Protected data
 
-        //- Reference to the mesh database
-//        const dynamicFvMesh& mesh_;
-
         regionProperties region_;
 
 
@@ -99,9 +90,6 @@ public:
     {}
 
     // Member Functions
-
-        //- Return super mesh
-//        const dynamicFvMesh& superMesh();
 
         //- Return active status
         bool active(const bool active = false) const;
