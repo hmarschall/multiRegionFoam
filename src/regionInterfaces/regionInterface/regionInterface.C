@@ -106,11 +106,25 @@ void Foam::regionInterface::makeFaMesh() const
             << abort(FatalError);
     }
 
-    aMeshPtr_.set(new faMesh(meshA()));
+    // look up faMesh from object registry
+    if (meshA().foundObject<faMesh>(patchA().name() + "FaMesh"))
+    {
+        aMeshPtr_.reset
+        (
+            const_cast<faMesh*>
+            (
+                &meshA().lookupObject<faMesh>(meshA().name())
+            )
+        );
+    }
+    // or create new mesh
+    else
+    {
+        aMeshPtr_.set(new faMesh(meshA()));
 
-    // automatic update as meshObject
-    // requires unique name
-    aMeshPtr_->rename(name() + "FaMesh");
+        // set unique name
+        aMeshPtr_->rename(patchA().name() + "FaMesh");
+    }
 }
 
 void Foam::regionInterface::makeUs() const
@@ -491,6 +505,7 @@ Foam::regionInterface::regionInterface
         .lookupOrDefault<int>("interpolatorUpdateFrequency", 1)
     ),
     aMeshPtr_(), //new faMesh(meshA_)
+//    areaMesh_(faMesh(meshA_)),
     curvatureCorrectedSurfacePatches_
     (
         regionInterfaceProperties_.lookup("curvatureCorrectedSurfacePatches")
@@ -623,8 +638,12 @@ void Foam::regionInterface::updateInterpolatorAndGlobalPatches()
         if
         (
             ((runTime().timeIndex() - 1) % interpolatorUpdateFrequency_) == 0
+         || changing()
         )
         {
+//            aMeshPtr_.clear();
+//            aMesh();
+
             // Clear current interpolators
             interfaceToInterfacePtr_.clear();
 

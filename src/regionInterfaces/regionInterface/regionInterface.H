@@ -128,6 +128,8 @@ class regionInterface
         //- Finite area mesh
         mutable autoPtr<faMesh> aMeshPtr_;
 
+/*        mutable faMesh areaMesh_;*/
+
         //- Surface patches requiring curvature correction
         //- e.g. fixedSurfacePatches or centerlinePatches (wedge cases)
         wordList curvatureCorrectedSurfacePatches_;
@@ -308,7 +310,8 @@ public:
                 {
                     makeFaMesh();
                 }
-                
+
+/*                return areaMesh_;*/
                 return aMeshPtr_();
             }
 
@@ -318,7 +321,8 @@ public:
                 {
                     makeFaMesh();
                 }
-                
+
+/*                return areaMesh_;              */
                 return aMeshPtr_();
             }
 

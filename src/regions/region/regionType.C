@@ -73,7 +73,6 @@ Foam::regionType::regionType
     // )
     meshPtr_(nullptr)
 {
-
     // look up mesh from object registry
     if (runTime.foundObject<dynamicFvMesh>(regionName))
     {
@@ -89,15 +88,15 @@ Foam::regionType::regionType
     else
     {
         meshPtr_ = dynamicFvMesh::New
-                    (
-                        IOobject
-                        (
-                            regionName,
-                            runTime.timeName(),
-                            runTime,
-                            IOobject::MUST_READ
-                        )
-                    );
+        (
+            IOobject
+            (
+                regionName,
+                runTime.timeName(),
+                runTime,
+                IOobject::MUST_READ
+            )
+        );
     }
 }
 
