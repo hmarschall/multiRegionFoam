@@ -60,7 +60,7 @@ void Foam::regionInterface::makeGlobalPatches() const
     globalPatchBPtr_().globalPatch();
 }
 
-void Foam::regionInterface::clearGlobalPatches()
+void Foam::regionInterface::clearGlobalPatches() const
 {
     globalPatchAPtr_.clear();
     globalPatchBPtr_.clear();
@@ -97,6 +97,26 @@ void Foam::regionInterface::makeInterfaceToInterface() const
     );
 }
 
+void Foam::regionInterface::resetFaMesh() const
+{
+    word aMeshName = patchA().name() + "FaMesh";
+
+    // look up faMesh from object registry
+    if (meshA().foundObject<faMesh>(aMeshName))
+    {
+        aMeshPtr_.reset
+        (
+            const_cast<faMesh*>
+            (
+                &meshA().lookupObject<faMesh>(aMeshName)
+            )
+        );
+    }
+//    else
+//    {
+//    }
+}
+
 void Foam::regionInterface::makeFaMesh() const
 {
     if (!aMeshPtr_.empty())
@@ -106,14 +126,16 @@ void Foam::regionInterface::makeFaMesh() const
             << abort(FatalError);
     }
 
+    word aMeshName = patchA().name() + "FaMesh";
+
     // look up faMesh from object registry
-    if (meshA().foundObject<faMesh>(patchA().name() + "FaMesh"))
+    if (meshA().foundObject<faMesh>(aMeshName))
     {
         aMeshPtr_.reset
         (
             const_cast<faMesh*>
             (
-                &meshA().lookupObject<faMesh>(meshA().name())
+                &meshA().lookupObject<faMesh>(aMeshName)
             )
         );
     }
@@ -181,7 +203,7 @@ void Foam::regionInterface::makeUs() const
         }
     }
     
-    UsPtr_.set
+    UsPtr_.reset
     (
         new areaVectorField
         (
@@ -242,7 +264,7 @@ void Foam::regionInterface::makePhis() const
             << abort(FatalError);
     }
 
-    phisPtr_.set
+    phisPtr_.reset
     (
         new edgeScalarField
         (
@@ -418,6 +440,16 @@ void Foam::regionInterface::correctCurvature
     }
 }
 
+void regionInterface::clearOut() const
+{
+    interfaceToInterfacePtr_.clear();
+//    aMeshPtr_.clear();
+    UsPtr_.clear();
+    phisPtr_.clear();
+
+    clearGlobalPatches();
+}
+
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -440,6 +472,7 @@ Foam::regionInterface::regionInterface
             IOobject::NO_WRITE
         )
     ),
+    MeshObject<fvMesh, regionInterface>(patchA.boundaryMesh().mesh()),
     interfaceKey(patchA.name(), patchB.name()),
     multiRegionProperties_
     (
@@ -499,6 +532,7 @@ Foam::regionInterface::regionInterface
     attachedA_(false),
     attachedB_(false),
     changing_(false),
+    moving_(false),
     interpolatorUpdateFrequency_
     (
         regionInterfaceProperties_
@@ -582,6 +616,13 @@ Foam::regionInterface::regionInterface
     }
 }
 
+// * * * * * * * * * * * * * * * Destructor * * * * * * * * * * * * * * * * * //
+
+regionInterface::~regionInterface()
+{
+    clearOut();
+}
+
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
@@ -641,9 +682,6 @@ void Foam::regionInterface::updateInterpolatorAndGlobalPatches()
          || changing()
         )
         {
-//            aMeshPtr_.clear();
-//            aMesh();
-
             // Clear current interpolators
             interfaceToInterfacePtr_.clear();
 
@@ -756,8 +794,16 @@ void Foam::regionInterface::detach()
 
 void Foam::regionInterface::update()
 {
-    updateUs();
+    // critical: only if mesh topology has changed
+    if (!moving() && changing())
+    {
+        clearOut();
+        resetFaMesh();
+        makeGlobalPatches();
+    }
+
     updateK();
+    updateUs();
     updatePhis();
 }
 
@@ -786,6 +832,30 @@ void Foam::regionInterface::updateK()
     correctCurvature(curv);
 
     curv.correctBoundaryConditions();
+}
+
+// Update for mesh motion
+bool Foam::regionInterface::movePoints() const
+{
+    return true;
+}
+
+
+// Update on topology change
+bool Foam::regionInterface::updateMesh(const mapPolyMesh& mpm) const
+{
+    if (debug)
+    {
+        Info << "Clearing out regionInterface after topology change" << endl;
+    }
+
+    // Wipe out demand-driven data
+    clearOut();
+//    resetFaMesh();
+//    makeGlobalPatches();
+//    interfaceToInterface();
+
+    return true;
 }
 
 

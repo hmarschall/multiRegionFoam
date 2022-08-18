@@ -62,6 +62,8 @@ SourceFiles
 
 #include "interfaceToInterfaceMapping.H"
 
+#include "MeshObject.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -74,6 +76,7 @@ namespace Foam
 class regionInterface
 :
     public IOdictionary,
+    public MeshObject<fvMesh, regionInterface>,
     public interfaceKey
 {
     // Private data
@@ -119,8 +122,11 @@ class regionInterface
 
         Switch attachedB_;
 
-        //- Adjacent meshes changing?
+        //- Is meshA changing?
         bool changing_;
+
+        //- Is meshA moving?
+        bool moving_;
 
         //- Interpolator update frequency
         label interpolatorUpdateFrequency_;
@@ -152,13 +158,16 @@ private:
         void makeGlobalPatches() const;
 
         //- Clear global poly patch
-        void clearGlobalPatches();
+        void clearGlobalPatches() const;
 
         //- Make interface-to-interface
         void makeInterfaceToInterface() const;
 
         //- Create/update interface physics
         void makeFaMesh() const;
+
+        //- Reset interface physics
+        void resetFaMesh() const;
 
         //- Make surface velocity
         void makeUs() const;
@@ -179,6 +188,9 @@ private:
         (
             areaScalarField& K
         );
+
+        //- Clear all demand-driven data
+        void clearOut() const;
 
         //- Disallow default bitwise copy construct
         regionInterface(const regionInterface&);
@@ -233,8 +245,9 @@ public:
 
     // Destructor
 
-        virtual ~regionInterface()
-        {}
+/*        virtual ~regionInterface()*/
+/*        {}*/
+        ~regionInterface();
 
 
 public:
@@ -311,7 +324,6 @@ public:
                     makeFaMesh();
                 }
 
-/*                return areaMesh_;*/
                 return aMeshPtr_();
             }
 
@@ -322,18 +334,27 @@ public:
                     makeFaMesh();
                 }
 
-/*                return areaMesh_;              */
                 return aMeshPtr_();
             }
 
             const bool& changing()
             {
-                if (meshA().changing() || meshB().changing())
+                if (meshA().changing())
                 {
                     changing_ = true;
                 }
 
                 return changing_;
+            }
+
+            const bool& moving()
+            {
+                if (meshA().moving())
+                {
+                    moving_ = true;
+                }
+
+                return moving_;
             }
 
             //- interfacial transport
@@ -461,7 +482,12 @@ public:
 
             // Correct interface physics
             virtual void correct() = 0;
-        
+
+            // Update for mesh motion
+            bool movePoints() const;
+
+            // Update on topology change
+            bool updateMesh(const mapPolyMesh&) const;
 };
 
 
