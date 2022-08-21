@@ -448,13 +448,49 @@ public:
             tmp<Field<Type> > transferFacesFromA
             (
                 const Field<Type>& fromField
-            ) const;
+            ) const
+            {
+                notImplemented
+                (
+                    "regionInterfaceTemplates.C\n"
+                    "tmp<Field<Type> > regionInterface::transferFacesFromA\n"
+                    "(\n"
+                    "const Field<Type>& fromField\n"
+                    ") const\n"
+                    "not implemented"
+                );
+
+                tmp<Field<Type> > ttoField
+                (
+                    new Field<Type>(globalPatchB().globalPatch().size())
+                );
+
+                return ttoField;
+            }
 
             template<class Type>
             tmp<Field<Type> > transferFacesFromB
             (
                 const Field<Type>& fromField
-            ) const;
+            ) const
+            {
+                notImplemented
+                (
+                    "regionInterfaceTemplates.C\n"
+                    "tmp<Field<Type> > regionInterface::transferFacesFromB\n"
+                    "(\n"
+                    "const Field<Type>& fromField\n"
+                    ") const\n"
+                    "not implemented"
+                );
+
+                tmp<Field<Type> > ttoField
+                (
+                    new Field<Type>(globalPatchA().globalPatch().size())
+                );
+
+                return ttoField;
+            }
 
 
         // Edit
@@ -494,7 +530,6 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

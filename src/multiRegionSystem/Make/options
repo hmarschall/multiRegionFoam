@@ -20,7 +20,6 @@ EXE_INC = \
     -I$(FOAM_UTILITIES)/mesh/manipulation/mergeMeshes
 
 LIB_LIBS = \
-    -L$(FOAM_USER_LIBBIN) -lmrfZones \
     -lfiniteVolume \
     -lfiniteArea \
     -lcoupledLduMatrix \
@@ -29,4 +28,7 @@ LIB_LIBS = \
     -ldynamicFvMesh \
     -lmeshTools \
     -lcoupledFvPatchBCs \
-    -lconjugateHeatTransfer 
+    -lconjugateHeatTransfer \
+    -L$(FOAM_USER_LIBBIN) -lmrfZones \
+    -L$(FOAM_USER_LIBBIN) -lregionInterface \
+    -L$(FOAM_USER_LIBBIN) -lcoupledFvPatchBCs

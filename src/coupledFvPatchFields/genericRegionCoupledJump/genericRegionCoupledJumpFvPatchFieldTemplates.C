@@ -33,25 +33,12 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
+#include "genericRegionCoupledJumpFvPatchField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-
-//- Return patch-normal gradient
-// template<class Type>
-// tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::snGrad() const
-// {
-//     notImplemented
-//     (
-//         "genericRegionCoupledJumpFvPatchFieldFvPatchFieldTemplates.C\n"
-//         "tmp<Field<Type> > genericRegionCoupledJumpFvPatchField::snGrad()\n"
-//         "not implemented"
-//     );
-
-//     return (*this * 0);
-// }
 
 template<>
 tmp<Field<scalar> > genericRegionCoupledJumpFvPatchField<scalar>::snGrad() const
@@ -72,30 +59,28 @@ tmp<Field<scalar> > genericRegionCoupledJumpFvPatchField<scalar>::snGrad() const
     if (nonOrthCorr_)
     {
         //- TODO: Add tamplatable nonOrth correction
-        //dpsiP = (k&gradpsi.patchInternalField());
+        dpsiP = (k&gradpsi.patchInternalField());
     }
 
     if (secondOrder_)
     {
-        //- TODO: add tamplatable second order gradient  
-        // scalarField nGradpsiP = (n&gradpsi.patchInternalField());
+        //- TODO: add tamplatable second order gradient
+        scalarField nGradpsiP = (n&gradpsi.patchInternalField());
 
-        // tmp<scalarField> tnGradpsi
-        // (
-        //     new scalarField(this->patch().size(), 0)
-        // );
+        tmp<scalarField> tnGradpsi
+        (
+            new scalarField(this->patch().size(), 0)
+        );
 
-        // tnGradpsi() =
-        //     2
-        //    *(
-        //         *this
-        //       - (patchInternalField() + dpsiP)
-        //     )*this->patch().deltaCoeffs()
-        //   - nGradpsiP;
+        tnGradpsi() =
+            2
+           *(
+                *this
+              - (patchInternalField() + dpsiP)
+            )*this->patch().deltaCoeffs()
+          - nGradpsiP;
 
-        // tnGradpsi() -= n*(n&tnGradpsi());
-
-        // return tnGradpsi;
+        return tnGradpsi;
     }
 
     // First order
@@ -131,31 +116,29 @@ tmp<Field<vector> > genericRegionCoupledJumpFvPatchField<vector>::snGrad() const
 
     if (nonOrthCorr_)
     {
-        //- TODO: Add tamplatable nonOrth correction
-        //dpsiP = (k&gradpsi.patchInternalField());
+        dpsiP = (k&gradpsi.patchInternalField());
     }
 
     if (secondOrder_)
     {
-        //- TODO: add tamplatable second order gradient  
-        // vectorField nGradpsiP = (n&gradpsi.patchInternalField());
+        vectorField nGradpsiP = (n&gradpsi.patchInternalField());
 
-        // tmp<vectorField> tnGradpsi
-        // (
-        //     new vectorField(this->patch().size(), vector::zero)
-        // );
+        tmp<vectorField> tnGradpsi
+        (
+            new vectorField(this->patch().size(), vector::zero)
+        );
 
-        // tnGradpsi() =
-        //     2
-        //    *(
-        //         *this
-        //       - (patchInternalField() + dpsiP)
-        //     )*this->patch().deltaCoeffs()
-        //   - nGradpsiP;
+        tnGradpsi() =
+            2
+           *(
+                *this
+              - (patchInternalField() + dpsiP)
+            )*this->patch().deltaCoeffs()
+          - nGradpsiP;
 
-        // tnGradpsi() -= n*(n&tnGradpsi());
+        tnGradpsi() -= n*(n&tnGradpsi());
 
-        // return tnGradpsi;
+        return tnGradpsi;
     }
 
     // First order
@@ -170,21 +153,10 @@ tmp<Field<vector> > genericRegionCoupledJumpFvPatchField<vector>::snGrad() const
           - (patchInternalField() + dpsiP)
         )*this->patch().deltaCoeffs();
 
+    tnGradpsi() -= n*(n&tnGradpsi());
+
     return tnGradpsi;
 }
-
-// template<class Type>
-// tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::gradientBoundaryCoeffs() const
-// {
-//     notImplemented
-//     (
-//         "genericRegionCoupledJumpFvPatchFieldFvPatchFieldTemplates.C\n"
-//         "tmp<Field<Type> > genericRegionCoupledJumpFvPatchField::gradientBoundaryCoeffs()\n"
-//         "not implemented"
-//     );
-
-//     return (*this * 0);
-// }
 
 template<>
 tmp<Field<scalar> > genericRegionCoupledJumpFvPatchField<scalar>::gradientBoundaryCoeffs() const
@@ -203,22 +175,20 @@ tmp<Field<scalar> > genericRegionCoupledJumpFvPatchField<scalar>::gradientBounda
 
     if (nonOrthCorr_)
     {
-        //- TODO: Add tamplatable nonOrth correction
-        //dpsiP = (k&gradpsi.patchInternalField());
+        dpsiP = (k&gradpsi.patchInternalField());
     }
 
     if (secondOrder_)
     {
-        //- TODO: add tamplatable second order gradient
-        // scalarField nGradpsiP = (n&gradpsi.patchInternalField());
+        scalarField nGradpsiP = (n&gradpsi.patchInternalField());
 
-        // return
-        //     this->patch().deltaCoeffs()
-        //    *(
-        //         2*(*this - dpsiP) 
-        //       - this->patchInternalField()
-        //     )
-        //   - nGradpsiP;
+        return
+            this->patch().deltaCoeffs()
+           *(
+                2*(*this - dpsiP) 
+              - this->patchInternalField()
+            )
+          - nGradpsiP;
     }
 
     return this->patch().deltaCoeffs()*(*this - dpsiP);
@@ -227,8 +197,8 @@ tmp<Field<scalar> > genericRegionCoupledJumpFvPatchField<scalar>::gradientBounda
 template<>
 tmp<Field<vector> > genericRegionCoupledJumpFvPatchField<vector>::gradientBoundaryCoeffs() const
 {
-    const fvPatchField<vector>& gradpsi =
-        patch().lookupPatchField<GeometricField<vector, fvPatchField, volMesh>, vector>
+    const fvPatchField<tensor>& gradpsi =
+        patch().lookupPatchField<volTensorField, tensor>
         (
             "grad(" + psiName_ + ")"
         );
@@ -241,33 +211,31 @@ tmp<Field<vector> > genericRegionCoupledJumpFvPatchField<vector>::gradientBounda
 
     if (nonOrthCorr_)
     {
-        //- TODO: Add tamplatable nonOrth correction
-        //dpsiP = (k&gradpsi.patchInternalField());
+        dpsiP = (k&gradpsi.patchInternalField());
     }
 
     if (secondOrder_)
     {
-        //- TODO: add tamplatable second order gradient
-        // vectorField nGradpsiP = (n&gradpsi.patchInternalField());
+        vectorField nGradpsiP = (n&gradpsi.patchInternalField());
 
-        // vectorField nGradpsi =
-        //     2
-        //    *(
-        //         *this
-        //       - (patchInternalField() + dpsiP)
-        //     )*this->patch().deltaCoeffs()
-        //   - nGradpsiP;
+        vectorField nGradpsi =
+            2
+           *(
+                *this
+              - (patchInternalField() + dpsiP)
+            )*this->patch().deltaCoeffs()
+          - nGradpsiP;
 
-        // vectorField nGradpsin = n*(n&nGradpsi);
+        vectorField nGradpsin = n*(n&nGradpsi);
 
-        // return
-        //     this->patch().deltaCoeffs()
-        //    *(
-        //         2*(*this - dpsiP) 
-        //       - this->patchInternalField()
-        //     )
-        //   - nGradpsiP
-        //   - nGradpsin;
+        return
+            this->patch().deltaCoeffs()
+           *(
+                2*(*this - dpsiP) 
+              - this->patchInternalField()
+            )
+          - nGradpsiP
+          - nGradpsin;
     }
 
     // First order

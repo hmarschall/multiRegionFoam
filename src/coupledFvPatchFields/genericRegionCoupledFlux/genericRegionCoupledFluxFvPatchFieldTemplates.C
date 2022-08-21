@@ -33,22 +33,12 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
+#include "genericRegionCoupledFluxFvPatchField.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
-
-template<class Type>
-void genericRegionCoupledFluxFvPatchField<Type>::evaluate(const Pstream::commsTypes)
-{
-    notImplemented
-    (
-        "genericRegionCoupledFluxFvPatchFieldFvPatchFieldTemplates.C\n"
-        "tmp<Field<Type> > genericRegionCoupledFluxFvPatchField::snGrad()\n"
-        "not implemented"
-    );
-}
 
 template<>
 void genericRegionCoupledFluxFvPatchField<scalar>::evaluate(const Pstream::commsTypes)

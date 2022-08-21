@@ -31,30 +31,6 @@ License
 namespace Foam
 {
 
-template<class Type>
-tmp<Field<Type> > regionInterface::transferFacesFromA
-(
-    const Field<Type>& fromField
-) const
-{
-    notImplemented
-    (
-        "regionInterfaceTemplates.C\n"
-        "tmp<Field<Type> > regionInterface::transferFacesFromA\n"
-        "(\n"
-        "const Field<Type>& fromField\n"
-        ") const\n"
-        "not implemented"
-    );
-
-    tmp<Field<Type> > ttoField
-    (
-        new Field<Type>(globalPatchB().globalPatch().size())
-    );
-
-    return ttoField;
-}
-
 template<>
 tmp<Field<scalar> > regionInterface::transferFacesFromA
 (
@@ -96,30 +72,6 @@ tmp<Field<vector> > regionInterface::transferFacesFromA
         globalPatchB().globalPatch(),       // to zone
         fromField,                          // from field
         toField                             // to field
-    );
-
-    return ttoField;
-}
-
-template<class Type>
-tmp<Field<Type> > regionInterface::transferFacesFromB
-(
-    const Field<Type>& fromField
-) const
-{
-    notImplemented
-    (
-        "regionInterfaceTemplates.C\n"
-        "tmp<Field<Type> > regionInterface::transferFacesFromB\n"
-        "(\n"
-        "const Field<Type>& fromField\n"
-        ") const\n"
-        "not implemented"
-    );
-
-    tmp<Field<Type> > ttoField
-    (
-        new Field<Type>(globalPatchA().globalPatch().size())
     );
 
     return ttoField;

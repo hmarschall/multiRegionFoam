@@ -1,14 +1,20 @@
-/* ../globalPolyPatch/globalPolyPatchTemplates.C */
-/*../../numerics/newGGIInterpolation/newGGIInterpolationName.C*/
+../globalPolyPatch/globalPolyPatch.C
 
 interfaceToInterface = ./../coupledFvPatchFields/interfaceToInterfaceMappings
 $(interfaceToInterface)/interfaceToInterfaceMapping/interfaceToInterfaceMapping.C
 $(interfaceToInterface)/ggiInterfaceToInterfaceMapping/ggiInterfaceToInterfaceMapping.C
 $(interfaceToInterface)/directMapInterfaceToInterfaceMapping/directMapInterfaceToInterfaceMapping.C
 
+../regionInterfaceProperties/regionInterfaceProperties.C
+
 interfaces = ./regionInterface
 $(interfaces)/interfaceKey.C
-$(interfaces)/newRegionInterface.C
 $(interfaces)/regionInterface.C
+$(interfaces)/regionInterfaceTemplates.C
+$(interfaces)/regionInterfaceList.C
+$(interfaces)/newRegionInterface.C
+
+capillaryInterface/capillaryInterface.C
+defaultInterface/defaultInterface.C
 
 LIB = $(FOAM_USER_LIBBIN)/libregionInterface

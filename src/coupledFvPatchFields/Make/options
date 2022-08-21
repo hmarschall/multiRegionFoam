@@ -16,4 +16,5 @@ LIB_LIBS = \
  -lfiniteArea \
  -ldynamicMesh \
  -ldynamicFvMesh \
- -lmeshTools
+ -lmeshTools \
+ -L$(FOAM_USER_LIBBIN) -lregionInterface

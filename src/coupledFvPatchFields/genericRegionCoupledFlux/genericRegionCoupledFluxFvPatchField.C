@@ -127,6 +127,17 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+template<class Type>
+void genericRegionCoupledFluxFvPatchField<Type>::evaluate(const Pstream::commsTypes)
+{
+    notImplemented
+    (
+        "genericRegionCoupledFluxFvPatchFieldFvPatchFieldTemplates.C\n"
+        "tmp<Field<Type> > genericRegionCoupledFluxFvPatchField::snGrad()\n"
+        "not implemented"
+    );
+}
+
 //- Update the patch field coefficients
 template<class Type>
 void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
@@ -359,9 +370,9 @@ void genericRegionCoupledFluxFvPatchField<Type>::write
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#ifdef NoRepository
-#   include "genericRegionCoupledFluxFvPatchFieldTemplates.C"
-#endif
+// #ifdef NoRepository
+// #   include "genericRegionCoupledFluxFvPatchFieldTemplates.C"
+// #endif
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

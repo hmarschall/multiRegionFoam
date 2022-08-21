@@ -130,6 +130,33 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
+//- Return patch-normal gradient
+template<class Type>
+tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::snGrad() const
+{
+    notImplemented
+    (
+        "genericRegionCoupledJumpFvPatchFieldFvPatchFieldTemplates.C\n"
+        "tmp<Field<Type> > genericRegionCoupledJumpFvPatchField::snGrad()\n"
+        "not implemented"
+    );
+
+    return (*this * 0);
+}
+
+template<class Type>
+tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::gradientBoundaryCoeffs() const
+{
+    notImplemented
+    (
+        "genericRegionCoupledJumpFvPatchFieldFvPatchFieldTemplates.C\n"
+        "tmp<Field<Type> > genericRegionCoupledJumpFvPatchField::gradientBoundaryCoeffs()\n"
+        "not implemented"
+    );
+
+    return (*this * 0);
+}
+
 //- Update the patch field coefficients
 template<class Type>
 void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
@@ -324,9 +351,9 @@ void genericRegionCoupledJumpFvPatchField<Type>::write
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#ifdef NoRepository
-#   include "genericRegionCoupledJumpFvPatchFieldTemplates.C"
-#endif
+// #ifdef NoRepository
+// #   include "genericRegionCoupledJumpFvPatchFieldTemplates.C"
+// #endif
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

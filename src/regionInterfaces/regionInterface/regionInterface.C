@@ -858,12 +858,4 @@ bool Foam::regionInterface::updateMesh(const mapPolyMesh& mpm) const
     return true;
 }
 
-
-// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
-
-#ifdef NoRepository
-#   include "regionInterfaceTemplates.C"
-#endif
-
-
 // ************************************************************************* //

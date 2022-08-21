@@ -197,9 +197,9 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// #ifdef NoRepository
-// #   include "genericRegionCoupledFluxFvPatchField.C"
-// #endif
+#ifdef NoRepository
+#   include "genericRegionCoupledFluxFvPatchField.C"
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

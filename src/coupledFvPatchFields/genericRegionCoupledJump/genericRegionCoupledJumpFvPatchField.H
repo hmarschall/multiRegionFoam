@@ -207,9 +207,9 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-// #ifdef NoRepository
-// #   include "genericRegionCoupledJumpFvPatchField.C"
-// #endif
+#ifdef NoRepository
+#   include "genericRegionCoupledJumpFvPatchField.C"
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
