@@ -27,7 +27,6 @@ License
 #include "volFields.H"
 #include "genericRegionCoupledFluxFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
-#include "volFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -36,10 +35,130 @@ namespace Foam
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
-makePatchFields(genericRegionCoupledFlux);
+makeTemplatePatchTypeField
+  (
+      fvPatchScalarField,
+      genericRegionCoupledFluxFvPatchScalarField
+  );
+
+makeTemplatePatchTypeField
+  (
+      fvPatchVectorField,
+      genericRegionCoupledFluxFvPatchVectorField
+  );
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
+
+template<>
+void Foam::genericRegionCoupledFluxFvPatchField<Foam::scalar>::evaluate
+(
+  const Pstream::commsTypes
+)
+{
+    if (!this->updated())
+    {
+        this->updateCoeffs();
+    }
+
+    const fvPatchField<vector>& gradpsi =
+    patch().lookupPatchField<volVectorField, vector>
+    (
+        "grad(" + psiName_ + ")"
+    );
+
+    vectorField n = this->patch().nf();
+    vectorField delta = this->patch().delta();
+    vectorField k = delta - n*(n&delta);
+
+    scalarField dpsiP(this->patch().size(), 0);
+
+    if (nonOrthCorr_)
+    {
+        //- TODO: Add tamplatable nonOrth correction
+        dpsiP = (k&gradpsi.patchInternalField());
+    }
+
+    if (secondOrder_)
+    {
+        //- TODO: add tamplatable second order gradient
+        scalarField nGradpsiP = (n&gradpsi.patchInternalField());
+
+        Field<scalar>::operator=
+        (
+            this->patchInternalField() + dpsiP
+          + 0.5*(gradient() + nGradpsiP)/this->patch().deltaCoeffs()
+        );
+    }
+    else
+    {
+            Field<scalar>::operator=
+            (
+                this->patchInternalField() + dpsiP
+              + gradient()/this->patch().deltaCoeffs()
+            );
+    }
+
+    updatePhi();
+
+    fvPatchField<scalar>::evaluate();
+}
+
+template<>
+void Foam::genericRegionCoupledFluxFvPatchField<Foam::vector>::evaluate
+(
+  const Pstream::commsTypes
+)
+{
+    if (!this->updated())
+    {
+        this->updateCoeffs();
+    }
+
+    fixedGradientFvPatchVectorField::evaluate();
+
+    const fvPatchField<tensor>& gradpsi =
+    patch().lookupPatchField<volTensorField, tensor>
+    (
+        "grad(" + psiName_ + ")"
+    );
+
+    vectorField n = this->patch().nf();
+    vectorField delta = this->patch().delta();
+    vectorField k = delta - n*(n&delta);
+
+    vectorField dpsiP(this->patch().size(), vector::zero);
+
+    if (nonOrthCorr_)
+    {
+        //- TODO: Add tamplatable nonOrth correction
+        dpsiP = (k&gradpsi.patchInternalField());
+    }
+
+    if (secondOrder_)
+    {
+        //- TODO: add tamplatable second order gradient
+        vectorField nGradpsiP = (n&gradpsi.patchInternalField());
+
+        Field<vector>::operator=
+        (
+            this->patchInternalField() + dpsiP
+          + 0.5*(gradient() + nGradpsiP)/this->patch().deltaCoeffs()
+        );
+    }
+    else
+    {
+            Field<vector>::operator=
+            (
+                this->patchInternalField() + dpsiP
+              + gradient()/this->patch().deltaCoeffs()
+            );
+    }
+
+    updatePhi();
+
+    fvPatchField<vector>::evaluate();
+}
 
 // ************************************************************************* //

@@ -200,6 +200,19 @@ public:
         virtual void write(Ostream&) const;
 };
 
+//- Specialisations
+template<>
+tmp<Field<scalar> > genericRegionCoupledJumpFvPatchField<scalar>::snGrad() const;
+
+template<>
+tmp<Field<vector> > genericRegionCoupledJumpFvPatchField<vector>::snGrad() const;
+
+template<>
+tmp<Field<scalar> > genericRegionCoupledJumpFvPatchField<scalar>::gradientBoundaryCoeffs() const;
+
+template<>
+tmp<Field<vector> > genericRegionCoupledJumpFvPatchField<vector>::gradientBoundaryCoeffs() const;
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

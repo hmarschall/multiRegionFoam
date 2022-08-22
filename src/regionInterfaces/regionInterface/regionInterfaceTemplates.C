@@ -31,6 +31,7 @@ License
 namespace Foam
 {
 
+
 template<>
 tmp<Field<scalar> > regionInterface::transferFacesFromA
 (
@@ -76,6 +77,8 @@ tmp<Field<vector> > regionInterface::transferFacesFromA
 
     return ttoField;
 }
+
+
 
 template<>
 tmp<Field<scalar> > regionInterface::transferFacesFromB

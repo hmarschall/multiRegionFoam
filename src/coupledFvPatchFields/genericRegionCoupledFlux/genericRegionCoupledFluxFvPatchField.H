@@ -190,6 +190,19 @@ public:
         virtual void write(Ostream&) const;
 };
 
+//-Specialisations
+template<>
+void genericRegionCoupledFluxFvPatchField<scalar>::evaluate
+(
+    const Pstream::commsTypes
+);
+
+template<>
+void genericRegionCoupledFluxFvPatchField<vector>::evaluate
+(
+    const Pstream::commsTypes
+);
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

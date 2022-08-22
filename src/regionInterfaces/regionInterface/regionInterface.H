@@ -448,49 +448,13 @@ public:
             tmp<Field<Type> > transferFacesFromA
             (
                 const Field<Type>& fromField
-            ) const
-            {
-                notImplemented
-                (
-                    "regionInterfaceTemplates.C\n"
-                    "tmp<Field<Type> > regionInterface::transferFacesFromA\n"
-                    "(\n"
-                    "const Field<Type>& fromField\n"
-                    ") const\n"
-                    "not implemented"
-                );
-
-                tmp<Field<Type> > ttoField
-                (
-                    new Field<Type>(globalPatchB().globalPatch().size())
-                );
-
-                return ttoField;
-            }
+            ) const;
 
             template<class Type>
             tmp<Field<Type> > transferFacesFromB
             (
                 const Field<Type>& fromField
-            ) const
-            {
-                notImplemented
-                (
-                    "regionInterfaceTemplates.C\n"
-                    "tmp<Field<Type> > regionInterface::transferFacesFromB\n"
-                    "(\n"
-                    "const Field<Type>& fromField\n"
-                    ") const\n"
-                    "not implemented"
-                );
-
-                tmp<Field<Type> > ttoField
-                (
-                    new Field<Type>(globalPatchA().globalPatch().size())
-                );
-
-                return ttoField;
-            }
+            ) const;
 
 
         // Edit
@@ -525,6 +489,79 @@ public:
             // Update on topology change
             bool updateMesh(const mapPolyMesh&) const;
 };
+
+template<class Type>
+tmp<Field<Type> > regionInterface::transferFacesFromA
+(
+    const Field<Type>& fromField
+) const
+{
+    notImplemented
+    (
+        "regionInterfaceTemplates.C\n"
+        "tmp<Field<Type> > regionInterface::transferFacesFromA\n"
+        "(\n"
+        "const Field<Type>& fromField\n"
+        ") const\n"
+        "not implemented"
+    );
+
+    tmp<Field<Type> > ttoField
+    (
+        new Field<Type>(globalPatchB().globalPatch().size())
+    );
+
+    return ttoField;
+}
+
+template<class Type>
+tmp<Field<Type> > regionInterface::transferFacesFromB
+(
+    const Field<Type>& fromField
+) const
+{
+    notImplemented
+    (
+        "regionInterfaceTemplates.C\n"
+        "tmp<Field<Type> > regionInterface::transferFacesFromB\n"
+        "(\n"
+        "const Field<Type>& fromField\n"
+        ") const\n"
+        "not implemented"
+    );
+
+    tmp<Field<Type> > ttoField
+    (
+        new Field<Type>(globalPatchA().globalPatch().size())
+    );
+
+    return ttoField;
+}
+
+//-Specialisations
+template<>
+tmp<Field<scalar> > regionInterface::transferFacesFromA
+(
+    const Field<scalar>& fromField
+) const;
+
+template<>
+tmp<Field<vector> > regionInterface::transferFacesFromA
+(
+    const Field<vector>& fromField
+) const;
+
+template<>
+tmp<Field<scalar> > regionInterface::transferFacesFromB
+(
+    const Field<scalar>& fromField
+) const;
+
+template<>
+tmp<Field<vector> > regionInterface::transferFacesFromB
+(
+    const Field<vector>& fromField
+) const;
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
