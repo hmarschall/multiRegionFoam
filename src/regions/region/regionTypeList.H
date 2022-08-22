@@ -106,9 +106,6 @@ public:
         //- Solve region-inherent physics
         void solveRegion();
 
-        //- Solve pressure-velocity system using PIMPLE
-        void solvePIMPLE();
-
         //- Set equations for coupled solution
         void setCoupledEqns();
 

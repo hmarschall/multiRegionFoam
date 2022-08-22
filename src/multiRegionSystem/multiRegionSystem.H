@@ -92,6 +92,9 @@ class multiRegionSystem
 
     // Private member functions
 
+        //- Solve pressure-velocity system using PIMPLE
+        void solvePIMPLE();
+
         //- assemble and solve blockMatrix system
         template<class T>
         void assembleCoupledFields

@@ -57,6 +57,27 @@ const Foam::NamedEnum
 
 // * * * * * * * * * * * * * * * Private functions * * * * * * * * * * * * * //
 
+void Foam::multiRegionSystem::solvePIMPLE()
+{
+    forAll (regions_(), regI)
+    {
+        regionType& rg = const_cast<regionType&>(regions_()[regI]);
+        rg.prePredictor();
+    }
+
+    forAll (regions_(), regI)
+    {
+        regionType& rg = const_cast<regionType&>(regions_()[regI]);
+        rg.momentumPredictor();
+    }
+
+    forAll (regions_(), regI)
+    {
+        regionType& rg = const_cast<regionType&>(regions_()[regI]);
+        rg.pressureCorrector();
+    }   
+}
+
 template< template<class> class M, class T>
 void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
 (
@@ -377,13 +398,17 @@ void Foam::multiRegionSystem::solve()
 
     interfaces_->detach();
 
-    // Solve each region physics
+    // Solve each inherent region physics
     regions_->solveRegion();
 
-    // Solve pressure-velocity system using PIMPLE
-    regions_->solvePIMPLE();
-
     // Solve region-region coupling (partitioned)
+    // - Solve pressure-velocity system using PIMPLE
+    for (int coupleIter=1; coupleIter<=maxCoupleIter_; coupleIter++)
+    {
+        solvePIMPLE();
+    }
+
+    // - Solve other interface coupled fields   
     forAll (fldNames_[0], fldI)
     {
         word fldName = fldNames_[0][fldI];
