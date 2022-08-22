@@ -14,6 +14,10 @@ $(regions)/transportTemperature/transportTemperature.C
 $(regions)/gasDiffusionLayer/gasDiffusionLayer.C
 $(regions)/ionomer/ionomer.C
 $(regions)/catalystLayer/catalystLayer.C
+$(regions)/anodicGDL/anodicGDL.C
+$(regions)/cathodicGDL/cathodicGDL.C
+$(regions)/anodicCL/anodicCL.C
+$(regions)/cathodicCL/cathodicCL.C
 
 ../regionProperties/regionProperties.C
 ../regionInterfaceProperties/regionInterfaceProperties.C

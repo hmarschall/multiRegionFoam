@@ -24,12 +24,11 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "fvCFD.H"
-#include "ionomer.H"
+#include "anodicGDL.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
-#include "ionomerParameters.H"
+#include "anodicGDLParameters.H"
 #include "globalFCParameters.H"
-
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -37,12 +36,12 @@ namespace Foam
 {
 namespace regionTypes
 {
-    defineTypeNameAndDebug(ionomer, 0);
+    defineTypeNameAndDebug(anodicGDL, 0);
 
     addToRunTimeSelectionTable
     (
         regionType,
-        ionomer,
+        anodicGDL,
         dictionary
     );
 }
@@ -50,31 +49,27 @@ namespace regionTypes
 
 // * * * * * * * * * * * * * * * Private Functions * * * * * * * * * * * * * //
 
-void Foam::regionTypes::ionomer::updateIonomerProperties()
+void Foam::regionTypes::anodicGDL::updateGasSpeciesTransportProperties()
 {
-    // Diffusion coefficient of water through ionomer
-    DLambda_() = (3.842*pow(lambda_(),3) - 32.03*sqr(lambda_()) + 67.75*lambda_())/(pow(lambda_(),3) - 2.115*sqr(lambda_()) - 33.013*lambda_() + 103.37)*DLambda0_*exp(ELambda_/RGas_*((1/TRef_) - (1/T_())));
+    // ideal gas concentration
+    c_ = p_/(RGas_*T_());
 
-    // electro-osmotic drag coefficient
-    xi_ = 2.5*lambda_()/22;
+    // effective diffusion coefficient hydrogen
+    DEffH2_() = epsilonP_/sqr(tau_)*DH2_*pow((T_()/TRef_),1.5)*(pRef_/p_);
 
-    // volume fraction water
-    f_ = lambda_()*VW_/(lambda_()*VW_ + VM_);
-    fCond_ = fComp_;
-
-    // protonic conductivity
-    kappa_() = pow(pos(fCond_)*fCond_,1.5)*kappa0_*exp(EKappa_/RGas_*((1/TRef_) - (1/T_())));
+    // effective diffusion coefficient vapor
+    DEffV_() = epsilonP_/sqr(tau_)*DV_*pow((T_()/TRef_),1.5)*(pRef_/p_);
 }
 
-void Foam::regionTypes::ionomer::updateSourceTerms()
+void Foam::regionTypes::anodicGDL::updateSourceTerms()
 {
-    // heat source - joule heating protons
-    sT_ = (kappa_()*(fvc::grad(phiP_())&fvc::grad(phiP_())))/T_();
-}	
+    // heat Source - joule heating electrons
+    sT_ = (sigma_()*(fvc::grad(phiE_())&fvc::grad(phiE_())))/T_();
+}
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::regionTypes::ionomer::ionomer
+Foam::regionTypes::anodicGDL::anodicGDL
 (
     const Time& runTime,
     const word& regionName
@@ -120,50 +115,27 @@ Foam::regionTypes::ionomer::ionomer
     cv_(transportProperties_.lookup("cv")),
     rho_(transportProperties_.lookup("rho")),
     k_(nullptr),
-    kappa_(nullptr),
-    VW_(materialProperties_.lookup("VW")),
-    VM_(materialProperties_.lookup("VM")),
-    RH_(operatingConditions_.lookup("RH")),
-    DLambda_(nullptr),
-    f_
+    sigma_(nullptr),
+    DH2_(transportProperties_.lookup("DH2")),
+    DV_(transportProperties_.lookup("DV")),
+    epsilonP_(materialProperties_.lookup("epsilonP")),
+    tau_(materialProperties_.lookup("tau")),
+    p_(operatingConditions_.lookup("p")),
+    c_
     (
         IOobject
         (
-           "f",
-           mesh().time().timeName(),
-           mesh(),
-           IOobject::READ_IF_PRESENT,
-           IOobject::NO_WRITE
-        ),
-        mesh(),
-        dimensionedScalar("f0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.26)
-    ),
-    fCond_
-    (
-        IOobject
-        (
-            "fCond",
+            "c",
             mesh().time().timeName(),
             mesh(),
             IOobject::READ_IF_PRESENT,
             IOobject::NO_WRITE
         ),
         mesh(),
-        dimensionedScalar("f0_", dimensionSet(0, 0, 0, 0, 0, 0, 0), 0.2)
+        dimensionedScalar("c0", dimensionSet(0, -3, 0, 0, 1, 0, 0), 52)
     ),
-    xi_
-    (
-        IOobject
-        (
-            "xi",
-            mesh().time().timeName(),
-            mesh(),
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        mesh(),
-        dimensionedScalar("xi0", dimensionSet(0, 0, 0, 0, 0, 0, 0), 1.1)
-    ),
+    DEffH2_(nullptr),
+    DEffV_(nullptr),
     sT_
     (
         IOobject
@@ -177,22 +149,10 @@ Foam::regionTypes::ionomer::ionomer
         mesh(),
         dimensionedScalar("sT0", dimensionSet(1, -1, -3, -1, 0, 0, 0), 0)
     ),
-    sLambda_
-    (
-        IOobject
-        (
-            "sLambda",
-            mesh().time().timeName(),
-            mesh(),
-            IOobject::READ_IF_PRESENT,
-            IOobject::NO_WRITE
-        ),
-        mesh(),
-        dimensionedScalar("sLambda0", dimensionSet(0, -3, -1, 0, 1, 0, 0), 0)
-    ),
     T_(nullptr),
-    phiP_(nullptr),
-    lambda_(nullptr)
+    phiE_(nullptr),
+    xH2_(nullptr),
+    xV_(nullptr)
 {
     k_.reset
     (
@@ -211,37 +171,54 @@ Foam::regionTypes::ionomer::ionomer
         )
     );
 
-    kappa_.reset
+    sigma_.reset
     (
         new volScalarField
         (
             IOobject
             (
-                "kappa",
+                "sigma",
                 mesh().time().timeName(),
                 mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
             mesh(),
-            dimensionedScalar("kappaInit", dimensionSet(-1, -3, 3, 0, 0, 2, 0), 3)
+            dimensionedScalar(transportProperties_.lookup("sigma"))
         )
     );
 
-    DLambda_.reset
+    DEffH2_.reset
     (
         new volScalarField
         (
             IOobject
             (
-                "DLambda",
+                "DEffH2",
                 mesh().time().timeName(),
                 mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
             mesh(),
-            DLambda0_
+            DH2_
+        )
+    );
+
+    DEffV_.reset
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "DEffV",
+                mesh().time().timeName(),
+                mesh(),
+                IOobject::READ_IF_PRESENT,
+                IOobject::NO_WRITE
+            ),
+            mesh(),
+            DV_
         )
     );
 
@@ -261,13 +238,13 @@ Foam::regionTypes::ionomer::ionomer
         )
     );
 
-    phiP_.reset
+    phiE_.reset
     (
         new volScalarField
         (
             IOobject
             (
-                "phiP",
+                "phiE",
                 mesh().time().timeName(),
                 mesh(),
                 IOobject::MUST_READ,
@@ -277,13 +254,29 @@ Foam::regionTypes::ionomer::ionomer
         )
     );
 
-    lambda_.reset
+    xH2_.reset
     (
         new volScalarField
         (
             IOobject
             (
-                "lambda",
+                "xH2",
+                mesh().time().timeName(),
+                mesh(),
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh()
+        )
+    );
+
+    xV_.reset
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "xV",
                 mesh().time().timeName(),
                 mesh(),
                 IOobject::MUST_READ,
@@ -295,40 +288,45 @@ Foam::regionTypes::ionomer::ionomer
 
     // thermal conductivity
     k_() = dimensionedScalar(transportProperties_.lookup("k"));
-
+    // electric conducivity
+    sigma_() = dimensionedScalar(transportProperties_.lookup("sigma"));
+    
+    
 }
+
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
-Foam::regionTypes::ionomer::~ionomer()
+Foam::regionTypes::anodicGDL::~anodicGDL()
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::regionTypes::ionomer::correct()
+void Foam::regionTypes::anodicGDL::correct()
 {
     // do nothing, add as required
 }
 
 
-void Foam::regionTypes::ionomer::setRDeltaT()
+void Foam::regionTypes::anodicGDL::setRDeltaT()
 {
     // do nothing, add as required
 }
 
 
-void Foam::regionTypes::ionomer::setCoupledEqns()
+void Foam::regionTypes::anodicGDL::setCoupledEqns()
 {
     if (runTime().timeIndex() != 0)
     {
-        // update variables
-        // ionomer properties
-        updateIonomerProperties();
-
+        // update fields
+        // gas species transport
+        updateGasSpeciesTransportProperties();
+    
         // source terms
         updateSourceTerms();
     }
 
+    // set Eqns
     // fourier heat conduction
     fvScalarMatrix TEqn =
     (
@@ -338,20 +336,28 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
         - fvm::SuSp(-sT_, T_())
     );
 
-    // ohm's law for protons
-    fvScalarMatrix phiPEqn =
+    // ohm's law for electrons
+    fvScalarMatrix phiEEqn =
     (
-        -fvm::laplacian(kappa_(), phiP_(), "laplacian(kappa,phiP)")
+        -fvm::laplacian(sigma_(), phiE_(), "laplacian(sigma,phiE)")
     );
 
-    // water transport in ionomer
-    fvScalarMatrix lambdaEqn =
+    // fick diffusion for hydrogen
+    fvScalarMatrix xH2Eqn =
     (
-          1/VM_*fvm::ddt(lambda_())
-        - fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")
-        + fvc::laplacian(xi_*kappa_()/FConst_, phiP_(), "laplacian(kappa,phiP)") 
+          c_*fvm::ddt(xH2_())
+        ==
+          fvm::laplacian(c_*DEffH2_(), xH2_(), "laplacian(D,x)")
     );
-    
+
+    // fick diffusion for vapor
+    fvScalarMatrix xVEqn =
+    (
+          c_*fvm::ddt(xV_())
+        ==
+          fvm::laplacian(c_*DEffV_(), xV_(), "laplacian(D,x)")
+    );
+
     fvScalarMatrices.set
     (
         T_().name() + mesh().name() + "Eqn",
@@ -360,39 +366,29 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
 
     fvScalarMatrices.set
     (
-        phiP_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(phiPEqn)
+        phiE_().name() + mesh().name() + "Eqn",
+        new fvScalarMatrix(phiEEqn)
     );
 
     fvScalarMatrices.set
     (
-        lambda_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(lambdaEqn)
+        xH2_().name() + mesh().name() + "Eqn",
+        new fvScalarMatrix(xH2Eqn)
+    );
+
+    fvScalarMatrices.set
+    (
+        xV_().name() + mesh().name() + "Eqn",
+        new fvScalarMatrix(xVEqn)
     );
 }
 
-void Foam::regionTypes::ionomer::updateFields()
+void Foam::regionTypes::anodicGDL::updateFields()
 {
-    Info<< "Temperature = "
-            << T_().weightedAverage(mesh().V()).value()
-            << " Min(T) = " << min(T_()).value()
-            << " Max(T) = " << max(T_()).value()
-            << endl;
-
-    Info<< "Water content = "
-            << lambda_().weightedAverage(mesh().V()).value()
-            << " Min(lambda) = " << min(lambda_()).value()
-            << " Max(lambda) = " << max(lambda_()).value()
-            << endl;
-
-    Info<< "Electrolye Potential = "
-            << phiP_().weightedAverage(mesh().V()).value()
-            << " Min(phiP) = " << min(phiP_()).value()
-            << " Max(phiP) = " << max(phiP_()).value()
-            << endl;
+    
 }
 
-void Foam::regionTypes::ionomer::solveRegion()
+void Foam::regionTypes::anodicGDL::solveRegion()
 {
     // do nothing, add as required
 }

@@ -22,15 +22,15 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::catalystLayer.C
+    Foam::cathodicCL.C
 
 SourceFiles
-    catalystLayer.C
+    cathodicCL.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef catalystLayer_H
-#define catalystLayer_H
+#ifndef cathodicCL_H
+#define cathodicCL_H
 
 #include "regionType.H"
 #include "dimensionedScalar.H"
@@ -48,10 +48,10 @@ namespace regionTypes
 {
 
 /*---------------------------------------------------------------------------*\
-                  Class catalystLayer Declaration
+                  Class cathodicCL Declaration
 \*---------------------------------------------------------------------------*/
 
-class catalystLayer
+class cathodicCL
 :
     public regionType
 {
@@ -69,9 +69,6 @@ class catalystLayer
 
         //- operating conditions dictionary
         IOdictionary operatingConditions_;
-
-        //- electrodeType (anodic or cathodic)
-        word electrodeType_;
 
         //- specific heat
         dimensionedScalar cv_;
@@ -93,9 +90,6 @@ class catalystLayer
 
         //- diffusion coefficient oxygen
         dimensionedScalar DO2_;
-
-        //- diffusion coefficient hydrogen
-        dimensionedScalar DH2_;
 
         // diffusion coefficient vapor
         dimensionedScalar DV_;
@@ -174,9 +168,6 @@ class catalystLayer
 
         //- effective diffusion coefficient oxygen
         autoPtr<volScalarField> DEffO2_;
-
-        //- effective diffusion coefficient hydrogen
-        autoPtr<volScalarField> DEffH2_;
 
         //- effective diffusion coefficient vapor
         autoPtr<volScalarField> DEffV_;
@@ -263,9 +254,6 @@ protected:
         //- oxygen mole fraction
         autoPtr<volScalarField> xO2_;
 
-        //- hydrogen mole fraction
-        autoPtr<volScalarField> xH2_;
-
 	//- vapor mole fraction
         autoPtr<volScalarField> xV_;
 
@@ -274,18 +262,18 @@ protected:
 
 public:
 
-    TypeName("catalystLayer");
+    TypeName("cathodicCL");
 
     // Constructors
 
-        catalystLayer
+        cathodicCL
         (
             const Time& runTime,
             const word& regionName
         );
 
     //- Destructor
-    virtual ~catalystLayer();
+    virtual ~cathodicCL();
 
 
     // Member Functions
@@ -339,16 +327,6 @@ public:
         volScalarField& xO2()
         {
             return xO2_();
-        }
-
-        const volScalarField& xH2() const
-        {
-            return xH2_();
-        }
-
-        volScalarField& xH2()
-        {
-            return xH2_();
         }
 
         const volScalarField& xV() const

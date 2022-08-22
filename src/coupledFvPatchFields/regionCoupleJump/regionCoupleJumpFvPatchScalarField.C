@@ -42,7 +42,8 @@ regionCoupleJumpFvPatchScalarField
     fixedValueFvPatchScalarField(p, iF),
     coupleManager_(p),
     kName_("none"),
-    K_(0)
+    K_(0),
+    relax_(0)
 {}
 
 
@@ -58,7 +59,8 @@ regionCoupleJumpFvPatchScalarField
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
     coupleManager_(ptf.coupleManager_),
     kName_(ptf.kName_),
-    K_(ptf.K_)
+    K_(ptf.K_),
+    relax_(ptf.relax_)
 {}
 
 
@@ -75,6 +77,14 @@ regionCoupleJumpFvPatchScalarField
     kName_(dict.lookup("k")),
     K_(readScalar(dict.lookup("K")))
 {
+    if (dict.found("relax"))
+    {
+	relax_ = readScalar(dict.lookup("relax"));
+    }
+    else
+    {
+        relax_ = 0.2;
+    }
     if (dict.found("value"))
     {
         fvPatchField<scalar>::operator=
@@ -99,7 +109,8 @@ regionCoupleJumpFvPatchScalarField
     fixedValueFvPatchScalarField(wtcsf, iF),
     coupleManager_(wtcsf.coupleManager_),
     kName_(wtcsf.kName_),
-    K_(wtcsf.K_)
+    K_(wtcsf.K_),
+    relax_(wtcsf.relax_)
 {}
 
 
@@ -125,14 +136,8 @@ void Foam::regionCoupleJumpFvPatchScalarField::updateCoeffs()
 //    const dictionary& coupledSolutionDict =
 //        db().time().lookupObject<IOdictionary>("coupledSolutionDict");
 
-//    const scalar& relax =
-//        readScalar(coupledSolutionDict
-//        .subDict("partitioned").lookup("coupleRelaxFactor"));
-
-    scalar relax = 0.5;
-
     // Enforce psi boundary condition
-    operator==(*this + relax*(K_*psiNbr2Own - *this));
+    operator==(*this + relax_*(K_*psiNbr2Own - *this));
 
     fixedValueFvPatchScalarField::updateCoeffs();
 }

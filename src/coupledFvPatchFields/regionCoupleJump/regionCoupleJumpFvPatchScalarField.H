@@ -40,6 +40,7 @@ Description
             neighbourFieldName      Psi;
             k			    kName;
 	    K			    1.0E0;
+	    relax		    0.5;
             value                   uniform 0;
         }
 
@@ -78,6 +79,9 @@ class regionCoupleJumpFvPatchScalarField
 
         //- "Jump" or "resistive" condition
         scalar K_;
+
+        //- under-relaxation factor
+        scalar relax_;
 
 
 public:

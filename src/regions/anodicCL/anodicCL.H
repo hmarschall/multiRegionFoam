@@ -22,15 +22,15 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::catalystLayer.C
+    Foam::anodicCL.C
 
 SourceFiles
-    catalystLayer.C
+    anodicCL.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef catalystLayer_H
-#define catalystLayer_H
+#ifndef anodicCL_H
+#define anodicCL_H
 
 #include "regionType.H"
 #include "dimensionedScalar.H"
@@ -48,10 +48,10 @@ namespace regionTypes
 {
 
 /*---------------------------------------------------------------------------*\
-                  Class catalystLayer Declaration
+                  Class anodicCL Declaration
 \*---------------------------------------------------------------------------*/
 
-class catalystLayer
+class anodicCL
 :
     public regionType
 {
@@ -70,17 +70,11 @@ class catalystLayer
         //- operating conditions dictionary
         IOdictionary operatingConditions_;
 
-        //- electrodeType (anodic or cathodic)
-        word electrodeType_;
-
         //- specific heat
         dimensionedScalar cv_;
 
         //- density
         dimensionedScalar rho_;
-
-        //- permeability
-        dimensionedScalar K0_;
 
         //- thermal conductivity
         autoPtr<volScalarField> k_;
@@ -90,9 +84,6 @@ class catalystLayer
 
         //- protonic conductivity
         autoPtr<volScalarField> kappa_;
-
-        //- diffusion coefficient oxygen
-        dimensionedScalar DO2_;
 
         //- diffusion coefficient hydrogen
         dimensionedScalar DH2_;
@@ -121,12 +112,6 @@ class catalystLayer
         //- molar volume of membrane
         dimensionedScalar VM_;
 
-        //- irreducible saturation
-        dimensionedScalar sIm_;
-
-        //- liquid gas exchange area
-        dimensionedScalar aLG_;
-
         //- pt Loading
         dimensionedScalar a_;
 
@@ -135,9 +120,6 @@ class catalystLayer
 
         //- reaction entropy
         dimensionedScalar deltaS_;
-
-        //- reaction enthalpy
-        dimensionedScalar deltaH_;
 
         //- reaction activation energy
         dimensionedScalar ER_;
@@ -172,32 +154,14 @@ class catalystLayer
         //- total gas species concentration
         volScalarField c_;
 
-        //- effective diffusion coefficient oxygen
-        autoPtr<volScalarField> DEffO2_;
-
         //- effective diffusion coefficient hydrogen
         autoPtr<volScalarField> DEffH2_;
 
         //- effective diffusion coefficient vapor
         autoPtr<volScalarField> DEffV_;
 
-        //- reduced liquid water saturation
-        volScalarField sRed_;
-
         //- saturation vapor fraction
         volScalarField xVSat_;
-
-        //- permeability
-        autoPtr<volScalarField> K_;
-
-        //- dynamic viscosity of liquid water
-        volScalarField mu_;
-
-        //- capillary pressure derived after saturation
-        volScalarField dpCds_;
-
-        //- evaporation/condensation rate
-        volScalarField gamma_;
 
         //- reaction exchange current density
         volScalarField j0_;
@@ -223,9 +187,6 @@ class catalystLayer
         //- mass source vapor
         volScalarField sV_;
 
-        //- mass source liquid water
-        volScalarField ss_;
-
     // Private member functions
 
         //- update ionomer properties
@@ -233,9 +194,6 @@ class catalystLayer
 
         //- update gas species transport parameters
         void updateGasSpeciesTransportProperties();
-
-        //- update liquid water transport properties
-        void updateLiquidWaterTransportProperties();
 
         //- update ab-/desorption
         void updateAbsorptionDesorption();
@@ -260,32 +218,26 @@ protected:
         //- water content in ionomer
         autoPtr<volScalarField> lambda_;
 
-        //- oxygen mole fraction
-        autoPtr<volScalarField> xO2_;
-
         //- hydrogen mole fraction
         autoPtr<volScalarField> xH2_;
 
 	//- vapor mole fraction
         autoPtr<volScalarField> xV_;
 
-        //- saturation
-        autoPtr<volScalarField> s_;
-
 public:
 
-    TypeName("catalystLayer");
+    TypeName("anodicCL");
 
     // Constructors
 
-        catalystLayer
+        anodicCL
         (
             const Time& runTime,
             const word& regionName
         );
 
     //- Destructor
-    virtual ~catalystLayer();
+    virtual ~anodicCL();
 
 
     // Member Functions
@@ -331,16 +283,6 @@ public:
             return lambda_();
         }
 
-        const volScalarField& xO2() const
-        {
-            return xO2_();
-        }
-
-        volScalarField& xO2()
-        {
-            return xO2_();
-        }
-
         const volScalarField& xH2() const
         {
             return xH2_();
@@ -359,16 +301,6 @@ public:
         volScalarField& xV()
         {
             return xV_();
-        }
-
-        const volScalarField& s() const
-        {
-            return s_();
-        }
-
-        volScalarField& s()
-        {
-            return s_();
         }
 
         virtual bool active() const

@@ -22,15 +22,15 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::catalystLayer.C
+    Foam::cathodicGDL.C
 
 SourceFiles
-    catalystLayer.C
+    cathodicGDL.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef catalystLayer_H
-#define catalystLayer_H
+#ifndef cathodicGDL_H
+#define cathodicGDL_H
 
 #include "regionType.H"
 #include "dimensionedScalar.H"
@@ -48,10 +48,10 @@ namespace regionTypes
 {
 
 /*---------------------------------------------------------------------------*\
-                  Class catalystLayer Declaration
+                  Class cathodicGDL Declaration
 \*---------------------------------------------------------------------------*/
 
-class catalystLayer
+class cathodicGDL
 :
     public regionType
 {
@@ -64,14 +64,8 @@ class catalystLayer
         //- material properties dictionary 
         IOdictionary materialProperties_;
 
-        //- electrochemical properties dictionary
-        IOdictionary electrochemicalProperties_;
-
         //- operating conditions dictionary
         IOdictionary operatingConditions_;
-
-        //- electrodeType (anodic or cathodic)
-        word electrodeType_;
 
         //- specific heat
         dimensionedScalar cv_;
@@ -88,16 +82,10 @@ class catalystLayer
         //- electric conductivity
         autoPtr<volScalarField> sigma_;
 
-        //- protonic conductivity
-        autoPtr<volScalarField> kappa_;
-
         //- diffusion coefficient oxygen
         dimensionedScalar DO2_;
 
-        //- diffusion coefficient hydrogen
-        dimensionedScalar DH2_;
-
-        // diffusion coefficient vapor
+        //- diffusion coefficient vapor
         dimensionedScalar DV_;
 
         //- porosity
@@ -106,20 +94,11 @@ class catalystLayer
         //- tortuosity
         dimensionedScalar tau_;
 
-        //- ionomer content
-        dimensionedScalar epsilonI_;
-
-        //- layer thickness
-        dimensionedScalar d_;
-
         //- molecular weight water;
         dimensionedScalar MW_;
 
         //- molar volume of liquid water
         dimensionedScalar VW_;
-
-        //- molar volume of membrane
-        dimensionedScalar VM_;
 
         //- irreducible saturation
         dimensionedScalar sIm_;
@@ -127,56 +106,17 @@ class catalystLayer
         //- liquid gas exchange area
         dimensionedScalar aLG_;
 
-        //- pt Loading
-        dimensionedScalar a_;
-
-        //- symmetry factor
-        dimensionedScalar beta_;
-
-        //- reaction entropy
-        dimensionedScalar deltaS_;
-
-        //- reaction enthalpy
-        dimensionedScalar deltaH_;
-
-        //- reaction activation energy
-        dimensionedScalar ER_;
-
-        //- pre factor exchange current density
-        dimensionedScalar jStern_;
-
         //- opearting pressure
         dimensionedScalar p_;
 
         //- relative humidity
         dimensionedScalar RH_;
 
-        //- diffusion coefficient water in ionomer
-        autoPtr<volScalarField> DLambda_;
-
-        //- volume fraction of water in membrane
-        volScalarField f_;
-
-        //- volume fraction of water in membrane for protonic conductivity
-        volScalarField fCond_;
-
-        //- electro-osmotic drag coefficient
-        volScalarField xi_;
-
-        //- equilibrium water content in ionomer
-        volScalarField lambdaEq_;
-
-        //- ab-/desorption rate
-        volScalarField kSorp_;
-
         //- total gas species concentration
         volScalarField c_;
 
         //- effective diffusion coefficient oxygen
         autoPtr<volScalarField> DEffO2_;
-
-        //- effective diffusion coefficient hydrogen
-        autoPtr<volScalarField> DEffH2_;
 
         //- effective diffusion coefficient vapor
         autoPtr<volScalarField> DEffV_;
@@ -187,7 +127,7 @@ class catalystLayer
         //- saturation vapor fraction
         volScalarField xVSat_;
 
-        //- permeability
+        //- reduced permeability
         autoPtr<volScalarField> K_;
 
         //- dynamic viscosity of liquid water
@@ -199,26 +139,8 @@ class catalystLayer
         //- evaporation/condensation rate
         volScalarField gamma_;
 
-        //- reaction exchange current density
-        volScalarField j0_;
-
-        //- Galvani potential difference
-        volScalarField deltaPhi_;
-
-        //- reversible potential difference
-        volScalarField deltaPhi0_;
-
-        //- overpotential
-        volScalarField eta_;
-
-        //- volumetric current density source
-        volScalarField j_;
-
         //- heat sources
         volScalarField sT_;
-
-        //- mass source water in ionomer
-        volScalarField sLambda_;
 
         //- mass source vapor
         volScalarField sV_;
@@ -226,22 +148,13 @@ class catalystLayer
         //- mass source liquid water
         volScalarField ss_;
 
-    // Private member functions
-
-        //- update ionomer properties
-	void updateIonomerProperties();
+    // Private member functions	
 
         //- update gas species transport parameters
         void updateGasSpeciesTransportProperties();
 
         //- update liquid water transport properties
         void updateLiquidWaterTransportProperties();
-
-        //- update ab-/desorption
-        void updateAbsorptionDesorption();
-
-        //- update electrochemistry
-        void updateElectrochemistry();
 
         //- update source terms
         void updateSourceTerms();
@@ -254,19 +167,10 @@ protected:
         //- electric Potential
         autoPtr<volScalarField> phiE_;	
 
-        //- electrolyte Potential
-        autoPtr<volScalarField> phiP_;
-
-        //- water content in ionomer
-        autoPtr<volScalarField> lambda_;
-
         //- oxygen mole fraction
         autoPtr<volScalarField> xO2_;
 
-        //- hydrogen mole fraction
-        autoPtr<volScalarField> xH2_;
-
-	//- vapor mole fraction
+        //- vapor mole fraction
         autoPtr<volScalarField> xV_;
 
         //- saturation
@@ -274,18 +178,18 @@ protected:
 
 public:
 
-    TypeName("catalystLayer");
+    TypeName("cathodicGDL");
 
     // Constructors
 
-        catalystLayer
+        cathodicGDL
         (
             const Time& runTime,
             const word& regionName
         );
 
     //- Destructor
-    virtual ~catalystLayer();
+    virtual ~cathodicGDL();
 
 
     // Member Functions
@@ -311,26 +215,6 @@ public:
             return phiE_();
         }
 
-        const volScalarField& phiP() const
-        {
-            return phiP_();
-        }
-
-        volScalarField& phiP()
-        {
-            return phiP_();
-        }
-
-        const volScalarField& lambda() const
-        {
-            return lambda_();
-        }
-
-        volScalarField& lambda()
-        {
-            return lambda_();
-        }
-
         const volScalarField& xO2() const
         {
             return xO2_();
@@ -339,16 +223,6 @@ public:
         volScalarField& xO2()
         {
             return xO2_();
-        }
-
-        const volScalarField& xH2() const
-        {
-            return xH2_();
-        }
-
-        volScalarField& xH2()
-        {
-            return xH2_();
         }
 
         const volScalarField& xV() const
@@ -383,7 +257,7 @@ public:
         virtual void solveRegion();
 
         virtual void setCoupledEqns();
-
+	
         virtual void updateFields();
 };
 
