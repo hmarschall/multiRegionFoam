@@ -325,13 +325,7 @@ Foam::multiRegionSystem::multiRegionSystem
     tensorFlds_(2),
     vector4Flds_(2),
 
-    fldNames_(2),
-
-    maxCoupleIter_
-    (
-        this->subDict("partitionedCoupling")
-        .lookupOrDefault<label>("maxCoupleIter", 50)
-    )
+    fldNames_(2)
 {
     Info << "Creating regions:" << endl;
     regions_.set
@@ -403,9 +397,13 @@ void Foam::multiRegionSystem::solve()
 
     // Solve region-region coupling (partitioned)
     // - Solve pressure-velocity system using PIMPLE
-    for (int coupleIter=1; coupleIter<=maxCoupleIter_; coupleIter++)
+    if (fldNames_[0].contains("Up"))
     {
-        solvePIMPLE();
+        dnaControl dna(runTime_, "Up", interfaces());
+        while (dna.loop())
+        {
+            solvePIMPLE();
+        }
     }
 
     // - Solve other interface coupled fields   
@@ -414,7 +412,8 @@ void Foam::multiRegionSystem::solve()
         word fldName = fldNames_[0][fldI];
 
         // outer coupling loop
-        for (int coupleIter=1; coupleIter<=maxCoupleIter_; coupleIter++)
+        dnaControl dna(runTime_, fldName, interfaces());
+        while (dna.loop())
         {
             assembleAndSolveEqns<fvMatrix, scalar>(fldName);
             assembleAndSolveEqns<fvMatrix, vector>(fldName);

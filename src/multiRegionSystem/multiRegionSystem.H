@@ -46,6 +46,8 @@ SourceFiles
 #include "regionTypeList.H"
 #include "regionInterfaceList.H"
 
+#include "dnaControl.H"
+
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -86,9 +88,6 @@ class multiRegionSystem
         //- List of unique lists of coupled field names
         //  per coupling method
         List<hashedWordList> fldNames_;
-
-        //- Maximum coupling iterations (partitioned)
-        label maxCoupleIter_;
 
     // Private member functions
 
