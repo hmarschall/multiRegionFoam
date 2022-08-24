@@ -1,5 +1,8 @@
 mergePolyMesh.C
 
+dnaControl = ./../dnaSolutionControl
+$(dnaControl)/dnaControl.C
+
 regions = ./../regions
 $(regions)/region/regionType.C
 $(regions)/region/newRegionType.C
