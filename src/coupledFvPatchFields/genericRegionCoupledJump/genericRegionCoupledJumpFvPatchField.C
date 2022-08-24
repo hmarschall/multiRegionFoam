@@ -227,11 +227,37 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::rawResidual() const
     
     const Field<Type>& fown = *this;
 
+    const tmp<Field<Type>> tmpValueJump = valueJump();
+    const Field<Type>& valueJump =  tmpValueJump();
+
+    Field<Type> residual = (fown - fieldNbrToOwn) - valueJump;
+
     // Calculate the raw residual
-    const scalarField& rawResidual =
-        (
-            mag(mag(fown - fieldNbrToOwn) - mag(valueJump()))
-        );
+    const tmp<scalarField> tmpRawResidual = mag(residual);
+    const scalarField rawResidual = tmpRawResidual();
+
+    // Info<< nl
+    // << psiName_ << " fown:" << nl
+    // << "  max: " << gMax(fown) << nl
+    // << "  min: " << gMin(fown) << nl
+    // << "  mean: " << gAverage(fown) << nl
+    // << psiName_ << " fieldNbrToOwn:" << nl
+    // << "  max: " << gMax(fieldNbrToOwn) << nl
+    // << "  min: "<< gMax(fieldNbrToOwn) << nl
+    // << "  mean: " << gAverage(fieldNbrToOwn) << nl
+    // << psiName_ << " valueJump:" << nl
+    // << "  max: " << gMax(valueJump) << nl
+    // << "  min: " << gMin(valueJump) << nl
+    // << "  mean: " << gAverage(valueJump)<< nl
+    // << psiName_ << " residual:" << nl
+    // << "  max: " << gMax(residual) << nl
+    // << "  min: " << gMin(residual) << nl
+    // << "  mean: " << gAverage(residual) << endl
+    // << psiName_ << " rawResidual:" << nl
+    // << "  max: " << gMax(rawResidual) << nl
+    // << "  min: " << gMin(rawResidual) << nl
+    // << "  mean: " << gAverage(rawResidual) << nl
+    // << endl;
 
     return rawResidual;
 }
@@ -256,13 +282,16 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
     
     const Field<Type>& fown = *this;
 
+    const tmp<Field<Type>> tmpValueJump = valueJump();
+    const Field<Type>& valueJump =  tmpValueJump();
+
     //Calculate normalisation factor
     const scalar n = max
         (
             min
             (
                 gMax(mag(fown)), 
-                gMax(mag(fieldNbrToOwn + valueJump()))
+                gMax(mag(fieldNbrToOwn + valueJump))
             ),
             SMALL
         );
@@ -296,7 +325,7 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::ofNormResidual() const
     const Field<Type>& fown = *this;
 
     //Calculate normalisation factor similar to linear system solver
-    scalarField jumpRef(refPatch().size(), gAverage(fown) - gAverage(fieldNbrToOwn));
+    const Field<Type> jumpRef(refPatch().size(), gAverage(fown) - gAverage(fieldNbrToOwn));
 
     const scalar n = max
         (

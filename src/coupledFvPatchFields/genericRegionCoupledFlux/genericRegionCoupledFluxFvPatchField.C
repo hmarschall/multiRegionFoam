@@ -218,13 +218,39 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
         .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
     );
 
-    const Field<Type>& fluxOwn = k.value()*this->snGrad();
+    const Field<Type> fluxOwn = this->snGrad()*k.value();
+
+    const tmp<Field<Type>> tmpFluxJump = fluxJump();
+    const Field<Type>& fluxJump =  tmpFluxJump();
+
+    Field<Type> residual = (fluxOwn + fluxNbrToOwn) - fluxJump;
 
     // Calculate the raw residual
-    const scalarField& rawResidual =
-        (
-            mag(mag(fluxOwn - fluxNbrToOwn) - mag(fluxJump()))
-        );
+    const tmp<scalarField> tmpRawResidual = mag(residual);
+    const scalarField rawResidual = tmpRawResidual();
+    
+    // Info<< nl
+    // << psiName_ << " fluxOwn:" << nl
+    // << "  max: " << gMax(fluxOwn) << nl
+    // << "  min: " << gMin(fluxOwn) << nl
+    // << "  mean: " << gAverage(fluxOwn) << nl
+    // << psiName_ << " fluxNbrToOwn:" << nl
+    // << "  max: " << gMax(fluxNbrToOwn) << nl
+    // << "  min: "<< gMax(fluxNbrToOwn) << nl
+    // << "  mean: " << gAverage(fluxNbrToOwn) << nl
+    // << psiName_ << " fluxJump:" << nl
+    // << "  max: " << gMax(fluxJump) << nl
+    // << "  min: " << gMin(fluxJump) << nl
+    // << "  mean: " << gAverage(fluxJump) << nl
+    // << psiName_ << " residual:" << nl
+    // << "  max: " << gMax(residual) << nl
+    // << "  min: " << gMin(residual) << nl
+    // << "  mean: " << gAverage(residual) << nl
+    // << psiName_ << " rawResidual:" << nl
+    // << "  max: " << gMax(rawResidual) << nl
+    // << "  min: " << gMin(rawResidual) << nl
+    // << "  mean: " << gAverage(rawResidual) << nl
+    // << endl;
 
     return rawResidual;
 }
@@ -260,7 +286,7 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
         .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
     );
 
-    const Field<Type>& fluxOwn = k.value()*this->snGrad();
+    const Field<Type> fluxOwn = this->snGrad()*k.value();
 
     //Calculate normalisation factor
     const scalar n = max
@@ -313,10 +339,10 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
         .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
     );
 
-    const Field<Type>& fluxOwn = k.value()*this->snGrad();
+    const Field<Type> fluxOwn = this->snGrad()*k.value();
 
     //Calculate normalisation factor similar to linear system solver
-    scalarField fluxRef(refPatch().size(), gAverage(fluxOwn) - gAverage(fluxNbrToOwn));
+    const Field<Type> fluxRef(refPatch().size(), gAverage(fluxOwn) - gAverage(fluxNbrToOwn));
 
     const scalar n = max
         (
