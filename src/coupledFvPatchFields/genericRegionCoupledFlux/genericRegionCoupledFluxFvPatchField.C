@@ -383,6 +383,8 @@ void genericRegionCoupledFluxFvPatchField<Type>::write
         << token::END_STATEMENT << nl;
     os.writeKeyword("neighbourPatchName") << neighbourPatchName_ 
         << token::END_STATEMENT << nl;
+    os.writeKeyword("neighbourFieldName") << psiName_ 
+        << token::END_STATEMENT << nl;
     os.writeKeyword("nonOrthCorr") << nonOrthCorr_ 
         << token::END_STATEMENT << nl;
     os.writeKeyword("secondOrder") << secondOrder_ 
