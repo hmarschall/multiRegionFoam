@@ -834,6 +834,7 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
         U_() -= fvc::grad(p_())/AU_();
 
         U_().correctBoundaryConditions();
+        p_().correctBoundaryConditions();
 
         // Update of velocity gradient
         gradU_() = fvc::grad(U_());       
