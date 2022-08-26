@@ -200,7 +200,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
 
             eqn->solve();
 
-            rg.postSolve();
+            //rg.postSolve();
 
             // Assemble and get equation for new subloop step
             rg.setCoupledEqns();
@@ -391,7 +391,9 @@ void Foam::multiRegionSystem::solve()
         // outer coupling loop
         for (int coupleIter=1; coupleIter<=maxCoupleIter_; coupleIter++)
         {
+            Info << "(1)" << endl;
             assembleAndSolveEqns<fvMatrix, scalar>(fldName);
+            Info << "(2)" << endl;
             assembleAndSolveEqns<fvMatrix, vector>(fldName);
             assembleAndSolveEqns<fvMatrix, tensor>(fldName);
             assembleAndSolveEqns<fvBlockMatrix, vector4>(fldName);

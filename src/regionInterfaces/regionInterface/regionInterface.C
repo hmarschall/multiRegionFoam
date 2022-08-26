@@ -383,9 +383,8 @@ void Foam::regionInterface::correctCurvature
 
             scalar avrK = 0.0;
             label counter = 0;
-<<<<<<< HEAD
 
-            forAll(curFaceFaces, faceI)
+        forAll(curFaceFaces, faceI)
             {
                 label index = findIndex(eFaces, curFaceFaces[faceI]);
 
@@ -416,45 +415,10 @@ void Foam::regionInterface::correctCurvature
 
 //            const vectorField& fCentres = aMesh().areaCentres();
 
-=======
-
-            forAll(curFaceFaces, faceI)
-            {
-                label index = findIndex(eFaces, curFaceFaces[faceI]);
-
-                if (index == -1)
-                {
-                    avrK += K[curFaceFaces[faceI]];
-                    counter++;
-                }
-            }
-            avrK /= counter;
-
-            KI[curFace] = avrK;
-        }
-
-//        label counter = 0;
-//        do
-//        {
-//            counter++;
-
-//            K.correctBoundaryConditions();
-//            areaVectorField gradK = fac::grad(K);
-//            vectorField& gradKI = gradK.internalField();
-
-//            const labelList& eFaces =
-//                aMesh().boundary()[patchID].edgeFaces();
-
-//            const labelListList& fFaces = aMesh().patch().faceFaces();
-
-//            const vectorField& fCentres = aMesh().areaCentres();
-
->>>>>>> dev
 //            forAll(eFaces, edgeI)
 //            {
 //                const label& curFace = eFaces[edgeI];
 //                const labelList& curFaceFaces = fFaces[curFace];
-<<<<<<< HEAD
 
 //                scalar avrK = 0.0;
 //                label counter = 0;
@@ -475,28 +439,6 @@ void Foam::regionInterface::correctCurvature
 //                    }
 //                }
 
-=======
-
-//                scalar avrK = 0.0;
-//                label counter = 0;
-
-//                forAll(curFaceFaces, faceI)
-//                {
-//                    label index = findIndex(eFaces, curFaceFaces[faceI]);
-
-//                    if (index == -1)
-//                    {
-//                        vector dr = 
-//                            fCentres[curFace] 
-//                          - fCentres[curFaceFaces[faceI]];
-
-//                        avrK += KI[curFaceFaces[faceI]]
-//                             + (dr&gradKI[curFaceFaces[faceI]]);
-//                        counter++;
-//                    }
-//                }
-
->>>>>>> dev
 //                avrK /= counter;
 
 //                KI[curFace] = avrK;

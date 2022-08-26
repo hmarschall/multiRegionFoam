@@ -69,6 +69,9 @@ class conductTemperature
         // dimensionedScalar rho_;
         volScalarField rho_;
 
+	//- thermal diffusivity
+        autoPtr<volScalarField> alpha_;
+
         //- thermal conductivity
         autoPtr<volScalarField> k_;
 

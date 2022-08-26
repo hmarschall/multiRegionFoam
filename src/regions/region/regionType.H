@@ -120,28 +120,16 @@ public:
 
         //- Return reference to the mesh
         dynamicFvMesh& mesh()
-<<<<<<< HEAD
-=======
         {
             return meshPtr_();
         }
 
         //- Return const reference to the mesh
         const dynamicFvMesh& mesh() const
->>>>>>> dev
         {
             return meshPtr_();
         }
 
-<<<<<<< HEAD
-        //- Return const reference to the mesh
-        const dynamicFvMesh& mesh() const
-        {
-            return meshPtr_();
-        }
-
-=======
->>>>>>> dev
         //- Return time
         const Time& runTime() const
         {

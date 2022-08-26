@@ -125,7 +125,7 @@ void Foam::regionCoupleJumpFvPatchScalarField::updateCoeffs()
 //        readScalar(coupledSolutionDict
 //        .subDict("partitioned").lookup("coupleRelaxFactor"));
 
-    scalar relax = 0.5;
+    scalar relax = 0.2;
 
     // Lookup diffusivity field
     const fvPatchScalarField& kpf =

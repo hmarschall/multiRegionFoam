@@ -154,23 +154,6 @@ private:
 
         //- Make interface-to-interface
         void makeInterfaceToInterface() const;
-<<<<<<< HEAD
-
-        //- Create/update interface physics
-        void makeFaMesh() const;
-
-        //- Make surface velocity
-        void makeUs() const;
-
-        //- Make interfacial curvature
-        void makeK() const;
-
-        //- Make surface flux
-        void makePhis() const;
-
-        //- Helper functions
-
-=======
 
         //- Create/update interface physics
         void makeFaMesh() const;
@@ -183,7 +166,6 @@ private:
 
         //- Helper functions
 
->>>>>>> dev
         //-- Return velocity field on patch
         const vectorField& Up();
             
