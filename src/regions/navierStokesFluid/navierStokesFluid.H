@@ -39,6 +39,7 @@ SourceFiles
 #include "surfaceFields.H"
 #include "IOReferencer.H"
 #include "HashPtrTable.H"
+#include "MRFZones.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -59,54 +60,63 @@ class navierStokesFluid
 
         //- name
         word regionName_;
-        
+
         //- transport properties dictionary 
         IOdictionary transportProperties_;
 
         //- density
         dimensionedScalar rhoFluid_;
-        
-        volScalarField rho_;
-        
+
+        autoPtr<volScalarField> rho_;
+
         //- viscosity
         dimensionedScalar muFluid_;
-        
-        volScalarField mu_;           
- 
+
+        autoPtr<volScalarField> mu_;           
+
         //- transport
-        volVectorField U_;
+        word velocityName_;
+        autoPtr<volVectorField> U_;
 
-        surfaceScalarField phi_;            
+        autoPtr<surfaceScalarField> phi_;
 
-        volScalarField p_;
-               
+        autoPtr<surfaceScalarField> phiHbyA_;
+
+        autoPtr<volScalarField> p_;
+
         //- fields for poison equation for the pressure
-        volScalarField AU_;
-        
-        volVectorField HU_;
-        
+        autoPtr<volScalarField> AU_;
+
+        autoPtr<volVectorField> HU_;
+
         //- gradients
-        volVectorField gradp_;
-        
-        volTensorField gradU_;
-        
+        autoPtr<volVectorField> gradp_;
+
+        autoPtr<volTensorField> gradU_;
+
         //- pcorr
         wordList pcorrTypes_;
-        
-        volScalarField pcorr_;
-        
+
+        autoPtr<volScalarField> pcorr_;
+
         //- Under-relaxation factor
         const scalar UUrf_;
-        
+
+        //- closed volume?
+        Switch closedVolume_;
+
+        //- has space patch?
+        Switch hasSpacePatch_;
+
         //- Reference pressure cell
         label pRefCell_;
 
         //- Reference pressure value
         scalar pRefValue_;
-        
+
         //- residual for inner correctors
         scalar innerResidual_;
-        
+
         //- residual for pressure outer correctors
         scalar residualPressure_;
 
@@ -115,7 +125,20 @@ class navierStokesFluid
 
         //- Current non-orthogonal corrector loop index
         label corrNonOrtho_;
-      
+
+        //- Moving reference frames
+        MRFZones mrfZones_;
+        label myTimeIndex_;
+
+        //- Adjustable time-step switch
+        const Switch adjustTimeStep_;
+
+        //- For adjustable time-step, this is the maximum Courant number
+        const scalar maxCo_;
+
+        //- For adjustable time-step, this is the maximum time-step
+        const scalar maxDeltaT_;
+
 public:
 
     TypeName("navierStokesFluid");
@@ -137,22 +160,22 @@ public:
         // Access
         const volVectorField& U() const
         {
-            return U_;
+            return U_();
         }
 
         const volScalarField& p() const
         {
-            return p_;
+            return p_();
         }        
 
         volVectorField& U()
         {
-            return U_;
+            return U_();
         }
 
         volScalarField& p()
         {
-            return p_;
+            return p_();
         }
 
         // Access by name
@@ -183,11 +206,17 @@ public:
 
         virtual void setRDeltaT();
 
+        virtual void setCoupledEqns();
+
         virtual void solveRegion();
 
-        virtual void setCoupledEqns();
+        virtual void prePredictor();
+
+        virtual void momentumPredictor();
+
+        virtual void pressureCorrector();
         
-        virtual void updateFields();
+        virtual void postSolve();
 };
 
 

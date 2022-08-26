@@ -1,0 +1,74 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     multiRegionFoam;
+
+startFrom       startTime;
+
+startTime       0.0;
+
+stopAt          endTime;
+
+endTime         .0005;
+
+deltaT          .000001;
+
+writeControl    adjustableRunTime;
+ 
+writeInterval   .000005;
+
+purgeWrite      0;
+
+writeFormat     ascii;
+
+writePrecision  6;
+
+writeCompression off;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable on;
+
+adjustTimeStep  off;
+
+InfoSwitches
+{
+     allowSystemOperations 1;
+}
+
+/*
+heatTransferCoeff
+    {
+        type            heatTransferCoeff;
+        libs            (fieldFunctionObjects);
+        field           T;
+        patches         (Symmetry);
+        htcModel        fixedReferenceTemperature;
+        writeControl    outputTime;
+        writeInterval   1;
+        TRef            273;
+
+    enabled         true;
+    log             true;
+        region          fluid;
+    }
+*/
+
+
+// ************************************************************************* //

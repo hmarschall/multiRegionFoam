@@ -1091,85 +1091,31 @@ void Foam::regionTypes::catalystLayer::setCoupledEqns()
     }
 }
 
-void Foam::regionTypes::catalystLayer::updateFields()
-{
-    Info<< "Temperature = "
-            << T_().weightedAverage(mesh().V()).value()
-            << " Min(T) = " << min(T_()).value()
-            << " Max(T) = " << max(T_()).value()
-            << endl;
-
-    Info<< "Water content = "
-            << lambda_().weightedAverage(mesh().V()).value()
-            << " Min(lambda) = " << min(lambda_()).value()
-            << " Max(lambda) = " << max(lambda_()).value()
-            << endl;
-
-    Info<< "Electrolye potential = "
-            << phiP_().weightedAverage(mesh().V()).value()
-            << " Min(phiP) = " << min(phiP_()).value()
-            << " Max(phiP) = " << max(phiP_()).value()
-            << endl;
-
-    Info<< "Electrode potential = "
-            << phiE_().weightedAverage(mesh().V()).value()
-            << " Min(phiE) = " << min(phiE_()).value()
-            << " Max(phiE) = " << max(phiE_()).value()
-            << endl;
-
-    Info<< "Oxygen mole fraction = "
-            << xO2_().weightedAverage(mesh().V()).value()
-            << " Min(xO2) = " << min(xO2_()).value()
-            << " Max(xO2) = " << max(xO2_()).value()
-            << endl;
-
-    Info<< "vapor mole fraction = "
-            << xV_().weightedAverage(mesh().V()).value()
-            << " Min(xV) = " << min(xV_()).value()
-            << " Max(xV) = " << max(xV_()).value()
-            << endl;
-
-    Info<< "Liquid water saturation = "
-            << s_().weightedAverage(mesh().V()).value()
-            << " Min(s) = " << min(s_()).value()
-            << " Max(s) = " << max(s_()).value()
-            << endl;
-
-    Info<< "exchange current density = "
-            << j_.weightedAverage(mesh().V()).value()
-            << " Min(j) = " << min(j_).value()
-            << " Max(j) = " << max(j_).value()
-            << endl;
-
-    Info<< "overpotential = "
-            << eta_.weightedAverage(mesh().V()).value()
-            << " Min(eta) = " << min(eta_).value()
-            << " Max(eta) = " << max(eta_).value()
-            << endl;
-
-    Info<< "effective diffusion coefficient vapor = "
-            << DEffV_().weightedAverage(mesh().V()).value()
-            << " Min(DEffV) = " << min(DEffV_()).value()
-            << " Max(DEffV) = " << max(DEffV_()).value()
-            << endl;
-
-    Info<< "effective diffusion coefficient oxygen = "
-            << DEffO2_().weightedAverage(mesh().V()).value()
-            << " Min(DEffO2) = " << min(DEffO2_()).value()
-            << " Max(DEffO2) = " << max(DEffO2_()).value()
-            << endl;
-
-    Info<< "total gas concentration = "
-            << c_.weightedAverage(mesh().V()).value()
-            << " Min(c) = " << min(c_).value()
-            << " Max(c) = " << max(c_).value()
-            << endl;
-}
-
 void Foam::regionTypes::catalystLayer::solveRegion()
 {
     // do nothing, add as required
 }
+
+void Foam::regionTypes::catalystLayer::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::catalystLayer::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::catalystLayer::pressureCorrector()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::catalystLayer::postSolve()
+{
+    // do nothing, add as required
+}
+
 
 
 // ************************************************************************* //

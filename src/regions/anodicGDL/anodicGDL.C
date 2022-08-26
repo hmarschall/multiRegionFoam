@@ -383,15 +383,31 @@ void Foam::regionTypes::anodicGDL::setCoupledEqns()
     );
 }
 
-void Foam::regionTypes::anodicGDL::updateFields()
-{
-    
-}
-
 void Foam::regionTypes::anodicGDL::solveRegion()
 {
     // do nothing, add as required
 }
+
+void Foam::regionTypes::anodicGDL::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::anodicGDL::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::anodicGDL::pressureCorrector()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::anodicGDL::postSolve()
+{
+    // do nothing, add as required
+}
+
 
 
 // ************************************************************************* //

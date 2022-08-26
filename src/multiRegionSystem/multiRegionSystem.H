@@ -81,6 +81,7 @@ class multiRegionSystem
         List<PtrList<volVectorField> > vectorFlds_;
         List<PtrList<volSymmTensorField> > symmTensorFlds_;
         List<PtrList<volTensorField> > tensorFlds_;
+        List<PtrList<volVector4Field> > vector4Flds_;
 
         //- List of unique lists of coupled field names
         //  per coupling method
@@ -99,14 +100,14 @@ class multiRegionSystem
             const List<hashedWordList>& fldNms
         ) const;
 
-        template<class T>
+        template< template<class> class M, class T>
         void assembleAndSolveCoupledMatrix
         (
             PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
             word fldName
         ) const;
 
-        template<class T>
+        template< template<class> class M, class T>
         void assembleAndSolveEqns
         (
             word fldName
@@ -142,7 +143,7 @@ public:
 
     // Member Functions
 
-        void updateAndCorrect();
+        void preSolve();
 
         void solve();
 
@@ -150,7 +151,7 @@ public:
 
         void setRDeltaT();
         
-        void updateFields();
+        void postSolve();
 
         // Access
 

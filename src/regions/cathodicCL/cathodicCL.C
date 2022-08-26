@@ -885,15 +885,31 @@ void Foam::regionTypes::cathodicCL::setCoupledEqns()
     );
 }
     
-void Foam::regionTypes::cathodicCL::updateFields()
-{
-    
-}
-
 void Foam::regionTypes::cathodicCL::solveRegion()
 {
     // do nothing, add as required
 }
+
+void Foam::regionTypes::cathodicCL::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::cathodicCL::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::cathodicCL::pressureCorrector()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::cathodicCL::postSolve()
+{
+    // do nothing, add as required
+}
+
 
 
 // ************************************************************************* //

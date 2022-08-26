@@ -371,28 +371,27 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
     );
 }
 
-void Foam::regionTypes::ionomer::updateFields()
+void Foam::regionTypes::ionomer::solveRegion()
 {
-    Info<< "Temperature = "
-            << T_().weightedAverage(mesh().V()).value()
-            << " Min(T) = " << min(T_()).value()
-            << " Max(T) = " << max(T_()).value()
-            << endl;
-
-    Info<< "Water content = "
-            << lambda_().weightedAverage(mesh().V()).value()
-            << " Min(lambda) = " << min(lambda_()).value()
-            << " Max(lambda) = " << max(lambda_()).value()
-            << endl;
-
-    Info<< "Electrolye Potential = "
-            << phiP_().weightedAverage(mesh().V()).value()
-            << " Min(phiP) = " << min(phiP_()).value()
-            << " Max(phiP) = " << max(phiP_()).value()
-            << endl;
+    // do nothing, add as required
 }
 
-void Foam::regionTypes::ionomer::solveRegion()
+void Foam::regionTypes::ionomer::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::ionomer::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::ionomer::pressureCorrector()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::ionomer::postSolve()
 {
     // do nothing, add as required
 }

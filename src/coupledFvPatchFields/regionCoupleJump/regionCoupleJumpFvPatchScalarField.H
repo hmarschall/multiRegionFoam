@@ -39,8 +39,6 @@ Description
             neighbourPatchName      neighbourPatch;
             neighbourFieldName      Psi;
             k			    kName;
-	    K			    1.0E0;
-	    relax		    0.5;
             value                   uniform 0;
         }
 
@@ -74,14 +72,8 @@ class regionCoupleJumpFvPatchScalarField
         //- Couple manager object
         coupleManager coupleManager_;
 
-	//- diffusivity field name
-	word kName_;
-
         //- "Jump" or "resistive" condition
-        scalar K_;
-
-        //- under-relaxation factor
-        scalar relax_;
+        word kName_;
 
 
 public:

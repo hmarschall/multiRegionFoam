@@ -58,20 +58,48 @@ Foam::regionType::regionType
             false
         )
     ),
-    meshPtr_
-    (
-        dynamicFvMesh::New
+    // meshPtr_
+    // (
+    //     dynamicFvMesh::New
+    //     (
+    //         IOobject
+    //         (
+    //             regionName,
+    //             runTime.timeName(),
+    //             runTime,
+    //             IOobject::MUST_READ
+    //         )
+    //     )
+    // )
+    meshPtr_(nullptr)
+{
+
+    // look up mesh from object registry
+    if (runTime.foundObject<dynamicFvMesh>(regionName))
+    {
+        meshPtr_.reset
         (
-            IOobject
+            const_cast<dynamicFvMesh*>
             (
-                regionName,
-                runTime.timeName(),
-                runTime,
-                IOobject::MUST_READ
+                &runTime.lookupObject<dynamicFvMesh>(regionName)
             )
-        )
-    )
-{}
+        );
+    }
+    // or create new mesh
+    else
+    {
+        meshPtr_ = dynamicFvMesh::New
+                    (
+                        IOobject
+                        (
+                            regionName,
+                            runTime.timeName(),
+                            runTime,
+                            IOobject::MUST_READ
+                        )
+                    );
+    }
+}
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

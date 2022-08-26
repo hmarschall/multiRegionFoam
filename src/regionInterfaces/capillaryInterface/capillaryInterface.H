@@ -56,8 +56,7 @@ class capillaryInterface
         // Surface tension 
         dimensionedScalar sigma0_;
         
-        //mutable areaScalarField* sigmaPtr_;
-        mutable autoPtr<areaScalarField> sigmaPtr_;
+        areaScalarField sigma_;
 
 public:
 
@@ -79,8 +78,8 @@ public:
       
     // Access  
  
-    // Member Functions	
-    virtual tmp<areaScalarField> sigma() const; 
+    // Correct interface physics - here surface tension
+    void correct(); 
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

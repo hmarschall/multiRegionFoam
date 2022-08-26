@@ -200,7 +200,13 @@ public:
 
         virtual void setCoupledEqns();
 	
-        virtual void updateFields();
+        virtual void prePredictor();
+
+        virtual void momentumPredictor();
+
+        virtual void pressureCorrector();
+
+        virtual void postSolve();
 };
 
 

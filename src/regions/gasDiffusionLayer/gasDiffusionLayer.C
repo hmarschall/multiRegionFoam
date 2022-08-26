@@ -709,40 +709,27 @@ Info<< "xVEqn" << endl;
     }
 }
 
-void Foam::regionTypes::gasDiffusionLayer::updateFields()
+void Foam::regionTypes::gasDiffusionLayer::solveRegion()
 {
-    Info<< "Temperature = "
-            << T_().weightedAverage(mesh().V()).value()
-            << " Min(T) = " << min(T_()).value()
-            << " Max(T) = " << max(T_()).value()
-            << endl;
-
-    Info<< "Electrode potential = "
-            << phiE_().weightedAverage(mesh().V()).value()
-            << " Min(phiE) = " << min(phiE_()).value()
-            << " Max(phiE) = " << max(phiE_()).value()
-            << endl;
-
-    Info<< "Oxygen mole fraction = "
-            << xO2_().weightedAverage(mesh().V()).value()
-            << " Min(xO2) = " << min(xO2_()).value()
-            << " Max(xO2) = " << max(xO2_()).value()
-            << endl;
-
-    Info<< "vapor mole fraction = "
-            << xV_().weightedAverage(mesh().V()).value()
-            << " Min(xV) = " << min(xV_()).value()
-            << " Max(xV) = " << max(xV_()).value()
-            << endl;
-
-    Info<< "Liquid water saturation = "
-            << s_().weightedAverage(mesh().V()).value()
-            << " Min(s) = " << min(s_()).value()
-            << " Max(s) = " << max(s_()).value()
-            << endl;
+    // do nothing, add as required
 }
 
-void Foam::regionTypes::gasDiffusionLayer::solveRegion()
+void Foam::regionTypes::gasDiffusionLayer::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::gasDiffusionLayer::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::gasDiffusionLayer::pressureCorrector()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::gasDiffusionLayer::postSolve()
 {
     // do nothing, add as required
 }

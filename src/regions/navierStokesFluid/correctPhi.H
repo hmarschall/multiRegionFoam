@@ -1,26 +1,23 @@
 {
-//    volScalarField pcorr("pcorr", p_);
-//    pcorr *= 0;
-
     if (mesh().changing())
     {
-        forAll(U_.boundaryField(), patchi)
+        forAll(U_().boundaryField(), patchi)
         {
-            if (U_.boundaryField()[patchi].fixesValue())
+            if (U_().boundaryField()[patchi].fixesValue())
             {
-                U_.boundaryField()[patchi].initEvaluate();
+                U_().boundaryField()[patchi].initEvaluate();
             }
         }
 
-        forAll(U_.boundaryField(), patchi)
+        forAll(U_().boundaryField(), patchi)
         {
-            if (U_.boundaryField()[patchi].fixesValue())
+            if (U_().boundaryField()[patchi].fixesValue())
             {
-                U_.correctBoundaryConditions();
-                U_.boundaryField()[patchi].evaluate();
+                U_().correctBoundaryConditions();
+                U_().boundaryField()[patchi].evaluate();
 
-                phi_.boundaryField()[patchi] =
-                    U_.boundaryField()[patchi] 
+                phi_().boundaryField()[patchi] =
+                    U_().boundaryField()[patchi] 
                     & mesh().Sf().boundaryField()[patchi];
             }
         }
@@ -40,9 +37,9 @@
             fvm::laplacian
             (
                 rAUf,
-                pcorr_,
+                pcorr_(),
                 "laplacian((1|A(U)),p)" 
-            ) == fvc::div(phi_)
+            ) == fvc::div(phi_())
         );
 
         pcorrEqn.setReference(pRefCell_, pRefValue_);
@@ -50,7 +47,7 @@
 
         if (pimple.finalNonOrthogonalIter())
         {
-            phi_ -= pcorrEqn.flux();
+            phi_() -= pcorrEqn.flux();
         }
     }
 }

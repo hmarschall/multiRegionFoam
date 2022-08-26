@@ -41,9 +41,7 @@ regionCoupleJumpFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF),
     coupleManager_(p),
-    kName_("none"),
-    K_(0),
-    relax_(0)
+    kName_("none")
 {}
 
 
@@ -58,9 +56,7 @@ regionCoupleJumpFvPatchScalarField
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
     coupleManager_(ptf.coupleManager_),
-    kName_(ptf.kName_),
-    K_(ptf.K_),
-    relax_(ptf.relax_)
+    kName_(ptf.kName_)
 {}
 
 
@@ -74,17 +70,8 @@ regionCoupleJumpFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF),
     coupleManager_(p, dict),
-    kName_(dict.lookup("k")),
-    K_(readScalar(dict.lookup("K")))
+    kName_(dict.lookup("k"))
 {
-    if (dict.found("relax"))
-    {
-	relax_ = readScalar(dict.lookup("relax"));
-    }
-    else
-    {
-        relax_ = 0.2;
-    }
     if (dict.found("value"))
     {
         fvPatchField<scalar>::operator=
@@ -108,9 +95,7 @@ regionCoupleJumpFvPatchScalarField
 :
     fixedValueFvPatchScalarField(wtcsf, iF),
     coupleManager_(wtcsf.coupleManager_),
-    kName_(wtcsf.kName_),
-    K_(wtcsf.K_),
-    relax_(wtcsf.relax_)
+    kName_(wtcsf.kName_)
 {}
 
 
@@ -136,8 +121,17 @@ void Foam::regionCoupleJumpFvPatchScalarField::updateCoeffs()
 //    const dictionary& coupledSolutionDict =
 //        db().time().lookupObject<IOdictionary>("coupledSolutionDict");
 
-    // Enforce psi boundary condition
-    operator==(*this + relax_*(K_*psiNbr2Own - *this));
+//    const scalar& relax =
+//        readScalar(coupledSolutionDict
+//        .subDict("partitioned").lookup("coupleRelaxFactor"));
+
+    scalar relax = 0.5;
+
+    // Lookup diffusivity field
+    const fvPatchScalarField& kpf =
+	lookupPatchField<volScalarField, scalar>(kName_);
+    // Enforce psi jump boundary condition
+    operator==(*this + relax*(kpf*psiNbr2Own - *this));
 
     fixedValueFvPatchScalarField::updateCoeffs();
 }
@@ -147,12 +141,12 @@ void Foam::regionCoupleJumpFvPatchScalarField::updateCoeffs()
 Foam::tmp<Foam::scalarField>
 Foam::regionCoupleJumpFvPatchScalarField::flux() const
 {
-    const fvPatchScalarField& k =
+    const fvPatchScalarField& kpf =
 	lookupPatchField<volScalarField, scalar>(kName_);
 
     const fvPatchScalarField& psi = *this;
 
-    return k*psi.snGrad();
+    return kpf*psi.snGrad();
 }
 
 
@@ -168,13 +162,17 @@ Foam::regionCoupleJumpFvPatchScalarField::maxResidual() const
     patchToPatchInterpolation interpolator(nbrPatch, ownPatch);
     scalarField psiNbr2Own = interpolator.faceInterpolate(psiNbr);
 
+    // Lookup diffusivity field
+    const fvPatchScalarField& kpf =
+	lookupPatchField<volScalarField, scalar>(kName_);
+
     // Calculate the maximum normalized residual
     const scalarField& psiOwn = *this;
     scalar residual =
         gMax
         (
-            mag(psiOwn - K_*psiNbr2Own)/
-            max(min(gMax(psiOwn),gMax(K_*psiNbr2Own)), SMALL)
+            mag(psiOwn - kpf*psiNbr2Own)/
+            max(min(gMax(psiOwn),gMax(kpf*psiNbr2Own)), SMALL)
         );
 
     return residual;
@@ -189,7 +187,7 @@ void Foam::regionCoupleJumpFvPatchScalarField::write
 {
     fvPatchScalarField::write(os);
     coupleManager_.writeEntries(os);
-    os.writeKeyword("K") << K_ << token::END_STATEMENT << nl;
+    writeEntry("k", os);
     writeEntry("value", os);
 }
 

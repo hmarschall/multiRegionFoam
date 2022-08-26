@@ -18,6 +18,9 @@ $(regions)/anodicGDL/anodicGDL.C
 $(regions)/cathodicGDL/cathodicGDL.C
 $(regions)/anodicCL/anodicCL.C
 $(regions)/cathodicCL/cathodicCL.C
+$(regions)/navierStokesFluid/navierStokesFluid.C
+$(regions)/icoFluid/icoFluid.C
+$(regions)/pUCoupledIcoFluid/pUCoupledIcoFluid.C
 
 ../regionProperties/regionProperties.C
 ../regionInterfaceProperties/regionInterfaceProperties.C
@@ -31,7 +34,7 @@ $(interfaces)/regionInterfaceList.C
 $(interfaces)/newRegionInterface.C
 
 ../regionInterfaces/capillaryInterface/capillaryInterface.C
-../regionInterfaces/passiveInterface/passiveInterface.C
+../regionInterfaces/defaultInterface/defaultInterface.C
 
 multiRegionSystem.C
 
