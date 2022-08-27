@@ -21,7 +21,7 @@
 
             // Get matrix diagonal
             CoeffField<vector4>::squareTypeField& blockDiag =
-                UpEqn->diag().asSquare();
+                UpEqn.diag().asSquare();
 
             forAll (fc, faceI)
             {
@@ -43,7 +43,7 @@
              -Up.blockGradientBoundaryCoeffs()*mutpMagSf;
 
          // Get matrix source
-         Field<vector4>& blockSource = UpEqn->source();
+         Field<vector4>& blockSource = UpEqn.source();
 
             forAll (fc, faceI)
             {

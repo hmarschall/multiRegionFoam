@@ -17,7 +17,7 @@
     UEqn.relax();
 
     // Insert momentum equation
-    UpEqn->insertEquation(0, UEqn);
+    UpEqn.insertEquation(0, UEqn);
 
 #   include "addBlockCoupledBC.H"
 

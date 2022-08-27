@@ -586,14 +586,8 @@ void Foam::regionTypes::pUCoupledIcoFluid::setCoupledEqns()
 
     // Up equation name
     word UpEqnName = Up_().name() + mesh().name() + "Eqn";
-    // Initialize the Up block system
-    fvVector4Matrices.set
-    (
-        UpEqnName,
-        new fvBlockMatrix<vector4>(Up_())
-    );
 
-    fvBlockMatrix<vector4>* UpEqn = getCoupledEqn<fvBlockMatrix,vector4>(UpEqnName);
+    fvBlockMatrix<vector4> UpEqn = fvBlockMatrix<vector4>(Up_());
 
     if (myTimeIndex_ < mesh().time().timeIndex())
     {
@@ -612,6 +606,13 @@ void Foam::regionTypes::pUCoupledIcoFluid::setCoupledEqns()
 
     // Assemble and insert coupling terms
     #include "couplingTerms.H"
+
+    // Initialize the Up block system
+    fvVector4Matrices.set
+    (
+        UpEqnName,
+        new fvBlockMatrix<vector4>(UpEqn)
+    );
 
     myTimeIndex_ = mesh().time().timeIndex();
         
