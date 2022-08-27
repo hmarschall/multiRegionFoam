@@ -126,13 +126,13 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
 
         regionType& rg = const_cast<regionType&>(regions_()[regI]);
 
-        M<T>* eqn =
+        M<T>& eqn =
             rg.getCoupledEqn<M,T>
             (
                 fldName + rg.mesh().name() + "Eqn"
             );
 
-        coupledEqns.set(nReg, eqn);
+        coupledEqns.set(nReg, &eqn);
 
         nReg++;
     }
@@ -199,14 +199,6 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             mesh.surfaceInterpolation::movePoints();
         }
 
-        // set and get coupled equation with the possibly updated boundary conditions
-        rg.setCoupledEqns();
-        auto* eqn =
-            rg.getCoupledEqn<M,T>
-            (
-                fldName + rg.mesh().name() + "Eqn"
-            );
-
         Info<< nl 
             << "Solving for " << eqn->psi().name() 
             << " in " << rg.mesh().name()
@@ -217,15 +209,19 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
 
         while (pimpleControlRegion.correctNonOrthogonal())
         {
+            // set and get coupled equation with the possibly updated boundary conditions
+            rg.setCoupledEqns();
+            M<T>& eqn =
+                rg.getCoupledEqn<M,T>
+                (
+                    fldName + rg.mesh().name() + "Eqn"
+                );
+
             rg.relaxEqn<T>(eqn);
 
             eqn->solve();
 
             rg.postSolve();
-
-            // Assemble and get equation for new subloop step
-            rg.setCoupledEqns();
-            eqn = rg.getCoupledEqn<M,T>(fldName + rg.mesh().name() + "Eqn");
         }
     }
 }
