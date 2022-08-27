@@ -393,9 +393,9 @@ void Foam::multiRegionSystem::solve()
 
     // Solve region-region coupling (partitioned)
     // - Solve pressure-velocity system using PIMPLE
-    if (fldNames_[0].contains("Up"))
+    if (fldNames_[0].contains("UpPimple"))
     {
-        dnaControl dna(runTime_, "Up", interfaces());
+        dnaControl dna(runTime_, "UpPimple", interfaces());
         while (dna.loop())
         {
             solvePIMPLE();
@@ -406,6 +406,12 @@ void Foam::multiRegionSystem::solve()
     forAll (fldNames_[0], fldI)
     {
         word fldName = fldNames_[0][fldI];
+
+        // TODO - List of coupled fields that should be solved with solvePIMPLE
+        if (fldName == "UpPimple")
+        {
+            continue;
+        }
 
         // outer coupling loop
         dnaControl dna(runTime_, fldName, interfaces());

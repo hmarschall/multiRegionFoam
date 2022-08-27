@@ -101,11 +101,11 @@ void Foam::dnaControl::maxTypeResidual
 {
     typedef GeometricField<Type, fvPatchField, volMesh> fieldType;
 
-    scalar globalMaxJumpNormRes = 0;
-    scalar globalMaxFluxNormRes = 0;
+    // scalar globalMaxJumpRawRes = 0;
+    // scalar globalMaxFluxRawRes = 0;
 
-    scalar globalMaxJumpOfNormRes = 0;
-    scalar globalMaxFluxOfNormRes = 0;
+    // scalar globalMaxJumpNormRes = 0;
+    // scalar globalMaxFluxNormRes = 0;
     
     // Check if field of type fieldType and name fieldName exists
     // - since the field is a coupled field it is assumed that 
@@ -125,8 +125,24 @@ void Foam::dnaControl::maxTypeResidual
         )
         {
             //- Jump residual from patchA
-            scalar patchMaxJumpRes = 
-                gMax(refCast<const genericRegionCoupledJumpFvPatchField<Type>>(patchAField).rawResidual());
+            // scalar patchMaxJumpRawRes = 
+            //     gMax(refCast<const genericRegionCoupledJumpFvPatchField<Type>>(patchAField).rawResidual());
+            // globalMaxJumpRawRes = 
+            //     max
+            //     (
+            //         globalMaxJumpRawRes,
+            //         patchMaxJumpRawRes
+            //     );
+            
+            // scalar patchMaxJumpNormRes = refCast<const genericRegionCoupledJumpFvPatchField<Type>>(patchAField).maxNormResidual();
+            // globalMaxJumpNormRes = 
+            //     max
+            //     (
+            //         globalMaxJumpNormRes,
+            //         patchMaxJumpNormRes
+            //     );
+            
+            scalar patchMaxJumpRes = refCast<const genericRegionCoupledJumpFvPatchField<Type>>(patchAField).ofNormResidual();
             globalMaxJumpRes = 
                 max
                 (
@@ -134,46 +150,30 @@ void Foam::dnaControl::maxTypeResidual
                     patchMaxJumpRes
                 );
             
-            scalar patchMaxJumpNormRes = refCast<const genericRegionCoupledJumpFvPatchField<Type>>(patchAField).maxNormResidual();
-            globalMaxJumpNormRes = 
-                max
-                (
-                    globalMaxJumpNormRes,
-                    patchMaxJumpNormRes
-                );
-            
-            scalar patchMaxJumpOfNormRes = refCast<const genericRegionCoupledJumpFvPatchField<Type>>(patchAField).ofNormResidual();
-            globalMaxJumpOfNormRes = 
-                max
-                (
-                    globalMaxJumpOfNormRes,
-                    patchMaxJumpOfNormRes
-                );
-            
             //- Flux residual from patchB 
-            scalar patchMaxFluxRes = 
-                gMax(refCast<const genericRegionCoupledFluxFvPatchField<Type>>(patchBField).rawResidual());
+            // scalar patchMaxFluxRawRes = 
+            //     gMax(refCast<const genericRegionCoupledFluxFvPatchField<Type>>(patchBField).rawResidual());
+            // globalMaxFluxRawRes = 
+            //     max
+            //     (
+            //         globalMaxFluxRawRes,
+            //         patchMaxFluxRawRes
+            //     );
+            
+            // scalar patchMaxFluxNormRes = refCast<const genericRegionCoupledFluxFvPatchField<Type>>(patchBField).maxNormResidual();
+            // globalMaxFluxNormRes = 
+            //     max
+            //     (
+            //         globalMaxFluxNormRes,
+            //         patchMaxFluxNormRes
+            //     );
+            
+            scalar patchMaxFluxRes = refCast<const genericRegionCoupledFluxFvPatchField<Type>>(patchBField).ofNormResidual();
             globalMaxFluxRes = 
                 max
                 (
                     globalMaxFluxRes,
                     patchMaxFluxRes
-                );
-            
-            scalar patchMaxFluxNormRes = refCast<const genericRegionCoupledFluxFvPatchField<Type>>(patchBField).maxNormResidual();
-            globalMaxFluxNormRes = 
-                max
-                (
-                    globalMaxFluxNormRes,
-                    patchMaxFluxNormRes
-                );
-            
-            scalar patchMaxFluxOfNormRes = refCast<const genericRegionCoupledFluxFvPatchField<Type>>(patchBField).ofNormResidual();
-            globalMaxFluxOfNormRes = 
-                max
-                (
-                    globalMaxFluxOfNormRes,
-                    patchMaxFluxOfNormRes
                 );
 
         }
@@ -184,8 +184,24 @@ void Foam::dnaControl::maxTypeResidual
         )
         {
             //- Jump residual from patchB
-            scalar patchMaxJumpRes = 
-                gMax(refCast<const genericRegionCoupledJumpFvPatchField<Type>>(patchBField).rawResidual());
+            // scalar patchMaxJumpRawRes = 
+            //     gMax(refCast<const genericRegionCoupledJumpFvPatchField<Type>>(patchBField).rawResidual());
+            // globalMaxJumpRawRes = 
+            //     max
+            //     (
+            //         globalMaxJumpRawRes,
+            //         patchMaxJumpRawRes
+            //     );
+            
+            // scalar patchMaxJumpNormRes = refCast<const genericRegionCoupledJumpFvPatchField<Type>>(patchBField).maxNormResidual();
+            // globalMaxJumpNormRes = 
+            //     max
+            //     (
+            //         globalMaxJumpNormRes,
+            //         patchMaxJumpNormRes
+            //     );
+            
+            scalar patchMaxJumpRes = refCast<const genericRegionCoupledJumpFvPatchField<Type>>(patchBField).ofNormResidual();
             globalMaxJumpRes = 
                 max
                 (
@@ -193,46 +209,30 @@ void Foam::dnaControl::maxTypeResidual
                     patchMaxJumpRes
                 );
             
-            scalar patchMaxJumpNormRes = refCast<const genericRegionCoupledJumpFvPatchField<Type>>(patchBField).maxNormResidual();
-            globalMaxJumpNormRes = 
-                max
-                (
-                    globalMaxJumpNormRes,
-                    patchMaxJumpNormRes
-                );
-            
-            scalar patchMaxJumpOfNormRes = refCast<const genericRegionCoupledJumpFvPatchField<Type>>(patchBField).ofNormResidual();
-            globalMaxJumpOfNormRes = 
-                max
-                (
-                    globalMaxJumpOfNormRes,
-                    patchMaxJumpOfNormRes
-                );
-            
             //- Flux residual from patchA 
-            scalar patchMaxFluxRes = 
-                gMax(refCast<const genericRegionCoupledFluxFvPatchField<Type>>(patchAField).rawResidual());
+            // scalar patchMaxFluxRawRes = 
+            //     gMax(refCast<const genericRegionCoupledFluxFvPatchField<Type>>(patchAField).rawResidual());
+            // globalMaxFluxRawRes = 
+            //     max
+            //     (
+            //         globalMaxFluxRawRes,
+            //         patchMaxFluxRawRes
+            //     );
+            
+            // scalar patchMaxFluxNormRes = refCast<const genericRegionCoupledFluxFvPatchField<Type>>(patchAField).maxNormResidual();
+            // globalMaxFluxNormRes = 
+            //     max
+            //     (
+            //         globalMaxFluxNormRes,
+            //         patchMaxFluxNormRes
+            //     );
+            
+            scalar patchMaxFluxRes = refCast<const genericRegionCoupledFluxFvPatchField<Type>>(patchAField).ofNormResidual();
             globalMaxFluxRes = 
                 max
                 (
                     globalMaxFluxRes,
                     patchMaxFluxRes
-                );
-            
-            scalar patchMaxFluxNormRes = refCast<const genericRegionCoupledFluxFvPatchField<Type>>(patchAField).maxNormResidual();
-            globalMaxFluxNormRes = 
-                max
-                (
-                    globalMaxFluxNormRes,
-                    patchMaxFluxNormRes
-                );
-            
-            scalar patchMaxFluxOfNormRes = refCast<const genericRegionCoupledFluxFvPatchField<Type>>(patchAField).ofNormResidual();
-            globalMaxFluxOfNormRes = 
-                max
-                (
-                    globalMaxFluxOfNormRes,
-                    patchMaxFluxOfNormRes
                 );
 
         }
@@ -251,18 +251,12 @@ void Foam::dnaControl::maxTypeResidual
         }
 
         Info<< interface.name() << " for field " << fieldName << ": " << nl
-        // << "    patchA fieldType: " << patchAField.type() 
-        // << " is jump: " << isA<genericRegionCoupledJumpFvPatchField<Type>>(patchAField) 
-        // << " is flux: " << isA<genericRegionCoupledFluxFvPatchField<Type>>(patchAField) << nl
-        // << "    patchB fieldType: " << patchBField.type() 
-        // << " is jump: " << isA<genericRegionCoupledJumpFvPatchField<Type>>(patchBField) 
-        // << " is flux: " << isA<genericRegionCoupledFluxFvPatchField<Type>>(patchBField) << nl
-        << "    maxJumpRes: " << globalMaxJumpRes << nl 
-        << "    maxFluxRes: " << globalMaxFluxRes << nl
-        << "    maxJumpNormRes: " << globalMaxJumpNormRes << nl 
-        << "    maxFluxNormRes: " << globalMaxFluxNormRes << nl
-        << "    maxJumpOfNormRes: " << globalMaxJumpOfNormRes << nl 
-        << "    maxFluxOfNormRes: " << globalMaxFluxOfNormRes << endl;
+        // << "    maxJumpRawRes: " << globalMaxJumpRawRes << nl 
+        // << "    maxFluxRawRes: " << globalMaxJumpRawRes << nl
+        // << "    maxJumpNormRes: " << globalMaxJumpNormRes << nl 
+        // << "    maxFluxNormRes: " << globalMaxFluxNormRes << nl
+        << "    globalMaxJumpRes: " << globalMaxJumpRes << nl 
+        << "    globalMaxJumpRes: " << globalMaxFluxRes << endl;
     }
 }
 
@@ -320,20 +314,20 @@ bool Foam::dnaControl::criteriaSatisfied()
         }
     }
 
-    // bool criteriaSatisfied = true;
+    bool criteriaSatisfied = true;
 
-    // forAll(dnaResidualControl_, controlI)
-    // {
-    //     criteriaSatisfied =
-    //         criteriaSatisfied && (globalMaxJumpRes[controlI] <= dnaResidualControl_[controlI].maxJumpRes);
+    forAll(dnaResidualControl_, controlI)
+    {
+        criteriaSatisfied =
+            criteriaSatisfied && (globalMaxJumpRes[controlI] <= dnaResidualControl_[controlI].maxJumpRes);
         
-    //     criteriaSatisfied =
-    //         criteriaSatisfied && (globalMaxFluxRes[controlI] <= dnaResidualControl_[controlI].maxFluxRes);
-    // }
+        criteriaSatisfied =
+            criteriaSatisfied && (globalMaxFluxRes[controlI] <= dnaResidualControl_[controlI].maxFluxRes);
+    }
 
-    // return criteriaSatisfied;
+    return criteriaSatisfied;
 
-    return false;
+    // return false;
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
