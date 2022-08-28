@@ -36,19 +36,6 @@ Foam::regionTypeList::regionTypeList
 )
 :
     PtrList<regionType>(),
-//    superMeshPtr_
-//    (
-//        new dynamicFvMesh
-//        (
-//            Foam::IOobject
-//            (
-//                mesh.name(),
-//                mesh.time().timeName(),
-//                mesh.time(),
-//                Foam::IOobject::MUST_READ
-//            )
-//        )
-//    ),
     dict_
     (
         IOobject

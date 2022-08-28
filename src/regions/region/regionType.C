@@ -58,19 +58,6 @@ Foam::regionType::regionType
             false
         )
     ),
-    // meshPtr_
-    // (
-    //     dynamicFvMesh::New
-    //     (
-    //         IOobject
-    //         (
-    //             regionName,
-    //             runTime.timeName(),
-    //             runTime,
-    //             IOobject::MUST_READ
-    //         )
-    //     )
-    // )
     meshPtr_(nullptr)
 {
     // look up mesh from object registry
