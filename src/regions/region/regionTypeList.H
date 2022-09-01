@@ -79,6 +79,8 @@ protected:
 
         regionProperties region_;
 
+        //- list of mesh names
+        wordList meshNames_;
 
 public:
 
@@ -90,6 +92,12 @@ public:
     {}
 
     // Member Functions
+
+        //- Return list of mesh names
+        const wordList& meshNames()
+        {
+            return meshNames_;
+        }
 
         //- Return active status
         bool active(const bool active = false) const;

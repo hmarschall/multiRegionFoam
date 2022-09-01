@@ -48,7 +48,8 @@ Foam::regionTypeList::regionTypeList
         )
     ),
     runTime_(runTime),
-    region_(runTime)
+    region_(runTime),
+    meshNames_(region_.toc())
 {
     reset(region_);
 
@@ -81,17 +82,14 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
 
     label j = 0;
 
-    forAllConstIter(HashTable<wordList>, rp, iter)
+    forAllConstIter(HashPtrTable<wordList>, rp, iter)
     {
-        const wordList& regions = iter();
+        const wordList& regions = *iter();
 
         forAll(regions, regionI)
         {
-            if (findIndex(regionNames, regions[regionI]))
-            {
-                regionNames.setSize(regionNames.size()+1);
-                regionNames[j] = regions[regionI];
-            }
+            regionNames.setSize(regionNames.size()+1);
+            regionNames[j] = regions[regionI];
 
             j++;
         }
@@ -99,32 +97,82 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
 
     this->setSize(regionNames.size());
 
-    label i = 0;
+    label i = regionNames.size()-1;
 
-    forAllConstIter(HashTable<wordList>, rp, iter)
+    forAllConstIter(HashPtrTable<wordList>, rp, iter)
     {
-        const word& modelType = iter.key();
-        const wordList& regions = iter();
+        word meshName = iter.key();
+        wordList regions = *iter();
 
-        if (regions.size())
+        forAll(regions, regionI)
         {
-            forAll(regions, regionI)
-            {
-                Info << "Creating " << regions[regionI] << endl;
+                Info<< "Creating region "
+                    << meshName
+                    << ": "
+                    << regions[regionI] 
+                    << endl;
 
                 this->set
                 (
-                    i++,
+                    i--,
                     regionType::New
                     (
                         runTime_,
-                        regions[regionI],
-                        modelType
+                        meshName,
+                        regions[regionI]
                     )
                 );
-            }
         }
     }
+
+//    wordList regionNames;
+
+//    label j = 0;
+
+//    forAllConstIter(HashTable<wordList>, rp, iter)
+//    {
+//        const wordList& regions = iter();
+
+//        forAll(regions, regionI)
+//        {
+//            if (findIndex(regionNames, regions[regionI]))
+//            {
+//                regionNames.setSize(regionNames.size()+1);
+//                regionNames[j] = regions[regionI];
+//            }
+
+//            j++;
+//        }
+//    }
+
+//    this->setSize(regionNames.size());
+
+//    label i = 0;
+
+//    forAllConstIter(HashTable<wordList>, rp, iter)
+//    {
+//        const word& modelType = iter.key();
+//        const wordList& regions = iter();
+
+//        if (regions.size())
+//        {
+//            forAll(regions, regionI)
+//            {
+//                Info << "Creating " << regions[regionI] << endl;
+
+//                this->set
+//                (
+//                    i++,
+//                    regionType::New
+//                    (
+//                        runTime_,
+//                        regions[regionI],
+//                        modelType
+//                    )
+//                );
+//            }
+//        }
+//    }
 
     // attach patches of regionCouplePolyPatch type
     forAll(*this, i)
