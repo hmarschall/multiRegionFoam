@@ -48,8 +48,7 @@ Foam::regionTypeList::regionTypeList
         )
     ),
     runTime_(runTime),
-    region_(runTime),
-    meshNames_(region_.toc())
+    region_(runTime)
 {
     reset(region_);
 
@@ -78,48 +77,48 @@ bool Foam::regionTypeList::active(const bool warn) const
 
 void Foam::regionTypeList::reset(const regionProperties& rp)
 {
-    wordList regionNames;
+    wordList regionTypes;
 
     label j = 0;
 
-    forAllConstIter(HashPtrTable<wordList>, rp, iter)
+    forAll(rp, regionI)
     {
-        const wordList& regions = *iter();
+        const wordList& regions = rp[regionI].second();
 
         forAll(regions, regionI)
         {
-            regionNames.setSize(regionNames.size()+1);
-            regionNames[j] = regions[regionI];
+            regionTypes.setSize(regionTypes.size()+1);
+            regionTypes[j] = regions[regionI];
 
             j++;
         }
     }
 
-    this->setSize(regionNames.size());
+    this->setSize(regionTypes.size());
 
-    label i = regionNames.size()-1;
+    label i = 0;
 
-    forAllConstIter(HashPtrTable<wordList>, rp, iter)
+    forAll(rp, regionI)
     {
-        word meshName = iter.key();
-        wordList regions = *iter();
+        word meshName = rp[regionI].first();
+        wordList regionTypes = rp[regionI].second();
 
-        forAll(regions, regionI)
+        forAll(regionTypes, regionI)
         {
                 Info<< "Creating region "
                     << meshName
                     << ": "
-                    << regions[regionI] 
+                    << regionTypes[regionI] 
                     << endl;
 
                 this->set
                 (
-                    i--,
+                    i++,
                     regionType::New
                     (
                         runTime_,
                         meshName,
-                        regions[regionI]
+                        regionTypes[regionI]
                     )
                 );
         }

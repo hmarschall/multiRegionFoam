@@ -30,26 +30,7 @@ License
 
 Foam::regionProperties::regionProperties(const Time& runTime)
 :
-    HashPtrTable<wordList>(0)
-//    HashTable
-//    <
-//        List<Tuple2<word, wordList > >
-//    >
-//    (
-//        IOdictionary
-//        (
-//            IOobject
-//            (
-//                "multiRegionProperties",
-//                runTime.time().constant(),
-//                runTime.db(),
-//                IOobject::MUST_READ,
-//                IOobject::NO_WRITE
-//            )
-//        ).lookup("regions")
-//    )
-{
-    List<Tuple2<word,wordList>> regions
+    List<Tuple2<word,wordList>>
     (
         IOdictionary
         (
@@ -62,16 +43,18 @@ Foam::regionProperties::regionProperties(const Time& runTime)
                 IOobject::NO_WRITE
             )
         ).lookup("regions")
-    );
+    )
+{
 
-    forAll(regions, regionI)
-    {
-        this->insert
-        (
-            regions[regionI].first(),
-            new wordList(regions[regionI].second())
-        );
-    }
+
+    // forAll(regions, regionI)
+    // {
+    //     this->insert
+    //     (
+    //         regions[regionI].first(),
+    //         new wordList(regions[regionI].second())
+    //     );
+    // }
 }
 
 
