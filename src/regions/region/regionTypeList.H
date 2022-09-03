@@ -41,6 +41,7 @@ SourceFiles
 #include "hashedWordList.H"
 #include "regionProperties.H"
 #include "regionType.H"
+#include "regionInterfaceList.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -106,7 +107,7 @@ public:
         void setRDeltaT();
 
         //- Solve region-inherent physics
-        void solveRegion();
+        void solveRegion(const regionInterfaceList& interfaces);
 
         //- Set equations for coupled solution
         void setCoupledEqns();

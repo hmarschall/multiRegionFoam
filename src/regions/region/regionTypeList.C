@@ -27,6 +27,7 @@ License
 #include "volFields.H"
 #include "IOdictionary.H"
 #include "regionCouplePolyPatch.H"
+#include "dnaControl.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -225,9 +226,10 @@ void Foam::regionTypeList::setRDeltaT()
 }
 
 
-void Foam::regionTypeList::solveRegion()
+void Foam::regionTypeList::solveRegion(const regionInterfaceList& interfaces)
 {
-    for (int j=0; j<5; j++)
+    dnaControl dna(runTime_, "UpNsPimple", interfaces);
+    while (dna.loop())
     {
         forAll(*this, i)
         {
