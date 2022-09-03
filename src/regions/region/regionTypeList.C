@@ -227,7 +227,7 @@ void Foam::regionTypeList::setRDeltaT()
 
 void Foam::regionTypeList::solveRegion()
 {
-    for (int j=0; j<5; j++)
+    for (int j=0; j<20; j++)
     {
         forAll(*this, i)
         {
