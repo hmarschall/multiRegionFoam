@@ -325,9 +325,9 @@ bool Foam::dnaControl::criteriaSatisfied()
             criteriaSatisfied && (globalMaxFluxRes[controlI] <= dnaResidualControl_[controlI].maxFluxRes);
     }
 
-    //return criteriaSatisfied;
+    return criteriaSatisfied;
 
-    return false;
+    // return false;
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //

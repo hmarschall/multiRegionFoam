@@ -388,11 +388,8 @@ void Foam::multiRegionSystem::solve()
 
     interfaces_->detach();
 
-    if (fldNames_[0].contains("UpNsPimple"))
-    {
-        // Solve each inherent region physics
-        regions_->solveRegion(interfaces());
-    }
+    // Solve each inherent region physics
+    regions_->solveRegion();
 
     // Solve region-region coupling (partitioned)
     // - Solve pressure-velocity system using PIMPLE
@@ -411,7 +408,7 @@ void Foam::multiRegionSystem::solve()
         word fldName = fldNames_[0][fldI];
 
         // TODO - List of coupled fields that should be solved with solvePIMPLE
-        if (fldName == "UpPimple" || fldName == "UpNsPimple")
+        if (fldName == "UpPimple")
         {
             continue;
         }
