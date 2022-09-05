@@ -633,7 +633,9 @@ void Foam::regionTypes::icoFluid::solveRegion()
 
 void Foam::regionTypes::icoFluid::prePredictor()
 {
-    Info << nl << "Pre-predictor for " << mesh().name() << endl;
+    Info<< nl << "Pre-predictor for " << this->typeName
+        << " in region " << mesh().name() 
+        << nl << endl;
 
     if (myTimeIndex_ < mesh().time().timeIndex())
     {
@@ -657,7 +659,9 @@ void Foam::regionTypes::icoFluid::prePredictor()
 
 void Foam::regionTypes::icoFluid::momentumPredictor()
 {
-    Info << nl << "Momentum predictor for " << mesh().name() << endl;
+    Info<< nl << "Momentum predictor for " << this->typeName
+        << " in region " << mesh().name() 
+        << nl << endl;
 
         // Make the fluxes relative to the mesh motion
         phi_() == (phi_() - fvc::meshPhi(rho_(), U_()));
@@ -710,7 +714,9 @@ void Foam::regionTypes::icoFluid::momentumPredictor()
 
 void Foam::regionTypes::icoFluid::pressureCorrector()
 {
-    Info << nl << "Pressure corrector for " << mesh().name() << endl;
+    Info<< nl << "Pressure corrector for " << this->typeName
+        << " in region " << mesh().name() 
+        << nl << endl;
 
     fvVectorMatrix& UEqn = tUEqn();
 
