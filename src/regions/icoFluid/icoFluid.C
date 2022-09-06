@@ -582,6 +582,9 @@ Foam::regionTypes::icoFluid::icoFluid
             mesh().schemesDict().setFluxRequired(fluxRequiredDict.toc()[i]);
         }
     }
+
+    // Get pressure reference cell
+#   include "setRefCell.H"
 }
 
 // left from createFields    
@@ -599,7 +602,7 @@ Foam::regionTypes::icoFluid::~icoFluid()
 void Foam::regionTypes::icoFluid::correct()
 {
     // Get pressure reference cell
-#   include "setRefCell.H"
+//#   include "setRefCell.H"
 
     if (mesh().changing())
     {
@@ -642,7 +645,7 @@ void Foam::regionTypes::icoFluid::prePredictor()
     }
 
     // Get pressure reference cell
-#   include "setRefCell.H"
+//#   include "setRefCell.H"
 
     if (mesh().changing())
     {
