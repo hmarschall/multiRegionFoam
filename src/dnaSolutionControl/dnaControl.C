@@ -256,7 +256,7 @@ void Foam::dnaControl::maxTypeResidual
         // << "    maxJumpNormRes: " << globalMaxJumpNormRes << nl 
         // << "    maxFluxNormRes: " << globalMaxFluxNormRes << nl
         << "    globalMaxJumpRes: " << globalMaxJumpRes << nl 
-        << "    globalMaxJumpRes: " << globalMaxFluxRes << endl;
+        << "    globalMaxFluxRes: " << globalMaxFluxRes << endl;
     }
 }
 
@@ -323,6 +323,25 @@ bool Foam::dnaControl::criteriaSatisfied()
         
         criteriaSatisfied =
             criteriaSatisfied && (globalMaxFluxRes[controlI] <= dnaResidualControl_[controlI].maxFluxRes);
+    }
+
+    // output initial and final residual
+    if(corr_ == 2)
+    {
+        forAll(dnaResidualControl_, controlI)
+        {
+            Info<< "    initialMaxJumpRes: " << globalMaxJumpRes[controlI] << nl 
+                << "    initialMaxFluxRes: " << globalMaxFluxRes[controlI] << endl;
+        }
+    }
+
+    if(criteriaSatisfied || corr_ == maxCoupleIter_)
+    {
+        forAll(dnaResidualControl_, controlI)
+        {
+            Info<< "    finalMaxJumpRes: " << globalMaxJumpRes[controlI] << nl 
+                << "    finalMaxFluxRes: " << globalMaxFluxRes[controlI] << endl;
+        }
     }
 
     return criteriaSatisfied;
