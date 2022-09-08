@@ -761,62 +761,13 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
              == fvc::div(phi_())
             );
 
-            label pRefCell = 0;
-            scalar pRefValue = 0.0;
-            bool pNeedRef = false;
-            bool procHasRef = false;
-
             // Find reference cell
             if (closedVolume_)
             {
-                point refPointi
-                (
-                    mesh().solutionDict().subDict("PIMPLE").lookup("pRefPoint")
-                );
-                label refCelli = mesh().findCell(refPointi);
-                label hasRef = (refCelli >= 0 ? 1 : 0);
-                label sumHasRef = returnReduce<label>(hasRef, sumOp<label>());
-
-                if (sumHasRef != 1)
-                {
-                    FatalError<< "Unable to set reference cell for field "
-                              << p_().name()<< nl 
-                              << "Reference point pRefPoint"
-                              << " found on " << sumHasRef 
-                              << " domains (should be one)"
-                              << nl << exit(FatalError);
-                }
-
-                if (hasRef)
-                {
-                     pRefCell = refCelli;
-                     procHasRef = true;
-                }
-
-                pRefValue =
-                    readScalar(mesh().solutionDict()
-                    .subDict("PIMPLE").lookup("pRefValue"));
-
-//                    if (pNeedRef && procHasRef)
-                {
-                    pEqn.source()[pRefCell] +=
-                        pEqn.diag()[pRefCell]*pRefValue;
-
-                    pEqn.diag()[pRefCell] +=
-                        pEqn.diag()[pRefCell];
-                }
+                //#   include "setRefCell.H"
+                pEqn.setReference(pRefCell_, pRefValue_);
             }
 
-//            if (closedVolume_)
-//            {
-//                point refPoint
-//                (
-//                    mesh().solutionDict().subDict("PIMPLE").lookup("pRefPoint")
-//                );
-//                pRefCell_ = mesh().findCell(refPoint);
-
-//                pEqn.setReference(pRefCell_, pRefValue_);
-//            }
 
             pEqn.solve
             (
