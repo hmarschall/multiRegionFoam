@@ -166,6 +166,10 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
         return;
     }
 
+    // Update and correct the region interface physics
+    const_cast<regionInterface&>(rgInterface()).update();
+    const_cast<regionInterface&>(rgInterface()).correct();
+
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& 
         nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
