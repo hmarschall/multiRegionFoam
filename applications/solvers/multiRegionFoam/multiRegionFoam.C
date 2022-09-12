@@ -61,14 +61,15 @@ int main(int argc, char *argv[])
     {
 //         if (!LTS)
 //         {
-              #include "createTimeControls.H"
+//              #include "createTimeControls.H"
 //            #include "multiRegionCourantNo.H"
 //            #include "setMultiRegionDeltaT.H"
 //         }
 //         else
 //         {
-               multiRegion().setRDeltaT();
 //         }
+
+        #include "setDeltaT.H"
 
         runTime++;
 

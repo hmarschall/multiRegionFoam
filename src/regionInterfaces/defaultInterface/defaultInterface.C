@@ -63,4 +63,8 @@ void Foam::regionInterfaces::defaultInterface::correct()
     // do nothing
 }
 
+Foam::scalar Foam::regionInterfaces::defaultInterface::getMinDeltaT()
+{
+    return GREAT;
+}
 // ************************************************************************* //

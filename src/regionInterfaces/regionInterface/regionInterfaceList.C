@@ -289,5 +289,16 @@ void Foam::regionInterfaceList::update()
    }
 }
 
+Foam::scalar Foam::regionInterfaceList::getMinDeltaT()
+{
+    scalar minDeltaT = GREAT;
+    forAll(*this, i)
+    {
+        minDeltaT = min(minDeltaT, this->operator[](i).getMinDeltaT());
+    }
+
+    return minDeltaT;
+}
+
 
 // ************************************************************************* //

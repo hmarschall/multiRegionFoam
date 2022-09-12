@@ -151,7 +151,7 @@ public:
 
         void setCoupledEqns();
 
-        void setRDeltaT();
+        scalar getMinDeltaT();
         
         void postSolve();
 

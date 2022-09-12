@@ -216,12 +216,15 @@ void Foam::regionTypeList::preSolve()
 }
 
 
-void Foam::regionTypeList::setRDeltaT()
+Foam::scalar Foam::regionTypeList::getMinDeltaT()
 {
+    scalar minDeltaT = GREAT;
     forAll(*this, i)
     {
-        this->operator[](i).setRDeltaT();
+        minDeltaT = min(minDeltaT, this->operator[](i).getMinDeltaT());
     }
+
+    return minDeltaT;
 }
 
 

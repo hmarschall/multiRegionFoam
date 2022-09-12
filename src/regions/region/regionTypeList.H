@@ -102,8 +102,8 @@ public:
         //- Update the meshes and correct model properties
         void preSolve();
 
-        //- Set reverse time step
-        void setRDeltaT();
+        //- Get minimum time step
+        scalar getMinDeltaT();
 
         //- Solve region-inherent physics
         void solveRegion();

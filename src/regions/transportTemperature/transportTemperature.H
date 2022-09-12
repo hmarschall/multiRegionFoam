@@ -145,7 +145,7 @@ public:
 
         virtual void correct();
 
-        virtual void setRDeltaT();
+        virtual scalar getMinDeltaT();
 
         virtual void solveRegion();
 

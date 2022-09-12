@@ -150,7 +150,7 @@ public:
 
         virtual void correct() = 0;
 
-        virtual void setRDeltaT() = 0;
+        virtual scalar getMinDeltaT() = 0;
 
         virtual void solveRegion() = 0;
 

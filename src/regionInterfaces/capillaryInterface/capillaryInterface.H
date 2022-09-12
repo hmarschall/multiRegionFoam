@@ -80,6 +80,9 @@ public:
  
     // Correct interface physics - here surface tension
     void correct(); 
+
+    // Get min time step based on stability criteria
+    scalar getMinDeltaT();
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

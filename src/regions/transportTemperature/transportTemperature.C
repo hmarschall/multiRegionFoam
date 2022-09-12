@@ -291,9 +291,9 @@ void Foam::regionTypes::transportTemperature::correct()
 }
 
 
-void Foam::regionTypes::transportTemperature::setRDeltaT()
+Foam::scalar Foam::regionTypes::transportTemperature::getMinDeltaT()
 {
-    // do nothing, add as required
+    return GREAT;
 }
 
 

@@ -175,6 +175,9 @@ public:
         
         //- Interface properties
         void makeFaMesh() const;
+
+        //- Get min time step
+        scalar getMinDeltaT();
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

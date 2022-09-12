@@ -86,5 +86,29 @@ void Foam::regionInterfaces::capillaryInterface::correct()
     // for contaminated surfaces 
 }
 
+Foam::scalar Foam::regionInterfaces::capillaryInterface::getMinDeltaT()
+{
+    scalar minDeltaT = GREAT;
+
+    if (meshA().foundObject<volScalarField>("rho"))
+    {
+        const scalarField& dE = aMesh().lPN();
+        scalar minDE = gMin(dE);
+        const scalarField& rhoA = meshA().lookupObject<volScalarField>("rho");
+        scalar minRhoA = gMin(rhoA);
+
+        minDeltaT =
+            0.9*
+            sqrt
+            (
+                minRhoA*minDE*minDE*minDE/
+                2.0/M_PI/(sigma0_.value() + SMALL)
+            );
+
+    }
+
+    return minDeltaT;
+}
+
 
 // ************************************************************************* //

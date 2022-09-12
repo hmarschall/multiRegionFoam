@@ -72,6 +72,9 @@ public:
 
     // Correct interface physics
     void correct();
+
+    // Get min time step based on stability criteria
+    scalar getMinDeltaT();
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

@@ -572,10 +572,12 @@ void Foam::regionTypes::pUCoupledIcoFluid::correct()
     }
 }
 
-void Foam::regionTypes::pUCoupledIcoFluid::setRDeltaT()
+Foam::scalar Foam::regionTypes::pUCoupledIcoFluid::getMinDeltaT()
 {
-    #include "CourantNo.H"
-    #include "setDeltaT.H"
+    //- TODO: implement deltaT based on CFL criteria
+    // #include "CourantNo.H"
+    // #include "setDeltaT.H"
+    return GREAT;
 }
 
 

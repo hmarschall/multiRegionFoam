@@ -488,6 +488,9 @@ public:
 
             // Update on topology change
             bool updateMesh(const mapPolyMesh&) const;
+
+            // Set deltaT based on interface stability criteria
+            virtual scalar getMinDeltaT() = 0;
 };
 
 template<class Type>

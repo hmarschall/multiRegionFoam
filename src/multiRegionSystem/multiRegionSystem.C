@@ -375,9 +375,14 @@ void Foam::multiRegionSystem::preSolve()
 }
 
 
-void Foam::multiRegionSystem::setRDeltaT()
+Foam::scalar Foam::multiRegionSystem::getMinDeltaT()
 {
-    regions_->setRDeltaT();
+    //- set delta t based on volumetric stability criterion
+    scalar minRegionDeltaT = regions_->getMinDeltaT();
+    //- set delta t based on interface stability criterion
+    scalar minInterfaceDeltaT = interfaces_->getMinDeltaT();
+
+    return min(minRegionDeltaT, minInterfaceDeltaT);
 }
 
 

@@ -611,9 +611,10 @@ void Foam::regionTypes::icoFluid::correct()
 }
 
 
-void Foam::regionTypes::icoFluid::setRDeltaT()
+Foam::scalar Foam::regionTypes::icoFluid::getMinDeltaT()
 {
-    // do nothing, add as required
+    //- TODO: implement deltaT based on CFL criteria
+    return GREAT;
 }
 
 

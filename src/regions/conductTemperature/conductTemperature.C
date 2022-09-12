@@ -195,9 +195,9 @@ void Foam::regionTypes::conductTemperature::correct()
 }
 
 
-void Foam::regionTypes::conductTemperature::setRDeltaT()
+Foam::scalar Foam::regionTypes::conductTemperature::getMinDeltaT()
 {
-    // do nothing, add as required
+    return GREAT;
 }
 
 
