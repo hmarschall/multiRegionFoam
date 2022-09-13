@@ -89,13 +89,6 @@ protected:
         //- Reference to neighbour patch
         const fvPatch& nbrPatch() const;
 
-        //- Interpolate from neighbour patch values
-        template<class Type>
-        tmp<Field<Type> > interpolateFromNbrField
-        (
-            const Field<Type>& fromField
-        ) const;
-
 
 public:
 
@@ -117,6 +110,13 @@ public:
 
 
     // Member Functions
+
+            //- Interpolate from neighbour patch values
+            template<class Type>
+            tmp<Field<Type> > interpolateFromNbrField
+            (
+                const Field<Type>& fromField
+            ) const;
 
         // Access
 

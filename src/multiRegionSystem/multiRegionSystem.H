@@ -89,6 +89,8 @@ class multiRegionSystem
         //  per coupling method
         List<hashedWordList> fldNames_;
 
+        HashPtrTable<dnaControl> dnaControls_;
+
     // Private member functions
 
         //- Solve pressure-velocity system using PIMPLE

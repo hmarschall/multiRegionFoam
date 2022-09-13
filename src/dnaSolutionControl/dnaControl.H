@@ -38,6 +38,7 @@ Description
 #include "fvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
+#include "HashPtrTable.H"
 #include "regionInterfaceList.H"
 #include "genericRegionCoupledFluxFvPatchField.H"
 #include "genericRegionCoupledJumpFvPatchField.H"
@@ -63,6 +64,8 @@ public:
         word name;
         scalar maxJumpRes;
         scalar maxFluxRes;
+        Switch outputJumpResField;
+        Switch outputFluxResField;
     };
 
 protected:
@@ -81,6 +84,12 @@ protected:
 
         //- List of residual data per sub field
         List<fieldData> dnaResidualControl_;
+
+        //- Hashed ptr tables for residual fields
+        HashPtrTable<volScalarField> initialJumpResFields_;
+        HashPtrTable<volScalarField> initialFluxResFields_;
+        HashPtrTable<volScalarField> finalJumpResFields_;
+        HashPtrTable<volScalarField> finalFluxResFields_;
 
         //- Maximum coupling iterations (partitioned)
         label maxCoupleIter_;
@@ -111,6 +120,25 @@ protected:
             scalar& globalMaxFluxRes
         );
 
+        template<class Type>
+        void writeResFields
+        (
+            const regionInterface& interface,
+            const word& fieldName,
+            const Switch outputJumpResField,
+            const Switch outputFluxResField,
+            bool final
+        );
+
+        void writeResFields
+        (
+            const regionInterface& interface,
+            const word& fieldName,
+            const Switch outputJumpResField,
+            const Switch outputFluxResField,
+            bool final
+        );
+
         //- Return true if all convergence checks are satisfied
         virtual bool criteriaSatisfied();
 
@@ -123,6 +151,9 @@ private:
 
         //- Disallow default bitwise assignment
         void operator=(const dnaControl&);
+
+        //- create residual fields that should be written to disk
+        void createResFields();
 
 public:
 

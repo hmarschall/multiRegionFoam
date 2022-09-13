@@ -321,7 +321,9 @@ Foam::multiRegionSystem::multiRegionSystem
     tensorFlds_(2),
     vector4Flds_(2),
 
-    fldNames_(2)
+    fldNames_(2),
+
+    dnaControls_()
 {
     Info << "Creating regions:" << endl;
     regions_.set
@@ -345,6 +347,16 @@ Foam::multiRegionSystem::multiRegionSystem
     //  (0 = partitioned, 1 = monolithic)
     fldNames_[0] = interfaces_->pcFldNames();
     fldNames_[1] = interfaces_->mcFldNames();
+
+    forAll (fldNames_[0], fldI)
+    {
+        dnaControls_.set
+        (
+            fldNames_[0][fldI],
+            new dnaControl(runTime_, fldNames_[0][fldI], interfaces())
+        );
+    }
+
 
     //- assemble list of coupled fields
     assembleCoupledFields<scalar>(scalarFlds_, fldNames_);
@@ -400,8 +412,7 @@ void Foam::multiRegionSystem::solve()
     // - Solve pressure-velocity system using PIMPLE
     if (fldNames_[0].contains("UpPimple"))
     {
-        dnaControl dna(runTime_, "UpPimple", interfaces());
-        while (dna.loop())
+        while (dnaControls_["UpPimple"]->loop())
         {
             solvePIMPLE();
         }
@@ -419,8 +430,7 @@ void Foam::multiRegionSystem::solve()
         }
 
         // outer coupling loop
-        dnaControl dna(runTime_, fldName, interfaces());
-        while (dna.loop())
+        while (dnaControls_[fldName]->loop())
         {
             assembleAndSolveEqns<fvMatrix, scalar>(fldName);
             assembleAndSolveEqns<fvMatrix, vector>(fldName);
