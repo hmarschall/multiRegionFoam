@@ -75,7 +75,15 @@ void Foam::multiRegionSystem::solvePIMPLE()
     {
         regionType& rg = const_cast<regionType&>(regions_()[regI]);
         rg.pressureCorrector();
-    }   
+    }
+
+    forAll (regions_(), regI)
+    {
+        regionType& rg = const_cast<regionType&>(regions_()[regI]);
+        rg.update();
+    }
+
+    interfaces_->update();
 }
 
 template< template<class> class M, class T>
