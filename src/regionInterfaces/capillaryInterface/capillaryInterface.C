@@ -97,8 +97,11 @@ Foam::scalar Foam::regionInterfaces::capillaryInterface::getMinDeltaT()
         const scalarField& rhoA = meshA().lookupObject<volScalarField>("rho");
         scalar minRhoA = gMin(rhoA);
 
+        scalar maxCapillaryCo =
+            runTime().controlDict().lookupOrDefault<scalar>("maxCapillaryCo", 1.0);
+
         minDeltaT =
-            0.9*
+            maxCapillaryCo*
             sqrt
             (
                 minRhoA*minDE*minDE*minDE/
