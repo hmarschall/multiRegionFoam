@@ -284,6 +284,7 @@ Foam::regionTypes::icoFluid::icoFluid
             )
         );
     }
+    phi_().oldTime();
 
     // look up phiHbyA_ field from object registry
     if (mesh().foundObject<surfaceScalarField>("phiHbyA"))
@@ -816,6 +817,8 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
         << "  max: " << gMax(U_()) << nl
         << "  min: "<< gMax(U_()) << nl
         << "  mean: " << gAverage(U_()) << nl
+        << mesh().name() << " Volume: "
+        << gSum(mesh().V()) << nl
         << endl;
 }
 
