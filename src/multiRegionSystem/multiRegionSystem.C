@@ -77,11 +77,11 @@ void Foam::multiRegionSystem::solvePIMPLE()
         rg.pressureCorrector();
     }
 
-    forAll (regions_(), regI)
-    {
-        regionType& rg = const_cast<regionType&>(regions_()[regI]);
-        rg.update();
-    }
+//    forAll (regions_(), regI)
+//    {
+//        regionType& rg = const_cast<regionType&>(regions_()[regI]);
+//        rg.update(); //interface patch corrector
+//    }
 
     interfaces_->update();
 }
@@ -413,7 +413,7 @@ void Foam::multiRegionSystem::solve()
 
     interfaces_->detach();
 
-    // Solve each inherent region physics
+    // Solve individual region physics
     regions_->solveRegion();
 
     // Solve region-region coupling (partitioned)
@@ -424,6 +424,13 @@ void Foam::multiRegionSystem::solve()
         {
             solvePIMPLE();
         }
+
+        //interface patch corrector
+//        forAll (regions_(), regI)
+//        {
+//            regionType& rg = const_cast<regionType&>(regions_()[regI]);
+//            rg.update();
+//        }
     }
 
     // - Solve other interface coupled fields   
