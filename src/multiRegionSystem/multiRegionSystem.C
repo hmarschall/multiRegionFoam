@@ -75,7 +75,15 @@ void Foam::multiRegionSystem::solvePIMPLE()
     {
         regionType& rg = const_cast<regionType&>(regions_()[regI]);
         rg.pressureCorrector();
-    }   
+    }
+
+//    forAll (regions_(), regI)
+//    {
+//        regionType& rg = const_cast<regionType&>(regions_()[regI]);
+//        rg.update(); //interface patch corrector
+//    }
+
+    interfaces_->update();
 }
 
 template< template<class> class M, class T>
@@ -405,20 +413,40 @@ void Foam::multiRegionSystem::solve()
 
     interfaces_->detach();
 
-    // Solve each inherent region physics
+    // Solve individual region physics
     regions_->solveRegion();
 
     // Solve region-region coupling (partitioned)
+
     // - Solve pressure-velocity system using PIMPLE
     if (fldNames_[0].contains("UpPimple"))
     {
+        //for (int j=0; j<3; j++)
+        //{
         while (dnaControls_["UpPimple"]->loop())
         {
-            solvePIMPLE();
+            //solvePIMPLE();
+            regions_->solvePIMPLE();
+
+            //interface patch corrector
+            forAll (regions_(), regI)
+            {
+                const_cast<regionType&>(regions_()[regI]).update();
+            }
+
+            interfaces_->update();
         }
+
+        //interface patch corrector
+//        forAll (regions_(), regI)
+//        {
+//            const_cast<regionType&>(regions_()[regI]).update();
+//        }
+//        interfaces_->update();
+        //}
     }
 
-    // - Solve other interface coupled fields   
+    // - Solve other region-region coupled fields   
     forAll (fldNames_[0], fldI)
     {
         word fldName = fldNames_[0][fldI];

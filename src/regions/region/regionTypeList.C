@@ -246,6 +246,36 @@ void Foam::regionTypeList::solveRegion()
     }
 }
 
+void Foam::regionTypeList::solvePIMPLE()
+{
+    // We do not have a top-level mesh. Construct the fvSolution for
+    // the runTime instead.
+    fvSolution solutionDict(runTime_);
+
+    const dictionary& pimple = solutionDict.subDict("PIMPLE");
+
+    int nOuterCorr(readInt(pimple.lookup("nOuterCorrectors")));
+
+    //- PIMPLE loop
+    for (int oCorr=0; oCorr<nOuterCorr; oCorr++)
+    {
+        forAll(*this, i)
+        {
+            this->operator[](i).prePredictor();
+        }
+
+        forAll(*this, i)
+        {
+            this->operator[](i).momentumPredictor();
+        }
+
+        forAll(*this, i)
+        {
+            this->operator[](i).pressureCorrector();
+        }
+    }
+}
+
 void Foam::regionTypeList::setCoupledEqns()
 {
     forAll(*this, i)
