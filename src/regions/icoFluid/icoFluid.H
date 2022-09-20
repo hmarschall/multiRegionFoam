@@ -89,10 +89,14 @@ class icoFluid
 
         autoPtr<volScalarField> p_;
 
-        //- fields for poison equation for the pressure
+        //- fields for p-U coupling
         autoPtr<volScalarField> AU_;
 
         autoPtr<volVectorField> HU_;
+
+        IOobject UfHeader_;
+
+        surfaceVectorField Uf_;
 
         //- gradients
         autoPtr<volVectorField> gradp_;
@@ -224,6 +228,8 @@ public:
         virtual void momentumPredictor();
 
         virtual void pressureCorrector();
+
+        virtual void meshMotionCorrector();
         
         virtual void postSolve();
 };

@@ -88,12 +88,26 @@ Foam::regionTypes::icoFluid::icoFluid
     U_(nullptr),
     phi_(nullptr),
     phiHbyA_(nullptr),
-    p_(nullptr),    
+    p_(nullptr),
     AU_(nullptr),
-    HU_(nullptr),              
-    gradp_(nullptr), 
-    gradU_(nullptr), 
-    pcorrTypes_(),   
+    HU_(nullptr),
+    UfHeader_
+    (
+        "Uf",
+        mesh().time().timeName(),
+        mesh(),
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
+    ),
+    Uf_
+    (
+        UfHeader_,
+        mesh(),
+        dimensionedVector("0", dimVelocity, vector::zero)
+    ),
+    gradp_(nullptr),
+    gradU_(nullptr),
+    pcorrTypes_(),
     pcorr_(nullptr),
     UUrf_ 
     ( 
@@ -508,10 +522,10 @@ Foam::regionTypes::icoFluid::icoFluid
     }
 
     pcorrTypes_ = wordList
-                (
-                    p_().boundaryField().size(),
-                    zeroGradientFvPatchScalarField::typeName
-                );
+    (
+        p_().boundaryField().size(),
+        zeroGradientFvPatchScalarField::typeName
+    );
     
     for (label i = 0; i<p_().boundaryField().size(); i++)
     {
@@ -820,6 +834,18 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
         << mesh().name() << " Volume: "
         << gSum(mesh().V()) << nl
         << endl;
+}
+
+void Foam::regionTypes::icoFluid::meshMotionCorrector()
+{
+    mesh().update();
+
+    if(!UfHeader_.headerOk())
+    {
+        Uf_ = fvc::interpolate(U_());
+        surfaceVectorField n(mesh().Sf()/mesh().magSf());
+        Uf_ += n*(phi_()/mesh().magSf() - (n & Uf_));
+    }
 }
 
 // ************************************************************************* //

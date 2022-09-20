@@ -678,4 +678,9 @@ void Foam::regionTypes::pUCoupledIcoFluid::pressureCorrector()
     // do nothing, add as required
 }
 
+void Foam::regionTypes::pUCoupledIcoFluid::meshMotionCorrector()
+{
+    // do nothing, add as required
+}
+
 // ************************************************************************* //

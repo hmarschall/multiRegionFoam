@@ -242,4 +242,9 @@ void Foam::regionTypes::conductTemperature::pressureCorrector()
     // do nothing, add as required
 }
 
+void Foam::regionTypes::conductTemperature::meshMotionCorrector()
+{
+    // do nothing, add as required
+}
+
 // ************************************************************************* //

@@ -276,6 +276,14 @@ void Foam::regionTypeList::solvePIMPLE()
     }
 }
 
+void Foam::regionTypeList::meshMotionCorrector()
+{
+    forAll(*this, i)
+    {
+        this->operator[](i).meshMotionCorrector();
+    }
+}
+
 void Foam::regionTypeList::setCoupledEqns()
 {
     forAll(*this, i)

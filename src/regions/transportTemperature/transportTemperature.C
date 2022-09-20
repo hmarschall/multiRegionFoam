@@ -339,4 +339,9 @@ void Foam::regionTypes::transportTemperature::pressureCorrector()
     // do nothing, add as required
 }
 
+void Foam::regionTypes::transportTemperature::meshMotionCorrector()
+{
+    // do nothing, add as required
+}
+
 // ************************************************************************* //

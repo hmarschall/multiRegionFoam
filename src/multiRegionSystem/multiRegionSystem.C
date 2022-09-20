@@ -57,35 +57,6 @@ const Foam::NamedEnum
 
 // * * * * * * * * * * * * * * * Private functions * * * * * * * * * * * * * //
 
-void Foam::multiRegionSystem::solvePIMPLE()
-{
-    forAll (regions_(), regI)
-    {
-        regionType& rg = const_cast<regionType&>(regions_()[regI]);
-        rg.prePredictor();
-    }
-
-    forAll (regions_(), regI)
-    {
-        regionType& rg = const_cast<regionType&>(regions_()[regI]);
-        rg.momentumPredictor();
-    }
-
-    forAll (regions_(), regI)
-    {
-        regionType& rg = const_cast<regionType&>(regions_()[regI]);
-        rg.pressureCorrector();
-    }
-
-//    forAll (regions_(), regI)
-//    {
-//        regionType& rg = const_cast<regionType&>(regions_()[regI]);
-//        rg.update(); //interface patch corrector
-//    }
-
-    interfaces_->update();
-}
-
 template< template<class> class M, class T>
 void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
 (
@@ -397,9 +368,9 @@ void Foam::multiRegionSystem::preSolve()
 
 Foam::scalar Foam::multiRegionSystem::getMinDeltaT()
 {
-    //- set delta t based on volumetric stability criterion
+    //- set deltaT based on volumetric stability criterion
     scalar minRegionDeltaT = regions_->getMinDeltaT();
-    //- set delta t based on interface stability criterion
+    //- set deltaT based on interface stability criterion
     scalar minInterfaceDeltaT = interfaces_->getMinDeltaT();
 
     return min(minRegionDeltaT, minInterfaceDeltaT);
@@ -418,35 +389,22 @@ void Foam::multiRegionSystem::solve()
 
     // Solve region-region coupling (partitioned)
 
-    // - Solve pressure-velocity system using PIMPLE
+    //- Solve pressure-velocity system using PIMPLE
     if (fldNames_[0].contains("UpPimple"))
     {
-        //for (int j=0; j<3; j++)
-        //{
         while (dnaControls_["UpPimple"]->loop())
         {
-            //solvePIMPLE();
+            // PIMPLE p-U-coupling
             regions_->solvePIMPLE();
 
-            //interface patch corrector
-            forAll (regions_(), regI)
-            {
-                const_cast<regionType&>(regions_()[regI]).update();
-            }
+            // ALE mesh motion corrector
+            regions_->meshMotionCorrector();
 
             interfaces_->update();
         }
-
-        //interface patch corrector
-//        forAll (regions_(), regI)
-//        {
-//            const_cast<regionType&>(regions_()[regI]).update();
-//        }
-//        interfaces_->update();
-        //}
     }
 
-    // - Solve other region-region coupled fields   
+    //- Solve other region-region coupled fields   
     forAll (fldNames_[0], fldI)
     {
         word fldName = fldNames_[0][fldI];
