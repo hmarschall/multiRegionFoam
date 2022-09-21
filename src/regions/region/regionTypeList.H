@@ -111,6 +111,9 @@ public:
         //- Solve pressure-velocity system using PIMPLE
         void solvePIMPLE();
 
+        //- Correct for mesh motion after PIMPLE loop
+        void meshMotionCorrector();
+
         //- Set equations for coupled solution
         void setCoupledEqns();
 
