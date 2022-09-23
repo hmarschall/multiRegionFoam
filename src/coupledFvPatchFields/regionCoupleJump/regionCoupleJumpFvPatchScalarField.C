@@ -41,7 +41,8 @@ regionCoupleJumpFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF),
     coupleManager_(p),
-    kName_("none")
+    kName_("none"),
+    K_(0)
 {}
 
 
@@ -56,7 +57,8 @@ regionCoupleJumpFvPatchScalarField
 :
     fixedValueFvPatchScalarField(ptf, p, iF, mapper),
     coupleManager_(ptf.coupleManager_),
-    kName_(ptf.kName_)
+    kName_(ptf.kName_),
+    K_(ptf.K_)
 {}
 
 
@@ -70,7 +72,8 @@ regionCoupleJumpFvPatchScalarField
 :
     fixedValueFvPatchScalarField(p, iF),
     coupleManager_(p, dict),
-    kName_(dict.lookup("k"))
+    kName_(dict.lookup("k")),
+    K_(readScalar(dict.lookup("K")))
 {
     if (dict.found("value"))
     {
@@ -95,7 +98,8 @@ regionCoupleJumpFvPatchScalarField
 :
     fixedValueFvPatchScalarField(wtcsf, iF),
     coupleManager_(wtcsf.coupleManager_),
-    kName_(wtcsf.kName_)
+    kName_(wtcsf.kName_),
+    K_(wtcsf.K_)
 {}
 
 
@@ -125,13 +129,10 @@ void Foam::regionCoupleJumpFvPatchScalarField::updateCoeffs()
 //        readScalar(coupledSolutionDict
 //        .subDict("partitioned").lookup("coupleRelaxFactor"));
 
-    scalar relax = 0.2;
+    scalar relax = 0.5;
 
-    // Lookup diffusivity field
-    const fvPatchScalarField& kpf =
-	lookupPatchField<volScalarField, scalar>(kName_);
     // Enforce psi jump boundary condition
-    operator==(*this + relax*(kpf*psiNbr2Own - *this));
+    operator==(*this + relax*(K_*psiNbr2Own - *this));
 
     fixedValueFvPatchScalarField::updateCoeffs();
 }
@@ -162,17 +163,13 @@ Foam::regionCoupleJumpFvPatchScalarField::maxResidual() const
     patchToPatchInterpolation interpolator(nbrPatch, ownPatch);
     scalarField psiNbr2Own = interpolator.faceInterpolate(psiNbr);
 
-    // Lookup diffusivity field
-    const fvPatchScalarField& kpf =
-	lookupPatchField<volScalarField, scalar>(kName_);
-
     // Calculate the maximum normalized residual
     const scalarField& psiOwn = *this;
     scalar residual =
         gMax
         (
-            mag(psiOwn - kpf*psiNbr2Own)/
-            max(min(gMax(psiOwn),gMax(kpf*psiNbr2Own)), SMALL)
+            mag(psiOwn - K_*psiNbr2Own)/
+            max(min(gMax(psiOwn),gMax(K_*psiNbr2Own)), SMALL)
         );
 
     return residual;
@@ -188,6 +185,7 @@ void Foam::regionCoupleJumpFvPatchScalarField::write
     fvPatchScalarField::write(os);
     coupleManager_.writeEntries(os);
     writeEntry("k", os);
+    os.writeKeyword("K") << K_ << token::END_STATEMENT << nl;
     writeEntry("value", os);
 }
 

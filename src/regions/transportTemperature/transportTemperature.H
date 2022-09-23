@@ -67,9 +67,6 @@ class transportTemperature
         //- transport properties dictionary 
         IOdictionary transportProperties_;
 
-        //- thermal conductivity
-        dimensionedScalar k_;
-
         //- specific heat
         dimensionedScalar cp_;
 
@@ -78,6 +75,9 @@ class transportTemperature
 
         //- transport
         autoPtr<volVectorField> U_;
+
+        //- thermal conductivity
+        autoPtr<volScalarField> k_;
 
         //- thermal diffusivity
         autoPtr<volScalarField> alpha_;
