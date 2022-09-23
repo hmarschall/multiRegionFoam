@@ -25,10 +25,12 @@ boundaryField
 {
     top
     {
-       type                     regionCoupleHeatFlux;
+       type                     regionCoupleJump;
        neighbourRegionName      solid;
        neighbourPatchName       bottom;
        neighbourFieldName       T;
+       k			k;
+       K			1.0;
        value                    $internalField;
     }
     bottom

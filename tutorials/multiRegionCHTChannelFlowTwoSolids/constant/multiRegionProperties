@@ -17,16 +17,10 @@ FoamFile
 regions
 (
     transportTemperature (fluid)
-    conductTemperature (solid)
-    conductTemperature (support)
+    conductTemperature (solid support)
 );
 
 partitionedTypeRegionInterfaces
-(
-    
-);
-
-monolithicTypeRegionInterfaces
 (
     fluidSolid 
     (
@@ -37,6 +31,17 @@ monolithicTypeRegionInterfaces
     (
 	(((solid bottom)(support top)) (T))
     )
+);
+
+monolithicTypeRegionInterfaces
+(
+    
+);
+
+// Assembles a super-mesh
+superMeshRegions
+(
+
 );
 
 partitionedCoupling

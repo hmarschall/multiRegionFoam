@@ -14,7 +14,7 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-couplingMethod          monolithic; //partitioned;
+couplingMethod          	partitioned; //monolithic;
 
 partitioned
 {
