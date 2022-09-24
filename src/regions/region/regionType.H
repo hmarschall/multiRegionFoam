@@ -125,7 +125,7 @@ public:
         }
 
         //- Return const reference to the mesh
-        const dynamicFvMesh& mesh() const
+        const fvMesh& mesh() const
         {
             return meshPtr_();
         }

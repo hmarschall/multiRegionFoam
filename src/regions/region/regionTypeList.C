@@ -202,17 +202,51 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
 
 void Foam::regionTypeList::preSolve()
 {
+    wordList updated;
+
+    label n = 0;
+
     forAll(*this, i)
     {
         // mesh update (one sweep before solving)
         // Note: multiple coupled regions require an
         // updated system meshes prior to solution
         // (see Peric)
-        this->operator[](i).update();
+        if (findIndex(updated, this->operator[](i).mesh().name()) == -1)
+        {
+            updated.setSize(updated.size()+1);
+
+            updated[n] = this->operator[](i).mesh().name();
+
+            this->operator[](i).update();
+
+            n++;
+        }
 
         // correct properties
         this->operator[](i).correct();
     }
+
+//    forAll(*this, i)
+//    {
+//        // mesh update (one sweep before solving)
+//        // Note: multiple coupled regions require an
+//        // updated system meshes prior to solution
+//        // (see Peric)
+//        if (updated.found(this->operator[](i).mesh().name()))
+//        {
+//            updated.set
+//            (
+//                this->operator[](i).mesh().name(),
+//                new bool(true)
+//            );
+
+//            this->operator[](i).update();
+//        }
+
+//        // correct properties
+//        this->operator[](i).correct();
+//    }
 }
 
 
