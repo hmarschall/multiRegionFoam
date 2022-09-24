@@ -158,7 +158,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
         // TODO: need more consistency checks:
         //  - Is the regionCouple bc set for fldName?
         //  - AND: Is this region adjacent to the relevant regionInterface?
-        dynamicFvMesh& mesh = const_cast<dynamicFvMesh&>(regions_()[regI].mesh());
+        fvMesh& mesh = const_cast<fvMesh&>(regions_()[regI].mesh());
 
         {
             const polyPatchList& patches = mesh.boundaryMesh();
@@ -184,10 +184,10 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             << endl;
 
 
-        pimpleControl pimpleControlRegion(rg.mesh());
+//        pimpleControl pimpleControlRegion(rg.mesh());
 
-        while (pimpleControlRegion.correctNonOrthogonal())
-        {
+//        while (pimpleControlRegion.correctNonOrthogonal())
+//        {
             // set and get coupled equation with the possibly updated boundary conditions
             rg.setCoupledEqns();
             M<T>& eqn =
@@ -201,7 +201,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             eqn.solve();
 
             rg.postSolve();
-        }
+//        }
     }
 }
 
