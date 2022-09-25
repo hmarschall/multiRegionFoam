@@ -124,9 +124,27 @@ Foam::regionTypes::conductTemperature::conductTemperature
 //        dimensionedScalar("T0", dimTemperature, pTraits<scalar>::zero),
 //        zeroGradientFvPatchScalarField::typeName
 //    ),
+    alpha_(nullptr),
     k_(nullptr),
     T_(nullptr)
 {
+    alpha_.reset
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "alpha",
+                mesh().time().timeName(),
+                mesh(),
+                IOobject::READ_IF_PRESENT,
+                IOobject::NO_WRITE
+            ),
+            mesh(),
+            dimensionedScalar("alpha", dimensionSet(0,2,-1,0,0,0,0), 0)
+        )
+    );
+
     k_.reset
     (
         new volScalarField
@@ -160,7 +178,7 @@ Foam::regionTypes::conductTemperature::conductTemperature
         )
     );
 
-
+    alpha_() = k_()/(rho_*cv_);
 }
 
 
@@ -199,7 +217,7 @@ void Foam::regionTypes::conductTemperature::setCoupledEqns()
     );
 }
 
-void Foam::regionTypes::conductTemperature::updateFields()
+void Foam::regionTypes::conductTemperature::postSolve()
 {
     // do nothing, add as required
 }
@@ -209,5 +227,19 @@ void Foam::regionTypes::conductTemperature::solveRegion()
     // do nothing, add as required
 }
 
+void Foam::regionTypes::conductTemperature::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::conductTemperature::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::conductTemperature::pressureCorrector()
+{
+    // do nothing, add as required
+}
 
 // ************************************************************************* //

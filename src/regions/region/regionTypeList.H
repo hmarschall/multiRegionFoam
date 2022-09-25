@@ -110,7 +110,7 @@ public:
         void reset(const regionProperties& region);
 
         //- Update the meshes and correct model properties
-        void updateAndCorrect();
+        void preSolve();
 
         //- Set reverse time step
         void setRDeltaT();
@@ -118,11 +118,14 @@ public:
         //- Solve region-inherent physics
         void solveRegion();
 
+        //- Solve pressure-velocity system using PIMPLE
+        void solvePIMPLE();
+
         //- Set equations for coupled solution
         void setCoupledEqns();
 
         //- Update fields after solution
-        void updateFields();
+        void postSolve();
 
         //- Clear regions
         void clear();

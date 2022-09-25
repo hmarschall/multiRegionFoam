@@ -25,18 +25,21 @@ boundaryField
 {
     top
     {
-       type                     regionCoupleHeatFlux;
+       type                     regionCoupleJump;
        neighbourRegionName      fluid;
        neighbourPatchName       bottom;
        neighbourFieldName       T;
+       k			k;
+       K			1.0;
        value                    $internalField;
     }
     bottom
     {
-       type                     regionCoupleHeatFlux;
+       type                     regionCoupleFlux;
        neighbourRegionName      support;
        neighbourPatchName       top;
        neighbourFieldName       T;
+       k			k;
        value                    $internalField;
     }
     left

@@ -41,6 +41,8 @@ SourceFiles
 #include "volFields.H"
 #include "dynamicFvMesh.H"
 #include "fvMatrix.H"
+#include "fvCFD.H"
+#include "fvBlockMatrix.H"
 #include "HashPtrTable.H"
 
 #include "mergePolyMesh.H"
@@ -75,6 +77,7 @@ protected:
         HashPtrTable<fvMatrix<vector> > fvVectorMatrices;
         HashPtrTable<fvMatrix<symmTensor> > fvSymmTensorMatrices;
         HashPtrTable<fvMatrix<tensor> > fvTensorMatrices;
+        HashPtrTable<fvBlockMatrix<vector4> > fvVector4Matrices;
 
 public:
 
@@ -151,15 +154,39 @@ public:
 
         virtual void solveRegion() = 0;
 
+        virtual void prePredictor() = 0;
+
+        virtual void momentumPredictor() = 0;
+
+        virtual void pressureCorrector() = 0;
+
         virtual void setCoupledEqns() = 0;
         
-        virtual void updateFields() = 0;
+        virtual void postSolve() = 0;
+
+        template<class T>
+        void relaxEqn(fvMatrix<T>* eqn)
+        {
+            eqn->relax();
+        }
+
+        template<class T>
+        void relaxEqn(fvBlockMatrix<T>* eqn)
+        {
+            //TODO: Relaxation of fvBlockMatricies currently not supported
+        }
 
 //        virtual void clear() = 0;
 
         // Get a ref to the fvMatrix 
-        template<class T>
-        fvMatrix<T>& getCoupledEqn
+        template< template<class> class M, class T>
+        M<T>* getCoupledEqn
+        (
+            word name
+        );
+
+        // Check if region holds fvMatrix 
+        bool foundCoupledEqn
         (
             word name
         );

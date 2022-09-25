@@ -67,6 +67,23 @@ SIMPLE
     }
 }
 
+PIMPLE
+{
+    // p-U coupling
+    nOuterCorrectors            50; // SIMPLEC loops
+    nCorrectors                 2; // PISO loops
+    nNonOrthogonalCorrectors    3;
+
+    residualControl
+    {
+        "(T)"
+        {
+            tolerance 1e-10;
+            relTol 0;
+        }
+    }
+}
+
 relaxationFactors
 {
 	T	1.0;

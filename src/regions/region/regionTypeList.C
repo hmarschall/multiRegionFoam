@@ -247,11 +247,14 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
 }
 
 
-void Foam::regionTypeList::updateAndCorrect()
+void Foam::regionTypeList::preSolve()
 {
     forAll(*this, i)
     {
         // mesh update (one sweep before solving)
+        // Note: multiple coupled regions require an
+        // updated system meshes prior to solution
+        // (see Peric)
         this->operator[](i).update();
 
         // correct properties
@@ -271,18 +274,54 @@ void Foam::regionTypeList::setRDeltaT()
 
 void Foam::regionTypeList::solveRegion()
 {
-    forAll(*this, i)
+    for (int j=0; j<5; j++)
     {
-        // mesh update
-//        this->operator[](i).update();
-
-        // Solve for region-specific physics
-        // This might require outer loops if
-        // coupling is achieved only by mutual
-        // boundary condition updates
-        for (int j=0; j<5; j++)
+        forAll(*this, i)
         {
-            this->operator[](i).solveRegion();
+            // Solve for region-specific physics
+            // This might require outer loops if
+            // coupling is achieved only by mutual
+            // boundary condition updates
+//            for (int j=0; j<5; j++)
+            {
+                this->operator[](i).solveRegion();
+            }
+        }
+    }
+}
+
+void Foam::regionTypeList::solvePIMPLE()
+{
+    // We do not have a top-level mesh. Construct the fvSolution for
+    // the runTime instead.
+    fvSolution solutionDict(runTime_);
+
+    const dictionary& pimple = solutionDict.subDict("PIMPLE");
+
+    int nOuterCorr(readInt(pimple.lookup("nOuterCorrectors")));
+
+    //- PIMPLE loop
+    for (int oCorr=0; oCorr<nOuterCorr; oCorr++)
+    {
+//        forAll(*this, i)
+//        {
+//            // mesh update
+//            this->operator[](i).update();
+//        }
+
+        forAll(*this, i)
+        {
+            this->operator[](i).prePredictor();
+        }
+
+        forAll(*this, i)
+        {
+            this->operator[](i).momentumPredictor();
+        }
+
+        forAll(*this, i)
+        {
+            this->operator[](i).pressureCorrector();
         }
     }
 }
@@ -295,11 +334,11 @@ void Foam::regionTypeList::setCoupledEqns()
     }
 }
 
-void Foam::regionTypeList::updateFields()
+void Foam::regionTypeList::postSolve()
 {
     forAll(*this, i)
     {
-        this->operator[](i).updateFields();
+        this->operator[](i).postSolve();
     }
 }
 

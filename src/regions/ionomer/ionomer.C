@@ -70,9 +70,6 @@ void Foam::regionTypes::ionomer::updateSourceTerms()
 {
     // heat source - joule heating protons
     sT_ = (kappa_()*(fvc::grad(phiP_())&fvc::grad(phiP_())))/T_();
-
-    // water content source - electro-osmotic drag
-    sLambda_ = (fvc::laplacian(xi_*kappa_()/FConst_, phiP_()))/lambda_();
 }	
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -338,7 +335,7 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
           rho_*cv_*fvm::ddt(T_())
         - fvm::laplacian(k_(), T_(), "laplacian(k,T)")
         ==
-          fvm::SuSp(sT_, T_())
+        - fvm::SuSp(-sT_, T_())
     );
 
     // ohm's law for protons
@@ -352,8 +349,7 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
     (
           1/VM_*fvm::ddt(lambda_())
         - fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")
-        ==
-          fvm::SuSp(sLambda_, lambda_())
+        + fvc::laplacian(xi_*kappa_()/FConst_, phiP_(), "laplacian(kappa,phiP)") 
     );
     
     fvScalarMatrices.set
@@ -375,28 +371,27 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
     );
 }
 
-void Foam::regionTypes::ionomer::updateFields()
+void Foam::regionTypes::ionomer::solveRegion()
 {
-    Info<< "Temperature = "
-            << T_().weightedAverage(mesh().V()).value()
-            << " Min(T) = " << min(T_()).value()
-            << " Max(T) = " << max(T_()).value()
-            << endl;
-
-    Info<< "Water content = "
-            << lambda_().weightedAverage(mesh().V()).value()
-            << " Min(lambda) = " << min(lambda_()).value()
-            << " Max(lambda) = " << max(lambda_()).value()
-            << endl;
-
-    Info<< "Electrolye Potential = "
-            << phiP_().weightedAverage(mesh().V()).value()
-            << " Min(phiP) = " << min(phiP_()).value()
-            << " Max(phiP) = " << max(phiP_()).value()
-            << endl;
+    // do nothing, add as required
 }
 
-void Foam::regionTypes::ionomer::solveRegion()
+void Foam::regionTypes::ionomer::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::ionomer::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::ionomer::pressureCorrector()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::ionomer::postSolve()
 {
     // do nothing, add as required
 }

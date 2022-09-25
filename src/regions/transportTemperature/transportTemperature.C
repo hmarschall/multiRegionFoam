@@ -58,30 +58,30 @@ Foam::regionTypes::transportTemperature::transportTemperature
 
     regionName_(regionName),
 
-    U_
-    (
-        IOobject
-        (
-            "U",
-            mesh().time().timeName(),
-            mesh(),
-            IOobject::MUST_READ,
-            IOobject::AUTO_WRITE
-        ),
-        mesh()
-    ),
-    phi_
-    (
-		IOobject
-		(
-			"phi",
-            mesh().time().timeName(),
-            mesh(),
-			IOobject::READ_IF_PRESENT,
-			IOobject::AUTO_WRITE
-		),
-		linearInterpolate(U_) & mesh().Sf()    
-    ),
+    // U_
+    // (
+    //     IOobject
+    //     (
+    //         "U",
+    //         mesh().time().timeName(),
+    //         mesh(),
+    //         IOobject::MUST_READ,
+    //         IOobject::AUTO_WRITE
+    //     ),
+    //     mesh()
+    // ),
+//    phi_
+//    (
+//		IOobject
+//		(
+//			"phi",
+//            mesh().time().timeName(),
+//            mesh(),
+//			IOobject::READ_IF_PRESENT,
+//			IOobject::AUTO_WRITE
+//		),
+//		linearInterpolate(U_) & mesh().Sf()    
+//    ),
 
     transportProperties_
     (
@@ -94,7 +94,6 @@ Foam::regionTypes::transportTemperature::transportTemperature
             IOobject::NO_WRITE
         )
     ),
-    k_(transportProperties_.lookup("k")),
     cp_(transportProperties_.lookup("cp")),
     rho_(transportProperties_.lookup("rho")),
 
@@ -124,43 +123,95 @@ Foam::regionTypes::transportTemperature::transportTemperature
 //        ),
 //        *this
 //    )
+    U_(nullptr),
+    k_(nullptr),
     alpha_(nullptr),
+    phi_(nullptr),
     T_(nullptr)
 {
-    alpha_.reset
-    (
-        new volScalarField
+    U_.reset
         (
-            IOobject
+            new volVectorField
             (
-                "alpha",
-                mesh().time().timeName(),
+                IOobject
+                (
+                    "U",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::MUST_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh()
+            )
+        );
+
+    phi_.reset
+        (
+            new surfaceScalarField
+            (
+		        IOobject
+		        (
+			        "phi",
+                    mesh().time().timeName(),
+                    mesh(),
+			        IOobject::NO_READ,
+			        IOobject::AUTO_WRITE
+		        ),
+		        linearInterpolate(U_()) & mesh().Sf()
+            )
+        );
+
+    k_.reset
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "k",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::NO_WRITE
+                ),
                 mesh(),
-                IOobject::READ_IF_PRESENT,
-                IOobject::NO_WRITE
-            ),
-            mesh(),
-            k_/(rho_*cp_)
-        )
-    );
+                dimensionedScalar(transportProperties_.lookup("k"))
+            )
+        );
+
+    alpha_.reset
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "alpha",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::NO_WRITE
+                ),
+                mesh(),
+                dimensionedScalar("alpha", dimensionSet(0,2,-1,0,0,0,0), 0)
+            )
+        );
 
     T_.reset
-    (
-        new volScalarField
         (
-            IOobject
+            new volScalarField
             (
-                "T",
-                mesh().time().timeName(),
-                mesh(),
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh()
-        )
-    );
+                IOobject
+                (
+                    "T",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::MUST_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh()
+            )
+        );
 
-    alpha_() = k_/(rho_*cp_);
+    alpha_() = k_()/(rho_*cp_);
 }
 
 
@@ -188,7 +239,7 @@ void Foam::regionTypes::transportTemperature::setCoupledEqns()
     fvScalarMatrix TEqn =
     (
         fvm::ddt(T_())
-      + fvm::div(phi_, T_())
+      + fvm::div(phi_(), T_())
      ==
         fvm::laplacian(alpha_(), T_())
     );
@@ -200,12 +251,27 @@ void Foam::regionTypes::transportTemperature::setCoupledEqns()
     );
 }
 
-void Foam::regionTypes::transportTemperature::updateFields()
+void Foam::regionTypes::transportTemperature::postSolve()
 {
     // do nothing, add as required
 }
 
 void Foam::regionTypes::transportTemperature::solveRegion()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::transportTemperature::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::transportTemperature::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::transportTemperature::pressureCorrector()
 {
     // do nothing, add as required
 }

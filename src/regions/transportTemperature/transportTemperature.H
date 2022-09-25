@@ -60,15 +60,12 @@ class transportTemperature
         word regionName_;
 
         //- transport
-        volVectorField U_;
+        //volVectorField U_;
 
-        surfaceScalarField phi_;
+        //surfaceScalarField phi_;
 
         //- transport properties dictionary 
         IOdictionary transportProperties_;
-
-        //- thermal conductivity
-        dimensionedScalar k_;
 
         //- specific heat
         dimensionedScalar cp_;
@@ -76,8 +73,17 @@ class transportTemperature
         //- density
         dimensionedScalar rho_;
 
+        //- transport
+        autoPtr<volVectorField> U_;
+
+        //- thermal conductivity
+        autoPtr<volScalarField> k_;
+
         //- thermal diffusivity
         autoPtr<volScalarField> alpha_;
+
+        //- flux
+        autoPtr<surfaceScalarField> phi_;
 
 protected:
 
@@ -143,9 +149,15 @@ public:
 
         virtual void solveRegion();
 
+        virtual void prePredictor();
+
+        virtual void momentumPredictor();
+
+        virtual void pressureCorrector();
+
         virtual void setCoupledEqns();
         
-        virtual void updateFields();
+        virtual void postSolve();
 };
 
 

@@ -138,9 +138,6 @@ protected:
         //- surface velocity field
         mutable autoPtr<areaVectorField> UsPtr_;
 
-        //- interfacial curvature
-        mutable autoPtr<areaScalarField> KPtr_;
-
         //- surface flux field
         mutable autoPtr<edgeScalarField> phisPtr_;
 
@@ -163,9 +160,6 @@ private:
 
         //- Make surface velocity
         void makeUs() const;
-
-        //- Make interfacial curvature
-        void makeK() const;
 
         //- Make surface flux
         void makePhis() const;
@@ -383,25 +377,31 @@ public:
             }
 
             //-- return interfacial curvature
-            Foam::areaScalarField& K()
-            {
-                if (KPtr_.empty())
-                {
-                    makeK();
-                }
+/*            Foam::areaScalarField& K()*/
+/*            {*/
+/*                if (KPtr_.empty())*/
+/*                {*/
+/*                    makeK();*/
+/*                }*/
 
-                return KPtr_();
-            }
+/*                return KPtr_();*/
 
-            const Foam::areaScalarField& K() const
-            {
-                if (KPtr_.empty())
-                {
-                    makeK();
-                }
+/*                return K_;*/
+/*            }*/
 
-                return KPtr_();
-            }
+/*            const Foam::areaScalarField& K() const*/
+/*            {*/
+/*                if (KPtr_.empty())*/
+/*                {*/
+/*                    makeK();*/
+/*                }*/
+
+/*                return KPtr_();*/
+
+/*                K_ == aMesh().faceCurvatures();*/
+
+/*                return K_;*/
+/*            }*/
 
             //- Global poly patch
 
@@ -443,6 +443,9 @@ public:
             //- Detach the mesh interface using mesh modifier
             virtual void detach();
 
+            // Update surface transport
+            void update();
+
             // Update surface velocity
             void updateUs();
 
@@ -451,9 +454,10 @@ public:
 
             // Update surface flux
             void updatePhis();
+
+            // Correct interface physics
+            virtual void correct() = 0;
         
-            // Update surface tension
-            virtual tmp<areaScalarField> sigma() const = 0;
 };
 
 

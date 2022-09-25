@@ -70,6 +70,9 @@ class catalystLayer
         //- operating conditions dictionary
         IOdictionary operatingConditions_;
 
+        //- electrodeType (anodic or cathodic)
+        word electrodeType_;
+
         //- specific heat
         dimensionedScalar cv_;
 
@@ -90,6 +93,9 @@ class catalystLayer
 
         //- diffusion coefficient oxygen
         dimensionedScalar DO2_;
+
+        //- diffusion coefficient hydrogen
+        dimensionedScalar DH2_;
 
         // diffusion coefficient vapor
         dimensionedScalar DV_;
@@ -168,6 +174,9 @@ class catalystLayer
 
         //- effective diffusion coefficient oxygen
         autoPtr<volScalarField> DEffO2_;
+
+        //- effective diffusion coefficient hydrogen
+        autoPtr<volScalarField> DEffH2_;
 
         //- effective diffusion coefficient vapor
         autoPtr<volScalarField> DEffV_;
@@ -254,6 +263,9 @@ protected:
         //- oxygen mole fraction
         autoPtr<volScalarField> xO2_;
 
+        //- hydrogen mole fraction
+        autoPtr<volScalarField> xH2_;
+
 	//- vapor mole fraction
         autoPtr<volScalarField> xV_;
 
@@ -329,6 +341,16 @@ public:
             return xO2_();
         }
 
+        const volScalarField& xH2() const
+        {
+            return xH2_();
+        }
+
+        volScalarField& xH2()
+        {
+            return xH2_();
+        }
+
         const volScalarField& xV() const
         {
             return xV_();
@@ -362,7 +384,13 @@ public:
 
         virtual void setCoupledEqns();
 
-        virtual void updateFields();
+        virtual void prePredictor();
+
+        virtual void momentumPredictor();
+
+        virtual void pressureCorrector();
+
+        virtual void postSolve();
 };
 
 

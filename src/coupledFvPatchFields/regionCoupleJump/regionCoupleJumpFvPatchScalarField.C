@@ -131,7 +131,7 @@ void Foam::regionCoupleJumpFvPatchScalarField::updateCoeffs()
 
     scalar relax = 0.5;
 
-    // Enforce psi boundary condition
+    // Enforce psi jump boundary condition
     operator==(*this + relax*(K_*psiNbr2Own - *this));
 
     fixedValueFvPatchScalarField::updateCoeffs();
@@ -142,12 +142,12 @@ void Foam::regionCoupleJumpFvPatchScalarField::updateCoeffs()
 Foam::tmp<Foam::scalarField>
 Foam::regionCoupleJumpFvPatchScalarField::flux() const
 {
-    const fvPatchScalarField& k =
+    const fvPatchScalarField& kpf =
 	lookupPatchField<volScalarField, scalar>(kName_);
 
     const fvPatchScalarField& psi = *this;
 
-    return k*psi.snGrad();
+    return kpf*psi.snGrad();
 }
 
 
@@ -184,6 +184,7 @@ void Foam::regionCoupleJumpFvPatchScalarField::write
 {
     fvPatchScalarField::write(os);
     coupleManager_.writeEntries(os);
+    writeEntry("k", os);
     os.writeKeyword("K") << K_ << token::END_STATEMENT << nl;
     writeEntry("value", os);
 }

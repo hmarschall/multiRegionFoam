@@ -98,9 +98,7 @@ void Foam::interfaceToInterfaceCoupleManager::updateRegionInterface()
 {
     regionInterface& rgInt = const_cast<regionInterface&>(rgInterface());
 
-    rgInt.updateUs();
-    rgInt.updateK();
-    rgInt.updatePhis();
+    rgInt.update();
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //

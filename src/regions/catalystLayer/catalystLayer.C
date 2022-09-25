@@ -71,37 +71,60 @@ void Foam::regionTypes::catalystLayer::updateGasSpeciesTransportProperties()
     // ideal gas concentration
     c_ = p_/(RGas_*T_());
 
-    // effective diffusion coefficient oxygen
-    DEffO2_() = epsilonP_/sqr(tau_)*pow((1 - s_()),3)*DO2_*pow((T_()/TRef_),1.5)*(pRef_/p_);
+    if(electrodeType_ == "cathodic")
+    {
+        // effective diffusion coefficient oxygen
+        DEffO2_() = epsilonP_/sqr(tau_)*pow((1 - s_()),3)*DO2_*pow((T_()/TRef_),1.5)*(pRef_/p_);
 
-    // effective diffusion coefficient vapor
-    DEffV_() = epsilonP_/sqr(tau_)*pow((1 - s_()),3)*DV_*pow((T_()/TRef_),1.5)*(pRef_/p_);
+        // effective diffusion coefficient vapor
+        DEffV_() = epsilonP_/sqr(tau_)*pow((1 - s_()),3)*DV_*pow((T_()/TRef_),1.5)*(pRef_/p_);
+    }
+    else if(electrodeType_ == "anodic")
+    {
+        // effective diffusion coefficient hydrogen
+        DEffH2_() = epsilonP_/sqr(tau_)*DH2_*pow((T_()/TRef_),1.5)*(pRef_/p_);
+
+        // effective diffusion coefficient vapor
+        DEffV_() = epsilonP_/sqr(tau_)*DV_*pow((T_()/TRef_),1.5)*(pRef_/p_);
+    }
+    else
+    {
+        Info<< "No valid electrodeType. Check input in operatingConditions in " << mesh().name()
+            << endl;
+    }
 }
 
 void Foam::regionTypes::catalystLayer::updateLiquidWaterTransportProperties()
 {
-    // reduced liquid water saturation
-    sRed_ = (s_() - sIm_)/(1 - sIm_);
-
-    // saturation vapor fraction
-    xVSat_ = (exp(23.1963 - (TRefP1_/(T_() - TRefP2_)))*pDim_)/p_;
-
-    // dynamic viscosity water
-    mu_ = exp(-3.63148 + (TRefMu1_/(T_() + TRefMu2_)))*muDim_;
-
-    // derivate of capillary pressure with respect to liquid water saturation
-    dpCds_ = (4.8422e-3*exp(-44.02*(s_() - 0.496)) + 2255.0649*exp(8.103*(s_() - 0.496)))*pDim_;
-
-    // reduced liquid water permeability
-    K_() = (1e-6 + pow(sRed_,3))*K0_;
-    // evaporation/condensation rate
-    if(xV_() < xVSat_) // evaporation
+    if(electrodeType_ == "cathodic")
     {
-        gamma_ = 5e-4*sqrt(RGas_*T_()/(2*pi_*MW_))*aLG_*sRed_;
+        // reduced liquid water saturation
+        sRed_ = (s_() - sIm_)/(1 - sIm_);
+
+        // saturation vapor fraction
+        xVSat_ = (exp(23.1963 - (TRefP1_/(T_() - TRefP2_)))*pDim_)/p_;
+
+        // dynamic viscosity water
+        mu_ = exp(-3.63148+(TRefMu1_/(T_() + TRefMu2_)))*muDim_;
+
+        // derivate of capillary pressure with respect to liquid water saturation
+        dpCds_ = (4.8422e-3*exp(-44.02*(s_() - 0.496)) + 2255.0649*exp(8.103*(s_() - 0.496)))*pDim_;
+
+        // reduced liquid water permeability
+        K_() = (1e-6 + pow(sRed_,3))*K0_;
+
+        // evaporation/condensation rate
+        gamma_ = (pos(xV_() - xVSat_)*6e-3*(1-sRed_) + (1 - pos(xV_() - xVSat_))*5e-4*sRed_)*aLG_*sqrt(RGas_*T_()/(2*pi_*MW_));
     }
-    else // condensation
+    else if(electrodeType_ == "anodic")
     {
-        gamma_ = 6e-3*sqrt(RGas_*T_()/(2*pi_*MW_))*aLG_*sRed_;
+        // saturation vapor fraction
+        xVSat_ = (exp(23.1963 - (TRefP1_/(T_() - TRefP2_)))*pDim_)/p_;
+    }
+    else
+    {
+        Info<< "No valid electrodeType. Check input in operatingConditions in " << mesh().name()
+            << endl;
     }
 }
 
@@ -111,47 +134,84 @@ void Foam::regionTypes::catalystLayer::updateAbsorptionDesorption()
     lambdaEq_ = 0.043 + (17.81*xV_()/xVSat_) - (39.85*pow((xV_()/xVSat_),2)) + (36*pow((xV_()/xVSat_),3));
 
     // ab-/desorption rate
-    if(lambda_() < lambdaEq_) // absorption
-    {
-        kSorp_ = aA_*f_*exp((ELambda_/RGas_)*((1/TRef_) - (1/T_())));
-    }
-    else // desorption
-    {
-        kSorp_ = aD_*f_*exp((ELambda_/RGas_)*((1/TRef_) - (1/T_())));
-    }
+    kSorp_ = (pos(lambda_() - lambdaEq_)*aD_ + (1 - pos(lambda_() - lambdaEq_))*aA_)*f_*exp((ELambda_/RGas_)*((1/TRef_) - (1/T_())));
 }
 
 void Foam::regionTypes::catalystLayer::updateElectrochemistry()
 {
-    // reaction exchange current density
-    j0_ = jStern_*pow((xO2_()*p_/pRef_), 0.54)*exp(ER_/RGas_*(1/TRef_ - 1/T_()));
+    if(electrodeType_ == "cathodic")
+    {
+        // reaction exchange current density
+        j0_ = jStern_*pow((xO2_()*p_/pRef_), 0.54)*exp(ER_/RGas_*(1/TRef_ - 1/T_()));
 
-    // galvani potential difference
-    deltaPhi_ = phiE_() - phiP_();
+        // galvani potential difference
+        deltaPhi_ = phiE_() - phiP_();
 
-    // reversible potential difference
-    deltaPhi0_ = -((deltaH_ - T_()*deltaS_)/(2*FConst_)) + (RGas_*T_()/(4*FConst_))*log(xO2_()*p_/pRef_);
+        // reversible potential difference
+        deltaPhi0_ = -((deltaH_ - T_()*deltaS_)/(2*FConst_)) + (RGas_*T_()/(4*FConst_))*log(xO2_()*p_/pRef_);
 
-    // overpotential
-    eta_ = deltaPhi0_ - deltaPhi_;
+        // overpotential
+        eta_ = deltaPhi0_ - deltaPhi_;
 
-    // volumetric exchange current density (Butler-Volmer)
-    j_ = j0_*a_*(exp(2*beta_*FConst_*eta_/RGas_/T_()) - exp(-2*(1 - beta_)*FConst_*eta_/RGas_/T_()));
+        // volumetric exchange current density (Butler-Volmer)
+        j_ = j0_*a_*(exp(2*beta_*FConst_*eta_/RGas_/T_()) - exp(-2*(1 - beta_)*FConst_*eta_/RGas_/T_()));
+    }
+    else if(electrodeType_ == "anodic")
+    {
+        // reaction exchange current density
+        j0_ = jStern_*exp(ER_/RGas_*(1/TRef_ - 1/T_()));
+
+        // galvani potential difference
+        deltaPhi_ = phiE_() - phiP_();
+
+        // reversible potential difference
+        deltaPhi0_ = -(T_()*deltaS_/(2*FConst_)) - (RGas_*T_()/(2*FConst_))*log(xH2_()*p_/pRef_);
+
+        // overpotential
+        eta_ = deltaPhi_ - deltaPhi0_;
+
+        // volumetric exchange current density (Butler-Volmer)
+        j_ = -j0_*a_*(exp(2*beta_*FConst_*eta_/RGas_/T_()) - exp(-2*(1 - beta_)*FConst_*eta_/RGas_/T_()));
+    }
+    else
+    {
+        Info<< "No valid electrodeType. Check input in operatingConditions in " << mesh().name()
+            << endl;
+    }
 }
 
 void Foam::regionTypes::catalystLayer::updateSourceTerms()
 {
-    // heat Source - joule heating electrons & protons, phase change heat, sorption heat, reaction heat
-    sT_ = (sigma_()*(fvc::grad(phiE_())&fvc::grad(phiE_())) + kappa_()*(fvc::grad(phiP_())&fvc::grad(phiP_())) + gamma_*c_*(xV_() - xVSat_)*HEC_ + (kSorp_/d_/VM_)*(lambdaEq_ - lambda_())*HAD_ + j_*eta_ - (j_/2/FConst_)*T_()*deltaS_)/T_();
+    if(electrodeType_ == "cathodic")
+    {
+        // heat Source - joule heating electrons & protons, phase change heat, sorption heat, reaction heat
+        sT_ = (sigma_()*(fvc::grad(phiE_())&fvc::grad(phiE_())) + kappa_()*(fvc::grad(phiP_())&fvc::grad(phiP_())) + gamma_*c_*(xV_() - xVSat_)*HEC_ + (kSorp_/d_/VM_)*(lambdaEq_ - lambda_())*HAD_ + j_*eta_ - (j_/2/FConst_)*T_()*deltaS_)/T_();
 
-    // mass source water content in ionomer / reaction
-    sLambda_ = (j_/2/FConst_ + (kSorp_/d_/VM_)*(lambdaEq_ - lambda_()) + fvc::laplacian(xi_*kappa_()/FConst_, phiP_()))/lambda_();
+        // mass source water content in ionomer / reaction
+        sLambda_ = (j_/2/FConst_ + (kSorp_/d_/VM_)*(lambdaEq_ - lambda_()))/lambda_();
 
-    // mass source vapor / phase change & sorption
-    sV_ = (-gamma_*c_*(xV_() - xVSat_) - (kSorp_/d_/VM_)*(lambdaEq_ - lambda_()))/xV_();
+        // mass source vapor / phase change & sorption
+        sV_ = (-gamma_*c_*(xV_() - xVSat_) - (kSorp_/d_/VM_)*(lambdaEq_ - lambda_()))/xV_();
 
-    // mass source liquid water / phase change
-    ss_ = (gamma_*c_*(xV_() - xVSat_))/s_();
+        // mass source liquid water / phase change
+        ss_ = (gamma_*c_*(xV_() - xVSat_))/s_();
+    }
+    else if(electrodeType_ == "anodic")
+    {
+        // heat Source - joule heating electrons & protons, sorption heat, reaction heat
+        sT_ = (sigma_()*(fvc::grad(phiE_())&fvc::grad(phiE_())) + kappa_()*(fvc::grad(phiP_())&fvc::grad(phiP_())) + (kSorp_/d_/VM_)*(lambdaEq_ - lambda_())*HAD_ + j_*eta_ - (j_/2/FConst_)*T_()*deltaS_)/T_();
+
+        // mass source water content in ionomer
+        sLambda_ = ((kSorp_/d_/VM_)*(lambdaEq_ - lambda_()))/lambda_();
+
+        // mass source vapor / phase change & sorption
+        sV_ = - ((kSorp_/d_/VM_)*(lambdaEq_ - lambda_()))/xV_();
+    }
+    else
+    {
+        Info<< "No valid electrodeType. Check input in operatingConditions in " << mesh().name()
+            << endl;
+    }
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -209,7 +269,8 @@ Foam::regionTypes::catalystLayer::catalystLayer
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
-    ),   
+    ),
+    electrodeType_(operatingConditions_.lookup("electrodeType")),   
     cv_(transportProperties_.lookup("cv")),
     rho_(transportProperties_.lookup("rho")),
     K0_(transportProperties_.lookup("K")),
@@ -217,6 +278,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
     sigma_(nullptr),
     kappa_(nullptr),
     DO2_(transportProperties_.lookup("DO2")),
+    DH2_(transportProperties_.lookup("DH2")),
     DV_(transportProperties_.lookup("DV")),
     epsilonP_(materialProperties_.lookup("epsilonP")),
     tau_(materialProperties_.lookup("tau")),
@@ -314,7 +376,8 @@ Foam::regionTypes::catalystLayer::catalystLayer
         mesh(),
         dimensionedScalar("c0", dimensionSet(0, -3, 0, 0, 1, 0, 0), 52)
     ),
-    DEffO2_(nullptr), 
+    DEffO2_(nullptr),
+    DEffH2_(nullptr), 
     DEffV_(nullptr),
     sRed_
     (
@@ -504,6 +567,7 @@ Foam::regionTypes::catalystLayer::catalystLayer
     phiP_(nullptr),
     lambda_(nullptr),
     xO2_(nullptr),
+    xH2_(nullptr),
     xV_(nullptr),
     s_(nullptr)
 {
@@ -589,6 +653,23 @@ Foam::regionTypes::catalystLayer::catalystLayer
             ),
             mesh(),
             DO2_
+        )
+    );
+
+    DEffH2_.reset
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "DEffH2",
+                mesh().time().timeName(),
+                mesh(),
+                IOobject::READ_IF_PRESENT,
+                IOobject::NO_WRITE
+            ),
+            mesh(),
+            DH2_
         )
     );
 
@@ -706,6 +787,23 @@ Foam::regionTypes::catalystLayer::catalystLayer
         )
     );
 
+    xH2_.reset
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "xH2",
+                mesh().time().timeName(),
+                mesh(),
+                IOobject::MUST_READ,
+                IOobject::AUTO_WRITE
+            ),
+            mesh()
+        )
+    );
+
+
     xV_.reset
     (
         new volScalarField
@@ -792,172 +890,232 @@ void Foam::regionTypes::catalystLayer::setCoupledEqns()
         updateSourceTerms();
     }
 
-    // set Eqns
-    // fourier heat conduction
-    fvScalarMatrix TEqn =
-    (
-          rho_*cv_*fvm::ddt(T_())
-        - fvm::laplacian(k_(), T_(), "laplacian(k,T)")
-        ==
-          fvm::SuSp(sT_, T_())
-    );
+    if(electrodeType_ == "cathodic")
+    {
+        // set cathodic Eqns
+        // fourier heat conduction
+        fvScalarMatrix TEqn =
+        (
+              rho_*cv_*fvm::ddt(T_())
+            - fvm::laplacian(k_(), T_(), "laplacian(k,T)")
+            ==
+            - fvm::SuSp(-sT_, T_())
+        );
 
-    // ohm's law for electrons
-    fvScalarMatrix phiEEqn =
-    (
-        - fvm::laplacian(sigma_(), phiE_(), "laplacian(sigma,phiE)")
-        ==
-          fvm::SuSp(j_/phiE_(), phiE_())
-    );
+        // ohm's law for electrons
+        fvScalarMatrix phiEEqn =
+        (
+            - fvm::laplacian(sigma_(), phiE_(), "laplacian(sigma,phiE)")
+            ==
+              fvm::SuSp(j_/phiE_(), phiE_())
+        );
 
-    // ohm's law for protons
-    fvScalarMatrix phiPEqn =
-    (
-          fvm::laplacian(kappa_(), phiP_(), "laplacian(kappa,phiP)")
-        ==
-          fvm::SuSp(j_/phiP_(), phiP_())
-    );
+        // ohm's law for protons
+        fvScalarMatrix phiPEqn =
+        (
+              fvm::laplacian(kappa_(), phiP_(), "laplacian(kappa,phiP)")
+            ==
+              fvm::SuSp(j_/phiP_(), phiP_())
+        );
 
-    // water transport in ionomer
-    fvScalarMatrix lambdaEqn =
-    (
-          1/VM_*fvm::ddt(lambda_())
-        - fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")
-        ==
-          fvm::SuSp(sLambda_, lambda_()) 
-    );
+        // water transport in ionomer
+        fvScalarMatrix lambdaEqn =
+        (
+              1/VM_*fvm::ddt(lambda_())
+            - fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")
+            + fvc::laplacian(xi_*kappa_()/FConst_, phiP_(), "laplacian(kappa,phiP)")
+            ==
+              fvm::SuSp(sLambda_, lambda_()) 
+        );
 
-    // fick diffusion for oxygen
-    fvScalarMatrix xO2Eqn =
-    (
-	  c_*fvm::ddt(xO2_())
-        - fvm::laplacian(c_*DEffO2_(), xO2_(), "laplacian(D,x)")
-        ==
-        - fvm::SuSp(j_/4/FConst_/xO2_(), xO2_())
-    );
+        // fick diffusion for vapor
+        fvScalarMatrix xVEqn =
+        (
+              c_*fvm::ddt(xV_())
+            - c_*fvm::laplacian(DEffV_(), xV_(), "laplacian(D,x)")
+            ==
+              fvm::SuSp(sV_, xV_())
+        );        
 
-    // fick diffusion for vapor
-    fvScalarMatrix xVEqn =
-    (
-	  c_*fvm::ddt(xV_())
-        - fvm::laplacian(c_*DEffV_(), xV_(), "laplacian(D,x)")
-        ==
-          fvm::SuSp(sV_, xV_())
-    );
+        // fick diffusion for oxygen
+        fvScalarMatrix xO2Eqn =
+        (
+              c_*fvm::ddt(xO2_())
+            - c_*fvm::laplacian(DEffO2_(), xO2_(), "laplacian(D,x)")
+            ==
+              fvm::SuSp(-j_/4/FConst_/xO2_(), xO2_())
+        );
 
-    // liquid water transport (derived from Darcy's Law)
-    fvScalarMatrix sEqn =
-    (
-	  1/VW_*fvm::ddt(s_())
-        - fvm::laplacian(K_()*dpCds_/(mu_*VW_), s_(), "laplacian(K,s)")
-        ==
-          fvm::SuSp(ss_, s_())
-    );
+        // liquid water transport (derived from Darcy's Law)
+        fvScalarMatrix sEqn =
+        (
+              1/VW_*fvm::ddt(s_())
+            - fvm::laplacian(K_()*dpCds_/(mu_*VW_), s_(), "laplacian(K,s)")
+            ==
+              fvm::SuSp(ss_, s_())
+        );       
+  
+        fvScalarMatrices.set
+        (
+            T_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(TEqn)
+        );
 
-    fvScalarMatrices.set
-    (
-        T_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(TEqn)
-    );
+        fvScalarMatrices.set
+        (
+            phiE_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(phiEEqn)
+        );
 
-    fvScalarMatrices.set
-    (
-        phiE_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(phiEEqn)
-    );
+        fvScalarMatrices.set
+        (
+            phiP_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(phiPEqn)
+        );
 
-    fvScalarMatrices.set
-    (
-        phiP_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(phiPEqn)
-    );
+        fvScalarMatrices.set
+        (
+            lambda_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(lambdaEqn)
+        );
 
-    fvScalarMatrices.set
-    (
-        lambda_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(lambdaEqn)
-    );
+        fvScalarMatrices.set
+        (
+            xV_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(xVEqn)
+        );
 
-    fvScalarMatrices.set
-    (
-        xO2_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(xO2Eqn)
-    );
+        fvScalarMatrices.set
+        (
+            xO2_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(xO2Eqn)
+        );    
 
-    fvScalarMatrices.set
-    (
-        xV_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(xVEqn)
-    );
+        fvScalarMatrices.set
+        (
+            s_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(sEqn)
+        );
+    }
+    else if(electrodeType_ == "anodic")
+    {
+        // set anodic Eqns
+        // fourier heat conduction
+        fvScalarMatrix TEqn =
+        (
+              rho_*cv_*fvm::ddt(T_())
+            - fvm::laplacian(k_(), T_(), "laplacian(k,T)")
+            ==
+            - fvm::SuSp(-sT_, T_())
+        );
 
-    fvScalarMatrices.set
-    (
-        s_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(sEqn)
-    );
-}
+        // ohm's law for electrons
+        fvScalarMatrix phiEEqn =
+        (
+            - fvm::laplacian(sigma_(), phiE_(), "laplacian(sigma,phiE)")
+            ==
+              fvm::SuSp(j_/phiE_(), phiE_())
+        );
 
-void Foam::regionTypes::catalystLayer::updateFields()
-{
-    Info<< "Temperature = "
-            << T_().weightedAverage(mesh().V()).value()
-            << " Min(T) = " << min(T_()).value()
-            << " Max(T) = " << max(T_()).value()
-            << endl;
+        // ohm's law for protons
+        fvScalarMatrix phiPEqn =
+        (
+              fvm::laplacian(kappa_(), phiP_(), "laplacian(kappa,phiP)")
+            ==
+              fvm::SuSp(j_/phiP_(), phiP_())
+        );
 
-    Info<< "Water content = "
-            << lambda_().weightedAverage(mesh().V()).value()
-            << " Min(lambda) = " << min(lambda_()).value()
-            << " Max(lambda) = " << max(lambda_()).value()
-            << endl;
+        // water transport in ionomer
+        fvScalarMatrix lambdaEqn =
+        (
+              1/VM_*fvm::ddt(lambda_())
+            - fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")
+            + fvc::laplacian(xi_*kappa_()/FConst_, phiP_(), "laplacian(kappa,phiP)")
+            ==
+              fvm::SuSp(sLambda_, lambda_()) 
+        );
 
-    Info<< "Electrolye potential = "
-            << phiP_().weightedAverage(mesh().V()).value()
-            << " Min(phiP) = " << min(phiP_()).value()
-            << " Max(phiP) = " << max(phiP_()).value()
-            << endl;
+        // fick diffusion for vapor
+        fvScalarMatrix xVEqn =
+        (
+              c_*fvm::ddt(xV_())
+            - c_*fvm::laplacian(DEffV_(), xV_(), "laplacian(D,x)")
+            ==
+              fvm::SuSp(sV_, xV_())
+        );
 
-    Info<< "Electrode potential = "
-            << phiE_().weightedAverage(mesh().V()).value()
-            << " Min(phiE) = " << min(phiE_()).value()
-            << " Max(phiE) = " << max(phiE_()).value()
-            << endl;
+        // fick diffusion for hydrogen
+        fvScalarMatrix xH2Eqn =
+        (
+              c_*fvm::ddt(xH2_())
+            - c_*fvm::laplacian(DEffH2_(), xH2_(), "laplacian(D,x)")
+            ==
+              fvm::SuSp(-j_/2/FConst_/xH2_(), xH2_())
+        );
+  
+        fvScalarMatrices.set
+        (
+            T_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(TEqn)
+        );
 
-    Info<< "Oxygen mole fraction = "
-            << xO2_().weightedAverage(mesh().V()).value()
-            << " Min(xO2) = " << min(xO2_()).value()
-            << " Max(xO2) = " << max(xO2_()).value()
-            << endl;
+        fvScalarMatrices.set
+        (
+            phiE_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(phiEEqn)
+        );
 
-    Info<< "vapor mole fraction = "
-            << xV_().weightedAverage(mesh().V()).value()
-            << " Min(xV) = " << min(xV_()).value()
-            << " Max(xV) = " << max(xV_()).value()
-            << endl;
+        fvScalarMatrices.set
+        (
+            phiP_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(phiPEqn)
+        );
 
-    Info<< "Liquid water saturation = "
-            << s_().weightedAverage(mesh().V()).value()
-            << " Min(s) = " << min(s_()).value()
-            << " Max(s) = " << max(s_()).value()
-            << endl;
+        fvScalarMatrices.set
+        (
+            lambda_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(lambdaEqn)
+        );
 
-    Info<< "exchange current density = "
-            << j_.weightedAverage(mesh().V()).value()
-            << " Min(j) = " << min(j_).value()
-            << " Max(j) = " << max(j_).value()
-            << endl;
-
-    Info<< "overpotential = "
-            << eta_.weightedAverage(mesh().V()).value()
-            << " Min(eta) = " << min(eta_).value()
-            << " Max(eta) = " << max(eta_).value()
-            << endl;
+        fvScalarMatrices.set
+        (
+            xV_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(xVEqn)
+        );  
+      
+        fvScalarMatrices.set
+        (
+            xH2_().name() + mesh().name() + "Eqn",
+            new fvScalarMatrix(xH2Eqn)
+        );
+    }
 }
 
 void Foam::regionTypes::catalystLayer::solveRegion()
 {
     // do nothing, add as required
 }
+
+void Foam::regionTypes::catalystLayer::prePredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::catalystLayer::momentumPredictor()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::catalystLayer::pressureCorrector()
+{
+    // do nothing, add as required
+}
+
+void Foam::regionTypes::catalystLayer::postSolve()
+{
+    // do nothing, add as required
+}
+
 
 
 // ************************************************************************* //

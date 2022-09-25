@@ -69,6 +69,9 @@ class conductTemperature
         // dimensionedScalar rho_;
         volScalarField rho_;
 
+	//- thermal diffusivity
+        autoPtr<volScalarField> alpha_;
+
         //- thermal conductivity
         autoPtr<volScalarField> k_;
 
@@ -136,9 +139,15 @@ public:
 
         virtual void solveRegion();
 
+        virtual void prePredictor();
+
+        virtual void momentumPredictor();
+
+        virtual void pressureCorrector();
+
         virtual void setCoupledEqns();
         
-        virtual void updateFields();
+        virtual void postSolve();
 };
 
 

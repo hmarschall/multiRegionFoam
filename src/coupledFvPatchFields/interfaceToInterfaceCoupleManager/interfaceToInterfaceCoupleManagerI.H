@@ -107,7 +107,7 @@ Foam::interfaceToInterfaceCoupleManager::interpolateFromNbrField
 
         return
         (
-            rgInterface().globalPatchB().globalFaceToPatch
+            rgInterface().globalPatchA().globalFaceToPatch
             (
                 interpolatedGlobalFld
             )
@@ -123,7 +123,7 @@ Foam::interfaceToInterfaceCoupleManager::interpolateFromNbrField
 
     return
     (
-        rgInterface().globalPatchA().globalFaceToPatch
+        rgInterface().globalPatchB().globalFaceToPatch
         (
             interpolatedGlobalFld
         )

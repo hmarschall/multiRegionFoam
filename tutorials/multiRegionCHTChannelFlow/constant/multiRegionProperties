@@ -22,19 +22,14 @@ regions
 
 partitionedTypeRegionInterfaces
 (
-    /*fluidSolid 
-    (
-        (((fluid bottom)(solid top)) (T))
-    )*/
-);
-
-monolithicTypeRegionInterfaces
-(
     fluidSolid 
     (
         (((fluid bottom)(solid top)) (T))
     )
 );
+
+monolithicTypeRegionInterfaces
+();
 
 // Assembles a super-mesh
 superMeshRegions

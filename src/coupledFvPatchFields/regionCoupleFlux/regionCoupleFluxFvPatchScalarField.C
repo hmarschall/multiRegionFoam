@@ -125,11 +125,11 @@ void Foam::regionCoupleFluxFvPatchScalarField::updateCoeffs()
         );
 
     // Lookup diffusivity field
-    const fvPatchScalarField& k =
+    const fvPatchScalarField& kpf =
 	lookupPatchField<volScalarField, scalar>(kName_);
 
     // Enforce flux matching
-    gradient() = (jNbr2Own/k)*(-1);
+    gradient() = (jNbr2Own/kpf)*(-1);
 
     fixedGradientFvPatchScalarField::updateCoeffs();
 }
@@ -154,12 +154,12 @@ Foam::regionCoupleFluxFvPatchScalarField::maxResidual() const
         );
 
     // Lookup diffusivity field
-    const fvPatchScalarField& k =
+    const fvPatchScalarField& kpf =
 	lookupPatchField<volScalarField, scalar>(kName_);
 
     // Calculate the maximum normalized residual
     const fvPatchScalarField& psiOwn = *this;
-    const scalarField& jOwn = k*psiOwn.snGrad();
+    const scalarField& jOwn = kpf*psiOwn.snGrad();
     scalar residual =
         gMax
         (
@@ -179,6 +179,7 @@ void Foam::regionCoupleFluxFvPatchScalarField::write
 {
     fvPatchScalarField::write(os);
     coupleManager_.writeEntries(os);
+    writeEntry("k", os);
     writeEntry("value", os);
 }
 
