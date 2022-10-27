@@ -83,7 +83,7 @@ protected:
         const regionInterfaceList& interfaces_;
 
         //- List of residual data per sub field
-        List<fieldData> dnaResidualControl_;
+        List<fieldData> dnaResControl_;
 
         //- Hashed ptr tables for residual fields
         HashPtrTable<volScalarField> initJumpResFlds_;
@@ -104,7 +104,7 @@ protected:
         virtual void read();
 
         template<class Type>
-        void maxTypeResidual
+        void maxTypeRes
         (
             const regionInterface& interface,
             const word& fldName,
@@ -112,7 +112,7 @@ protected:
             scalar& globalMaxFluxRes
         );
 
-        void maxResidual
+        void maxRes
         (
             const regionInterface& interface,
             const word& fldName,
@@ -121,7 +121,7 @@ protected:
         );
 
         template<class Type>
-        void writeResFields
+        void writeResFlds
         (
             const regionInterface& interface,
             const word& fldName,
@@ -130,7 +130,7 @@ protected:
             bool final
         );
 
-        void writeResFields
+        void writeResFlds
         (
             const regionInterface& interface,
             const word& fldName,
@@ -153,7 +153,7 @@ private:
         void operator=(const dnaControl&);
 
         //- create residual fields that should be written to disk
-        void createResFields();
+        void createResFlds();
 
 public:
 

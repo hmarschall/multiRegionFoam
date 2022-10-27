@@ -95,14 +95,14 @@ void Foam::dnaControl::read()
             data.append(fd);
         }
 
-        dnaResidualControl_.transfer(data);
+        dnaResControl_.transfer(data);
     }
 
     if (debug)
     {
-        forAll(dnaResidualControl_, i)
+        forAll (dnaResControl_, i)
         {
-            const fieldData& fd = dnaResidualControl_[i];
+            const fieldData& fd = dnaResControl_[i];
             Info<< "residualControl[" << i << "]:" << nl
                 << "    name         : " << fd.name << nl
                 << "    maxJumpRes   : " << fd.maxJumpRes << nl
@@ -112,7 +112,7 @@ void Foam::dnaControl::read()
 }
 
 template<class Type>
-void Foam::dnaControl::maxTypeResidual
+void Foam::dnaControl::maxTypeRes
 (
     const regionInterface& interface,
     const word& fldName,
@@ -211,7 +211,7 @@ void Foam::dnaControl::maxTypeResidual
     }
 }
 
-void Foam::dnaControl::maxResidual
+void Foam::dnaControl::maxRes
 (
     const regionInterface& interface,
     const word& fldName,
@@ -219,34 +219,34 @@ void Foam::dnaControl::maxResidual
     scalar& globalMaxFluxRes
 )
 {
-    maxTypeResidual<scalar>
+    maxTypeRes<scalar>
         (interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
 
-    maxTypeResidual<vector>
+    maxTypeRes<vector>
         (interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
 
-    // maxTypeResidual<sphericalTensor>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
-    // maxTypeResidual<symmTensor>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
-    // maxTypeResidual<tensor>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<sphericalTensor>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<symmTensor>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<tensor>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
 
-    // maxTypeResidual<vector2>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
-    // maxTypeResidual<vector4>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
-    // maxTypeResidual<vector6>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
-    // maxTypeResidual<vector8>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<vector2>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<vector4>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<vector6>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<vector8>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
 
-    // maxTypeResidual<sphericalTensor2>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
-    // maxTypeResidual<sphericalTensor4>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
-    // maxTypeResidual<sphericalTensor6>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
-    // maxTypeResidual<sphericalTensor8>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<sphericalTensor2>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<sphericalTensor4>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<sphericalTensor6>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<sphericalTensor8>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
 
-    // maxTypeResidual<tensor2>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
-    // maxTypeResidual<tensor4>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
-    // maxTypeResidual<tensor6>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
-    // maxTypeResidual<tensor8>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<tensor2>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<tensor4>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<tensor6>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
+    // maxTypeRes<tensor8>(interface, fldName, globalMaxJumpRes, globalMaxFluxRes);
 }
 
 template<class Type>
-void Foam::dnaControl::writeResFields
+void Foam::dnaControl::writeResFlds
 (
     const regionInterface& interface,
     const word& fldName,
@@ -395,7 +395,7 @@ void Foam::dnaControl::writeResFields
     }
 }
 
-void Foam::dnaControl::writeResFields
+void Foam::dnaControl::writeResFlds
 (
     const regionInterface& interface,
     const word& fldName,
@@ -404,35 +404,35 @@ void Foam::dnaControl::writeResFields
     bool final
 )
 {
-    writeResFields<scalar>
+    writeResFlds<scalar>
         (interface, fldName, outputJumpResField, outputFluxResField, final);
 
-    writeResFields<vector>
+    writeResFlds<vector>
         (interface, fldName, outputJumpResField, outputFluxResField, final);
 
-    // writeResFields<sphericalTensor>(interface, fldName, outputJumpResField, outputFluxResField, final);
-    // writeResFields<symmTensor>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
-    // writeResFields<tensor>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<sphericalTensor>(interface, fldName, outputJumpResField, outputFluxResField, final);
+    // writeResFlds<symmTensor>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<tensor>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
 
-    // writeResFields<vector2>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
-    // writeResFields<vector4>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
-    // writeResFields<vector6>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
-    // writeResFields<vector8>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<vector2>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<vector4>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<vector6>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<vector8>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
 
-    // writeResFields<sphericalTensor2>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
-    // writeResFields<sphericalTensor4>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
-    // writeResFields<sphericalTensor6>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
-    // writeResFields<sphericalTensor8>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<sphericalTensor2>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<sphericalTensor4>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<sphericalTensor6>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<sphericalTensor8>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
 
-    // writeResFields<tensor2>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
-    // writeResFields<tensor4>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
-    // writeResFields<tensor6>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
-    // writeResFields<tensor8>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<tensor2>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<tensor4>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<tensor6>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
+    // writeResFlds<tensor8>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
 }
 
 bool Foam::dnaControl::criteriaSatisfied()
 {
-    if (dnaResidualControl_.empty())
+    if (dnaResControl_.empty())
     {
         return false;
     }
@@ -443,17 +443,17 @@ bool Foam::dnaControl::criteriaSatisfied()
     {
         forAll (interfaces_, intI)
         {
-            forAll(dnaResidualControl_, ctrlI)
+            forAll (dnaResControl_, ctrlI)
             {
-                word subFieldName = dnaResidualControl_[ctrlI].name;
+                word subFieldName = dnaResControl_[ctrlI].name;
 
                 Switch outputJumpResField =
-                    dnaResidualControl_[ctrlI].outputJumpResField;
+                    dnaResControl_[ctrlI].outputJumpResField;
 
                 Switch outputFluxResField =
-                    dnaResidualControl_[ctrlI].outputFluxResField;
+                    dnaResControl_[ctrlI].outputFluxResField;
 
-                writeResFields
+                writeResFlds
                 (
                     interfaces_[intI],
                     subFieldName,
@@ -467,18 +467,18 @@ bool Foam::dnaControl::criteriaSatisfied()
     }
 
     //- List of max interface residuals for each subField
-    List<scalar> globalMaxJumpRes(dnaResidualControl_.size());
-    List<scalar> globalMaxFluxRes(dnaResidualControl_.size());
+    List<scalar> globalMaxJumpRes(dnaResControl_.size());
+    List<scalar> globalMaxFluxRes(dnaResControl_.size());
     globalMaxJumpRes = 0;
     globalMaxFluxRes = 0;
 
     forAll (interfaces_, intI)
     {
-        forAll(dnaResidualControl_, ctrlI)
+        forAll (dnaResControl_, ctrlI)
         {
-            word subFieldName = dnaResidualControl_[ctrlI].name;
+            word subFieldName = dnaResControl_[ctrlI].name;
 
-            maxResidual
+            maxRes
             (
                 interfaces_[intI],
                 subFieldName,
@@ -490,23 +490,23 @@ bool Foam::dnaControl::criteriaSatisfied()
 
     bool criteriaSatisfied = true;
 
-    forAll(dnaResidualControl_, ctrlI)
+    forAll (dnaResControl_, ctrlI)
     {
         criteriaSatisfied =
             criteriaSatisfied 
-         && (globalMaxJumpRes[ctrlI] <= dnaResidualControl_[ctrlI].maxJumpRes);
+         && (globalMaxJumpRes[ctrlI] <= dnaResControl_[ctrlI].maxJumpRes);
         
         criteriaSatisfied =
             criteriaSatisfied
-         && (globalMaxFluxRes[ctrlI] <= dnaResidualControl_[ctrlI].maxFluxRes);
+         && (globalMaxFluxRes[ctrlI] <= dnaResControl_[ctrlI].maxFluxRes);
     }
 
     // output initial and final residual
     if(corr_ == 2)
     {
-        forAll(dnaResidualControl_, ctrlI)
+        forAll (dnaResControl_, ctrlI)
         {
-            word fldName = dnaResidualControl_[ctrlI].name;
+            word fldName = dnaResControl_[ctrlI].name;
 
             Info<< "    " 
                 << fldName 
@@ -523,9 +523,9 @@ bool Foam::dnaControl::criteriaSatisfied()
 
     if(criteriaSatisfied || corr_ == maxCoupleIter_)
     {
-        forAll(dnaResidualControl_, ctrlI)
+        forAll (dnaResControl_, ctrlI)
         {
-            word fldName = dnaResidualControl_[ctrlI].name;
+            word fldName = dnaResControl_[ctrlI].name;
 
             Info<< "    "
                 << fldName
@@ -541,17 +541,17 @@ bool Foam::dnaControl::criteriaSatisfied()
 
         forAll (interfaces_, intI)
         {
-            forAll(dnaResidualControl_, ctrlI)
+            forAll (dnaResControl_, ctrlI)
             {
-                word subFieldName = dnaResidualControl_[ctrlI].name;
+                word subFieldName = dnaResControl_[ctrlI].name;
 
                 Switch outputJumpResField =
-                    dnaResidualControl_[ctrlI].outputJumpResField;
+                    dnaResControl_[ctrlI].outputJumpResField;
 
                 Switch outputFluxResField =
-                    dnaResidualControl_[ctrlI].outputFluxResField;
+                    dnaResControl_[ctrlI].outputFluxResField;
 
-                writeResFields
+                writeResFlds
                 (
                     interfaces_[intI],
                     subFieldName,
@@ -570,15 +570,15 @@ bool Foam::dnaControl::criteriaSatisfied()
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-void Foam::dnaControl::createResFields()
+void Foam::dnaControl::createResFlds()
 {
     forAll (interfaces_, intI)
     {
         const regionInterface& interface = interfaces_[intI];
 
-        forAll(dnaResidualControl_, ctrlI)
+        forAll (dnaResControl_, ctrlI)
         {
-            fieldData& control = dnaResidualControl_[ctrlI];
+            fieldData& control = dnaResControl_[ctrlI];
             
             if (control.outputJumpResField)
             {
@@ -761,7 +761,12 @@ void Foam::dnaControl::createResFields()
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::dnaControl::dnaControl(const Time& runTime, const word& fldName, const regionInterfaceList& interfaces)
+Foam::dnaControl::dnaControl
+(
+    const Time& runTime,
+    const word& fldName,
+    const regionInterfaceList& interfaces
+)
 :
     IOobject
     (
@@ -782,7 +787,7 @@ Foam::dnaControl::dnaControl(const Time& runTime, const word& fldName, const reg
         )
     ),
     interfaces_(interfaces),
-    dnaResidualControl_(),
+    dnaResControl_(),
     initJumpResFlds_(),
     initFluxResFlds_(),
     finalJumpResFlds_(),
@@ -792,24 +797,28 @@ Foam::dnaControl::dnaControl(const Time& runTime, const word& fldName, const reg
 {
 	read();
 
-    createResFields();
+    createResFlds();
 
 	Info<< nl;
-	if (dnaResidualControl_.empty())
+	if (dnaResControl_.empty())
 	{
 			Info<< "DNA-Control: no residual control data found. "
-			<< "Calculations will employ " << maxCoupleIter_
-			<< " outer coupling loops" << nl << endl;
+    			<< "Calculations will use "
+                << maxCoupleIter_
+	    		<< " outer coupling loops"
+                << nl << endl;
 	}
 	else
 	{
-			Info<< "DNA-Control: max iterations = " << maxCoupleIter_
+			Info<< "DNA-Control: max iterations = "
+                << maxCoupleIter_
 				<< endl;
-			forAll(dnaResidualControl_, i)
+
+			forAll (dnaResControl_, i)
 			{
-				Info<< "    field " << dnaResidualControl_[i].name << token::TAB
-					<< ": maxJumpRes " << dnaResidualControl_[i].maxJumpRes
-					<< ", maxFluxRes " << dnaResidualControl_[i].maxFluxRes
+				Info<< "    field " << dnaResControl_[i].name << token::TAB
+					<< ": maxJumpRes " << dnaResControl_[i].maxJumpRes
+					<< ", maxFluxRes " << dnaResControl_[i].maxFluxRes
 					<< nl;
 			}
 			Info<< endl;
@@ -832,22 +841,28 @@ bool Foam::dnaControl::loop()
 
     if (criteriaSatisfied())
     {
-        Info<< "DNA: converged in " << corr_ - 1
-            << " iterations" << endl;
+        Info<< "DNA: converged in "
+            << corr_ - 1
+            << " iterations"
+            << endl;
 
         corr_ = 0;
+
         return false;
     }
 
     if (corr_ > maxCoupleIter_)
     {
-        if ((!dnaResidualControl_.empty()))
+        if ((!dnaResControl_.empty()))
         {
             Info<< "DNA: not converged within "
-                << maxCoupleIter_ << " iterations" << endl;
+                << maxCoupleIter_
+                << " iterations"
+                << endl;
         }
 
         corr_ = 0;
+
         return false;
     }
 
