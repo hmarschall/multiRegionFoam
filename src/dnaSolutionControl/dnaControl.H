@@ -73,7 +73,7 @@ protected:
     // Protected data
 
         //-Field name for which dna is executed
-        word fieldName_;
+        word fldName_;
 
         //- multiRegion properties dictionary
         //- DNA solution 
@@ -86,10 +86,10 @@ protected:
         List<fieldData> dnaResidualControl_;
 
         //- Hashed ptr tables for residual fields
-        HashPtrTable<volScalarField> initialJumpResFields_;
-        HashPtrTable<volScalarField> initialFluxResFields_;
-        HashPtrTable<volScalarField> finalJumpResFields_;
-        HashPtrTable<volScalarField> finalFluxResFields_;
+        HashPtrTable<volScalarField> initJumpResFlds_;
+        HashPtrTable<volScalarField> initFluxResFlds_;
+        HashPtrTable<volScalarField> finalJumpResFlds_;
+        HashPtrTable<volScalarField> finalFluxResFlds_;
 
         //- Maximum coupling iterations (partitioned)
         label maxCoupleIter_;
@@ -107,7 +107,7 @@ protected:
         void maxTypeResidual
         (
             const regionInterface& interface,
-            const word& fieldName,
+            const word& fldName,
             scalar& globalMaxJumpRes,
             scalar& globalMaxFluxRes
         );
@@ -115,7 +115,7 @@ protected:
         void maxResidual
         (
             const regionInterface& interface,
-            const word& fieldName,
+            const word& fldName,
             scalar& globalMaxJumpRes,
             scalar& globalMaxFluxRes
         );
@@ -124,7 +124,7 @@ protected:
         void writeResFields
         (
             const regionInterface& interface,
-            const word& fieldName,
+            const word& fldName,
             const Switch outputJumpResField,
             const Switch outputFluxResField,
             bool final
@@ -133,7 +133,7 @@ protected:
         void writeResFields
         (
             const regionInterface& interface,
-            const word& fieldName,
+            const word& fldName,
             const Switch outputJumpResField,
             const Switch outputFluxResField,
             bool final
@@ -169,7 +169,7 @@ public:
         dnaControl
         (
             const Time& runTime,
-            const word& fieldName,
+            const word& fldName,
             const regionInterfaceList& interfaces
         );
 
