@@ -178,16 +178,22 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             mesh.surfaceInterpolation::movePoints();
         }
 
+        auto& eqn =
+            rg.getCoupledEqn<M,T>
+            (
+                fldName + rg.mesh().name() + "Eqn"
+            );
+
         Info<< nl 
             << "Solving for " << fldName
             << " in " << rg.mesh().name()
             << endl;
 
 
-//        pimpleControl pimpleControlRegion(rg.mesh());
+        pimpleControl pimpleControlRegion(rg.mesh());
 
-//        while (pimpleControlRegion.correctNonOrthogonal())
-//        {
+        while (pimpleControlRegion.correctNonOrthogonal())
+        {
             // set and get coupled equation with the possibly updated boundary conditions
             rg.setCoupledEqns();
             M<T>& eqn =
@@ -201,7 +207,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             eqn.solve();
 
             rg.postSolve();
-//        }
+        }
     }
 }
 
