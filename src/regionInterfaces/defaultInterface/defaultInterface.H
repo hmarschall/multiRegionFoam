@@ -60,6 +60,8 @@ public:
 
         defaultInterface
         (
+            const word& type,
+            const dictionary& dict,
             const Time& runTime,
             const fvPatch& patchA,
             const fvPatch& patchB

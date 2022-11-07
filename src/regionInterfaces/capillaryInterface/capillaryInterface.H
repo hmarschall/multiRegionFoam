@@ -52,7 +52,12 @@ namespace regionInterfaces
 class capillaryInterface
 :
     public regionInterface
-{  
+{
+    // Private data
+
+        // interface dictionary
+        dictionary dict_;
+
         // Surface tension 
         dimensionedScalar sigma0_;
         
@@ -66,6 +71,8 @@ public:
 
         capillaryInterface
         (
+            const word& type,
+            const dictionary& dict,
             const Time& runTime,
             const fvPatch& patchA,
             const fvPatch& patchB

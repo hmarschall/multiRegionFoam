@@ -212,11 +212,13 @@ public:
             regionInterface,
             IOdictionary,
             (
+                const word& type,
+                const dictionary& dict,
                 const Time& runTime,
                 const fvPatch& patchA,
                 const fvPatch& patchB
             ),
-            (runTime, patchA, patchB)
+            (type, dict, runTime, patchA, patchB)
         );
 #endif
 
@@ -225,7 +227,8 @@ public:
         //- Construct from components
         regionInterface
         (
-//            const word& type,
+            const word& type,
+            const dictionary& dict,
             const Time& runTime,
             const fvPatch& patchA,
             const fvPatch& patchB
@@ -237,6 +240,8 @@ public:
         //- Select constructed from fluid and solid meshes
         static autoPtr<regionInterface> New
         (
+            const word& type,
+            const dictionary& dict,
             const Time& runTime,
             const fvPatch& patchA,
             const fvPatch& patchB

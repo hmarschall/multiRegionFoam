@@ -56,7 +56,7 @@ namespace Foam
 
 class regionInterfaceProperties
 :
-    public HashTable<List<Tuple2<Pair<Pair<word> >, wordList > > >
+    public PtrList<entry>
 {
 
         //- Disallow default bitwise copy construct

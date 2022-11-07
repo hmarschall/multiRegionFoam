@@ -47,13 +47,15 @@ namespace regionInterfaces
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
     
 Foam::regionInterfaces::defaultInterface::defaultInterface
-( 
+(
+    const word& type,
+    const dictionary& dict,
     const Time& runTime,   
     const fvPatch& patchA, 
     const fvPatch& patchB  
 )
 :
-    regionInterface(runTime, patchA, patchB)
+    regionInterface(type, dict, runTime, patchA, patchB)
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //

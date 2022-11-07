@@ -455,6 +455,8 @@ void regionInterface::clearOut() const
 
 Foam::regionInterface::regionInterface
 (
+    const word& type,
+    const dictionary& dict,
     const Time& runTime,
     const fvPatch& patchA,
     const fvPatch& patchB

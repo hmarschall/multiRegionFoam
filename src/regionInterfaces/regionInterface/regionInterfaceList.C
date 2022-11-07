@@ -36,7 +36,6 @@ Foam::regionInterfaceList::regionInterfaceList
 :
     PtrList<regionInterface>(),
     index_(0),
-    interfaceNames_(),
     monolithicCoupledFields_(),
     partitionedCoupledFields_(),
     runTime_(runTime),
@@ -45,6 +44,12 @@ Foam::regionInterfaceList::regionInterfaceList
     pcFldNames_(),
     mcFldNames_()
 {
+    this->setSize
+    (
+        partitionedTypeInterfaces_.size()
+      + monolithicTypeInterfaces_.size()
+    );
+
     if (partitionedTypeInterfaces_.size() > 0)
     {
         reset(partitionedTypeInterfaces_);
@@ -55,6 +60,7 @@ Foam::regionInterfaceList::regionInterfaceList
     if (monolithicTypeInterfaces_.size() > 0)
     {
         reset(monolithicTypeInterfaces_);
+
         setFieldNamesMonolithicCoupling(monolithicTypeInterfaces_);
     }
 
@@ -82,79 +88,69 @@ Foam::regionInterfaceList::regionInterfaceList
 
 void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
 {
-    interfaceNames_.clear();
-
-    forAllConstIter(HashTable<interfaceList>, rip, iter)
+    forAll (rip, cpldPatchI)
     {
-        const interfaceList& interfaces = iter();
+        const dictionary& dict = rip[cpldPatchI].dict();
 
-        forAll(interfaces, interfaceI)
+        word interfaceType(dict.lookup("interfaceType"));
+        coupledFields fields(dict.lookup("coupledFields"));
+        coupledPatchPair patchPair(dict.lookup("coupledPatchPair"));
+        dictionary interfaceDict(dict.subDict(interfaceType + "Coeffs"));
+
+        if (patchPair.size() != 2)
         {
-            if (findIndex(interfaceNames_, iter.key()))
-            {
-                interfaceNames_.setSize(interfaceNames_.size()+1);
-                interfaceNames_[interfaceI] = iter.key();
-            }
-        }
-    }
-
-    this->setSize(interfaceNames_.size());
-
-    forAllConstIter(HashTable<interfaceList>, rip, iter)
-    {
-        const interfaceList& interfaces = iter();
-
-        Info << "Creating " << iter.key() << endl;
-
-        forAll(interfaces, interfaceI)
-        {
-            Pair<word> firstRegionPatchPair = 
-                interfaces[interfaceI].first().first();
-
-            Pair<word> secondRegionPatchPair = 
-                interfaces[interfaceI].first().second();
-
-            const fvMesh& firstRegion = 
-                runTime_.lookupObject<fvMesh>
-                (
-                    firstRegionPatchPair.first()
-                );
-
-            label firstPatchID = 
-                firstRegion.boundaryMesh().findPatchID
-                (
-                    firstRegionPatchPair.second()
-                );
-
-            const fvPatch& firstPatch = 
-                firstRegion.boundary()[firstPatchID];
-
-            const fvMesh& secondRegion = 
-                runTime_.lookupObject<fvMesh>
-                (
-                    secondRegionPatchPair.first()
-                );
-
-            label secondPatchID = 
-                secondRegion.boundaryMesh().findPatchID
-                (
-                    secondRegionPatchPair.second()
-                );
-
-            const fvPatch& secondPatch = 
-                secondRegion.boundary()[secondPatchID];
-
-            this->set
+            FatalErrorIn
             (
-                index_++,
-                regionInterface::New
-                (
-                    runTime_,
-                    firstPatch,
-                    secondPatch
-                )
-            );
+                "regionInterfaceList::reset"
+            )   << "An interface is made of two patches." << nl
+                << "For each interface create a separate entry."
+                << abort(FatalError);
         }
+
+        // first patch
+        const fvMesh& firstRegion = 
+            runTime_.lookupObject<fvMesh>
+            (
+                patchPair[0].first()
+            );
+
+        label firstPatchID = 
+            firstRegion.boundaryMesh().findPatchID
+            (
+                patchPair[0].second()
+            );
+
+        const fvPatch& firstPatch = 
+            firstRegion.boundary()[firstPatchID];
+
+        // second patch
+        const fvMesh& secondRegion = 
+            runTime_.lookupObject<fvMesh>
+            (
+                patchPair[1].first()
+            );
+
+        label secondPatchID = 
+            secondRegion.boundaryMesh().findPatchID
+            (
+                patchPair[1].second()
+            );
+
+        const fvPatch& secondPatch = 
+            secondRegion.boundary()[secondPatchID];
+
+        this->set
+        (
+            index_++,
+            regionInterface::New
+            (
+                interfaceType,
+                interfaceDict,
+                runTime_,
+                firstPatch,
+                secondPatch
+            )
+        );
     }
 }
 
@@ -164,39 +160,24 @@ void Foam::regionInterfaceList::setFieldNamesPartitionedCoupling
     const regionInterfaceProperties& rip
 )
 {
-    forAllConstIter(HashTable<interfaceList>, rip, iter)
+    forAll (rip, cpldPatchI)
     {
-        const interfaceList& interfaces = iter();
+        const dictionary& dict = rip[cpldPatchI].dict();
 
-        forAll(interfaces, interfaceI)
-        {
-            Pair<word> firstRegionPatchPair = 
-                interfaces[interfaceI].first().first();
+        coupledPatchPair patchPair(dict.lookup("coupledPatchPair"));
+        coupledFields fields(dict.lookup("coupledFields"));
 
-            Pair<word> secondRegionPatchPair = 
-                interfaces[interfaceI].first().second();
+        const interfaceKey key
+        (
+            patchPair[0].first() + patchPair[0].second(),
+            patchPair[1].first() + patchPair[1].second()
+        );
 
-            word firstName2(firstRegionPatchPair.second());
-            firstName2[0] = toupper(firstName2[0]);
-
-            word secondName1(secondRegionPatchPair.first());
-            secondName1[0] = toupper(secondName1[0]);
-
-            word secondName2(secondRegionPatchPair.second());
-            secondName2[0] = toupper(secondName2[0]);
-
-            const interfaceKey key
-            (
-                firstRegionPatchPair.first() + firstName2,
-                secondName1 + secondName2
-            );
-
-            partitionedCoupledFields_.insert
-            (
-                key,
-                interfaces[interfaceI].second()
-            );
-        }
+        partitionedCoupledFields_.insert
+        (
+            key,
+            fields
+        );
     }
 
     //- get unique list of coupled field names (partitioned)
@@ -219,30 +200,24 @@ void Foam::regionInterfaceList::setFieldNamesMonolithicCoupling
     const regionInterfaceProperties& rip
 )
 {
-    forAllConstIter(HashTable<interfaceList>, rip, iter)
+    forAll (rip, cpldPatchI)
     {
-        const interfaceList& interfaces = iter();
+        const dictionary& dict = rip[cpldPatchI].dict();
 
-        forAll(interfaces, interfaceI)
-        {
-            Pair<word> firstRegionPatchPair = 
-                interfaces[interfaceI].first().first();
+        coupledPatchPair patchPair(dict.lookup("coupledPatchPair"));
+        coupledFields fields(dict.lookup("coupledFields"));
 
-            Pair<word> secondRegionPatchPair = 
-                interfaces[interfaceI].first().second();
+        const interfaceKey key
+        (
+            patchPair[0].first() + patchPair[0].second(),
+            patchPair[1].first() + patchPair[1].second()
+        );
 
-            const interfaceKey key
-            (
-                firstRegionPatchPair.first() + firstRegionPatchPair.second(),
-                secondRegionPatchPair.first() + secondRegionPatchPair.second()
-            );
-
-            monolithicCoupledFields_.insert
-            (
-                key,
-                interfaces[interfaceI].second()
-            );
-        }
+        monolithicCoupledFields_.insert
+        (
+            key,
+            fields
+        );
     }
 
     //- get unique list of coupled field names (monolithic)

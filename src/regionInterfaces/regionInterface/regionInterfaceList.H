@@ -66,15 +66,17 @@ public:
 
 private:
 
-    label index_;
+    // Private data
 
-    wordList interfaceNames_;
+        label index_;
 
-    fieldsTable monolithicCoupledFields_;
+        fieldsTable monolithicCoupledFields_;
 
-    fieldsTable partitionedCoupledFields_;
+        fieldsTable partitionedCoupledFields_;
 
-    typedef List<Tuple2<Pair<Pair<word> >, wordList> > interfaceList;
+        typedef List<Pair<word> > coupledPatchPair;
+
+        typedef List<word> coupledFields;
 
     // Private Member Functions
 
@@ -167,16 +169,8 @@ public:
 
         //- Update boundary
         void update();
-        
-        //- Interfacial transport
-        void makeUs() const;
-        void makeK() const;
-        void makePhis() const;
-        
-        //- Interface properties
-        void makeFaMesh() const;
 
-        //- Get min time step
+        //- Get min time step over regions
         scalar getMinDeltaT();
 };
 

@@ -34,22 +34,19 @@ Foam::regionInterfaceProperties::regionInterfaceProperties
     const word method
 )
 :
-    HashTable
-    <
-        List<Tuple2<Pair<Pair<word> >, wordList > >
-    >
+    PtrList<entry>
     (
         IOdictionary
         (
             IOobject
             (
-                "multiRegionProperties",
+                "regionInterfaceProperties",
                 runTime.time().constant(),
                 runTime.db(),
                 IOobject::MUST_READ,
                 IOobject::NO_WRITE
             )
-        ).lookup(method + "TypeRegionInterfaces")
+        ).lookup(method + "CoupledPatches")
     )
 {}
 

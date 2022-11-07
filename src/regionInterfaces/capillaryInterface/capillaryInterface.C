@@ -47,17 +47,21 @@ namespace regionInterfaces
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
     
 Foam::regionInterfaces::capillaryInterface::capillaryInterface
-( 
+(
+    const word& type,
+    const dictionary& dict,
     const Time& runTime,   
     const fvPatch& patchA, 
     const fvPatch& patchB  
 )
 :
-    regionInterface(runTime, patchA, patchB),
+    regionInterface(type, dict, runTime, patchA, patchB),
+
+    dict_(dict),
 
     sigma0_
     (
-        interfaceProperties().subDict(name()).lookup("sigma")
+        dict_.lookup("sigma")
     ),
     sigma_
     (
