@@ -77,17 +77,27 @@ class multiRegionSystem
         //- list of region interfaces
         autoPtr<regionInterfaceList> interfaces_;
 
-        //- Lists of PtrLists of coupled finite volume fields
+        //- PtrLists of coupled finite volume fields
         //  per coupling method
-        List<PtrList<volScalarField> > scalarFlds_;
-        List<PtrList<volVectorField> > vectorFlds_;
-        List<PtrList<volSymmTensorField> > symmTensorFlds_;
-        List<PtrList<volTensorField> > tensorFlds_;
-        List<PtrList<volVector4Field> > vector4Flds_;
 
-        //- List of unique lists of coupled field names
+        //-- partitioned coupling
+        PtrList<volScalarField> partitionedCoupledScalarFlds_;
+        PtrList<volVectorField> partitionedCoupledVectorFlds_;
+        PtrList<volSymmTensorField> partitionedCoupledSymmTensorFlds_;
+        PtrList<volTensorField> partitionedCoupledTensorFlds_;
+        PtrList<volVector4Field> partitionedCoupledVector4Flds_;
+
+        //-- monolithic coupling
+        PtrList<volScalarField> monolithicCoupledScalarFlds_;
+        PtrList<volVectorField> monolithicCoupledVectorFlds_;
+        PtrList<volSymmTensorField> monolithicCoupledSymmTensorFlds_;
+        PtrList<volTensorField> monolithicCoupledTensorFlds_;
+        PtrList<volVector4Field> monolithicCoupledVector4Flds_;
+
+        //- Unique lists of coupled field names
         //  per coupling method
-        List<hashedWordList> fldNames_;
+        hashedWordList partitionedCoupledFldNames_;
+        hashedWordList monolithicCoupledFldNames_;
 
         HashPtrTable<dnaControl> dnaControls_;
 
@@ -97,8 +107,8 @@ class multiRegionSystem
         template<class T>
         void assembleCoupledFields
         (
-            List<PtrList<GeometricField<T, fvPatchField, volMesh> > >& flds,
-            const List<hashedWordList>& fldNms
+            PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
+            const hashedWordList& fldNms
         ) const;
 
         template< template<class> class M, class T>
