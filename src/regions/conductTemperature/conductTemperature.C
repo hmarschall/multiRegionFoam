@@ -157,8 +157,8 @@ Foam::regionTypes::conductTemperature::conductTemperature
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            mesh(),
-            dimensionedScalar(transportProperties_.lookup("k"))
+            mesh()
+//            dimensionedScalar(transportProperties_.lookup("k"))
         )
     );
 
