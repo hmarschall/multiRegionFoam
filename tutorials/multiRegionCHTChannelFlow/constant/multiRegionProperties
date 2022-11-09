@@ -16,8 +16,8 @@ FoamFile
 
 regions
 (
-    transportTemperature (fluid)
-    conductTemperature (solid)
+    ( fluid (transportTemperature) )
+    ( solid (conductTemperature) )
 );
 
 partitionedTypeRegionInterfaces
@@ -38,6 +38,37 @@ superMeshRegions
 partitionedCoupling
 {
     maxCoupleIter 6;
+}
+
+DNA
+{
+    UpPimple
+    {
+        maxCoupleIter 20;
+
+        residualControl
+        {
+            U
+            {
+                maxJumpRes 1e-4;
+                outputJumpResField yes;
+                maxFluxRes 1e-3;
+                outputFluxResField yes;
+            }
+
+            p
+            {
+                maxJumpRes 1e-3;
+                outputJumpResField yes;
+                maxFluxRes 1e-4;
+                outputFluxResField yes;
+            }
+        }
+    }
+    T
+    {
+        maxCoupleIter 20;
+    }
 }
 
 // ************************************************************************* //
