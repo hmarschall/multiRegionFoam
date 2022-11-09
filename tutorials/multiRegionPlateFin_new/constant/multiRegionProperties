@@ -1,0 +1,57 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      coupledSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+regions
+(
+    transportTemperature (fluid)
+    navierStokesFluid (fluid)
+    conductTemperature (solid)
+
+    // fluid (navierStokesFluid transportTemperature)
+    // solid (conductTemperature)
+);
+
+partitionedTypeRegionInterfaces
+(
+    fluidSolid
+    (
+        (((fluid fluid_to_solid)(solid solid_to_fluid)) (T))
+    )
+    /*
+    fluidSolid2
+    (
+        (((fluid InWallFluid)(solid OutSolid)) (T))
+    )
+    fluidSolid3
+    (
+        (((fluid OutWallFluid)(solid InSolid)) (T))
+    )
+    */
+);
+
+monolithicTypeRegionInterfaces
+();
+
+// Assembles a super-mesh
+superMeshRegions
+();
+
+partitionedCoupling
+{
+    maxCoupleIter 6;
+}
+
+// ************************************************************************* //

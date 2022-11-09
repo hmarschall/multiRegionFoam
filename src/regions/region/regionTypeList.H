@@ -35,7 +35,7 @@ SourceFiles
 #ifndef regionTypeList_H
 #define regionTypeList_H
 
-#include "fvMesh.H"
+#include "dynamicFvMesh.H"
 #include "mergePolyMesh.H"
 #include "dictionary.H"
 #include "hashedWordList.H"
@@ -59,14 +59,11 @@ private:
 
     // Private Data
 
-        //- super-mesh spanning across regions
-        autoPtr<fvMesh> superMeshPtr_;
-
         //- dictionary
         const IOdictionary dict_;
 
-        //- meshes to build super-mesh from
-        HashTable<wordList> superMeshRegions_;
+        //- runTime
+        const Time& runTime_;
 
     // Private Member Functions
 
@@ -76,29 +73,25 @@ private:
         //- Disallow default bitwise assignment
         void operator=(const regionTypeList&);
 
-
 protected:
 
     // Protected data
 
-        //- Reference to the mesh database
-        const fvMesh& mesh_;
-
         regionProperties region_;
 
+        //- list of mesh names
+        wordList meshNames_;
 
 public:
 
     //- Constructor
-    regionTypeList(const fvMesh& mesh);
+    regionTypeList(const Time& runTime);
 
     //- Destructor
-    ~regionTypeList();
+    virtual ~regionTypeList()
+    {}
 
     // Member Functions
-
-        //- Return super mesh
-        const fvMesh& superMesh();
 
         //- Return active status
         bool active(const bool active = false) const;
@@ -106,20 +99,29 @@ public:
         //- Reset the source list
         void reset(const regionProperties& region);
 
-        //- Correct model properties
-        void correct();
+        //- Update the meshes and correct model properties
+        void preSolve();
 
-        //- Set reverse time step
-        void setRDeltaT();
+        //- Get minimum time step
+        scalar getMinDeltaT();
 
         //- Solve region-inherent physics
         void solveRegion();
+
+        //- Solve pressure-velocity system using PIMPLE
+        void solvePIMPLE();
+
+        //- Correct for mesh motion after PIMPLE loop
+        void meshMotionCorrector();
 
         //- Set equations for coupled solution
         void setCoupledEqns();
 
         //- Update fields after solution
-        void updateFields();
+        void postSolve();
+
+        //- Clear regions
+        void clear();
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

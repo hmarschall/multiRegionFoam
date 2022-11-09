@@ -56,16 +56,13 @@ class transportTemperature
 :
     public regionType
 {
-        //- mesh
-        const fvMesh& mesh_;
-
         //- name
         word regionName_;
 
         //- transport
-        volVectorField U_;
+        //volVectorField U_;
 
-        surfaceScalarField phi_;
+        //surfaceScalarField phi_;
 
         //- transport properties dictionary 
         IOdictionary transportProperties_;
@@ -79,16 +76,18 @@ class transportTemperature
         //- density
         dimensionedScalar rho_;
 
-        //- thermal diffusivity
-//        volScalarField alpha_;
+        //- transport
+        autoPtr<volVectorField> U_;
 
+        //- thermal diffusivity
         autoPtr<volScalarField> alpha_;
+
+        //- flux
+        autoPtr<surfaceScalarField> phi_;
 
 protected:
 
         //- temperature
-//        volScalarField T_;
-
         autoPtr<volScalarField> T_;
 
 public:
@@ -99,7 +98,7 @@ public:
 
         transportTemperature
         (
-            const fvMesh& mesh,
+            const Time& runTime,
             const word& regionName
         );
 
@@ -126,7 +125,7 @@ public:
         {
             return
             (
-                this->thisDb().lookupObject<T>(name)
+                mesh().thisDb().lookupObject<T>(name)
             );
         }
 
@@ -135,7 +134,7 @@ public:
         {
             return
             (
-                const_cast<const T&>(this->thisDb().lookupObject<T>(name))
+                const_cast<const T&>(mesh().thisDb().lookupObject<T>(name))
             );
         }
 
@@ -146,13 +145,21 @@ public:
 
         virtual void correct();
 
-        virtual void setRDeltaT();
+        virtual scalar getMinDeltaT();
 
         virtual void solveRegion();
 
+        virtual void prePredictor();
+
+        virtual void momentumPredictor();
+
+        virtual void pressureCorrector();
+
+        virtual void meshMotionCorrector();
+
         virtual void setCoupledEqns();
         
-        virtual void updateFields();
+        virtual void postSolve();
 };
 
 

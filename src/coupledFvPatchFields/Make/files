@@ -1,0 +1,11 @@
+interfaceToInterfaceCoupleManager/interfaceToInterfaceCoupleManager.C
+
+genericRegionCoupledJump/genericRegionCoupledJumpFvPatchFields.C
+genericRegionCoupledFlux/genericRegionCoupledFluxFvPatchFields.C
+
+interfaceCoupledSpeciesValue/interfaceCoupledSpeciesValue.C
+interfaceCoupledSpeciesFlux/interfaceCoupledSpeciesFlux.C
+
+
+LIB = $(FOAM_USER_LIBBIN)/libcoupledFvPatchBCs
+

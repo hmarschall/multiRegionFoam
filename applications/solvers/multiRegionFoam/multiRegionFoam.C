@@ -44,15 +44,14 @@ int main(int argc, char *argv[])
     #include "setRootCase.H"
 
     #include "createTime.H"
-    #include "createMesh.H"
     #include "createFields.H"
     #include "createTimeControls.H"
 
-    if (!LTS)
-    {
+//     if (!LTS)
+//     {
 //        #include "multiRegionCourantNo.H"
 //        #include "setInitialMultiRegionDeltaT.H"
-    }
+//     }
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -60,28 +59,28 @@ int main(int argc, char *argv[])
 
     while (runTime.run())
     {
-        if (!LTS)
-        {
-            #include "createTimeControls.H"
+//         if (!LTS)
+//         {
+//              #include "createTimeControls.H"
 //            #include "multiRegionCourantNo.H"
 //            #include "setMultiRegionDeltaT.H"
-        }
-        else
-        {
-            multiRegion.setRDeltaT();
-        }
+//         }
+//         else
+//         {
+//         }
+
+        #include "setDeltaT.H"
 
         runTime++;
 
-        Info<< "Time = " << runTime.timeName() << nl << endl;
+        Info<< "Time = " << runTime.timeName() << nl
+            << "Time step = " << runTime.deltaT().value()
+            << " Index = " << runTime.timeIndex()
+            << nl << endl;
 
-        multiRegion.correct();
+        multiRegion().preSolve();
 
-        // multiRegion.solveCoupledMonolithic();
-
-        multiRegion.solve();
-
-        // multiRegion.solveCoupledPartitioned();
+        multiRegion().solve();
 
         runTime.write();
 

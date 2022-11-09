@@ -37,7 +37,7 @@ SourceFiles
 #include "IOReferencer.H"
 #include "IOdictionary.H"
 #include "hashedWordList.H"
-#include "fvMesh.H"
+#include "dynamicFvMesh.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 
@@ -45,6 +45,8 @@ SourceFiles
 
 #include "regionTypeList.H"
 #include "regionInterfaceList.H"
+
+#include "dnaControl.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -66,8 +68,8 @@ class multiRegionSystem
 {
     // Private data
 
-        //- Reference to the mesh
-        const fvMesh& mesh_;
+        //- Reference to runTime
+        const Time& runTime_;
 
         //- lists of regions
         autoPtr<regionTypeList> regions_;
@@ -75,19 +77,29 @@ class multiRegionSystem
         //- list of region interfaces
         autoPtr<regionInterfaceList> interfaces_;
 
-        //- Lists of PtrLists of coupled finite volume fields
+        //- PtrLists of coupled finite volume fields
         //  per coupling method
-        List<PtrList<volScalarField> > scalarFlds_;
-        List<PtrList<volVectorField> > vectorFlds_;
-        List<PtrList<volSymmTensorField> > symmTensorFlds_;
-        List<PtrList<volTensorField> > tensorFlds_;
 
-        //- List of unique lists of coupled field names
+        //-- partitioned coupling
+        PtrList<volScalarField> partitionedCoupledScalarFlds_;
+        PtrList<volVectorField> partitionedCoupledVectorFlds_;
+        PtrList<volSymmTensorField> partitionedCoupledSymmTensorFlds_;
+        PtrList<volTensorField> partitionedCoupledTensorFlds_;
+        PtrList<volVector4Field> partitionedCoupledVector4Flds_;
+
+        //-- monolithic coupling
+        PtrList<volScalarField> monolithicCoupledScalarFlds_;
+        PtrList<volVectorField> monolithicCoupledVectorFlds_;
+        PtrList<volSymmTensorField> monolithicCoupledSymmTensorFlds_;
+        PtrList<volTensorField> monolithicCoupledTensorFlds_;
+        PtrList<volVector4Field> monolithicCoupledVector4Flds_;
+
+        //- Unique lists of coupled field names
         //  per coupling method
-        List<hashedWordList> fldNames_;
+        hashedWordList partitionedCoupledFldNames_;
+        hashedWordList monolithicCoupledFldNames_;
 
-        //- Maximum coupling iterations (partitioned)
-        label maxCoupleIter_;
+        HashPtrTable<dnaControl> dnaControls_;
 
     // Private member functions
 
@@ -95,18 +107,18 @@ class multiRegionSystem
         template<class T>
         void assembleCoupledFields
         (
-            List<PtrList<GeometricField<T, fvPatchField, volMesh> > >& flds,
-            const List<hashedWordList>& fldNms
+            PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
+            const hashedWordList& fldNms
         ) const;
 
-        template<class T>
+        template< template<class> class M, class T>
         void assembleAndSolveCoupledMatrix
         (
             PtrList<GeometricField<T, fvPatchField, volMesh> >& flds,
             word fldName
         ) const;
 
-        template<class T>
+        template< template<class> class M, class T>
         void assembleAndSolveEqns
         (
             word fldName
@@ -122,8 +134,8 @@ public:
 
     // Constructors
 
-        //- Construct from fvMesh
-        multiRegionSystem(const fvMesh&);
+        //- Construct from dynamicFvMesh
+        multiRegionSystem(const Time& runTime);
 
 
     //- Destructor
@@ -142,16 +154,15 @@ public:
 
     // Member Functions
 
-        // Correct
-        void correct();
+        void preSolve();
 
         void solve();
 
         void setCoupledEqns();
 
-        void setRDeltaT();
+        scalar getMinDeltaT();
         
-        void updateFields();
+        void postSolve();
 
         // Access
 

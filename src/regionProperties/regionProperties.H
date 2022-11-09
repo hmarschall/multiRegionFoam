@@ -40,7 +40,7 @@ SourceFiles
 #define regionProperties_H
 
 #include "foamTime.H"
-#include "HashTable.H"
+#include "Tuple2.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -53,7 +53,7 @@ namespace Foam
 
 class regionProperties
 :
-    public HashTable<wordList>
+    public List<Tuple2<word,wordList>>
 {
 
         //- Disallow default bitwise copy construct

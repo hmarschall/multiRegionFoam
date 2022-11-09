@@ -1,4 +1,5 @@
 EXE_INC = \
+    -I$(LIB_MRF)/lnInclude \
     -I$(FOAM_UTILITIES)/mesh/manipulation/mergeMeshes \
     -Iinclude \
     -I../../../src/lnInclude \
@@ -18,9 +19,11 @@ EXE_INC = \
 
 EXE_LIBS = \
     -L$(FOAM_USER_LIBBIN) \
+    -lmrfZones \
     -lmultiRegionSystem \
     -lfiniteVolume \
     -lfiniteArea \
     -ldynamicMesh \
+    -ldynamicFvMesh \
     -lmeshTools \
     -lsampling

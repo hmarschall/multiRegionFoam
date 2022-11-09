@@ -1,0 +1,54 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  8
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant/fluid";
+    object      thermophysicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+thermoType
+{
+    type            heRhoThermo;
+    mixture         pureMixture;
+    transport       const;
+    thermo          hConst;
+    equationOfState rhoConst;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+
+mixture
+{
+    // Air
+
+    specie
+    {
+        molWeight       28.97;
+    }
+    equationOfState
+    {
+        rho             0.9944;//SBB change to 0.9944
+    }
+    thermodynamics
+    {
+        Cp              1.016e03;//SBB change to 1.016e+03
+        Hf              0;
+    }
+    transport
+    {
+        mu              2.0821e-5;
+        Pr              0.69697;//SBB
+//        kappa           630.0;
+    }
+}
+
+// ************************************************************************* //

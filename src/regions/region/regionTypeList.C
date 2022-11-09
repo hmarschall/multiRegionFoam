@@ -32,37 +32,23 @@ License
 
 Foam::regionTypeList::regionTypeList
 (
-    const fvMesh& mesh
+    const Time& runTime
 )
 :
     PtrList<regionType>(),
-    superMeshPtr_
-    (
-        new fvMesh
-        (
-            Foam::IOobject
-            (
-                mesh.name(),
-                mesh.time().timeName(),
-                mesh.time(),
-                Foam::IOobject::MUST_READ
-            )
-        )
-    ),
     dict_
     (
         IOobject
         (
             "multiRegionProperties",
-            mesh.time().constant(),
-            mesh.time(),
+            runTime.constant(),
+            runTime,
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
     ),
-    superMeshRegions_(dict_.lookup("superMeshRegions")),
-    mesh_(mesh),
-    region_(mesh.time())
+    runTime_(runTime),
+    region_(runTime)
 {
     reset(region_);
 
@@ -70,92 +56,7 @@ Foam::regionTypeList::regionTypeList
 }
 
 
-// * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
-
-Foam::regionTypeList::~regionTypeList()
-{}
-
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
-
-const Foam::fvMesh& Foam::regionTypeList::superMesh()
-{
-    mergePolyMesh seedMesh(superMeshPtr_);
-
-    hashedWordList superMeshRegionNames;
-
-    forAllConstIter(HashTable<wordList>, superMeshRegions_, iter)
-    {
-        const wordList& regions = iter();
-
-        forAll(regions, regionI)
-        {
-            if (!superMeshRegionNames.contains(regions[regionI]))
-            {
-                superMeshRegionNames.append(regions[regionI]);
-            }
-        }
-    }
-
-    forAll(*this, i)
-    {
-        regionType& meshToAdd = const_cast<regionType&>(this->operator[](i));
-
-        if 
-        (
-            superMeshRegionNames.contains(meshToAdd.name())
-         && meshToAdd.name() != mesh_.name() //since created from this mesh
-        )
-        {
-            seedMesh.addMesh(meshToAdd);
-            seedMesh.merge();
-        }
-    }
-
-    // Make a copy of the current mesh components as they will be transferred
-    // to the mesh
-    pointField pointsCopy = seedMesh.allPoints();
-    faceList facesCopy = seedMesh.faces();
-    labelList allOwnerCopy = seedMesh.faceOwner();
-    labelList allNeighbourCopy = seedMesh.faceNeighbour();
-
-    // Create the super-mesh
-    superMeshPtr_.reset
-    (
-        new fvMesh
-        (
-            IOobject
-            (
-                "superMesh",
-                mesh_.time().timeName(),
-                mesh_.time(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            xferMove(pointsCopy),
-            xferMove(facesCopy),
-            xferMove(allOwnerCopy),
-            xferMove(allNeighbourCopy)
-        )
-    );
-
-    // Add the boundary patches by copy the current mesh boundary
-    List<polyPatch*> meshBoundary(seedMesh.boundaryMesh().size());
-    forAll(seedMesh.boundaryMesh(), patchI)
-    {
-        meshBoundary[patchI] =
-            seedMesh.boundaryMesh()[patchI].clone
-            (
-                superMeshPtr_().boundaryMesh(),
-                patchI,
-                seedMesh.boundaryMesh()[patchI].size(),
-                seedMesh.boundaryMesh()[patchI].start()
-            ).ptr();
-    }
-    superMeshPtr_().addFvPatches(meshBoundary);
-
-    return superMeshPtr_;
-}
 
 bool Foam::regionTypeList::active(const bool warn) const
 {
@@ -176,59 +77,106 @@ bool Foam::regionTypeList::active(const bool warn) const
 
 void Foam::regionTypeList::reset(const regionProperties& rp)
 {
-    wordList regionNames;
+    wordList regionTypes;
 
     label j = 0;
 
-    forAllConstIter(HashTable<wordList>, rp, iter)
+    forAll(rp, regionI)
     {
-        const wordList& regions = iter();
+        const wordList& regions = rp[regionI].second();
 
         forAll(regions, regionI)
         {
-            if (findIndex(regionNames, regions[regionI]))
-            {
-                regionNames.setSize(regionNames.size()+1);
-                regionNames[j] = regions[regionI];
-            }
+            regionTypes.setSize(regionTypes.size()+1);
+            regionTypes[j] = regions[regionI];
 
             j++;
         }
     }
 
-    this->setSize(regionNames.size());
+    this->setSize(regionTypes.size());
 
     label i = 0;
 
-    forAllConstIter(HashTable<wordList>, rp, iter)
+    forAll(rp, regionI)
     {
-        const word& modelType = iter.key();
-        const wordList& regions = iter();
+        word meshName = rp[regionI].first();
+        wordList regionTypes = rp[regionI].second();
 
-        if (regions.size())
+        forAll(regionTypes, regionI)
         {
-            forAll(regions, regionI)
-            {
-                Info << "Creating " << regions[regionI] << endl;
+                Info<< "Creating region "
+                    << meshName
+                    << ": "
+                    << regionTypes[regionI] 
+                    << endl;
 
                 this->set
                 (
                     i++,
                     regionType::New
                     (
-                        mesh_,
-                        regions[regionI],
-                        modelType
+                        runTime_,
+                        meshName,
+                        regionTypes[regionI]
                     )
                 );
-            }
         }
     }
+
+//    wordList regionNames;
+
+//    label j = 0;
+
+//    forAllConstIter(HashTable<wordList>, rp, iter)
+//    {
+//        const wordList& regions = iter();
+
+//        forAll(regions, regionI)
+//        {
+//            if (findIndex(regionNames, regions[regionI]))
+//            {
+//                regionNames.setSize(regionNames.size()+1);
+//                regionNames[j] = regions[regionI];
+//            }
+
+//            j++;
+//        }
+//    }
+
+//    this->setSize(regionNames.size());
+
+//    label i = 0;
+
+//    forAllConstIter(HashTable<wordList>, rp, iter)
+//    {
+//        const word& modelType = iter.key();
+//        const wordList& regions = iter();
+
+//        if (regions.size())
+//        {
+//            forAll(regions, regionI)
+//            {
+//                Info << "Creating " << regions[regionI] << endl;
+
+//                this->set
+//                (
+//                    i++,
+//                    regionType::New
+//                    (
+//                        runTime_,
+//                        regions[regionI],
+//                        modelType
+//                    )
+//                );
+//            }
+//        }
+//    }
 
     // attach patches of regionCouplePolyPatch type
     forAll(*this, i)
     {
-        regionType& mesh = const_cast<regionType&>(this->operator[](i));
+        dynamicFvMesh& mesh = const_cast<dynamicFvMesh&>(this->operator[](i).mesh());
 
         {
             const polyPatchList& patches = mesh.boundaryMesh();
@@ -252,29 +200,121 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
 }
 
 
-void Foam::regionTypeList::correct()
+void Foam::regionTypeList::preSolve()
 {
+    wordList updated;
+
+    label n = 0;
+
     forAll(*this, i)
     {
+        // mesh update (one sweep before solving)
+        // Note: multiple coupled regions require an
+        // updated system meshes prior to solution
+        // (see Peric)
+        if (findIndex(updated, this->operator[](i).mesh().name()) == -1)
+        {
+            updated.setSize(updated.size()+1);
+
+            updated[n] = this->operator[](i).mesh().name();
+
+            this->operator[](i).update();
+
+            n++;
+        }
+
+        // correct properties
         this->operator[](i).correct();
     }
+
+//    forAll(*this, i)
+//    {
+//        // mesh update (one sweep before solving)
+//        // Note: multiple coupled regions require an
+//        // updated system meshes prior to solution
+//        // (see Peric)
+//        if (updated.found(this->operator[](i).mesh().name()))
+//        {
+//            updated.set
+//            (
+//                this->operator[](i).mesh().name(),
+//                new bool(true)
+//            );
+
+//            this->operator[](i).update();
+//        }
+
+//        // correct properties
+//        this->operator[](i).correct();
+//    }
 }
 
 
-void Foam::regionTypeList::setRDeltaT()
+Foam::scalar Foam::regionTypeList::getMinDeltaT()
 {
+    scalar minDeltaT = GREAT;
     forAll(*this, i)
     {
-        this->operator[](i).setRDeltaT();
+        minDeltaT = min(minDeltaT, this->operator[](i).getMinDeltaT());
     }
+
+    return minDeltaT;
 }
 
 
 void Foam::regionTypeList::solveRegion()
 {
+    for (int j=0; j<5; j++)
+    {
+        forAll(*this, i)
+        {
+            // Solve for region-specific physics
+            // This might require outer loops if
+            // coupling is achieved only by mutual
+            // boundary condition updates
+//            for (int j=0; j<5; j++)
+            {
+                this->operator[](i).solveRegion();
+            }
+        }
+    }
+}
+
+void Foam::regionTypeList::solvePIMPLE()
+{
+    // We do not have a top-level mesh. Construct the fvSolution for
+    // the runTime instead.
+    fvSolution solutionDict(runTime_);
+
+    const dictionary& pimple = solutionDict.subDict("PIMPLE");
+
+    int nOuterCorr(readInt(pimple.lookup("nOuterCorrectors")));
+
+    //- PIMPLE loop
+    for (int oCorr=0; oCorr<nOuterCorr; oCorr++)
+    {
+        forAll(*this, i)
+        {
+            this->operator[](i).prePredictor();
+        }
+
+        forAll(*this, i)
+        {
+            this->operator[](i).momentumPredictor();
+        }
+
+        forAll(*this, i)
+        {
+            this->operator[](i).pressureCorrector();
+        }
+    }
+}
+
+void Foam::regionTypeList::meshMotionCorrector()
+{
     forAll(*this, i)
     {
-        this->operator[](i).solveRegion();
+        this->operator[](i).meshMotionCorrector();
     }
 }
 
@@ -286,11 +326,19 @@ void Foam::regionTypeList::setCoupledEqns()
     }
 }
 
-void Foam::regionTypeList::updateFields()
+void Foam::regionTypeList::postSolve()
 {
     forAll(*this, i)
     {
-        this->operator[](i).updateFields();
+        this->operator[](i).postSolve();
+    }
+}
+
+void Foam::regionTypeList::clear()
+{
+    forAll(*this, i)
+    {
+        this->operator[](i).clear();
     }
 }
 

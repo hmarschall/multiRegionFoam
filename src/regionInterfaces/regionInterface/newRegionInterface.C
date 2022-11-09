@@ -70,38 +70,15 @@ namespace Foam
 
 autoPtr<regionInterface> regionInterface::New
 (
+    const word& type,
+    const dictionary& dict,
     const Time& runTime,
     const fvPatch& patchA,
     const fvPatch& patchB
 )
 {
-    word regionInterfaceTypeName;
-
-    // Enclose the creation of the multiRegionProperties to ensure it is
-    // deleted before the regionInterfaceType is created otherwise the 
-    // dictionary is entered in the database twice
-    {
-        IOdictionary multiRegionProperties
-        (
-            IOobject
-            (
-                "regionInterfaceProperties",
-                runTime.constant(),
-                runTime,
-                IOobject::MUST_READ,
-                IOobject::NO_WRITE
-            )
-        );
-
-        multiRegionProperties.lookup("regionInterfaceType") 
-            >> regionInterfaceTypeName;
-    }
-
-    Info<< "Selecting multiRegion interface type "
-        << regionInterfaceTypeName << endl;
-
     IOdictionaryConstructorTable::iterator cstrIter =
-        IOdictionaryConstructorTablePtr_->find(regionInterfaceTypeName);
+        IOdictionaryConstructorTablePtr_->find(type);
 
     if (cstrIter == IOdictionaryConstructorTablePtr_->end())
     {
@@ -109,14 +86,14 @@ autoPtr<regionInterface> regionInterface::New
         (
             "interface::New()"
         )   << "Unknown interface type "
-            << regionInterfaceTypeName << endl << endl
+            << type << endl << endl
             << "Valid regionInterfaceTypes are : " << endl
             << IOdictionaryConstructorTablePtr_->sortedToc()
             << exit(FatalError);
     }
 
     return autoPtr<regionInterface>
-        (cstrIter()(runTime, patchA, patchB));
+        (cstrIter()(type, dict, runTime, patchA, patchB));
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

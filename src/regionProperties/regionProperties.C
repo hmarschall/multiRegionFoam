@@ -30,7 +30,7 @@ License
 
 Foam::regionProperties::regionProperties(const Time& runTime)
 :
-    HashTable<wordList>
+    List<Tuple2<word,wordList>>
     (
         IOdictionary
         (
@@ -44,7 +44,18 @@ Foam::regionProperties::regionProperties(const Time& runTime)
             )
         ).lookup("regions")
     )
-{}
+{
+
+
+    // forAll(regions, regionI)
+    // {
+    //     this->insert
+    //     (
+    //         regions[regionI].first(),
+    //         new wordList(regions[regionI].second())
+    //     );
+    // }
+}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

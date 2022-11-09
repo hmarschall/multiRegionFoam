@@ -1,4 +1,7 @@
 #!/bin/sh
+
+source etc/bashrc
+
 set -x
 
 wmakeLnInclude -f .
@@ -6,6 +9,31 @@ wmakeLnInclude -f .
 wmakeLnInclude -f src/.
 ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.C" "src/multiRegionSystem/mergePolyMesh.C"
 ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.H" "src/multiRegionSystem/mergePolyMesh.H"
+
+while getopts ":withBear" option; do
+   case $option in
+      withBear) # compile with bear
+         bear dependencies/movingReferenceFrame/Allwmake
+
+         bear -a wmake libso src/coupledFvPatchFields
+
+         bear -a wmake libso src/multiRegionSystem
+
+         bear -a wmake applications/solvers/conjugateHeatFoam
+         bear -a wmake applications/solvers/multiRegionFoam
+         
+         exit;;
+     \?) # Invalid option
+         echo "Error: Invalid option"
+         exit;;
+   esac
+done
+
+dependencies/movingReferenceFrame/Allwmake
+
+wmake libso src/regionInterfaces
+
+wmake libso src/coupledFvPatchFields
 
 wmake libso src/multiRegionSystem
 

@@ -66,15 +66,17 @@ public:
 
 private:
 
-    label index_;
+    // Private data
 
-    wordList interfaceNames_;
+        label index_;
 
-    fieldsTable monolithicCoupledFields_;
+        fieldsTable monolithicCoupledFields_;
 
-    fieldsTable partitionedCoupledFields_;
+        fieldsTable partitionedCoupledFields_;
 
-    typedef List<Tuple2<Pair<Pair<word> >, wordList> > interfaceList;
+        typedef List<Pair<word> > coupledPatchPair;
+
+        typedef List<word> coupledFields;
 
     // Private Member Functions
 
@@ -89,8 +91,8 @@ protected:
 
     // Protected data
 
-        //- Reference to the mesh database
-        const fvMesh& mesh_;
+        //- Reference to the database
+        const Time& runTime_;
 
         //- Tables of coupling interfaces
         regionInterfaceProperties monolithicTypeInterfaces_;
@@ -106,10 +108,11 @@ protected:
 public:
 
     // Constructor
-    regionInterfaceList(const fvMesh& mesh);
+    regionInterfaceList(const Time& runTime);
 
     // Destructor
-    ~regionInterfaceList();
+    virtual ~regionInterfaceList()
+    {}
 
 
     // Member Functions
@@ -164,20 +167,11 @@ public:
         //- Detach interface
         void detach();
 
-        //- Move boundary
-        void move();
+        //- Update boundary
+        void update();
 
-        //- Interpolate/map/transfer face values
-        void transferFaces();
-        
-        //- Interfacial transport
-        void makeUs() const;
-        void makeK() const;
-        void makePhis() const;
-        
-        //- Interface properties
-        void makeFaMesh() const;
-     
+        //- Get min time step over regions
+        scalar getMinDeltaT();
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

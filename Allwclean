@@ -5,6 +5,10 @@ wcleanLnIncludeAll
 rmdepall
 rmoall
 
+(cd dependencies/movingReferenceFrame/ && ./Allwclean )
+
+wclean libso src/coupledFvPatchFields
+
 wclean libso src/multiRegionSystem
 
 wclean applications/solvers/conjugateHeatFoam
