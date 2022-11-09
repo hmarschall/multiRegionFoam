@@ -20,21 +20,6 @@ regions
     ( solid (conductTemperature) )
 );
 
-partitionedTypeRegionInterfaces
-(
-    fluidSolid 
-    (
-        (((fluid bottom)(solid top)) (T))
-    )
-);
-
-monolithicTypeRegionInterfaces
-();
-
-// Assembles a super-mesh
-superMeshRegions
-();
-
 partitionedCoupling
 {
     maxCoupleIter 6;

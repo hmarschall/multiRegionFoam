@@ -28,8 +28,8 @@ boundaryField
     {
         type                    chtRcTemperature;
         radiation               off;
-        K                       alpha;
-        remoteField             T;      // this is simply the field on the other side to couple with
+        K                       k;
+        remoteField             T;
         value                   $internalField;
     }
     bottom
