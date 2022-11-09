@@ -15,6 +15,9 @@ FoamFile
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 partitionedCoupledPatches
+();
+
+monolithicCoupledPatches
 (
     fluidsolid
     {
@@ -35,9 +38,6 @@ partitionedCoupledPatches
         {}
     }
 );
-
-monolithicCoupledPatches
-();
 
 curvatureCorrectedSurfacePatches 0();
 
