@@ -124,24 +124,24 @@ Foam::regionTypes::conductTemperature::conductTemperature
 //        dimensionedScalar("T0", dimTemperature, pTraits<scalar>::zero),
 //        zeroGradientFvPatchScalarField::typeName
 //    ),
-    alpha_(nullptr),
+    kSolid_(nullptr),
     k_(nullptr),
     T_(nullptr)
 {
-    alpha_.reset
+    kSolid_.reset
     (
         new volScalarField
         (
             IOobject
             (
-                "alpha",
+                "kSolid",
                 mesh().time().timeName(),
                 mesh(),
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
             mesh(),
-            dimensionedScalar("alpha", dimensionSet(0,2,-1,0,0,0,0), 0)
+            dimensionedScalar(transportProperties_.lookup("kSolid"))
         )
     );
 
@@ -157,8 +157,8 @@ Foam::regionTypes::conductTemperature::conductTemperature
                 IOobject::READ_IF_PRESENT,
                 IOobject::NO_WRITE
             ),
-            mesh()
-//            dimensionedScalar(transportProperties_.lookup("k"))
+            mesh(),
+            dimensionedScalar("k", dimensionSet(0,2,-1,0,0,0,0), 0)
         )
     );
 
@@ -178,7 +178,7 @@ Foam::regionTypes::conductTemperature::conductTemperature
         )
     );
 
-    alpha_() = k_()/(rho_*cv_);
+    k_() = kSolid_()/(rho_*cv_);
 }
 
 
@@ -207,7 +207,7 @@ void Foam::regionTypes::conductTemperature::setCoupledEqns()
     (
         fvm::ddt(rho_*cv_, T_())
      ==
-        fvm::laplacian(k_(), T_(), "laplacian(k,T)")
+        fvm::laplacian(kSolid_(), T_(), "laplacian(k,T)")
     );
 
     fvScalarMatrices.set

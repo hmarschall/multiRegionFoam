@@ -70,7 +70,7 @@ class conductTemperature
         volScalarField rho_;
 
         //- thermal diffusivity
-        autoPtr<volScalarField> alpha_;
+        autoPtr<volScalarField> kSolid_;
 
         //- thermal conductivity
         autoPtr<volScalarField> k_;
