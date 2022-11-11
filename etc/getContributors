@@ -1,0 +1,8 @@
+#!/bin/sh
+
+rm -f contributors.txt
+
+echo "List of contributors (generated from git shortlog)" >> contributors.txt
+echo "" >> contributors.txt
+
+git shortlog -sne --all >> contributors.txt
