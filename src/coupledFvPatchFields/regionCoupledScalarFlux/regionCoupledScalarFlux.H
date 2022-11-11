@@ -23,7 +23,7 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    interfaceCoupledSpeciesFlux
+    regionCoupledScalarFlux
 
 Author
     Constantin Habes (constantin.habes@stud.tu-darmstadt.de)
@@ -35,7 +35,7 @@ Description
     Example usage:
         interfacePatch
             {
-                type                    interfaceCoupledSpeciesFlux;
+                type                    regionCoupledScalarFlux;
                 k                       "D";
                 neighbourRegionName     liquid;
                 neighbourPatchName      interfacePatchShadow;
@@ -44,12 +44,12 @@ Description
 
 
 SourceFiles
-    interfaceCoupledSpeciesFlux.C
+    regionCoupledScalarFlux.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef interfaceCoupledSpeciesFlux_H
-#define interfaceCoupledSpeciesFlux_H
+#ifndef regionCoupledScalarFlux_H
+#define regionCoupledScalarFlux_H
 
 #include "genericRegionCoupledFluxFvPatchField.H"
 
@@ -59,10 +59,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-   Class interfaceCoupledSpeciesFlux Declaration
+   Class regionCoupledScalarFlux Declaration
 \*---------------------------------------------------------------------------*/
 
-class interfaceCoupledSpeciesFlux
+class regionCoupledScalarFlux
 :
     public genericRegionCoupledFluxFvPatchField<scalar>   
 {
@@ -70,30 +70,30 @@ class interfaceCoupledSpeciesFlux
 public:
 
     //- Runtime type information
-    TypeName("interfaceCoupledSpeciesFlux");
+    TypeName("regionCoupledScalarFlux");
 
     // Constructors
 
         //- Construct from patch and internal field
-        interfaceCoupledSpeciesFlux
+        regionCoupledScalarFlux
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        interfaceCoupledSpeciesFlux
+        regionCoupledScalarFlux
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const dictionary&
         );
 
-        //- Construct by mapping given interfaceCoupledSpeciesFlux
+        //- Construct by mapping given regionCoupledScalarFlux
         //  onto a new patch
-        interfaceCoupledSpeciesFlux
+        regionCoupledScalarFlux
         (
-            const interfaceCoupledSpeciesFlux&,
+            const regionCoupledScalarFlux&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
@@ -104,14 +104,14 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-            	new interfaceCoupledSpeciesFlux(*this)
+            	new regionCoupledScalarFlux(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        interfaceCoupledSpeciesFlux
+        regionCoupledScalarFlux
         (
-            const interfaceCoupledSpeciesFlux&,
+            const regionCoupledScalarFlux&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -123,7 +123,7 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new interfaceCoupledSpeciesFlux(*this, iF)
+                new regionCoupledScalarFlux(*this, iF)
             );
         }
 

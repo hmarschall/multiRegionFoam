@@ -24,64 +24,85 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "interfaceCoupledSpeciesFlux.H"
-#include "interfaceCoupledSpeciesValue.H"
+#include "regionCoupledScalarJump.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::interfaceCoupledSpeciesFlux::
-interfaceCoupledSpeciesFlux
+Foam::regionCoupledScalarJump::
+regionCoupledScalarJump
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    genericRegionCoupledFluxFvPatchField<scalar>(p, iF)
+    genericRegionCoupledJumpFvPatchField<scalar>(p, iF)
 {}
 
 
-Foam::interfaceCoupledSpeciesFlux::
-interfaceCoupledSpeciesFlux
+Foam::regionCoupledScalarJump::
+regionCoupledScalarJump
 (
-    const interfaceCoupledSpeciesFlux& icpf,
+    const regionCoupledScalarJump& icpv,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
 )
 :
-    genericRegionCoupledFluxFvPatchField<scalar>(icpf, p, iF, mapper)
+    genericRegionCoupledJumpFvPatchField<scalar>(icpv, p, iF, mapper)
 {}
 
 
-Foam::interfaceCoupledSpeciesFlux::
-interfaceCoupledSpeciesFlux
+Foam::regionCoupledScalarJump::
+regionCoupledScalarJump
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const dictionary& dict
 )
 :
-    genericRegionCoupledFluxFvPatchField<scalar>(p, iF, dict)
+    genericRegionCoupledJumpFvPatchField<scalar>(p, iF, dict)
 {}
 
 
-Foam::interfaceCoupledSpeciesFlux::
-interfaceCoupledSpeciesFlux
+Foam::regionCoupledScalarJump::
+regionCoupledScalarJump
 (
-    const interfaceCoupledSpeciesFlux& icpf,
+    const regionCoupledScalarJump& icpv,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
-    genericRegionCoupledFluxFvPatchField<scalar>(icpf, iF)
+    genericRegionCoupledJumpFvPatchField<scalar>(icpv, iF)
 {}
-
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-tmp<scalarField> interfaceCoupledSpeciesFlux::fluxJump() const
+
+tmp<scalarField> regionCoupledScalarJump::valueJump() const
 {
-    return (*this * 0);
+    // Lookup neighbouring patch field
+    const GeometricField<scalar, fvPatchField, volMesh>& nbrField = 
+        nbrMesh().lookupObject<GeometricField<scalar, fvPatchField, volMesh>>
+        (
+            // same field name as on this side
+            psiName_
+        );
+
+    // Calculate interpolated patch field
+    Field<scalar> fieldNbrToOwn = interpolateFromNbrField<scalar>
+    (
+        nbrPatch()
+        .patchField<GeometricField<scalar, fvPatchField, volMesh>, scalar>(nbrField)
+    );
+
+    const dimensionedScalar k
+    (
+        this->db().time().objectRegistry::
+        lookupObject<IOdictionary>("transportProperties")
+        .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+    );
+
+    return (fieldNbrToOwn * (k.value() - 1));
 }
     
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -92,7 +113,7 @@ namespace Foam
 makePatchTypeField
 (
     fvPatchScalarField,
-    interfaceCoupledSpeciesFlux
+    regionCoupledScalarJump
 );
 
 } // End namespace Foam
