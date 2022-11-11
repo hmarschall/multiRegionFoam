@@ -175,15 +175,25 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     fluxNbrToOwn *= -1.0; 
     fluxNbrToOwn += fluxJump();
 
-    const dimensionedScalar k
-    (
-        this->db().time().objectRegistry::
-        lookupObject<IOdictionary>("transportProperties")
-        .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-    );
+    // Get the diffusivity
+    scalarField k(this->patch().size(), pTraits<scalar>::zero);
+
+    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    {
+        k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+    }
+    else
+    {
+        k =
+        (
+            this->db().time().objectRegistry::
+            lookupObject<IOdictionary>("transportProperties")
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+        );
+    }
 
     // Add interfacial flux
-    this->gradient() = fluxNbrToOwn/k.value();
+    this->gradient() = fluxNbrToOwn/k;
 
     fixedGradientFvPatchField<Type>::updateCoeffs();
 }
@@ -212,14 +222,24 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
     // Calculate interpolated patch field
     Field<Type> fluxNbrToOwn = interpolateFromNbrField<Type>(nbrFlux);
 
-    const dimensionedScalar k
-    (
-        this->db().time().objectRegistry::
-        lookupObject<IOdictionary>("transportProperties")
-        .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-    );
+    // Get the diffusivity
+    scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    const Field<Type> fluxOwn = this->snGrad()*k.value();
+    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    {
+        k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+    }
+    else
+    {
+        k =
+        (
+            this->db().time().objectRegistry::
+            lookupObject<IOdictionary>("transportProperties")
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+        );
+    }
+
+    const Field<Type> fluxOwn = this->snGrad()*k;
 
     const tmp<Field<Type>> tmpFluxJump = fluxJump();
     const Field<Type>& fluxJump =  tmpFluxJump();
@@ -280,14 +300,24 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
     // Calculate interpolated patch field
     Field<Type> fluxNbrToOwn = interpolateFromNbrField<Type>(nbrFlux);
 
-    const dimensionedScalar k
-    (
-        this->db().time().objectRegistry::
-        lookupObject<IOdictionary>("transportProperties")
-        .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-    );
+    // Get the diffusivity
+    scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    const Field<Type> fluxOwn = this->snGrad()*k.value();
+    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    {
+        k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+    }
+    else
+    {
+        k =
+        (
+            this->db().time().objectRegistry::
+            lookupObject<IOdictionary>("transportProperties")
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+        );
+    }
+
+    const Field<Type> fluxOwn = this->snGrad()*k;
 
     //Calculate normalisation factor
     const scalar n =
@@ -334,14 +364,24 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
     // Calculate interpolated patch field
     Field<Type> fluxNbrToOwn = interpolateFromNbrField<Type>(nbrFlux);
 
-    const dimensionedScalar k
-    (
-        this->db().time().objectRegistry::
-        lookupObject<IOdictionary>("transportProperties")
-        .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-    );
+    // Get the diffusivity
+    scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    const Field<Type> fluxOwn = this->snGrad()*k.value();
+    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    {
+        k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+    }
+    else
+    {
+        k =
+        (
+            this->db().time().objectRegistry::
+            lookupObject<IOdictionary>("transportProperties")
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+        );
+    }
+
+    const Field<Type> fluxOwn = this->snGrad()*k;
 
     //Calculate normalisation factor similar to linear system solver
     const Field<Type> fluxRef

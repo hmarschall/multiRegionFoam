@@ -213,15 +213,24 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
 template<class Type>
 tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::flux() const
 {
-    
-    const dimensionedScalar k
-    (
-        this->db().time().objectRegistry::
-        lookupObject<IOdictionary>("transportProperties")
-        .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-    );
+    // Get the diffusivity
+    scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    return (this->snGrad()*k.value());
+    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    {
+        k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+    }
+    else
+    {
+        k =
+        (
+            this->db().time().objectRegistry::
+            lookupObject<IOdictionary>("transportProperties")
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+        );
+    }
+
+    return (this->snGrad()*k);
 }
 
 template<class Type>
