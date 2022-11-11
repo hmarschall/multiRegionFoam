@@ -145,7 +145,8 @@ tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::snGrad() const
 }
 
 template<class Type>
-tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::gradientBoundaryCoeffs() const
+tmp<Field<Type> > 
+genericRegionCoupledJumpFvPatchField<Type>::gradientBoundaryCoeffs() const
 {
     notImplemented
     (
@@ -157,39 +158,50 @@ tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::gradientBoundaryCo
     return (*this * 0);
 }
 
-//- Update the patch field coefficients
 template<class Type>
 void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
 {
-    if (this->updated())
-    {
-        return;
-    }
+//    if (this->updated())
+//    {
+//        return;
+//    }
 
     // Update and correct the region interface physics
     const_cast<regionInterface&>(rgInterface()).update();
     const_cast<regionInterface&>(rgInterface()).correct();
 
     // Lookup neighbouring patch field
-    const GeometricField<Type, fvPatchField, volMesh>& 
-        nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
+    const GeometricField<Type, fvPatchField, volMesh>& nbrField =
+        nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
-            //presume same field name as on this side
+            // same field name as on this side
             psiName_
         );
 
     // Calculate interpolated patch field
     Field<Type> fieldNbrToOwn = interpolateFromNbrField<Type>
     (
-        nbrPatch().patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+        nbrPatch()
+        .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
     );
 
-    // Add interfacial pressure jump
+    // Add interfacial jump
     fieldNbrToOwn += valueJump();
 
     Field<Type>& patchField = *this;
 
     patchField = *this + relax_*(fieldNbrToOwn - *this);
+
+    // Enforce fixed value condition
+    fvPatchField<Type>::operator==
+    (
+        *this 
+      + relax_*
+        (
+            fieldNbrToOwn 
+          - *this
+        )
+    );
 
     updatePhi();
 
@@ -202,31 +214,33 @@ template<class Type>
 tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::flux() const
 {
     
-    dimensionedScalar k
+    const dimensionedScalar k
     (
-        this->db().time().objectRegistry::lookupObject<IOdictionary>("transportProperties")
+        this->db().time().objectRegistry::
+        lookupObject<IOdictionary>("transportProperties")
         .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
     );
 
     return (this->snGrad()*k.value());
 }
 
-//- Return the raw coupled patch residual
 template<class Type>
 scalarField genericRegionCoupledJumpFvPatchField<Type>::rawResidual() const
 {
     // Lookup neighbouring patch field
-    const GeometricField<Type, fvPatchField, volMesh>& 
-        nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
+    const GeometricField<Type, fvPatchField, volMesh>& nbrField =
+        nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
-            //presume same field name as on this side
+            //same field name as on this side
             psiName_
         );
 
     // Calculate interpolated patch field
-    Field<Type> fieldNbrToOwn = interpolateFromNbrField<Type>
+    Field<Type> fieldNbrToOwn =
+        interpolateFromNbrField<Type>
         (
-            nbrPatch().patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+            nbrPatch()
+            .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
         );
     
     const Field<Type>& fown = *this;
@@ -266,23 +280,23 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::rawResidual() const
     return rawResidual;
 }
 
-//- Return the normalized coupled patch residual
 template<class Type>
 scalarField genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
 {
     // Lookup neighbouring patch field
-    const GeometricField<Type, fvPatchField, volMesh>& 
-        nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
+    const GeometricField<Type, fvPatchField, volMesh>& nbrField =
+        nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
         (
-            //presume same field name as on this side
+            // same field name as on this side
             psiName_
         );
 
     // Calculate interpolated patch field
     Field<Type> fieldNbrToOwn = interpolateFromNbrField<Type>
-        (
-            nbrPatch().patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
-        );
+    (
+        nbrPatch()
+        .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+    );
     
     const Field<Type>& fown = *this;
 
@@ -290,7 +304,8 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
     const Field<Type>& valueJump =  tmpValueJump();
 
     //Calculate normalisation factor
-    const scalar n = max
+    const scalar n =
+        max
         (
             min
             (
@@ -302,36 +317,40 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
 
     //Return normalised residual
     return 
-        (
-            rawResidual()/n
-        );
+    (
+        rawResidual()/n
+    );
 }
 
-//- Return the normalized coupled patch residual
-//- normalised similar to linear system solver residuals
 template<class Type>
 scalar genericRegionCoupledJumpFvPatchField<Type>::ofNormResidual() const
 {
     // Lookup neighbouring patch field
-    const GeometricField<Type, fvPatchField, volMesh>& 
-        nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
+    const GeometricField<Type, fvPatchField, volMesh>& nbrField =
+        nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
-            //presume same field name as on this side
+            //same field name as on this side
             psiName_
         );
 
     // Calculate interpolated patch field
     Field<Type> fieldNbrToOwn = interpolateFromNbrField<Type>
-        (
-            nbrPatch().patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
-        );
+    (
+        nbrPatch()
+        .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+    );
 
     const Field<Type>& fown = *this;
 
     //Calculate normalisation factor similar to linear system solver
-    const Field<Type> jumpRef(refPatch().size(), gAverage(fown) - gAverage(fieldNbrToOwn));
+    const Field<Type> jumpRef
+    (
+        refPatch().size(),
+        gAverage(fown) - gAverage(fieldNbrToOwn)
+    );
 
-    const scalar n = max
+    const scalar n =
+        max
         (
             gSum
             (
@@ -342,13 +361,12 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::ofNormResidual() const
         );
 
     return 
-        (
-            gSum(rawResidual())/n
-        );
+    (
+        gSum(rawResidual())/n
+    );
 
 }
 
-//- Return the maximum normalized coupled patch residual
 template<class Type>
 scalar genericRegionCoupledJumpFvPatchField<Type>::maxNormResidual() const
 {
@@ -357,7 +375,6 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::maxNormResidual() const
     return maxNormResidual;
 }
 
-//- Write
 template<class Type>
 void genericRegionCoupledJumpFvPatchField<Type>::write
 (

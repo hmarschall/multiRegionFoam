@@ -81,22 +81,24 @@ interfaceCoupledSpeciesValue
 tmp<scalarField> interfaceCoupledSpeciesValue::valueJump() const
 {
     // Lookup neighbouring patch field
-    const GeometricField<scalar, fvPatchField, volMesh>& 
-        nbrField = nbrMesh().lookupObject<GeometricField<scalar, fvPatchField, volMesh>>
+    const GeometricField<scalar, fvPatchField, volMesh>& nbrField = 
+        nbrMesh().lookupObject<GeometricField<scalar, fvPatchField, volMesh>>
         (
-            //presume same field name as on this side
+            // same field name as on this side
             psiName_
         );
 
     // Calculate interpolated patch field
     Field<scalar> fieldNbrToOwn = interpolateFromNbrField<scalar>
     (
-        nbrPatch().patchField<GeometricField<scalar, fvPatchField, volMesh>, scalar>(nbrField)
+        nbrPatch()
+        .patchField<GeometricField<scalar, fvPatchField, volMesh>, scalar>(nbrField)
     );
 
-    dimensionedScalar k
+    const dimensionedScalar k
     (
-        this->db().time().objectRegistry::lookupObject<IOdictionary>("transportProperties")
+        this->db().time().objectRegistry::
+        lookupObject<IOdictionary>("transportProperties")
         .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
     );
 
