@@ -33,7 +33,8 @@ License
 word Foam::interfaceToInterfaceCoupleManager::assembleName
 (
     const fvPatch& patchA,
-    const fvPatch& patchB
+    const fvPatch& patchB,
+    const word& typeName
 )
 {
     word meshAName = patchA.boundaryMesh().mesh().name();
@@ -50,12 +51,14 @@ word Foam::interfaceToInterfaceCoupleManager::assembleName
     word PatchBName = word(toupper(patchBName[0]));
     PatchBName += PatchBName.substr(1);
 
+    word InterfaceTypeName = word(toupper(typeName[0]));
+    InterfaceTypeName += typeName.substr(1);
+
     return
     (
         meshAName + PatchAName
       + MeshBName + PatchBName
-//        patchA.boundaryMesh().mesh().name() + patchA.name() 
-//      + patchB.boundaryMesh().mesh().name() + patchB.name()
+//      + InterfaceTypeName
     );
 }
 
@@ -65,14 +68,8 @@ Foam::interfaceToInterfaceCoupleManager::rgInterface() const
     const fvMesh& mesh = refPatch().boundaryMesh().mesh();
     const objectRegistry& obr = mesh.objectRegistry::parent();
 
-    word rgIntName = assembleName(nbrPatch(), refPatch());
-    word rgIntNameRev = assembleName(refPatch(), nbrPatch());
-
-//    word rgIntName = neighbourRegionName_ + neighbourPatchName_;
-//    rgIntName += mesh.name() + refPatch().name();
-
-//    word rgIntNameRev = mesh.name() + refPatch().name();
-//    rgIntNameRev += neighbourRegionName_ + neighbourPatchName_;
+    word rgIntName = assembleName(nbrPatch(), refPatch(), typeName_);
+    word rgIntNameRev = assembleName(refPatch(), nbrPatch(), typeName_);
 
     if
     (
@@ -137,10 +134,12 @@ void Foam::interfaceToInterfaceCoupleManager::updateRegionInterface()
 
 Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 (
-    const fvPatch& patch
+    const fvPatch& patch,
+    const word type
 )
 :
     patch_(patch),
+    typeName_(type),
     neighbourRegionName_(),
     neighbourPatchName_(),
     neighbourFieldName_(),
@@ -151,10 +150,12 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 (
     const fvPatch& patch,
-    const dictionary& dict
+    const dictionary& dict,
+    const word type
 )
 :
     patch_(patch),
+    typeName_(type),
     neighbourRegionName_(dict.lookup("neighbourRegionName")),
     neighbourPatchName_(dict.lookup("neighbourPatchName")),
     neighbourFieldName_(dict.lookup("neighbourFieldName")),
@@ -164,10 +165,12 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 
 Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 (
-    const interfaceToInterfaceCoupleManager& pcm
+    const interfaceToInterfaceCoupleManager& pcm,
+    const word type
 )
 :
     patch_(pcm.refPatch()),
+    typeName_(type),
     neighbourRegionName_(pcm.neighbourRegionName()),
     neighbourPatchName_(pcm.neighbourPatchName()),
     neighbourFieldName_(pcm.neighbourFieldName()),

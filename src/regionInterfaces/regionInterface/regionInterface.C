@@ -42,7 +42,8 @@ namespace Foam
 word Foam::regionInterface::assembleName
 (
     const fvPatch& patchA,
-    const fvPatch& patchB
+    const fvPatch& patchB,
+    const word& typeName
 )
 {
     word meshAName = patchA.boundaryMesh().mesh().name();
@@ -59,12 +60,14 @@ word Foam::regionInterface::assembleName
     word PatchBName = word(toupper(patchBName[0]));
     PatchBName += PatchBName.substr(1);
 
+    word InterfaceTypeName = word(toupper(typeName[0]));
+    InterfaceTypeName += typeName.substr(1);
+
     return
     (
         meshAName + PatchAName
       + MeshBName + PatchBName
-//        patchA.boundaryMesh().mesh().name() + patchA.name() 
-//      + patchB.boundaryMesh().mesh().name() + patchB.name()
+//      + InterfaceTypeName
     );
 }
 
@@ -495,7 +498,7 @@ Foam::regionInterface::regionInterface
     (
         IOobject
         (
-            assembleName(patchA, patchB),
+            assembleName(patchA, patchB, type),
             runTime.constant(),
             runTime,
             IOobject::NO_READ,
@@ -642,18 +645,7 @@ regionInterface::~regionInterface()
 
 Foam::word Foam::regionInterface::interfaceName() const
 {
-    word meshAName = meshA_.name();
-
-    word meshBName = meshB_.name();
-    meshBName[0] = toupper(meshBName[0]);
-
-    word name1(Pair<word>::first());
-    name1[0] = toupper(name1[0]);
-
-    word name2(Pair<word>::second());
-    name2[0] = toupper(name2[0]);
-
-    return meshAName + name1 + meshBName + name2;
+    return IOdictionary::name();
 }
 
 const Foam::globalPolyPatch& Foam::regionInterface::globalPatchA() const

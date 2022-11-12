@@ -158,7 +158,8 @@ private:
         static word assembleName
         (
             const fvPatch& patchA,
-            const fvPatch& patchB
+            const fvPatch& patchB,
+            const word& typeName
         );
 
         //- Make global poly patch
