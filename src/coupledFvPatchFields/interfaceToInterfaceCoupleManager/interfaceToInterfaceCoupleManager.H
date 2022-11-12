@@ -72,6 +72,13 @@ class interfaceToInterfaceCoupleManager
 
     // Private Member Functions
 
+        //- assemble interface name
+        static word assembleName
+        (
+            const fvPatch& patchA,
+            const fvPatch& patchB
+        );
+
         //- Disallow default bitwise copy construct
         // interfaceToInterfaceCoupleManager(const interfaceToInterfaceCoupleManager&);
 

@@ -30,17 +30,49 @@ License
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
+word Foam::interfaceToInterfaceCoupleManager::assembleName
+(
+    const fvPatch& patchA,
+    const fvPatch& patchB
+)
+{
+    word meshAName = patchA.boundaryMesh().mesh().name();
+
+    word patchAName = patchA.name();
+    word PatchAName = word(toupper(patchAName[0]));
+    PatchAName += PatchAName.substr(1);
+
+    word meshBName = patchB.boundaryMesh().mesh().name();
+    word MeshBName = word(toupper(meshBName[0]));
+    MeshBName += MeshBName.substr(1);
+
+    word patchBName = patchB.name();
+    word PatchBName = word(toupper(patchBName[0]));
+    PatchBName += PatchBName.substr(1);
+
+    return
+    (
+        meshAName + PatchAName
+      + MeshBName + PatchBName
+//        patchA.boundaryMesh().mesh().name() + patchA.name() 
+//      + patchB.boundaryMesh().mesh().name() + patchB.name()
+    );
+}
+
 const Foam::regionInterface& 
 Foam::interfaceToInterfaceCoupleManager::rgInterface() const
 {
     const fvMesh& mesh = refPatch().boundaryMesh().mesh();
     const objectRegistry& obr = mesh.objectRegistry::parent();
 
-    word rgIntName = neighbourRegionName_ + neighbourPatchName_;
-    rgIntName += mesh.name() + refPatch().name();
+    word rgIntName = assembleName(nbrPatch(), refPatch());
+    word rgIntNameRev = assembleName(refPatch(), nbrPatch());
 
-    word rgIntNameRev = mesh.name() + refPatch().name();
-    rgIntNameRev += neighbourRegionName_ + neighbourPatchName_;
+//    word rgIntName = neighbourRegionName_ + neighbourPatchName_;
+//    rgIntName += mesh.name() + refPatch().name();
+
+//    word rgIntNameRev = mesh.name() + refPatch().name();
+//    rgIntNameRev += neighbourRegionName_ + neighbourPatchName_;
 
     if
     (

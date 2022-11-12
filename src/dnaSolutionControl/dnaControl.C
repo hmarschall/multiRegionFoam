@@ -205,7 +205,7 @@ void Foam::dnaControl::maxTypeRes
             globalMaxFluxRes = GREAT;
         }
 
-        Info<< interface.name() << " for field " << fldName << ": " << nl
+        Info<< interface.interfaceName() << " for field " << fldName << ": " << nl
         << "    globalMaxJumpRes: " << globalMaxJumpRes << nl 
         << "    globalMaxFluxRes: " << globalMaxFluxRes << endl;
     }
