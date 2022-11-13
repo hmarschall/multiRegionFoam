@@ -65,7 +65,7 @@ void Foam::genericRegionCoupledFluxFvPatchField<Foam::scalar>::evaluate
     const fvPatchField<vector>& gradpsi =
     patch().lookupPatchField<volVectorField, vector>
     (
-        "grad(" + psiName_ + ")"
+        "grad(" + this->dimensionedInternalField().name() + ")"
     );
 
     vectorField n = this->patch().nf();
@@ -121,7 +121,7 @@ void Foam::genericRegionCoupledFluxFvPatchField<Foam::vector>::evaluate
     const fvPatchField<tensor>& gradpsi =
     patch().lookupPatchField<volTensorField, tensor>
     (
-        "grad(" + psiName_ + ")"
+        "grad(" + this->dimensionedInternalField().name() + ")"
     );
 
     vectorField n = this->patch().nf();

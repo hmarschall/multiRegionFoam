@@ -85,7 +85,7 @@ tmp<scalarField> regionCoupledScalarJump::valueJump() const
         nbrMesh().lookupObject<GeometricField<scalar, fvPatchField, volMesh>>
         (
             // same field name as on this side
-            psiName_
+            this->dimensionedInternalField().name()
         );
 
     // Calculate interpolated patch field
