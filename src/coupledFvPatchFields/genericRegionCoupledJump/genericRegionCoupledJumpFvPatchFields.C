@@ -35,16 +35,16 @@ namespace Foam
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 makeTemplatePatchTypeField
-  (
-      fvPatchScalarField,
-      genericRegionCoupledJumpFvPatchScalarField
-  );
+(
+    fvPatchScalarField,
+    genericRegionCoupledJumpFvPatchScalarField
+);
 
 makeTemplatePatchTypeField
-  (
-      fvPatchVectorField,
-      genericRegionCoupledJumpFvPatchVectorField
-  );
+(
+    fvPatchVectorField,
+    genericRegionCoupledJumpFvPatchVectorField
+);
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

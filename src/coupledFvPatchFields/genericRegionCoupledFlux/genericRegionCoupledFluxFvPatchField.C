@@ -138,29 +138,28 @@ void genericRegionCoupledFluxFvPatchField<Type>::evaluate(const Pstream::commsTy
     );
 }
 
-//- Update the patch field coefficients
 template<class Type>
 void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
 {
-    if (this->updated())
-    {
-        return;
-    }
+//    if (this->updated())
+//    {
+//        return;
+//    }
 
     // Update and correct the region interface physics
     const_cast<regionInterface&>(rgInterface()).update();
     const_cast<regionInterface&>(rgInterface()).correct();
 
     // Lookup neighbouring patch field
-    const GeometricField<Type, fvPatchField, volMesh>& 
-        nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
+    const GeometricField<Type, fvPatchField, volMesh>& nbrField =
+        nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
-            //presume same field name as on this side
+            // same field name as on this side
             psiName_
         );
 
     // Interpolate flux face values from neighbour patch
-    tmp<Field<Type>> tnbrFlux = 
+    tmp<Field<Type> > tnbrFlux = 
         refCast<const genericRegionCoupledJumpFvPatchField<Type>>
         (
             nbrPatch()
@@ -176,27 +175,37 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     fluxNbrToOwn *= -1.0; 
     fluxNbrToOwn += fluxJump();
 
-    dimensionedScalar k
-    (
-        this->db().time().objectRegistry::lookupObject<IOdictionary>("transportProperties")
-        .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-    );
+    // Get the diffusivity
+    scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    // Add interfacial pressure Flux
-    this->gradient() = fluxNbrToOwn/k.value();
+    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    {
+        k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+    }
+    else
+    {
+        k =
+        (
+            this->db().time().objectRegistry::
+            lookupObject<IOdictionary>("transportProperties")
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+        );
+    }
+
+    // Add interfacial flux
+    this->gradient() = fluxNbrToOwn/k;
 
     fixedGradientFvPatchField<Type>::updateCoeffs();
 }
 
-//- Return the raw coupled patch residual
 template<class Type>
 scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
 {
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& 
-        nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
+        nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
-            //presume same field name as on this side
+            // same field name as on this side
             psiName_
         );
 
@@ -213,13 +222,24 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
     // Calculate interpolated patch field
     Field<Type> fluxNbrToOwn = interpolateFromNbrField<Type>(nbrFlux);
 
-    dimensionedScalar k
-    (
-        this->db().time().objectRegistry::lookupObject<IOdictionary>("transportProperties")
-        .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-    );
+    // Get the diffusivity
+    scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    const Field<Type> fluxOwn = this->snGrad()*k.value();
+    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    {
+        k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+    }
+    else
+    {
+        k =
+        (
+            this->db().time().objectRegistry::
+            lookupObject<IOdictionary>("transportProperties")
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+        );
+    }
+
+    const Field<Type> fluxOwn = this->snGrad()*k;
 
     const tmp<Field<Type>> tmpFluxJump = fluxJump();
     const Field<Type>& fluxJump =  tmpFluxJump();
@@ -256,7 +276,6 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
     return rawResidual;
 }
 
-//- Return the normalized coupled patch residual
 template<class Type>
 scalarField genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
 {
@@ -264,7 +283,7 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
     const GeometricField<Type, fvPatchField, volMesh>& 
         nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
         (
-            //presume same field name as on this side
+            //same field name as on this side
             psiName_
         );
 
@@ -281,16 +300,28 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
     // Calculate interpolated patch field
     Field<Type> fluxNbrToOwn = interpolateFromNbrField<Type>(nbrFlux);
 
-    dimensionedScalar k
-    (
-        this->db().time().objectRegistry::lookupObject<IOdictionary>("transportProperties")
-        .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-    );
+    // Get the diffusivity
+    scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    const Field<Type> fluxOwn = this->snGrad()*k.value();
+    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    {
+        k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+    }
+    else
+    {
+        k =
+        (
+            this->db().time().objectRegistry::
+            lookupObject<IOdictionary>("transportProperties")
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+        );
+    }
+
+    const Field<Type> fluxOwn = this->snGrad()*k;
 
     //Calculate normalisation factor
-    const scalar n = max
+    const scalar n =
+        max
         (
             min
             (
@@ -303,26 +334,25 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
 
     //Return normalised residual
     return 
-        (
-            rawResidual()/n
-        );
+    (
+        rawResidual()/n
+    );
 }
 
-//- Return the normalized coupled patch residual
-//- normalised similar to linear system solver residuals
 template<class Type>
 scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
 {
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& 
-        nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
+        nbrField =
+        nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
-            //presume same field name as on this side
+            // same field name as on this side
             psiName_
         );
 
     // Interpolate flux face values from neighbour patch
-    tmp<Field<Type>> tnbrFlux = 
+    tmp<Field<Type>> tnbrFlux =
         refCast<const genericRegionCoupledJumpFvPatchField<Type>>
         (
             nbrPatch()
@@ -334,18 +364,34 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
     // Calculate interpolated patch field
     Field<Type> fluxNbrToOwn = interpolateFromNbrField<Type>(nbrFlux);
 
-    dimensionedScalar k
-    (
-        this->db().time().objectRegistry::lookupObject<IOdictionary>("transportProperties")
-        .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-    );
+    // Get the diffusivity
+    scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    const Field<Type> fluxOwn = this->snGrad()*k.value();
+    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    {
+        k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+    }
+    else
+    {
+        k =
+        (
+            this->db().time().objectRegistry::
+            lookupObject<IOdictionary>("transportProperties")
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+        );
+    }
+
+    const Field<Type> fluxOwn = this->snGrad()*k;
 
     //Calculate normalisation factor similar to linear system solver
-    const Field<Type> fluxRef(refPatch().size(), gAverage(fluxOwn) - gAverage(fluxNbrToOwn));
+    const Field<Type> fluxRef
+    (
+        refPatch().size(),
+        gAverage(fluxOwn) - gAverage(fluxNbrToOwn)
+    );
 
-    const scalar n = max
+    const scalar n =
+        max
         (
             gSum
             (
@@ -356,13 +402,12 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
         );
 
     return 
-        (
-            gSum(rawResidual())/n
-        );
+    (
+        gSum(rawResidual())/n
+    );
 
 }
 
-//- Return the maximum normalized coupled patch residual
 template<class Type>
 scalar genericRegionCoupledFluxFvPatchField<Type>::maxNormResidual() const
 {
@@ -371,7 +416,6 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::maxNormResidual() const
     return maxNormResidual;
 }
 
-//- Write
 template<class Type>
 void genericRegionCoupledFluxFvPatchField<Type>::write
 (
