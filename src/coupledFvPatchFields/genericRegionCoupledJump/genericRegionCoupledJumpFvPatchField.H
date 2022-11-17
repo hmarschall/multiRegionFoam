@@ -53,6 +53,7 @@ SourceFiles
 #include "interfaceToInterfaceCoupleManager.H"
 #include "regionInterface.H"
 #include "fixedValueFvPatchFields.H"
+#include "gradScheme.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

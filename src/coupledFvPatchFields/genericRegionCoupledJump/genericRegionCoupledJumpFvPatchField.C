@@ -204,12 +204,12 @@ tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::flux() const
     }
     else
     {
-        k =
+        k = dimensionedScalar
         (
-            this->db().time().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
             .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-        );
+        ).value();
     }
 
     return (this->snGrad()*k);

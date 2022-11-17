@@ -154,7 +154,7 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     Field<Type> fluxNbrToOwn = interpolateFromNbrField<Type>(nbrFlux);
 
     // Enforce flux matching
-    fluxNbrToOwn *= -1.0; 
+    fluxNbrToOwn *= -1.0;
     fluxNbrToOwn += fluxJump();
 
     // Get the diffusivity
@@ -166,12 +166,12 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     }
     else
     {
-        k =
+        k = dimensionedScalar
         (
-            this->db().time().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
             .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-        );
+        ).value();
     }
 
     // Add interfacial flux
@@ -213,12 +213,12 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
     }
     else
     {
-        k =
+        k = dimensionedScalar
         (
-            this->db().time().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
             .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-        );
+        ).value();
     }
 
     const Field<Type> fluxOwn = this->snGrad()*k;
@@ -291,12 +291,12 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
     }
     else
     {
-        k =
+        k = dimensionedScalar
         (
-            this->db().time().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
             .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-        );
+        ).value();
     }
 
     const Field<Type> fluxOwn = this->snGrad()*k;
@@ -355,12 +355,12 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
     }
     else
     {
-        k =
+        k = dimensionedScalar
         (
-            this->db().time().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
             .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-        );
+        ).value();
     }
 
     const Field<Type> fluxOwn = this->snGrad()*k;
