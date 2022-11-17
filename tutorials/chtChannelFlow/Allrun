@@ -23,6 +23,9 @@ while getopts "pm" OPTION; do
 
             runApplication -l log.blockMesh.solid blockMesh -region solid 2>/dev/null
             runApplication blockMesh -region fluid 2>/dev/null
+
+            runApplication makeFaMesh -region fluid 2>/dev/null
+            runApplication -l log.makeFaMesh.solid makeFaMesh -region solid 2>/dev/null
             ;;
 
         m)

@@ -29,12 +29,20 @@ boundaryField
     }
     bottom
     {
-        type                    regionCoupleTemperature;
+        type                    regionCoupledScalarJump;//genericRegionCoupledJump;//
+        k                       "K";
         neighbourRegionName     solid;
         neighbourPatchName      top;
         neighbourFieldName      T;
-        K                       1.0;
-        value                   $internalField;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   uniform 0;
+/*        type                    regionCoupleTemperature;*/
+/*        neighbourRegionName     solid;*/
+/*        neighbourPatchName      top;*/
+/*        neighbourFieldName      T;*/
+/*        K                       1.0;*/
+/*        value                   $internalField;*/
     }
     left
     {
