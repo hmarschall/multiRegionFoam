@@ -62,11 +62,50 @@ void Foam::genericRegionCoupledFluxFvPatchField<Foam::scalar>::evaluate
         this->updateCoeffs();
     }
 
-    const fvPatchField<vector>& gradpsi =
-    patch().lookupPatchField<volVectorField, vector>
+//    const fvPatchField<vector>& gradpsi =
+//    patch().lookupPatchField<volVectorField, vector>
+//    (
+//        "grad(" + this->dimensionedInternalField().name() + ")"
+//    );
+
+    const volScalarField& vsf =
+        this->db().objectRegistry::lookupObject<volScalarField>
+        (
+            this->dimensionedInternalField().name()
+        );
+
+    autoPtr<fvPatchField<vector> > gradpsiPtr(nullptr);
+
+    if
     (
-        "grad(" + psiName_ + ")"
-    );
+        this->db().objectRegistry::foundObject<volVectorField>
+        ("grad(" + this->dimensionedInternalField().name() + ")") 
+    )
+    {
+        const fvPatchField<vector>& gradpsi_ =
+            patch().lookupPatchField<volVectorField, vector>
+            (
+                "grad(" + this->dimensionedInternalField().name() + ")"
+            );
+
+        gradpsiPtr.reset
+        (
+            new fvPatchField<vector>(gradpsi_)
+        );
+    }
+    else
+    {
+        gradpsiPtr.reset
+        (
+            new fvPatchField<vector>
+            (
+                fvc::grad(vsf)()
+               .boundaryField()[patch().index()]
+            )
+        );
+    }
+
+    const fvPatchField<vector>& gradpsi = gradpsiPtr();
 
     vectorField n = this->patch().nf();
     vectorField delta = this->patch().delta();
@@ -118,11 +157,50 @@ void Foam::genericRegionCoupledFluxFvPatchField<Foam::vector>::evaluate
 
     fixedGradientFvPatchVectorField::evaluate();
 
-    const fvPatchField<tensor>& gradpsi =
-    patch().lookupPatchField<volTensorField, tensor>
+//    const fvPatchField<tensor>& gradpsi =
+//    patch().lookupPatchField<volTensorField, tensor>
+//    (
+//        "grad(" + this->dimensionedInternalField().name() + ")"
+//    );
+
+    const volVectorField& vvf =
+        this->db().objectRegistry::lookupObject<volVectorField>
+        (
+            this->dimensionedInternalField().name()
+        );
+
+    autoPtr<fvPatchField<tensor> > gradpsiPtr(nullptr);
+
+    if
     (
-        "grad(" + psiName_ + ")"
-    );
+        this->db().objectRegistry::foundObject<volTensorField>
+        ("grad(" + this->dimensionedInternalField().name() + ")") 
+    )
+    {
+        const fvPatchField<tensor>& gradpsi_ =
+            patch().lookupPatchField<volTensorField, tensor>
+            (
+                "grad(" + this->dimensionedInternalField().name() + ")"
+            );
+
+        gradpsiPtr.reset
+        (
+            new fvPatchField<tensor>(gradpsi_)
+        );
+    }
+    else
+    {
+        gradpsiPtr.reset
+        (
+            new fvPatchField<tensor>
+            (
+                fvc::grad(vvf)()
+               .boundaryField()[patch().index()]
+            )
+        );
+    }
+
+    const fvPatchField<tensor>& gradpsi = gradpsiPtr();
 
     vectorField n = this->patch().nf();
     vectorField delta = this->patch().delta();

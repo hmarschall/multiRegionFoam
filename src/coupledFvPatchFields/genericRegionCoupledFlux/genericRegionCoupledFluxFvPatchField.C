@@ -45,10 +45,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
 :
     fixedGradientFvPatchField<Type>(p, iF),
     interfaceToInterfaceCoupleManager(p),
-    psiName_(this->dimensionedInternalField().name()),
     kName_("k"),
-    neighbourRegionName_(),
-    neighbourPatchName_(),
     nonOrthCorr_(false),
     secondOrder_(false)
 {}
@@ -64,10 +61,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
 :
     fixedGradientFvPatchField<Type>(grcf, p, iF, mapper),
     interfaceToInterfaceCoupleManager(p),
-    psiName_(grcf.psiName_),
     kName_(grcf.kName_),
-    neighbourRegionName_(grcf.neighbourRegionName_),
-    neighbourPatchName_(grcf.neighbourPatchName_),
     nonOrthCorr_(grcf.nonOrthCorr_),
     secondOrder_(grcf.secondOrder_)
 {}
@@ -82,16 +76,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
 :
     fixedGradientFvPatchField<Type>(p, iF),
     interfaceToInterfaceCoupleManager(p, dict),
-    psiName_(this->dimensionedInternalField().name()),
     kName_(dict.lookupOrDefault<word>("k", word::null)),
-    neighbourRegionName_
-    (
-        dict.lookupOrDefault<word>("neighbourRegionName", word::null)
-    ),
-    neighbourPatchName_
-    (
-        dict.lookupOrDefault<word>("neighbourPatchName", word::null)
-    ),
     nonOrthCorr_(dict.lookupOrDefault<Switch>("nonOrthCorr",false)),
     secondOrder_(dict.lookupOrDefault<Switch>("secondOrder",false))
 {
@@ -117,10 +102,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
 :
     fixedGradientFvPatchField<Type>(grcf, iF),
     interfaceToInterfaceCoupleManager(grcf),
-    psiName_(grcf.psiName_),
     kName_(grcf.kName_),
-    neighbourRegionName_(grcf.neighbourRegionName_),
-    neighbourPatchName_(grcf.neighbourPatchName_),
     nonOrthCorr_(grcf.nonOrthCorr_),
     secondOrder_(grcf.secondOrder_)
 {}
@@ -155,7 +137,7 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
         nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
             // same field name as on this side
-            psiName_
+            this->dimensionedInternalField().name()
         );
 
     // Interpolate flux face values from neighbour patch
@@ -172,7 +154,7 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     Field<Type> fluxNbrToOwn = interpolateFromNbrField<Type>(nbrFlux);
 
     // Enforce flux matching
-    fluxNbrToOwn *= -1.0; 
+    fluxNbrToOwn *= -1.0;
     fluxNbrToOwn += fluxJump();
 
     // Get the diffusivity
@@ -184,12 +166,12 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     }
     else
     {
-        k =
+        k = dimensionedScalar
         (
-            this->db().time().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
             .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-        );
+        ).value();
     }
 
     // Add interfacial flux
@@ -206,7 +188,7 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
         nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
             // same field name as on this side
-            psiName_
+            this->dimensionedInternalField().name()
         );
 
     // Interpolate flux face values from neighbour patch
@@ -231,12 +213,12 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
     }
     else
     {
-        k =
+        k = dimensionedScalar
         (
-            this->db().time().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
             .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-        );
+        ).value();
     }
 
     const Field<Type> fluxOwn = this->snGrad()*k;
@@ -251,23 +233,23 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
     const scalarField rawResidual = tmpRawResidual();
     
     // Info<< nl
-    // << psiName_ << " fluxOwn:" << nl
+    // << this->dimensionedInternalField().name() << " fluxOwn:" << nl
     // << "  max: " << gMax(fluxOwn) << nl
     // << "  min: " << gMin(fluxOwn) << nl
     // << "  mean: " << gAverage(fluxOwn) << nl
-    // << psiName_ << " fluxNbrToOwn:" << nl
+    // << this->dimensionedInternalField().name() << " fluxNbrToOwn:" << nl
     // << "  max: " << gMax(fluxNbrToOwn) << nl
     // << "  min: "<< gMax(fluxNbrToOwn) << nl
     // << "  mean: " << gAverage(fluxNbrToOwn) << nl
-    // << psiName_ << " fluxJump:" << nl
+    // << this->dimensionedInternalField().name() << " fluxJump:" << nl
     // << "  max: " << gMax(fluxJump) << nl
     // << "  min: " << gMin(fluxJump) << nl
     // << "  mean: " << gAverage(fluxJump) << nl
-    // << psiName_ << " residual:" << nl
+    // << this->dimensionedInternalField().name() << " residual:" << nl
     // << "  max: " << gMax(residual) << nl
     // << "  min: " << gMin(residual) << nl
     // << "  mean: " << gAverage(residual) << nl
-    // << psiName_ << " rawResidual:" << nl
+    // << this->dimensionedInternalField().name() << " rawResidual:" << nl
     // << "  max: " << gMax(rawResidual) << nl
     // << "  min: " << gMin(rawResidual) << nl
     // << "  mean: " << gAverage(rawResidual) << nl
@@ -284,7 +266,7 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
         nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
         (
             //same field name as on this side
-            psiName_
+            this->dimensionedInternalField().name()
         );
 
     // Interpolate flux face values from neighbour patch
@@ -309,12 +291,12 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
     }
     else
     {
-        k =
+        k = dimensionedScalar
         (
-            this->db().time().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
             .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-        );
+        ).value();
     }
 
     const Field<Type> fluxOwn = this->snGrad()*k;
@@ -348,7 +330,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
         nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
             // same field name as on this side
-            psiName_
+            this->dimensionedInternalField().name()
         );
 
     // Interpolate flux face values from neighbour patch
@@ -373,12 +355,12 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
     }
     else
     {
-        k =
+        k = dimensionedScalar
         (
-            this->db().time().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
             .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-        );
+        ).value();
     }
 
     const Field<Type> fluxOwn = this->snGrad()*k;
@@ -424,12 +406,12 @@ void genericRegionCoupledFluxFvPatchField<Type>::write
 {
     fvPatchField<Type>::write(os);
     os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
-    os.writeKeyword("neighbourRegionName") << neighbourRegionName_ 
-        << token::END_STATEMENT << nl;
-    os.writeKeyword("neighbourPatchName") << neighbourPatchName_ 
-        << token::END_STATEMENT << nl;
-    os.writeKeyword("neighbourFieldName") << psiName_ 
-        << token::END_STATEMENT << nl;
+//    os.writeKeyword("neighbourRegionName") << neighbourRegionName_ 
+//        << token::END_STATEMENT << nl;
+//    os.writeKeyword("neighbourPatchName") << neighbourPatchName_ 
+//        << token::END_STATEMENT << nl;
+//    os.writeKeyword("neighbourFieldName") << psiName_ 
+//        << token::END_STATEMENT << nl;
     os.writeKeyword("nonOrthCorr") << nonOrthCorr_ 
         << token::END_STATEMENT << nl;
     os.writeKeyword("secondOrder") << secondOrder_ 

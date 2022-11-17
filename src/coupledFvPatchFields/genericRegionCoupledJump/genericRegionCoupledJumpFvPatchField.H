@@ -34,9 +34,7 @@ Description
     Example usage:
         interfacePatch
         {
-            type                    genericRegionCoupledJumpFvPatchField;
-            neighbourRegionName     neighbourRegion;
-            neighbourPatchName      neighbourPatch;
+            type                    genericRegionCoupledJump;
             k                       "mu";
             relax                   0.5;
             nonOrthCorr             yes;
@@ -55,6 +53,7 @@ SourceFiles
 #include "interfaceToInterfaceCoupleManager.H"
 #include "regionInterface.H"
 #include "fixedValueFvPatchFields.H"
+#include "gradScheme.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -75,16 +74,8 @@ class genericRegionCoupledJumpFvPatchField
 
 protected: 
 
-    //- Field name
-    word psiName_;
-
     //- Diffusion coefficient
     word kName_;
-
-    //- Neighbour names
-    word neighbourRegionName_;
-
-    word neighbourPatchName_;
 
     //- Relaxation factor for BC update
     scalar relax_;

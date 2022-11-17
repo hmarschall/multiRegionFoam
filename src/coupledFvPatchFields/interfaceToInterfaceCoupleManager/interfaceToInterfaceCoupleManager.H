@@ -58,6 +58,9 @@ class interfaceToInterfaceCoupleManager
         //- Reference to the local fvPatch
         const fvPatch& patch_;
 
+        //- Region interface type name
+        word typeName_;
+
         //- Name of neighbour region
         word neighbourRegionName_;
 
@@ -71,6 +74,16 @@ class interfaceToInterfaceCoupleManager
         const fvMesh& localRegion_;
 
     // Private Member Functions
+
+        //- assemble interface name
+        static word assembleName
+        (
+            const fvPatch& refPatch,
+            const word& nbrRgName,
+            const word& nbrPatchName,
+            const word& typeName,
+            const bool& reverseOrder=false
+        );
 
         //- Disallow default bitwise copy construct
         // interfaceToInterfaceCoupleManager(const interfaceToInterfaceCoupleManager&);
@@ -95,13 +108,26 @@ public:
     // Constructors
 
         //- Construct from fvPatch
-        interfaceToInterfaceCoupleManager(const fvPatch& patch);
+        interfaceToInterfaceCoupleManager
+        (
+            const fvPatch& patch,
+            const word type=word("default")
+        );
 
         //- Construct from fvPatch and dictionary
-        interfaceToInterfaceCoupleManager(const fvPatch& patch, const dictionary& dict);
+        interfaceToInterfaceCoupleManager
+        (
+            const fvPatch& patch,
+            const dictionary& dict,
+            const word type=word("default")
+        );
 
         //- Copy constructor
-        interfaceToInterfaceCoupleManager(const interfaceToInterfaceCoupleManager& pcm);
+        interfaceToInterfaceCoupleManager
+        (
+            const interfaceToInterfaceCoupleManager& pcm,
+            const word type=word("default")
+        );
 
 
     // Destructor

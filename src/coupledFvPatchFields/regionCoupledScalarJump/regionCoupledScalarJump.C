@@ -85,7 +85,7 @@ tmp<scalarField> regionCoupledScalarJump::valueJump() const
         nbrMesh().lookupObject<GeometricField<scalar, fvPatchField, volMesh>>
         (
             // same field name as on this side
-            psiName_
+            this->dimensionedInternalField().name()
         );
 
     // Calculate interpolated patch field
@@ -95,14 +95,24 @@ tmp<scalarField> regionCoupledScalarJump::valueJump() const
         .patchField<GeometricField<scalar, fvPatchField, volMesh>, scalar>(nbrField)
     );
 
-    const dimensionedScalar k
-    (
-        this->db().time().objectRegistry::
-        lookupObject<IOdictionary>("transportProperties")
-        .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-    );
+    // Get the diffusivity
+    scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    return (fieldNbrToOwn * (k.value() - 1));
+    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    {
+        k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+    }
+    else
+    {
+        k = dimensionedScalar
+        (
+            this->db().objectRegistry::
+            lookupObject<IOdictionary>("transportProperties")
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+        ).value();
+    }
+
+    return (fieldNbrToOwn * (k - 1));
 }
     
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

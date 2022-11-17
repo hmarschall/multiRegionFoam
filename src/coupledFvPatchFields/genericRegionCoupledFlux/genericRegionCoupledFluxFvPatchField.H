@@ -34,10 +34,10 @@ Description
     Example usage:
         interfacePatch
         {
-            type                    genericRegionCoupledFluxFvPatchField;
-            neighbourRegionName     neighbourRegion;
-            neighbourPatchName      neighbourPatch;
+            type                    genericRegionCoupledFlux;
             k                       "mu";
+            nonOrthCorr             yes;
+            secondOrder             yes;
             value                   uniform 0;
         }
 
@@ -72,16 +72,8 @@ class genericRegionCoupledFluxFvPatchField
 
 protected:
 
-    //- Field name
-    word psiName_;
-
     //- Diffusion coefficient
     word kName_;
-
-    //- Neighbour names
-    word neighbourRegionName_;
-
-    word neighbourPatchName_;
 
     //- NonOrthogonal correction
     Switch nonOrthCorr_;

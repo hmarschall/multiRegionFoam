@@ -16,6 +16,6 @@ EXE_INC =  \
  -I../../lnInclude \
 
 LIB_LIBS = \
- -lfoam  \
+ -lfoam \
  -lfiniteVolume \
  -lfiniteArea

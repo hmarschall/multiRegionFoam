@@ -25,11 +25,19 @@ boundaryField
 {
     top
     {
-       type                     regionCoupleHeatFlux;
-       neighbourRegionName      fluid;
-       neighbourPatchName       bottom;
-       neighbourFieldName       T;
-       value                    $internalField;
+        type                    regionCoupledScalarFlux;//genericRegionCoupledFlux;//
+        k                       "k";
+        neighbourRegionName     fluid;
+        neighbourPatchName      bottom;
+        neighbourFieldName      T;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   uniform 0;
+/*       type                     regionCoupleHeatFlux;*/
+/*       neighbourRegionName      fluid;*/
+/*       neighbourPatchName       bottom;*/
+/*       neighbourFieldName       T;*/
+/*       value                    $internalField;*/
     }
     bottom
     {
