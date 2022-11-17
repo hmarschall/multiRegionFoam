@@ -30,24 +30,36 @@ License
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-word Foam::interfaceToInterfaceCoupleManager::assembleName
+Foam::word Foam::interfaceToInterfaceCoupleManager::assembleName
 (
-    const fvPatch& patchA,
-    const fvPatch& patchB,
-    const word& typeName
+    const fvPatch& refPatch,
+    const word& nbrRgName,
+    const word& nbrPatchName,
+    const word& typeName,
+    const bool& reverseOrder
 )
 {
-    word meshAName = patchA.boundaryMesh().mesh().name();
+    const fvMesh& mesh = refPatch.boundaryMesh().mesh();
 
-    word patchAName = patchA.name();
+    word meshAName = nbrRgName;
+    word patchAName = nbrPatchName;
+    word meshBName = mesh.name();
+    word patchBName = refPatch.name();
+
+    if (reverseOrder)
+    {
+        meshAName = mesh.name();
+        patchAName = refPatch.name();
+        meshBName = nbrRgName;
+        patchBName = nbrPatchName;
+    }
+
     word PatchAName = word(toupper(patchAName[0]));
     PatchAName += PatchAName.substr(1);
 
-    word meshBName = patchB.boundaryMesh().mesh().name();
     word MeshBName = word(toupper(meshBName[0]));
     MeshBName += MeshBName.substr(1);
 
-    word patchBName = patchB.name();
     word PatchBName = word(toupper(patchBName[0]));
     PatchBName += PatchBName.substr(1);
 
@@ -68,8 +80,22 @@ Foam::interfaceToInterfaceCoupleManager::rgInterface() const
     const fvMesh& mesh = refPatch().boundaryMesh().mesh();
     const objectRegistry& obr = mesh.objectRegistry::parent();
 
-    word rgIntName = assembleName(nbrPatch(), refPatch(), typeName_);
-    word rgIntNameRev = assembleName(refPatch(), nbrPatch(), typeName_);
+    word rgIntName = assembleName
+    (
+        refPatch(),
+        neighbourRegionName_,
+        neighbourPatchName_,
+        typeName_
+    );
+
+    word rgIntNameRev = assembleName
+    (
+        refPatch(),
+        neighbourRegionName_,
+        neighbourPatchName_,
+        typeName_,
+        true //reverse order
+    );
 
     if
     (

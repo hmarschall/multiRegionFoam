@@ -78,9 +78,11 @@ class interfaceToInterfaceCoupleManager
         //- assemble interface name
         static word assembleName
         (
-            const fvPatch& patchA,
-            const fvPatch& patchB,
-            const word& typeName
+            const fvPatch& refPatch,
+            const word& nbrRgName,
+            const word& nbrPatchName,
+            const word& typeName,
+            const bool& reverseOrder=false
         );
 
         //- Disallow default bitwise copy construct
