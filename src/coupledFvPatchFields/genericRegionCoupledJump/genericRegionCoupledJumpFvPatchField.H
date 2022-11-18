@@ -74,8 +74,11 @@ class genericRegionCoupledJumpFvPatchField
 
 protected: 
 
-    //- Diffusion coefficient
+    //- Diffusivity coefficient
     word kName_;
+
+    //- Jump coefficient
+    word KName_;
 
     //- Relaxation factor for BC update
     scalar relax_;
@@ -158,7 +161,14 @@ public:
         //- Calculate jump
         virtual tmp<Field<Type>> valueJump() const
         {
-                return (*this * 0);
+            notImplemented
+            (
+                "genericRegionCoupledJumpFvPatchField.C\n"
+                "tmp<Field<Type>> valueJump()\n"
+                "not implemented"
+            );
+
+            return (*this * 0);
         };
 
         //- Update the patch field coefficients
