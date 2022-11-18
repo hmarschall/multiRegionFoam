@@ -29,7 +29,15 @@ DNA
 {
     T
     {
-        maxCoupleIter 20;
+        maxCoupleIter 3;
+
+        residualControl
+        {
+            maxJumpRes 1e-4;
+            outputJumpResField no;
+            maxFluxRes 1e-3;
+            outputFluxResField no;
+        }
     }
 }
 
