@@ -30,7 +30,8 @@ boundaryField
     bottom
     {
         type                    regionCoupledScalarJump;//genericRegionCoupledJump;//
-        k                       "K";
+        k                       "alpha";
+        //K                       "K";
         neighbourRegionName     solid;
         neighbourPatchName      top;
         neighbourFieldName      T;
