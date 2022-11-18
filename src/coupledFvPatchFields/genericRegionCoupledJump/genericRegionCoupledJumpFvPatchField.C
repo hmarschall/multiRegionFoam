@@ -45,6 +45,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     fixedValueFvPatchField<Type>(p, iF),
     interfaceToInterfaceCoupleManager(p),
     kName_("k"),
+    KName_("K"),
     relax_(1.0),
     nonOrthCorr_(false),
     secondOrder_(false)
@@ -62,6 +63,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     fixedValueFvPatchField<Type>(grcj, p, iF, mapper),
     interfaceToInterfaceCoupleManager(p),
     kName_(grcj.kName_),
+    KName_(grcj.KName_),
     relax_(grcj.relax_),
     nonOrthCorr_(grcj.nonOrthCorr_),
     secondOrder_(grcj.secondOrder_)
@@ -78,6 +80,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     fixedValueFvPatchField<Type>(p, iF),
     interfaceToInterfaceCoupleManager(p, dict),
     kName_(dict.lookupOrDefault<word>("k", word::null)),
+    KName_(dict.lookupOrDefault<word>("K", word::null)),
     relax_(dict.lookupOrDefault<scalar>("relax",1.0)),
     nonOrthCorr_(dict.lookupOrDefault<Switch>("nonOrthCorr",false)),
     secondOrder_(dict.lookupOrDefault<Switch>("secondOrder",false))
@@ -105,6 +108,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     fixedValueFvPatchField<Type>(grcj, iF),
     interfaceToInterfaceCoupleManager(grcj),
     kName_(grcj.kName_),
+    KName_(grcj.KName_),
     relax_(grcj.relax_),
     nonOrthCorr_(grcj.nonOrthCorr_),
     secondOrder_(grcj.secondOrder_)
@@ -208,7 +212,7 @@ tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::flux() const
         (
             this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
-            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+            .lookup(kName_)
         ).value();
     }
 
