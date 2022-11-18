@@ -11,7 +11,12 @@ $(regions)/conductTemperature/conductTemperature.C
 $(regions)/transportTemperature/transportTemperature.C
 $(regions)/navierStokesFluid/navierStokesFluid.C
 $(regions)/icoFluid/icoFluid.C
-$(regions)/pUCoupledIcoFluid/pUCoupledIcoFluid.C
+
+$(regions)/anodeGDL/anodeGDL.C
+$(regions)/anodeCL/anodeCL.C
+$(regions)/ionomer/ionomer.C
+$(regions)/cathodeCL/cathodeCL.C
+$(regions)/cathodeGDL/cathodeGDL.C
 
 ../regionProperties/regionProperties.C
 
