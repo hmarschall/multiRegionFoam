@@ -153,7 +153,14 @@ public:
         //- Calculate flux jump
         virtual tmp<Field<Type>> fluxJump() const
         {
-                return (*this * 0);
+            notImplemented
+            (
+                "genericRegionCoupledFluxFvPatchField.C\n"
+                "tmp<Field<Type>> fluxJump()\n"
+                "not implemented"
+            );
+
+            return (*this * 0);
         };
 
         //- Update the patch field coefficients

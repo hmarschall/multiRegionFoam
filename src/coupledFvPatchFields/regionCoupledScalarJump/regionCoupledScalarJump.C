@@ -95,24 +95,24 @@ tmp<scalarField> regionCoupledScalarJump::valueJump() const
         .patchField<GeometricField<scalar, fvPatchField, volMesh>, scalar>(nbrField)
     );
 
-    // Get the diffusivity
-    scalarField k(this->patch().size(), pTraits<scalar>::zero);
+    // Get the jump
+    scalarField K(this->patch().size(), pTraits<scalar>::one);
 
-    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    if ( this->db().objectRegistry::foundObject<volScalarField>(KName_) )
     {
-        k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+        K = this->patch().template lookupPatchField<volScalarField, scalar>(KName_);
     }
-    else
+    else if (KName_ != word::null)
     {
-        k = dimensionedScalar
+        K = dimensionedScalar
         (
             this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
-            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
+            .lookup(KName_)
         ).value();
     }
 
-    return (fieldNbrToOwn * (k - 1));
+    return (fieldNbrToOwn * (K - 1));
 }
     
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
