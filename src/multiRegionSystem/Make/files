@@ -12,11 +12,11 @@ $(regions)/transportTemperature/transportTemperature.C
 $(regions)/navierStokesFluid/navierStokesFluid.C
 $(regions)/icoFluid/icoFluid.C
 
-$(regions)/anodeGDL/anodeGDL.C
-$(regions)/anodeCL/anodeCL.C
+$(regions)/anodicGDL/anodicGDL.C
+$(regions)/anodicCL/anodicCL.C
 $(regions)/ionomer/ionomer.C
-$(regions)/cathodeCL/cathodeCL.C
-$(regions)/cathodeGDL/cathodeGDL.C
+$(regions)/cathodicCL/cathodicCL.C
+$(regions)/cathodicGDL/cathodicGDL.C
 
 ../regionProperties/regionProperties.C
 
