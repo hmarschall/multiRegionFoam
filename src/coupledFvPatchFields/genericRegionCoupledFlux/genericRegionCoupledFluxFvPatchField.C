@@ -45,6 +45,9 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
 :
     fixedGradientFvPatchField<Type>(p, iF),
     interfaceToInterfaceCoupleManager(p),
+    neighbourRegionName_(),
+    neighbourPatchName_(),
+    neighbourFieldName_(),
     kName_("k"),
     nonOrthCorr_(false),
     secondOrder_(false)
@@ -61,6 +64,9 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
 :
     fixedGradientFvPatchField<Type>(grcf, p, iF, mapper),
     interfaceToInterfaceCoupleManager(p),
+    neighbourRegionName_(grcf.neighbourRegionName_),
+    neighbourPatchName_(grcf.neighbourPatchName_),
+    neighbourFieldName_(grcf.neighbourFieldName_),
     kName_(grcf.kName_),
     nonOrthCorr_(grcf.nonOrthCorr_),
     secondOrder_(grcf.secondOrder_)
@@ -76,7 +82,10 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
 :
     fixedGradientFvPatchField<Type>(p, iF),
     interfaceToInterfaceCoupleManager(p, dict),
-    kName_(dict.lookupOrDefault<word>("k", word::null)),
+    neighbourRegionName_(dict.lookup("neighbourRegionName")),
+    neighbourPatchName_(dict.lookup("neighbourPatchName")),
+    neighbourFieldName_(this->dimensionedInternalField().name()),
+    kName_(dict.lookup("k")),
     nonOrthCorr_(dict.lookupOrDefault<Switch>("nonOrthCorr",false)),
     secondOrder_(dict.lookupOrDefault<Switch>("secondOrder",false))
 {
@@ -91,6 +100,34 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     {
         this->evaluate();
     }
+
+    // Coupled fields should have same names,
+    // e.g. there is only one temperature -> T
+    // (disambiguous since fields are registered to different meshes)
+    if (dict.found("neighbourPatchName"))
+    {
+        if
+        (
+            !this->db().objectRegistry::
+            foundObject<GeometricField<Type, fvPatchField, volMesh> >
+            (dict.lookup("neighbourFieldName"))
+        )
+        {
+            FatalError
+                << "\nIncorrect neigbour field name " 
+                << dict.lookup("neighbourFieldName")
+                << " instead " << this->dimensionedInternalField().name()
+                << exit(FatalError);
+        }
+    }
+    else
+    {
+        FatalError
+            << "\nNeigbour field name not found but needed for coupling manager"
+            << " Provide neighbourFieldName: " 
+            << this->dimensionedInternalField().name()
+            << exit(FatalError);
+    }
 }
 
 template<class Type>
@@ -102,6 +139,9 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
 :
     fixedGradientFvPatchField<Type>(grcf, iF),
     interfaceToInterfaceCoupleManager(grcf),
+    neighbourRegionName_(grcf.neighbourRegionName_),
+    neighbourPatchName_(grcf.neighbourPatchName_),
+    neighbourFieldName_(grcf.neighbourFieldName_),
     kName_(grcf.kName_),
     nonOrthCorr_(grcf.nonOrthCorr_),
     secondOrder_(grcf.secondOrder_)
@@ -231,29 +271,32 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
     // Calculate the raw residual
     const tmp<scalarField> tmpRawResidual = mag(residual);
     const scalarField rawResidual = tmpRawResidual();
-    
-    // Info<< nl
-    // << this->dimensionedInternalField().name() << " fluxOwn:" << nl
-    // << "  max: " << gMax(fluxOwn) << nl
-    // << "  min: " << gMin(fluxOwn) << nl
-    // << "  mean: " << gAverage(fluxOwn) << nl
-    // << this->dimensionedInternalField().name() << " fluxNbrToOwn:" << nl
-    // << "  max: " << gMax(fluxNbrToOwn) << nl
-    // << "  min: "<< gMax(fluxNbrToOwn) << nl
-    // << "  mean: " << gAverage(fluxNbrToOwn) << nl
-    // << this->dimensionedInternalField().name() << " fluxJump:" << nl
-    // << "  max: " << gMax(fluxJump) << nl
-    // << "  min: " << gMin(fluxJump) << nl
-    // << "  mean: " << gAverage(fluxJump) << nl
-    // << this->dimensionedInternalField().name() << " residual:" << nl
-    // << "  max: " << gMax(residual) << nl
-    // << "  min: " << gMin(residual) << nl
-    // << "  mean: " << gAverage(residual) << nl
-    // << this->dimensionedInternalField().name() << " rawResidual:" << nl
-    // << "  max: " << gMax(rawResidual) << nl
-    // << "  min: " << gMin(rawResidual) << nl
-    // << "  mean: " << gAverage(rawResidual) << nl
-    // << endl;
+
+    if (debug)
+    {
+        Info<< nl
+        << this->dimensionedInternalField().name() << " fluxOwn:" << nl
+        << "  max: " << gMax(fluxOwn) << nl
+        << "  min: " << gMin(fluxOwn) << nl
+        << "  mean: " << gAverage(fluxOwn) << nl
+        << this->dimensionedInternalField().name() << " fluxNbrToOwn:" << nl
+        << "  max: " << gMax(fluxNbrToOwn) << nl
+        << "  min: "<< gMax(fluxNbrToOwn) << nl
+        << "  mean: " << gAverage(fluxNbrToOwn) << nl
+        << this->dimensionedInternalField().name() << " fluxJump:" << nl
+        << "  max: " << gMax(fluxJump) << nl
+        << "  min: " << gMin(fluxJump) << nl
+        << "  mean: " << gAverage(fluxJump) << nl
+        << this->dimensionedInternalField().name() << " residual:" << nl
+        << "  max: " << gMax(residual) << nl
+        << "  min: " << gMin(residual) << nl
+        << "  mean: " << gAverage(residual) << nl
+        << this->dimensionedInternalField().name() << " rawResidual:" << nl
+        << "  max: " << gMax(rawResidual) << nl
+        << "  min: " << gMin(rawResidual) << nl
+        << "  mean: " << gAverage(rawResidual) << nl
+        << endl;
+    }
 
     return rawResidual;
 }
@@ -405,13 +448,13 @@ void genericRegionCoupledFluxFvPatchField<Type>::write
 ) const
 {
     fvPatchField<Type>::write(os);
+    os.writeKeyword("neighbourRegionName") << neighbourRegionName_ 
+        << token::END_STATEMENT << nl;
+    os.writeKeyword("neighbourPatchName") << neighbourPatchName_ 
+        << token::END_STATEMENT << nl;
+    os.writeKeyword("neighbourFieldName") << neighbourFieldName_ 
+        << token::END_STATEMENT << nl;
     os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
-//    os.writeKeyword("neighbourRegionName") << neighbourRegionName_ 
-//        << token::END_STATEMENT << nl;
-//    os.writeKeyword("neighbourPatchName") << neighbourPatchName_ 
-//        << token::END_STATEMENT << nl;
-//    os.writeKeyword("neighbourFieldName") << psiName_ 
-//        << token::END_STATEMENT << nl;
     os.writeKeyword("nonOrthCorr") << nonOrthCorr_ 
         << token::END_STATEMENT << nl;
     os.writeKeyword("secondOrder") << secondOrder_ 
