@@ -44,6 +44,9 @@ while getopts "pm" OPTION; do
             runApplication blockMesh -region fluid 2>/dev/null
             runApplication setSet -region fluid -batch fluid.setSet 2>/dev/null
             runApplication setsToZones -region fluid -noFlipMap 2>/dev/null
+
+            runApplication makeFaMesh -region fluid 2>/dev/null
+            runApplication -l log.makeFaMesh.solid makeFaMesh -region solid 2>/dev/null
             ;;
 
         esac

@@ -14,8 +14,8 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-application 		MRconjugateHeatFoam;
-startFrom       	startTime;
+application 		multiRegionFoam;
+startFrom       	latestTime;
 startTime       	0;
 stopAt          	endTime;
 endTime         	10.0;
