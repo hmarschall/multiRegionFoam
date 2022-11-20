@@ -35,12 +35,18 @@ Description
         interfacePatch
         {
             type                    genericRegionCoupledJump;
-            k                       "mu";
+            neighbourRegionName     neighbourRegion;
+            neighbourPatchName      neighbourPatch;
+            neighbourFieldName      neighbourField;
+            k                       "D";
+            K                       "H";
             relax                   0.5;
             nonOrthCorr             yes;
             secondOrder             yes;
             value                   uniform 0;
         }
+
+    Note: neighbourFieldName must be the name of the field on this side.
 
 SourceFiles
     genericRegionCoupledJumpFvPatchField.C
@@ -72,28 +78,39 @@ class genericRegionCoupledJumpFvPatchField
 {
     // Private data
 
-protected: 
+        //- Neighbour names
+        word neighbourRegionName_;
 
-    //- Diffusivity coefficient
-    word kName_;
+        word neighbourPatchName_;
 
-    //- Jump coefficient
-    word KName_;
+        word neighbourFieldName_;
 
-    //- Relaxation factor for BC update
-    scalar relax_;
+protected:
 
-    //- NonOrthogonal correction
-    Switch nonOrthCorr_;
+    // Protected data
 
-    //- Second order accuracy correction
-    Switch secondOrder_;
+        //- Diffusivity coefficient
+        word kName_;
 
-    //- Update phi 
-    virtual void updatePhi()
-    {
-        //- Override in child class if needed
-    };
+        //- Jump coefficient
+        word KName_;
+
+        //- Relaxation factor for BC update
+        scalar relax_;
+
+        //- NonOrthogonal correction
+        Switch nonOrthCorr_;
+
+        //- Second order accuracy correction
+        Switch secondOrder_;
+
+    // Protected member functions
+
+        //- Update phi 
+        virtual void updatePhi()
+        {
+            //- Override in child class if needed
+        };
 
 public:
 

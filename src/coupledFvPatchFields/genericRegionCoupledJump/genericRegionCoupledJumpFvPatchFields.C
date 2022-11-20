@@ -56,13 +56,6 @@ template<>
 Foam::tmp<Foam::Field<Foam::scalar> > 
 Foam::genericRegionCoupledJumpFvPatchField<Foam::scalar>::snGrad() const
 {
-
-//    const fvPatchField<vector>& gradpsi =
-//        patch().lookupPatchField<volVectorField, vector>
-//        (
-//            "grad(" + this->dimensionedInternalField().name() + ")"
-//        );
-
     const volScalarField& vsf =
         this->db().objectRegistry::lookupObject<volScalarField>
         (
@@ -154,13 +147,6 @@ template<>
 Foam::tmp<Foam::Field<Foam::vector> > 
 Foam::genericRegionCoupledJumpFvPatchField<Foam::vector>::snGrad() const
 {
-
-//    const fvPatchField<tensor>& gradpsi =
-//        patch().lookupPatchField<volTensorField, tensor>
-//        (
-//            "grad(" + this->dimensionedInternalField().name() + ")"
-//        );
-
     const volVectorField& vvf =
         this->db().objectRegistry::lookupObject<volVectorField>
         (
@@ -254,12 +240,6 @@ template<>
 Foam::tmp<Foam::Field<Foam::scalar> > 
 Foam::genericRegionCoupledJumpFvPatchField<Foam::scalar>::gradientBoundaryCoeffs() const
 {
-//    const fvPatchField<vector>& gradpsi =
-//        patch().lookupPatchField<GeometricField<vector, fvPatchField, volMesh>, vector>
-//        (
-//            "grad(" + this->dimensionedInternalField().name() + ")"
-//        );
-
     const volScalarField& vsf =
         this->db().objectRegistry::lookupObject<volScalarField>
         (
@@ -330,12 +310,6 @@ template<>
 Foam::tmp<Foam::Field<Foam::vector> > 
 Foam::genericRegionCoupledJumpFvPatchField<Foam::vector>::gradientBoundaryCoeffs() const
 {
-//    const fvPatchField<tensor>& gradpsi =
-//        patch().lookupPatchField<volTensorField, tensor>
-//        (
-//            "grad(" + this->dimensionedInternalField().name() + ")"
-//        );
-
     const volVectorField& vvf =
         this->db().objectRegistry::lookupObject<volVectorField>
         (

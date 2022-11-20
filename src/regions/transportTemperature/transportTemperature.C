@@ -88,18 +88,18 @@ Foam::regionTypes::transportTemperature::transportTemperature
     (
         mesh(),
         "phi",
-        true,
         false,
+        true,
         linearInterpolate(U_()) & mesh().Sf()
     );
 
-    // set thermal diffusivity field
+    // set thermal heat transfer coefficient field
     alpha_ = lookupOrRead<volScalarField>
     (
         mesh(),
         "alpha", 
         k_/(rho_*cp_),
-        false
+        true
     );
 
     // set temperature field

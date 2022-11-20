@@ -35,11 +35,16 @@ Description
         interfacePatch
         {
             type                    genericRegionCoupledFlux;
-            k                       "mu";
+            neighbourRegionName     neighbourRegion;
+            neighbourPatchName      neighbourPatch;
+            neighbourFieldName      neighbourField;
+            k                       "D";
             nonOrthCorr             yes;
             secondOrder             yes;
             value                   uniform 0;
         }
+
+    Note: neighbourFieldName must be the name of the field on this side.
 
 SourceFiles
     genericRegionCoupledFluxFvPatchField.C
@@ -69,23 +74,35 @@ class genericRegionCoupledFluxFvPatchField
     public interfaceToInterfaceCoupleManager
 {
 
+    // Private data
+
+        //- Neighbour names
+        word neighbourRegionName_;
+
+        word neighbourPatchName_;
+
+        word neighbourFieldName_;
 
 protected:
 
-    //- Diffusion coefficient
-    word kName_;
+    // Protected data
 
-    //- NonOrthogonal correction
-    Switch nonOrthCorr_;
+        //- Diffusion coefficient
+        word kName_;
 
-    //- Second order accuracy correction
-    Switch secondOrder_;
+        //- NonOrthogonal correction
+        Switch nonOrthCorr_;
 
-    //- Update phi 
-    virtual void updatePhi()
-    {
-        //- Override in child class if needed
-    };
+        //- Second order accuracy correction
+        Switch secondOrder_;
+
+    // Protected member functions
+
+        //- Update phi 
+        virtual void updatePhi()
+        {
+            //- Override in child class if needed
+        };
 
 public:
 

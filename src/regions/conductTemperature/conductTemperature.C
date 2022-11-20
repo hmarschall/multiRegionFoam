@@ -96,69 +96,20 @@ Foam::regionTypes::conductTemperature::conductTemperature
         dimensionedScalar(transportProperties_.lookup("rho"))
     ),
 
-//    k_
-//    (
-//        IOobject
-//        (
-//            "k",
-//            this->time().timeName(),
-//            *this,
-//            IOobject::READ_IF_PRESENT,
-////            IOobject::MUST_READ,
-//            IOobject::NO_WRITE
-//        ),
-//        *this,
-//        dimensionedScalar(transportProperties_.lookup("k"))
-//    ),
-//    T_
-//    (
-//        IOobject
-//        (
-//            "T",
-//            this->time().timeName(),
-//            *this,
-//            IOobject::NO_READ,
-//            IOobject::NO_WRITE
-//        ),
-//        *this,
-//        dimensionedScalar("T0", dimTemperature, pTraits<scalar>::zero),
-//        zeroGradientFvPatchScalarField::typeName
-//    ),
     k_(nullptr),
     T_(nullptr)
 {
-    k_.reset
+    // set thermal diffusivity field
+    k_ = lookupOrRead<volScalarField>
     (
-        new volScalarField
-        (
-            IOobject
-            (
-                "k",
-                mesh().time().timeName(),
-                mesh(),
-                IOobject::READ_IF_PRESENT,
-                IOobject::NO_WRITE
-            ),
-            mesh(),
-            dimensionedScalar(transportProperties_.lookup("k"))
-        )
+        mesh(),
+        "k", 
+        dimensionedScalar(transportProperties_.lookup("k")),
+        true
     );
 
-    T_.reset
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "T",
-                mesh().time().timeName(),
-                mesh(),
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh()
-        )
-    );
+    // set temperature field
+    T_ = lookupOrRead<volScalarField>(mesh(), "T");
 }
 
 

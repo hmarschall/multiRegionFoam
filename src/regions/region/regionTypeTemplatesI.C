@@ -43,8 +43,8 @@ autoPtr<T> regionType::lookupOrRead
 (
     const fvMesh& mesh,
     const word& fldName,
-    const bool& write,
     const bool& read,
+    const bool& write,
     const tmp<T> fld
 )
 {
