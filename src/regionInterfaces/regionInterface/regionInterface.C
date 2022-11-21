@@ -817,6 +817,11 @@ void Foam::regionInterface::update()
 
 void Foam::regionInterface::updateUs()
 {
+    if (!meshA().foundObject<volVectorField>("U"))
+    {
+        return;
+    }
+
     Us().internalField() = Up();
 
     correctUsBoundaryConditions();
