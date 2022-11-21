@@ -94,22 +94,14 @@ autoPtr<T> regionType::lookupOrRead
 
             vfPtr.reset
             (
-                new T
-                (
-                    io,
-                    fld
-                )
+                new T(io, fld)
             );
         }
         else // only if field exists and can be read (for restart)
         {
             vfPtr.reset
             (
-                new T
-                (
-                    io,
-                    mesh
-                )
+                new T(io, mesh)
             );
         }
     }
@@ -156,12 +148,7 @@ autoPtr<T> regionType::lookupOrRead
 
         vfPtr.reset
         (
-            new T
-            (
-                io,
-                mesh,
-                dimVal
-            )
+            new T(io, mesh, dimVal)
         );
     }
 
