@@ -50,18 +50,18 @@ word Foam::regionInterface::assembleName
 
     word patchAName = patchA.name();
     word PatchAName = word(toupper(patchAName[0]));
-    PatchAName += PatchAName.substr(1);
+    PatchAName = PatchAName + patchAName.substr(1);
 
     word meshBName = patchB.boundaryMesh().mesh().name();
     word MeshBName = word(toupper(meshBName[0]));
-    MeshBName += MeshBName.substr(1);
+    MeshBName = MeshBName + meshBName.substr(1);
 
     word patchBName = patchB.name();
     word PatchBName = word(toupper(patchBName[0]));
-    PatchBName += PatchBName.substr(1);
+    PatchBName = PatchBName + patchBName.substr(1);
 
     word InterfaceTypeName = word(toupper(typeName[0]));
-    InterfaceTypeName += typeName.substr(1);
+    InterfaceTypeName = InterfaceTypeName + typeName.substr(1);
 
     return
     (
