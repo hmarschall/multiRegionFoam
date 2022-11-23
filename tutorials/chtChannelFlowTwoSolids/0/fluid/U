@@ -22,7 +22,6 @@ boundaryField
 {
     top
     {
-/*        type                    symmetryPlane;*/
         type                    zeroGradient;
     }
     bottom

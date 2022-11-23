@@ -24,12 +24,16 @@ internalField   uniform 300;
 boundaryField
 {
     top
-    {
-       type                     regionCoupleHeatFlux;
-       neighbourRegionName      solid;
-       neighbourPatchName       bottom;
-       neighbourFieldName       T;
-       value                    $internalField;
+    {       
+        type                    regionCoupledScalarJump;
+        k                       "k";
+        //K                       "K"; // default jump coefficient is 1
+        neighbourRegionName     solid;
+        neighbourPatchName      bottom;
+        neighbourFieldName      T;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   $internalField; //uniform 0;
     }
     bottom
     {

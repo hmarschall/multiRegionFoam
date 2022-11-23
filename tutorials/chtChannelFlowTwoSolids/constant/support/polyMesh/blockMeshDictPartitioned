@@ -39,19 +39,19 @@ edges
 
 patches         
 (
-    wall top
+    patch top
     (
         (3 7 6 2)
     )
-    wall bottom
+    patch bottom
     (
         (1 5 4 0)
     )
-    wall left 
+    patch left 
     (
         (0 4 7 3)
     )
-    wall right
+    patch right
     (
         (2 6 5 1)
     )

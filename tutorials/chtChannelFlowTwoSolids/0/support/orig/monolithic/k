@@ -22,7 +22,7 @@ boundaryField
 {
     top
     {
-        type            chtRcThermalDiffusivitySlave;
+        type            chtRcThermalDiffusivity;
         remoteField     k;
         value           uniform 100;
     }
