@@ -9,37 +9,41 @@ FoamFile
 {
     version     2.0;
     format      ascii;
-    class       volScalarField;
-    object      alpha;
+    class       dictionary;
+    location    "system";
+    object      faSchemes;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-dimensions      [0 2 -1 0 0 0 0];
-
-internalField   uniform 2.458603e-05;
-
-boundaryField
+ddtSchemes
 {
-    top
-    {
-        type            zeroGradient;
-    }
-    bottom
-    {
-        type            chtRcThermalDiffusivity;
-        remoteField     k;
-        value           uniform 2.458603e-05;
-    }
-    left
-    {
-        type            zeroGradient;
-    }
-    right
-    {
-        type            zeroGradient;
-    }
-    frontAndBack
-    {
-        type            empty;
-    }
+    default         backward;
 }
+
+gradSchemes
+{
+    default         Gauss linear; // Grad: Us, surfaceTension
+//    grad(testAF)    leastSquares;
+}
+
+divSchemes
+{
+    default         Gauss linear;
+}
+
+laplacianSchemes
+{
+    default         Gauss linear corrected;
+}
+
+interpolationSchemes
+{
+    default         linear; // Interpolate: Us
+}
+
+snGradSchemes
+{
+    default         none;
+}
+
+// ************************************************************************* //

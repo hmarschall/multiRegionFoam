@@ -16,32 +16,30 @@ FoamFile
 
 regions
 (
-    transportTemperature (fluid)
-    conductTemperature (solid)
-    conductTemperature (support)
-);
-
-partitionedTypeRegionInterfaces
-(
-    
-);
-
-monolithicTypeRegionInterfaces
-(
-    fluidSolid 
-    (
-        (((fluid bottom)(solid top)) (T))
-    )
-
-    solidSupport
-    (
-	(((solid bottom)(support top)) (T))
-    )
+    ( fluid (transportTemperature) )
+    ( solid (conductTemperature) )
+    ( support (conductTemperature) )
 );
 
 partitionedCoupling
 {
     maxCoupleIter 6;
+}
+
+DNA
+{
+    T
+    {
+        maxCoupleIter 3;
+
+        residualControl
+        {
+            maxJumpRes 1e-4;
+            outputJumpResField no;
+            maxFluxRes 1e-3;
+            outputFluxResField no;
+        }
+    }
 }
 
 // ************************************************************************* //
