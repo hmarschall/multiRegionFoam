@@ -169,8 +169,8 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
 //    }
 
     // Update and correct the region interface physics
-    const_cast<regionInterface&>(rgInterface()).update();
-    const_cast<regionInterface&>(rgInterface()).correct();
+//    const_cast<regionInterface&>(rgInterface()).update();
+//    const_cast<regionInterface&>(rgInterface()).correct();
 
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
