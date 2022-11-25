@@ -14,7 +14,7 @@ $(interfaces)/regionInterfaceTemplates.C
 $(interfaces)/regionInterfaceList.C
 $(interfaces)/newRegionInterface.C
 
-capillaryInterface/capillaryInterface.C
+
 defaultInterface/defaultInterface.C
 
 LIB = $(FOAM_USER_LIBBIN)/libregionInterface

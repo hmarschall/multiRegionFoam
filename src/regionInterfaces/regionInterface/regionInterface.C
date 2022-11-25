@@ -128,7 +128,7 @@ void Foam::regionInterface::makeInterfaceToInterface() const
         )
     );
 }
-
+/*
 void Foam::regionInterface::resetFaMesh() const
 {
     word aMeshName = patchA().name() + "FaMesh";
@@ -484,7 +484,7 @@ void regionInterface::clearOut() const
     clearGlobalPatches();
 }
 
-
+*/
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 Foam::regionInterface::regionInterface
@@ -559,14 +559,14 @@ Foam::regionInterface::regionInterface
         regionInterfaceProperties_
         .lookupOrDefault<int>("interpolatorUpdateFrequency", 1)
     ),
-    aMeshPtr_(), //new faMesh(meshA_)
+//    aMeshPtr_(), //new faMesh(meshA_)
 //    areaMesh_(faMesh(meshA_)),
     curvatureCorrectedSurfacePatches_
     (
         regionInterfaceProperties_.lookup("curvatureCorrectedSurfacePatches")
-    ),
-    UsPtr_(),
-    phisPtr_()
+    )
+//    UsPtr_(),
+//    phisPtr_()
 {
     // Create global patches
     makeGlobalPatches();
@@ -639,7 +639,7 @@ Foam::regionInterface::regionInterface
 
 regionInterface::~regionInterface()
 {
-    clearOut();
+//   clearOut();
 }
 
 
@@ -805,17 +805,17 @@ void Foam::regionInterface::update()
     // critical: only if mesh topology has changed
     if (!moving() && changing())
     {
-        clearOut();
-        resetFaMesh();
+//        clearOut();
+//        resetFaMesh();
         makeGlobalPatches();
     }
 
-    updateK();
-    updateUs();
-    updatePhis();
+ //   updateK();
+  //  updateUs();
+  //  updatePhis();
 }
 
-void Foam::regionInterface::updateUs()
+/*void Foam::regionInterface::updateUs()
 {
     if (!meshA().foundObject<volVectorField>("U"))
     {
@@ -846,7 +846,7 @@ void Foam::regionInterface::updateK()
 
     curv.correctBoundaryConditions();
 }
-
+*/
 // Update for mesh motion
 bool Foam::regionInterface::movePoints() const
 {
@@ -863,7 +863,7 @@ bool Foam::regionInterface::updateMesh(const mapPolyMesh& mpm) const
     }
 
     // Wipe out demand-driven data
-    clearOut();
+ //   clearOut();
 //    resetFaMesh();
 //    makeGlobalPatches();
 //    interfaceToInterface();

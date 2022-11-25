@@ -132,7 +132,7 @@ class regionInterface
         label interpolatorUpdateFrequency_;
         
         //- Finite area mesh
-        mutable autoPtr<faMesh> aMeshPtr_;
+//        mutable autoPtr<faMesh> aMeshPtr_;
 
 /*        mutable faMesh areaMesh_;*/
 
@@ -144,10 +144,10 @@ class regionInterface
 protected:
 
         //- surface velocity field
-        mutable autoPtr<areaVectorField> UsPtr_;
+//        mutable autoPtr<areaVectorField> UsPtr_;
 
         //- surface flux field
-        mutable autoPtr<edgeScalarField> phisPtr_;
+//        mutable autoPtr<edgeScalarField> phisPtr_;
 
 
 private:
@@ -172,34 +172,34 @@ private:
         void makeInterfaceToInterface() const;
 
         //- Create/update interface physics
-        void makeFaMesh() const;
+//        void makeFaMesh() const;
 
         //- Reset interface physics
-        void resetFaMesh() const;
+//        void resetFaMesh() const;
 
         //- Make surface velocity
-        void makeUs() const;
+//        void makeUs() const;
 
         //- Make surface flux
-        void makePhis() const;
+//        void makePhis() const;
 
         //- Helper functions
 
         //-- Return velocity field on patch
-        const vectorField& Up();
+//        const vectorField& Up();
             
         //-- Correct surface velocity b.c.
-        void correctUsBoundaryConditions();
+//        void correctUsBoundaryConditions();
             
         //-- Calculate interface curvature at wedge axis
-        void correctCurvature
+/*        void correctCurvature
         (
             areaScalarField& K
         );
 
         //- Clear all demand-driven data
         void clearOut() const;
-
+*/
         //- Disallow default bitwise copy construct
         regionInterface(const regionInterface&);
 
@@ -330,7 +330,7 @@ public:
             }
 
             //- Return reference to faMesh
-            faMesh& aMesh()
+/*            faMesh& aMesh()
             {
                 if (aMeshPtr_.empty())
                 {
@@ -349,7 +349,7 @@ public:
 
                 return aMeshPtr_();
             }
-
+*/
             const bool& changing()
             {
                 if (meshA().changing())
@@ -373,7 +373,7 @@ public:
             //- interfacial transport
         
             //-- return surface velocity    
-            Foam::areaVectorField& Us() 
+ /*           Foam::areaVectorField& Us() 
             {
                 if (UsPtr_.empty())
                 {
@@ -413,7 +413,7 @@ public:
 
                 return phisPtr_();
             }
-
+*/
             //-- return interfacial curvature
 /*            Foam::areaScalarField& K()*/
 /*            {*/
@@ -485,13 +485,13 @@ public:
             void update();
 
             // Update surface velocity
-            void updateUs();
+ //           void updateUs();
 
             // Update interfacial curvature
-            void updateK();
+ //           void updateK();
 
             // Update surface flux
-            void updatePhis();
+ //ssssssssss           void updatePhis();
 
             // Correct interface physics
             virtual void correct() = 0;
