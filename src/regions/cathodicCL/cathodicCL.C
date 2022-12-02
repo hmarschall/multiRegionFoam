@@ -808,15 +808,6 @@ void Foam::regionTypes::cathodicCL::setCoupledEqns()
           fvm::SuSp(sLambda_, lambda_()) 
     );
 
-    // fick diffusion for vapor
-    fvScalarMatrix xVEqn =
-    (
-          c_*fvm::ddt(xV_())
-        - c_*fvm::laplacian(DEffV_(), xV_(), "laplacian(D,x)")
-        ==
-          fvm::SuSp(sV_, xV_())
-    );        
-
     // fick diffusion for oxygen
     fvScalarMatrix xO2Eqn =
     (
@@ -825,6 +816,15 @@ void Foam::regionTypes::cathodicCL::setCoupledEqns()
         ==
           fvm::SuSp(-j_/4/FConst_/xO2_(), xO2_())
     );
+
+    // fick diffusion for vapor
+    fvScalarMatrix xVEqn =
+    (
+          c_*fvm::ddt(xV_())
+        - c_*fvm::laplacian(DEffV_(), xV_(), "laplacian(D,x)")
+        ==
+          fvm::SuSp(sV_, xV_())
+    );    
 
     // liquid water transport (derived from Darcy's Law)
     fvScalarMatrix sEqn =
@@ -861,15 +861,15 @@ void Foam::regionTypes::cathodicCL::setCoupledEqns()
 
     fvScalarMatrices.set
     (
-        xV_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(xVEqn)
-    );
+        xO2_().name() + mesh().name() + "Eqn",
+        new fvScalarMatrix(xO2Eqn)
+    ); 
 
     fvScalarMatrices.set
     (
-        xO2_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(xO2Eqn)
-    );    
+        xV_().name() + mesh().name() + "Eqn",
+        new fvScalarMatrix(xVEqn)
+    );   
 
     fvScalarMatrices.set
     (
