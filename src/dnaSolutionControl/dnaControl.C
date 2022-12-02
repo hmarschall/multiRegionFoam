@@ -407,11 +407,11 @@ void Foam::dnaControl::writeResFlds
     bool final
 )
 {
-    writeResFlds<scalar>
-        (interface, fldName, outputJumpResField, outputFluxResField, final);
+    //writeResFlds<scalar>
+      //  (interface, fldName, outputJumpResField, outputFluxResField, final);
 
-    writeResFlds<vector>
-        (interface, fldName, outputJumpResField, outputFluxResField, final);
+    //writeResFlds<vector>
+      //  (interface, fldName, outputJumpResField, outputFluxResField, final);
 
     // writeResFlds<sphericalTensor>(interface, fldName, outputJumpResField, outputFluxResField, final);
     // writeResFlds<symmTensor>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
