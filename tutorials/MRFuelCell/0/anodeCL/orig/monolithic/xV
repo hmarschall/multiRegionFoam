@@ -1,0 +1,51 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           volScalarField;
+    object          xV;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0.19;
+
+boundaryField
+{
+    topAndBottom
+    {
+        type                    empty;
+    }
+    left
+    {
+        type                    regionCoupleScalarFlux;
+        k			DEffV;
+       	neighbourRegionName     anodeGDL;
+       	neighbourPatchName      right;
+       	neighbourFieldName      xV;
+	secondOrder		false;
+	nonOrthCorr		true;
+       	value                   $internalField;
+    }
+    right
+    {
+        type			zeroGradient;
+    }
+    frontAndBack
+    {
+        type            	empty;
+    }
+}
+
+// ************************************************************************* //

@@ -1,0 +1,44 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           dictionary;
+    object          transportProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+// Thermal conductivity - Dimensions: W/m-K
+k            	k   [1 1 -3 -1 0 0 0] 1.6;
+
+// Electric conductivity - Dimensions: S/m
+sigma		sigma	[-1 -3 3 0 0 2 0] 1250;
+
+// Permeability - Dimensions: m²
+K		K   [0 2 0 0 0 0 0] 6.15e-12;
+
+// Heat capacity - Dimensions: J/kg-K
+cv		cv   [0 2 -2 -1 0 0 0] 100;
+
+// Density GDL - Dimensions: kg/m³
+rho		rho   [1 -3 0 0 0 0 0] 1800;
+
+//- diffusion coefficient oxygen - Dimensions:
+DO2		DO2   [0 2 -1 0 0 0 0] 2.8e-5;
+
+// diffusion coefficient hydrogen - Dimensions: m²/s
+DH2		DH2   [0 2 -1 0 0 0 0] 1.24e-4;
+
+//- diffusion coefficient vapor - Dimensions:
+DV		DV   [0 2 -1 0 0 0 0] 3.6e-5;
+
+// ************************************************************************* //

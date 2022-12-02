@@ -1,0 +1,52 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           volScalarField;
+    object          xH2;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+dimensions      [0 0 0 0 0 0 0];
+
+internalField   uniform 0.81;
+
+boundaryField
+{
+    topAndBottom
+    {
+        type                    empty;
+    }
+    left
+    {
+        type			fixedValue;
+	value			uniform 0.81;
+    }
+    right
+    {
+        type                    regionCoupledScalarJump;
+        k			"DEffH2";
+       	neighbourRegionName     anodeCL;
+       	neighbourPatchName      left;
+       	neighbourFieldName      xH2;
+	secondOrder		false;
+	nonOrthCorr		true;
+       	value                   $internalField;
+    }
+    frontAndBack
+    {
+        type            	empty;
+    }
+}
+
+// ************************************************************************* //

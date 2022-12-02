@@ -1,0 +1,161 @@
+#!/bin/sh
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+if [ ! $# == 1 ]; then
+        echo "Missing options!"
+        echo "(run $0 -p for partitioned"
+        echo " or -m for monolithic)"
+        echo ""
+        exit 0
+fi
+
+while getopts "pm" OPTION; do
+        case $OPTION in
+
+        p)
+	    cp 0/anodeGDL/orig/partitioned/T 0/anodeGDL/.
+	    cp 0/anodeGDL/orig/partitioned/phiE 0/anodeGDL/.
+	    cp 0/anodeGDL/orig/partitioned/xH2 0/anodeGDL/.
+	    cp 0/anodeGDL/orig/partitioned/xV 0/anodeGDL/.
+	    
+	    cp 0/anodeCL/orig/partitioned/T 0/anodeCL/.
+	    cp 0/anodeCL/orig/partitioned/phiE 0/anodeCL/.
+	    cp 0/anodeCL/orig/partitioned/phiP 0/anodeCL/.
+	    cp 0/anodeCL/orig/partitioned/xH2 0/anodeCL/.
+	    cp 0/anodeCL/orig/partitioned/xV 0/anodeCL/.
+	    cp 0/anodeCL/orig/partitioned/lambda 0/anodeCL/.
+	    
+	    cp 0/membrane/orig/partitioned/T 0/membrane/.
+	    cp 0/membrane/orig/partitioned/phiP 0/membrane/.
+	    cp 0/membrane/orig/partitioned/lambda 0/membrane/.
+
+	    cp 0/cathodeCL/orig/partitioned/T 0/cathodeCL/.
+	    cp 0/cathodeCL/orig/partitioned/phiE 0/cathodeCL/.
+	    cp 0/cathodeCL/orig/partitioned/phiP 0/cathodeCL/.
+	    cp 0/cathodeCL/orig/partitioned/xO2 0/cathodeCL/.
+            cp 0/cathodeCL/orig/partitioned/xV 0/cathodeCL/.
+	    cp 0/cathodeCL/orig/partitioned/lambda 0/cathodeCL/.
+	    cp 0/cathodeCL/orig/partitioned/s 0/cathodeCL/.
+
+	    cp 0/cathodeGDL/orig/partitioned/T 0/cathodeGDL/.
+	    cp 0/cathodeGDL/orig/partitioned/phiE 0/cathodeGDL/.
+	    cp 0/cathodeGDL/orig/partitioned/xO2 0/cathodeGDL/.
+	    cp 0/cathodeGDL/orig/partitioned/xV 0/cathodeGDL/.
+	    cp 0/cathodeGDL/orig/partitioned/s 0/cathodeGDL/.
+
+	    cp constant/anodeGDL/polyMesh/blockMeshDictPartitioned constant/anodeGDL/polyMesh/blockMeshDict 2>/dev/null
+	    cp constant/anodeCL/polyMesh/blockMeshDictPartitioned constant/anodeCL/polyMesh/blockMeshDict 2>/dev/null
+            cp constant/membrane/polyMesh/blockMeshDictPartitioned constant/membrane/polyMesh/blockMeshDict 2>/dev/null
+            cp constant/cathodeCL/polyMesh/blockMeshDictPartitioned constant/cathodeCL/polyMesh/blockMeshDict 2>/dev/null
+	    cp constant/cathodeGDL/polyMesh/blockMeshDictPartitioned constant/cathodeGDL/polyMesh/blockMeshDict 2>/dev/null
+
+	    runApplication -l log.blockMesh.anodeGDL blockMesh -region anodeGDL 2>/dev/null
+	    runApplication -l log.blockMesh.anodeCL blockMesh -region anodeCL 2>/dev/null
+  	    runApplication -l log.blockMesh.membrane blockMesh -region membrane 2>/dev/null
+	    runApplication -l log.blockMesh.cathodeCL blockMesh -region cathodeCL 2>/dev/null
+            runApplication -l log.blockMesh.cathodeGDL blockMesh -region cathodeGDL 2>/dev/null
+
+            runApplication -l log.makeFaMesh.anodeGDL makeFaMesh -region anodeGDL 2>/dev/null
+            runApplication -l log.makeFaMesh.anodeCL makeFaMesh -region anodeCL 2>/dev/null
+            runApplication -l log.makeFaMesh.membrane makeFaMesh -region membrane 2>/dev/null
+            runApplication -l log.makeFaMesh.cathodeCL makeFaMesh -region cathodeCL 2>/dev/null
+            runApplication -l log.makeFaMesh.cathodeGDL makeFaMesh -region cathodeGDL 2>/dev/null
+  	    ;;
+
+        m)
+	    cp 0/anodeGDL/orig/monolithic/T 0/anodeGDL/.
+            cp 0/anodeGDL/orig/monolithic/phiE 0/anodeGDL/.
+            cp 0/anodeGDL/orig/monolithic/xH2 0/anodeGDL/.
+            cp 0/anodeGDL/orig/monolithic/xV 0/anodeGDL/.
+            #cp 0/anodeGDL/orig/monolithic/k 0/anodeGDL/.
+            #cp 0/anodeGDL/orig/monolithic/sigma 0/anodeGDL/.
+            #cp 0/anodeGDL/orig/monolithic/DH2Eff 0/anodeGDL/.
+            #cp 0/anodeGDL/orig/monolithic/DVEff 0/anodeGDL/.
+            
+	    cp 0/anodeCL/orig/monolithic/T 0/anodeCL/.
+            cp 0/anodeCL/orig/monolithic/phiE 0/anodeCL/.
+            cp 0/anodeCL/orig/monolithic/phiP 0/anodeCL/.
+            cp 0/anodeCL/orig/monolithic/xH2 0/anodeCL/.
+            cp 0/anodeCL/orig/monolithic/xV 0/anodeCL/.
+            cp 0/anodeCL/orig/monolithic/lambda 0/anodeCL/.
+            #cp 0/anodeCL/orig/monolithic/k 0/anodeCL/.
+            #cp 0/anodeCL/orig/monolithic/sigma 0/anodeCL/.
+            #cp 0/anodeCL/orig/monolithic/kappa 0/anodeCL/.
+            #cp 0/anodeCL/orig/monolithic/DH2Eff 0/anodeCL/.
+            #cp 0/anodeCL/orig/monolithic/DVEff 0/anodeCL/.
+            #cp 0/anodeCL/orig/monolithic/DLambda 0/anodeCL/.
+            
+            cp 0/membrane/orig/monolithic/T 0/membrane/.
+            cp 0/membrane/orig/monolithic/phiP 0/membrane/.
+            cp 0/membrane/orig/monolithic/lambda 0/membrane/.
+	    #cp 0/membrane/orig/monolithic/k 0/membrane/.
+            #cp 0/membrane/orig/monolithic/kappa 0/membrane/.
+            #cp 0/membrane/orig/monolithic/DLambda 0/membrane/.
+
+            cp 0/cathodeCL/orig/monolithic/T 0/cathodeCL/.
+            cp 0/cathodeCL/orig/monolithic/phiE 0/cathodeCL/.
+            cp 0/cathodeCL/orig/monolithic/phiP 0/cathodeCL/.
+            cp 0/cathodeCL/orig/monolithic/xO2 0/cathodeCL/.
+            cp 0/cathodeCL/orig/monolithic/xV 0/cathodeCL/.
+            cp 0/cathodeCL/orig/monolithic/lambda 0/cathodeCL/.
+            cp 0/cathodeCL/orig/monolithic/s 0/cathodeCL/.
+            #cp 0/cathodeCL/orig/monolithic/k 0/cathodeCL/.
+            #cp 0/cathodeCL/orig/monolithic/sigma 0/cathodeCL/.
+            #cp 0/cathodeCL/orig/monolithic/kappa 0/cathodeCL/.
+            #cp 0/cathodeCL/orig/monolithic/DO2Eff 0/cathodeCL/.
+            #cp 0/cathodeCL/orig/monolithic/DVEff 0/cathodeCL/.
+            #cp 0/cathodeCL/orig/monolithic/DLambda 0/cathodeCL/.
+            #cp 0/cathodeCL/orig/monolithic/K 0/cathodeCL/.
+
+            cp 0/cathodeGDL/orig/monolithic/T 0/cathodeGDL/.
+            cp 0/cathodeGDL/orig/monolithic/phiE 0/cathodeGDL/.
+            cp 0/cathodeGDL/orig/monolithic/xO2 0/cathodeGDL/.
+            cp 0/cathodeGDL/orig/monolithic/xV 0/cathodeGDL/.
+            cp 0/cathodeGDL/orig/monolithic/s 0/cathodeGDL/.
+	    #cp 0/cathodeGDL/orig/monolithic/k 0/cathodeGDL/.
+            #cp 0/cathodeGDL/orig/monolithic/sigma 0/cathodeGDL/.
+            #cp 0/cathodeGDL/orig/monolithic/DO2Eff 0/cathodeGDL/.
+            #cp 0/cathodeGDL/orig/monolithic/DVEff 0/cathodeGDL/.
+            #cp 0/cathodeGDL/orig/monolithic/K 0/cathodeGDL/.
+	    
+	    cp constant/anodeGDL/polyMesh/blockMeshDictMonolithic constant/anodeGDL/polyMesh/blockMeshDict 2>/dev/null
+	    cp constant/anodeCL/polyMesh/blockMeshDictMonolithic constant/anodeCL/polyMesh/blockMeshDict 2>/dev/null  
+            cp constant/membrane/polyMesh/blockMeshDictMonolithic constant/membrane/polyMesh/blockMeshDict 2>/dev/null
+            cp constant/cathodeCL/polyMesh/blockMeshDictMonolithic constant/cathodeCL/polyMesh/blockMeshDict 2>/dev/null
+	    cp constant/cathodeGDL/polyMesh/blockMeshDictMonolithic constant/cathodeGDL/polyMesh/blockMeshDict 2>/dev/null
+
+	    runApplication -l log.blockMesh.anodeGDL blockMesh -region anodeGDL 2>/dev/null
+            runApplication -l log.setSet.anodeGDL setSet -region anodeGDL -batch anodeGDL.setSet 2>/dev/null
+            runApplication -l log.setsToZones.anodeGDL setsToZones -region anodeGDL -noFlipMap 2>/dev/null
+
+	    runApplication -l log.blockMesh.anodeCL blockMesh -region anodeCL 2>/dev/null
+            runApplication -l log.setSet.anodeCL setSet -region anodeCL -batch anodeCL.setSet 2>/dev/null
+            runApplication -l log.setsToZones.anodeCL setsToZones -region anodeCL -noFlipMap 2>/dev/null
+
+            runApplication -l log.blockMesh.membrane blockMesh -region membrane 2>/dev/null
+            runApplication -l log.setSet.membrane setSet -region membrane -batch membrane.setSet 2>/dev/null
+            runApplication -l log.setsToZones.membrane setsToZones -region membrane -noFlipMap 2>/dev/null
+
+            runApplication -l log.blockMesh.cathodeCL blockMesh -region cathodeCL 2>/dev/null
+            runApplication -l log.setSet.cathodeCL setSet -region cathodeCL -batch cathodeCL.setSet 2>/dev/null
+            runApplication -l log.setsToZones.cathodeCL setsToZones -region cathodeCL -noFlipMap 2>/dev/null
+
+	    runApplication -l log.blockMesh.cathodeGDL blockMesh -region cathodeGDL 2>/dev/null
+            runApplication -l log.setSet.cathodeGDL setSet -region cathodeGDL -batch cathodeGDL.setSet 2>/dev/null
+            runApplication -l log.setsToZones.cathodeGDL setsToZones -region cathodeGDL -noFlipMap 2>/dev/null
+            ;;
+
+        esac
+done
+
+./makeLinks membrane
+
+runApplication multiRegionFoam 2>/dev/null &
+
+#decomposePar -region fluid 2>/dev/null
+#decomposePar -region solid 2>/dev/null
+
+#mpirun -np 2 conjugateHeatFoam -parallel
+#runParallel conjugateHeatFoam 2

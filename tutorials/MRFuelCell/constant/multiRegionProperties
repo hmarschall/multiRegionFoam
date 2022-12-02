@@ -1,0 +1,139 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      coupledSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+regions
+(
+    ( anodeGDL (anodicGDL) )
+    ( anodeCL (anodicCL) )
+    ( membrane (ionomer) )
+    ( cathodeCL (cathodicCL) )
+    ( cathodeGDL (cathodicGDL) )
+);
+
+partitionedCoupling
+{
+    maxCoupleIter 3;
+}
+
+DNA
+{
+    phiE
+    {
+        maxCoupleIter 3;
+
+        residualControl
+        {
+            maxJumpRes 1e-4;
+            outputJumpResField no;
+            maxFluxRes 1e-3;
+            outputFluxResField no;
+        }
+    }
+    phiP
+    {
+        maxCoupleIter 3;
+
+        residualControl
+        {
+            maxJumpRes 1e-4;
+            outputJumpResField no;
+            maxFluxRes 1e-3;
+            outputFluxResField no;
+        }
+
+    }
+    T
+    {
+        maxCoupleIter 3;
+
+        residualControl
+        {
+            maxJumpRes 1e-4;
+            outputJumpResField no;
+            maxFluxRes 1e-3;
+            outputFluxResField no;
+        }
+
+    }
+    lambda
+    {
+        maxCoupleIter 3;
+
+        residualControl
+        {
+            maxJumpRes 1e-4;
+            outputJumpResField no;
+            maxFluxRes 1e-3;
+            outputFluxResField no;
+        }
+
+    }
+    xH2
+    {
+        maxCoupleIter 3;
+
+        residualControl
+        {
+            maxJumpRes 1e-4;
+            outputJumpResField no;
+            maxFluxRes 1e-3;
+            outputFluxResField no;
+        }
+
+    }
+    xO2
+    {
+        maxCoupleIter 3;
+
+        residualControl
+        {
+            maxJumpRes 1e-4;
+            outputJumpResField no;
+            maxFluxRes 1e-3;
+            outputFluxResField no;
+        }
+
+    }
+    xV
+    {
+        maxCoupleIter 3;
+
+        residualControl
+        {
+            maxJumpRes 1e-4;
+            outputJumpResField no;
+            maxFluxRes 1e-3;
+            outputFluxResField no;
+        }
+
+    }
+    s
+    {
+        maxCoupleIter 3;
+
+        residualControl
+        {
+            maxJumpRes 1e-4;
+            outputJumpResField no;
+            maxFluxRes 1e-3;
+            outputFluxResField no;
+        }
+
+    }
+ 
+}
+
+// ************************************************************************* //

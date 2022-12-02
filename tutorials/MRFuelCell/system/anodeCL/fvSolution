@@ -1,0 +1,209 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    T
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+        maxIter         50;
+    };
+    Tcoupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
+    phiE
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+        maxIter         50;
+    };
+    phiEcoupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
+    phiP
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+        maxIter         50;
+    };
+    phiPcoupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
+    lambda
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+        maxIter         50;
+    };
+    lambdacoupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
+    xH2
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+        maxIter         50;
+    };
+    xH2coupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
+    xV
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+        maxIter         50;
+    };
+    xVcoupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
+}
+
+SIMPLE
+{
+    nNonOrthogonalCorrectors 3;
+
+    residualControl
+    {
+        T               1e-10;
+	phiE		1e-10;
+	phiP		1e-10;
+	lambda		1e-10;
+	xH2		1e-10;
+	xV		1e-10;
+    }
+}
+
+PIMPLE
+{
+    // p-U coupling
+    nOuterCorrectors            10; // SIMPLEC loops
+    nCorrectors                 2; // PISO loops
+    nNonOrthogonalCorrectors    3;
+
+    residualControl
+    {
+        "(T|phiE|phiP|lambda|xH2|xV)"
+        {
+            tolerance 1e-15;
+            relTol 0;
+        }
+    }
+}
+
+relaxationFactors
+{
+	T	0.2;
+	phiE	0.01;
+	phiP	0.001;
+	lambda	0.2;
+	xH2	0.2:
+	xV	0.2;
+}
+
+
+
+// ************************************************************************* //
