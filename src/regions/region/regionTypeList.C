@@ -124,55 +124,6 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
         }
     }
 
-//    wordList regionNames;
-
-//    label j = 0;
-
-//    forAllConstIter(HashTable<wordList>, rp, iter)
-//    {
-//        const wordList& regions = iter();
-
-//        forAll(regions, regionI)
-//        {
-//            if (findIndex(regionNames, regions[regionI]))
-//            {
-//                regionNames.setSize(regionNames.size()+1);
-//                regionNames[j] = regions[regionI];
-//            }
-
-//            j++;
-//        }
-//    }
-
-//    this->setSize(regionNames.size());
-
-//    label i = 0;
-
-//    forAllConstIter(HashTable<wordList>, rp, iter)
-//    {
-//        const word& modelType = iter.key();
-//        const wordList& regions = iter();
-
-//        if (regions.size())
-//        {
-//            forAll(regions, regionI)
-//            {
-//                Info << "Creating " << regions[regionI] << endl;
-
-//                this->set
-//                (
-//                    i++,
-//                    regionType::New
-//                    (
-//                        runTime_,
-//                        regions[regionI],
-//                        modelType
-//                    )
-//                );
-//            }
-//        }
-//    }
-
     // attach patches of regionCouplePolyPatch type
     forAll(*this, i)
     {
@@ -226,27 +177,6 @@ void Foam::regionTypeList::preSolve()
         // correct properties
         this->operator[](i).correct();
     }
-
-//    forAll(*this, i)
-//    {
-//        // mesh update (one sweep before solving)
-//        // Note: multiple coupled regions require an
-//        // updated system meshes prior to solution
-//        // (see Peric)
-//        if (updated.found(this->operator[](i).mesh().name()))
-//        {
-//            updated.set
-//            (
-//                this->operator[](i).mesh().name(),
-//                new bool(true)
-//            );
-
-//            this->operator[](i).update();
-//        }
-
-//        // correct properties
-//        this->operator[](i).correct();
-//    }
 }
 
 
@@ -264,19 +194,10 @@ Foam::scalar Foam::regionTypeList::getMinDeltaT()
 
 void Foam::regionTypeList::solveRegion()
 {
-//    for (int j=0; j<5; j++)
-//    {
-        forAll(*this, i)
-        {
-            // Solve for region-specific physics
-            // This might require outer loops if
-            // coupling is achieved only by mutual
-            // boundary condition updates
-//            for (int j=0; j<5; j++)
-            {
-                this->operator[](i).solveRegion();
-            }
-//        }
+    forAll(*this, i)
+    {
+        // Solve for region-specific physics
+        this->operator[](i).solveRegion();
     }
 }
 
