@@ -200,16 +200,6 @@ void Foam::regionTypes::conductTemperature::setCoupledEqns()
 void Foam::regionTypes::conductTemperature::postSolve()
 {
     // do nothing, add as required
-
-//    HashPtrTable<fvScalarMatrix>::iterator it = fvScalarMatrices.find
-//    (
-//        T_().name() + mesh().name() + "Eqn"
-//    );
-
-//    fvScalarMatrices.erase
-//    (
-//        it
-//    );
 }
 
 void Foam::regionTypes::conductTemperature::solveRegion()

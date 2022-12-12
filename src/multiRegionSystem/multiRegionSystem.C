@@ -143,7 +143,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
                 (
                     fldName + rg.mesh().name() + "Eqn"
                 ) 
-                && 
+             && 
                 rg.mesh().thisDb().foundObject
                 <GeometricField<T, fvPatchField, volMesh> >
                 (
@@ -179,38 +179,26 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             mesh.surfaceInterpolation::movePoints();
         }
 
-//        auto& eqn =
-//            rg.getCoupledEqn<M,T>
-//            (
-//                fldName + rg.mesh().name() + "Eqn"
-//            );
-
         Info<< nl 
             << "Solving for " << fldName
             << " in " << rg.mesh().name()
             << endl;
 
+        // set coupled equation again
+        // since boundary conditions have been updated
+        rg.setCoupledEqns();
 
-//        pimpleControl pimpleControlRegion(rg.mesh());
+        M<T>& eqn =
+            rg.getCoupledEqn<M,T>
+            (
+                fldName + rg.mesh().name() + "Eqn"
+            );
 
-//        while (pimpleControlRegion.correctNonOrthogonal())
-//        {
-            // set coupled equation again
-            // since boundary conditions have been updated
-            rg.setCoupledEqns();
+        rg.relaxEqn<T>(eqn);
 
-            M<T>& eqn =
-                rg.getCoupledEqn<M,T>
-                (
-                    fldName + rg.mesh().name() + "Eqn"
-                );
+        eqn.solve();
 
-            rg.relaxEqn<T>(eqn);
-
-            eqn.solve();
-
-            rg.postSolve();
-//        }
+        rg.postSolve();
     }
 }
 

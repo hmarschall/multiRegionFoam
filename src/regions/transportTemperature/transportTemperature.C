@@ -146,16 +146,6 @@ void Foam::regionTypes::transportTemperature::setCoupledEqns()
 void Foam::regionTypes::transportTemperature::postSolve()
 {
     // do nothing, add as required
-
-//    HashPtrTable<fvScalarMatrix>::iterator it = fvScalarMatrices.find
-//    (
-//        T_().name() + mesh().name() + "Eqn"
-//    );
-
-//    fvScalarMatrices.erase
-//    (
-//        it
-//    );
 }
 
 void Foam::regionTypes::transportTemperature::solveRegion()

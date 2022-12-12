@@ -61,19 +61,20 @@ fvMatrix<scalar>& regionType::getCoupledEqn
     word name
 )
 {
-    HashPtrTable<fvScalarMatrix>::iterator it = fvScalarMatrices.find(name);
+//    HashPtrTable<fvScalarMatrix>::iterator it = fvScalarMatrices.find(name);
 
-    if (it == fvScalarMatrices.end()) // not found
-    {
-        FatalErrorIn("regionType::getCoupledEqn")
-           << "Equation of type fvScalarMatrix "
-           << "with name " << name
-           << " not found"
-           << exit(FatalError);
-    }
+//    if (it == fvScalarMatrices.end()) // not found
+//    {
+//        FatalErrorIn("regionType::getCoupledEqn")
+//           << "Equation of type fvScalarMatrix "
+//           << "with name " << name
+//           << " not found"
+//           << exit(FatalError);
+//    }
 
-    return **it;
-//    return *fvScalarMatrices[name];
+//    return **it;
+
+    return *fvScalarMatrices[name];
 }
 
 template<>
