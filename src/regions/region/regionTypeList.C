@@ -264,8 +264,8 @@ Foam::scalar Foam::regionTypeList::getMinDeltaT()
 
 void Foam::regionTypeList::solveRegion()
 {
-    for (int j=0; j<5; j++)
-    {
+//    for (int j=0; j<5; j++)
+//    {
         forAll(*this, i)
         {
             // Solve for region-specific physics
@@ -276,7 +276,7 @@ void Foam::regionTypeList::solveRegion()
             {
                 this->operator[](i).solveRegion();
             }
-        }
+//        }
     }
 }
 

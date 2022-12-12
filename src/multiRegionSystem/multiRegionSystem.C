@@ -132,6 +132,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
     forAll (regions_(), regI)
     {
         regionType& rg = const_cast<regionType&>(regions_()[regI]);
+
         // Check if coupled field is registered to region mesh
         // and if it is of correct type
         // and if this region holds the equation
@@ -178,11 +179,11 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             mesh.surfaceInterpolation::movePoints();
         }
 
-        auto& eqn =
-            rg.getCoupledEqn<M,T>
-            (
-                fldName + rg.mesh().name() + "Eqn"
-            );
+//        auto& eqn =
+//            rg.getCoupledEqn<M,T>
+//            (
+//                fldName + rg.mesh().name() + "Eqn"
+//            );
 
         Info<< nl 
             << "Solving for " << fldName
@@ -190,10 +191,10 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             << endl;
 
 
-        pimpleControl pimpleControlRegion(rg.mesh());
+//        pimpleControl pimpleControlRegion(rg.mesh());
 
-        while (pimpleControlRegion.correctNonOrthogonal())
-        {
+//        while (pimpleControlRegion.correctNonOrthogonal())
+//        {
             // set coupled equation again
             // since boundary conditions have been updated
             rg.setCoupledEqns();
@@ -209,7 +210,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             eqn.solve();
 
             rg.postSolve();
-        }
+//        }
     }
 }
 
