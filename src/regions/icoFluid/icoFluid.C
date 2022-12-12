@@ -63,8 +63,8 @@ Foam::regionTypes::icoFluid::icoFluid
         IOobject
         (
             "transportProperties",
-            runTime.constant(),
-            runTime, 
+            mesh().time().constant(),
+            mesh(), 
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -72,12 +72,12 @@ Foam::regionTypes::icoFluid::icoFluid
     pimple_(mesh()),
     rhoFluid_
     (
-        transportProperties_.subDict(regionName_).lookup("rho")
+        transportProperties_.lookup("rho")
     ),
     rho_(nullptr),
     muFluid_
     (
-        transportProperties_.subDict(regionName_).lookup("mu")
+        transportProperties_.lookup("mu")
     ),
     mu_(nullptr),
     velocityName_

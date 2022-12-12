@@ -123,9 +123,12 @@ void Foam::dnaControl::maxTypeRes
     typedef GeometricField<Type, fvPatchField, volMesh> fieldType;
     
     // Check if field of type fieldType and name fldName exists
-    // - since the field is a coupled field it is assumed that 
-    //   if it exists on meshA it also exists on meshB 
-    if (interface.meshA().foundObject<fieldType>(fldName))
+    // on both sides
+    if 
+    (
+        interface.meshA().foundObject<fieldType>(fldName)
+     && interface.meshB().foundObject<fieldType>(fldName)
+    )
     {
         const fvPatchField<Type>& patchAField =
             interface.patchA().lookupPatchField<fieldType, Type>(fldName);
@@ -205,7 +208,7 @@ void Foam::dnaControl::maxTypeRes
             globalMaxFluxRes = GREAT;
         }
 
-        Info<< interface.name() << " for field " << fldName << ": " << nl
+        Info<< interface.interfaceName() << " for field " << fldName << ": " << nl
         << "    globalMaxJumpRes: " << globalMaxJumpRes << nl 
         << "    globalMaxFluxRes: " << globalMaxFluxRes << endl;
     }
@@ -795,7 +798,7 @@ Foam::dnaControl::dnaControl
     maxCoupleIter_(0),
     corr_(0)
 {
-	read();
+    read();
 
     createResFlds();
 

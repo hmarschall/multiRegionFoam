@@ -44,10 +44,11 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
 :
     fixedValueFvPatchField<Type>(p, iF),
     interfaceToInterfaceCoupleManager(p),
-    psiName_(this->dimensionedInternalField().name()),
-    kName_("k"),
     neighbourRegionName_(),
-    neighbourPatchName_(), 
+    neighbourPatchName_(),
+    neighbourFieldName_(),
+    kName_("k"),
+    KName_("K"),
     relax_(1.0),
     nonOrthCorr_(false),
     secondOrder_(false)
@@ -64,10 +65,11 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
 :
     fixedValueFvPatchField<Type>(grcj, p, iF, mapper),
     interfaceToInterfaceCoupleManager(p),
-    psiName_(grcj.psiName_),
-    kName_(grcj.kName_),
     neighbourRegionName_(grcj.neighbourRegionName_),
     neighbourPatchName_(grcj.neighbourPatchName_),
+    neighbourFieldName_(grcj.neighbourFieldName_),
+    kName_(grcj.kName_),
+    KName_(grcj.KName_),
     relax_(grcj.relax_),
     nonOrthCorr_(grcj.nonOrthCorr_),
     secondOrder_(grcj.secondOrder_)
@@ -83,16 +85,11 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
 :
     fixedValueFvPatchField<Type>(p, iF),
     interfaceToInterfaceCoupleManager(p, dict),
-    psiName_(this->dimensionedInternalField().name()),
-    kName_(dict.lookupOrDefault<word>("k", word::null)),
-    neighbourRegionName_
-    (
-        dict.lookupOrDefault<word>("neighbourRegionName", word::null)
-    ),
-    neighbourPatchName_
-    (
-        dict.lookupOrDefault<word>("neighbourPatchName", word::null)
-    ),
+    neighbourRegionName_(dict.lookup("neighbourRegionName")),
+    neighbourPatchName_(dict.lookup("neighbourPatchName")),
+    neighbourFieldName_(this->dimensionedInternalField().name()),
+    kName_(dict.lookup("k")),
+    KName_(dict.lookupOrDefault<word>("K", word::null)),
     relax_(dict.lookupOrDefault<scalar>("relax",1.0)),
     nonOrthCorr_(dict.lookupOrDefault<Switch>("nonOrthCorr",false)),
     secondOrder_(dict.lookupOrDefault<Switch>("secondOrder",false))
@@ -119,10 +116,11 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
 :
     fixedValueFvPatchField<Type>(grcj, iF),
     interfaceToInterfaceCoupleManager(grcj),
-    psiName_(grcj.psiName_),
-    kName_(grcj.kName_),
     neighbourRegionName_(grcj.neighbourRegionName_),
     neighbourPatchName_(grcj.neighbourPatchName_),
+    neighbourFieldName_(grcj.neighbourFieldName_),
+    kName_(grcj.kName_),
+    KName_(grcj.KName_),
     relax_(grcj.relax_),
     nonOrthCorr_(grcj.nonOrthCorr_),
     secondOrder_(grcj.secondOrder_)
@@ -175,7 +173,7 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
         nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
             // same field name as on this side
-            psiName_
+            this->dimensionedInternalField().name()
         );
 
     // Calculate interpolated patch field
@@ -222,12 +220,12 @@ tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::flux() const
     }
     else
     {
-        k =
+        k = dimensionedScalar
         (
-            this->db().time().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
-            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
-        );
+            .lookup(kName_)
+        ).value();
     }
 
     return (this->snGrad()*k);
@@ -241,7 +239,7 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::rawResidual() const
         nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
             //same field name as on this side
-            psiName_
+            this->dimensionedInternalField().name()
         );
 
     // Calculate interpolated patch field
@@ -263,28 +261,31 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::rawResidual() const
     const tmp<scalarField> tmpRawResidual = mag(residual);
     const scalarField rawResidual = tmpRawResidual();
 
-    // Info<< nl
-    // << psiName_ << " fown:" << nl
-    // << "  max: " << gMax(fown) << nl
-    // << "  min: " << gMin(fown) << nl
-    // << "  mean: " << gAverage(fown) << nl
-    // << psiName_ << " fieldNbrToOwn:" << nl
-    // << "  max: " << gMax(fieldNbrToOwn) << nl
-    // << "  min: "<< gMax(fieldNbrToOwn) << nl
-    // << "  mean: " << gAverage(fieldNbrToOwn) << nl
-    // << psiName_ << " valueJump:" << nl
-    // << "  max: " << gMax(valueJump) << nl
-    // << "  min: " << gMin(valueJump) << nl
-    // << "  mean: " << gAverage(valueJump)<< nl
-    // << psiName_ << " residual:" << nl
-    // << "  max: " << gMax(residual) << nl
-    // << "  min: " << gMin(residual) << nl
-    // << "  mean: " << gAverage(residual) << endl
-    // << psiName_ << " rawResidual:" << nl
-    // << "  max: " << gMax(rawResidual) << nl
-    // << "  min: " << gMin(rawResidual) << nl
-    // << "  mean: " << gAverage(rawResidual) << nl
-    // << endl;
+    if (debug)
+    {
+        Info<< nl
+        << this->dimensionedInternalField().name() << " fown:" << nl
+        << "  max: " << gMax(fown) << nl
+        << "  min: " << gMin(fown) << nl
+        << "  mean: " << gAverage(fown) << nl
+        << this->dimensionedInternalField().name() << " fieldNbrToOwn:" << nl
+        << "  max: " << gMax(fieldNbrToOwn) << nl
+        << "  min: "<< gMax(fieldNbrToOwn) << nl
+        << "  mean: " << gAverage(fieldNbrToOwn) << nl
+        << this->dimensionedInternalField().name() << " valueJump:" << nl
+        << "  max: " << gMax(valueJump) << nl
+        << "  min: " << gMin(valueJump) << nl
+        << "  mean: " << gAverage(valueJump)<< nl
+        << this->dimensionedInternalField().name() << " residual:" << nl
+        << "  max: " << gMax(residual) << nl
+        << "  min: " << gMin(residual) << nl
+        << "  mean: " << gAverage(residual) << endl
+        << this->dimensionedInternalField().name() << " rawResidual:" << nl
+        << "  max: " << gMax(rawResidual) << nl
+        << "  min: " << gMin(rawResidual) << nl
+        << "  mean: " << gAverage(rawResidual) << nl
+        << endl;
+    }
 
     return rawResidual;
 }
@@ -297,7 +298,7 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
         nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
         (
             // same field name as on this side
-            psiName_
+            this->dimensionedInternalField().name()
         );
 
     // Calculate interpolated patch field
@@ -339,7 +340,7 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::ofNormResidual() const
         nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
             //same field name as on this side
-            psiName_
+            this->dimensionedInternalField().name()
         );
 
     // Calculate interpolated patch field
@@ -391,14 +392,14 @@ void genericRegionCoupledJumpFvPatchField<Type>::write
 ) const
 {
     fvPatchField<Type>::write(os);
-    os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
-    os.writeKeyword("relax") << relax_ << token::END_STATEMENT << nl;
     os.writeKeyword("neighbourRegionName") << neighbourRegionName_ 
         << token::END_STATEMENT << nl;
     os.writeKeyword("neighbourPatchName") << neighbourPatchName_ 
         << token::END_STATEMENT << nl;
-    os.writeKeyword("neighbourFieldName") << psiName_ 
+    os.writeKeyword("neighbourFieldName") << neighbourFieldName_ 
         << token::END_STATEMENT << nl;
+    os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
+    os.writeKeyword("relax") << relax_ << token::END_STATEMENT << nl;
     os.writeKeyword("nonOrthCorr") << nonOrthCorr_ 
         << token::END_STATEMENT << nl;
     os.writeKeyword("secondOrder") << secondOrder_ 

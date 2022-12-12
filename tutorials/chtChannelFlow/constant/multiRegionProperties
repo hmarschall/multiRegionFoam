@@ -27,32 +27,17 @@ partitionedCoupling
 
 DNA
 {
-    UpPimple
+    T
     {
-        maxCoupleIter 20;
+        maxCoupleIter 3;
 
         residualControl
         {
-            U
-            {
-                maxJumpRes 1e-4;
-                outputJumpResField yes;
-                maxFluxRes 1e-3;
-                outputFluxResField yes;
-            }
-
-            p
-            {
-                maxJumpRes 1e-3;
-                outputJumpResField yes;
-                maxFluxRes 1e-4;
-                outputFluxResField yes;
-            }
+            maxJumpRes 1e-4;
+            outputJumpResField no;
+            maxFluxRes 1e-3;
+            outputFluxResField no;
         }
-    }
-    T
-    {
-        maxCoupleIter 20;
     }
 }
 

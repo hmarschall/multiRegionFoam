@@ -79,6 +79,28 @@ protected:
         HashPtrTable<fvMatrix<tensor> > fvTensorMatrices;
         HashPtrTable<fvBlockMatrix<vector4> > fvVector4Matrices;
 
+    // Protected member functions
+
+        //- Lookup or read field
+        template <class T>
+        inline autoPtr<T> lookupOrRead
+        (
+            const fvMesh& mesh,
+            const word& fldName,
+            const bool& read=true,
+            const bool& write=true,
+            const tmp<T> fld = tmp<T>(nullptr)
+        );
+
+        template <class T>
+        inline autoPtr<T> lookupOrRead
+        (
+            const fvMesh& mesh,
+            const word& fldName,
+            const dimensioned<typename T::cmptType> dimVal,
+            const bool& write=true
+        );
+
 public:
 
     //- Runtime type information
@@ -178,7 +200,7 @@ public:
             //TODO: Relaxation of fvBlockMatricies currently not supported
         }
 
-//        virtual void clear() = 0;
+        //virtual void clear() = 0;
 
         // Get a ref to the fvMatrix 
         template< template<class> class M, class T>
@@ -199,13 +221,17 @@ public:
 
         template<class T>
         T& getObject(const word& name);
-
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#ifdef NoRepository
+#   include "regionTypeTemplatesI.C"
+#endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

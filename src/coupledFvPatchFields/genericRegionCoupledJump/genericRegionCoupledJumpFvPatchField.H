@@ -34,15 +34,19 @@ Description
     Example usage:
         interfacePatch
         {
-            type                    genericRegionCoupledJumpFvPatchField;
+            type                    genericRegionCoupledJump;
             neighbourRegionName     neighbourRegion;
             neighbourPatchName      neighbourPatch;
-            k                       "mu";
+            neighbourFieldName      neighbourField;
+            k                       "D";
+            K                       "H";
             relax                   0.5;
             nonOrthCorr             yes;
             secondOrder             yes;
             value                   uniform 0;
         }
+
+    Note: neighbourFieldName must be the name of the field on this side.
 
 SourceFiles
     genericRegionCoupledJumpFvPatchField.C
@@ -55,6 +59,7 @@ SourceFiles
 #include "interfaceToInterfaceCoupleManager.H"
 #include "regionInterface.H"
 #include "fixedValueFvPatchFields.H"
+#include "gradScheme.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -73,33 +78,39 @@ class genericRegionCoupledJumpFvPatchField
 {
     // Private data
 
-protected: 
+        //- Neighbour names
+        word neighbourRegionName_;
 
-    //- Field name
-    word psiName_;
+        word neighbourPatchName_;
 
-    //- Diffusion coefficient
-    word kName_;
+        word neighbourFieldName_;
 
-    //- Neighbour names
-    word neighbourRegionName_;
+protected:
 
-    word neighbourPatchName_;
+    // Protected data
 
-    //- Relaxation factor for BC update
-    scalar relax_;
+        //- Diffusivity coefficient
+        word kName_;
 
-    //- NonOrthogonal correction
-    Switch nonOrthCorr_;
+        //- Jump coefficient
+        word KName_;
 
-    //- Second order accuracy correction
-    Switch secondOrder_;
+        //- Relaxation factor for BC update
+        scalar relax_;
 
-    //- Update phi 
-    virtual void updatePhi()
-    {
-        //- Override in child class if needed
-    };
+        //- NonOrthogonal correction
+        Switch nonOrthCorr_;
+
+        //- Second order accuracy correction
+        Switch secondOrder_;
+
+    // Protected member functions
+
+        //- Update phi 
+        virtual void updatePhi()
+        {
+            //- Override in child class if needed
+        };
 
 public:
 
@@ -167,7 +178,14 @@ public:
         //- Calculate jump
         virtual tmp<Field<Type>> valueJump() const
         {
-                return (*this * 0);
+            notImplemented
+            (
+                "genericRegionCoupledJumpFvPatchField.C\n"
+                "tmp<Field<Type>> valueJump()\n"
+                "not implemented"
+            );
+
+            return (*this * 0);
         };
 
         //- Update the patch field coefficients

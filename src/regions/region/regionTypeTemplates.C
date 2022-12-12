@@ -21,9 +21,6 @@ License
     You should have received a copy of the GNU General Public License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
-Class
-    Foam::regionTypeTemplates
-
 Description
     Template specialisations
 
@@ -55,7 +52,7 @@ M<T>& regionType::getCoupledEqn
         "word name\n"
         ")\n"
         "not implemented"
-    );    
+    );
 }
 
 template<>
@@ -64,6 +61,19 @@ fvMatrix<scalar>& regionType::getCoupledEqn
     word name
 )
 {
+//    HashPtrTable<fvScalarMatrix>::iterator it = fvScalarMatrices.find(name);
+
+//    if (it == fvScalarMatrices.end()) // not found
+//    {
+//        FatalErrorIn("regionType::getCoupledEqn")
+//           << "Equation of type fvScalarMatrix "
+//           << "with name " << name
+//           << " not found"
+//           << exit(FatalError);
+//    }
+
+//    return **it;
+
     return *fvScalarMatrices[name];
 }
 

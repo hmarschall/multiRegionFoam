@@ -56,12 +56,44 @@ template<>
 Foam::tmp<Foam::Field<Foam::scalar> > 
 Foam::genericRegionCoupledJumpFvPatchField<Foam::scalar>::snGrad() const
 {
-
-    const fvPatchField<vector>& gradpsi =
-        patch().lookupPatchField<volVectorField, vector>
+    const volScalarField& vsf =
+        this->db().objectRegistry::lookupObject<volScalarField>
         (
-            "grad(" + psiName_ + ")"
+            this->dimensionedInternalField().name()
         );
+
+    autoPtr<fvPatchField<vector> > gradpsiPtr(nullptr);
+
+    if
+    (
+        this->db().objectRegistry::foundObject<volVectorField>
+        ("grad(" + this->dimensionedInternalField().name() + ")") 
+    )
+    {
+        const fvPatchField<vector>& gradpsi_ =
+            patch().lookupPatchField<volVectorField, vector>
+            (
+                "grad(" + this->dimensionedInternalField().name() + ")"
+            );
+
+        gradpsiPtr.reset
+        (
+            new fvPatchField<vector>(gradpsi_)
+        );
+    }
+    else
+    {
+        gradpsiPtr.reset
+        (
+            new fvPatchField<vector>
+            (
+                fvc::grad(vsf)()
+               .boundaryField()[patch().index()]
+            )
+        );
+    }
+
+    const fvPatchField<vector>& gradpsi = gradpsiPtr();
 
     vectorField n = this->patch().nf();
     vectorField delta = this->patch().delta();
@@ -115,12 +147,44 @@ template<>
 Foam::tmp<Foam::Field<Foam::vector> > 
 Foam::genericRegionCoupledJumpFvPatchField<Foam::vector>::snGrad() const
 {
-
-    const fvPatchField<tensor>& gradpsi =
-        patch().lookupPatchField<volTensorField, tensor>
+    const volVectorField& vvf =
+        this->db().objectRegistry::lookupObject<volVectorField>
         (
-            "grad(" + psiName_ + ")"
+            this->dimensionedInternalField().name()
         );
+
+    autoPtr<fvPatchField<tensor> > gradpsiPtr(nullptr);
+
+    if
+    (
+        this->db().objectRegistry::foundObject<volTensorField>
+        ("grad(" + this->dimensionedInternalField().name() + ")") 
+    )
+    {
+        const fvPatchField<tensor>& gradpsi_ =
+            patch().lookupPatchField<volTensorField, tensor>
+            (
+                "grad(" + this->dimensionedInternalField().name() + ")"
+            );
+
+        gradpsiPtr.reset
+        (
+            new fvPatchField<tensor>(gradpsi_)
+        );
+    }
+    else
+    {
+        gradpsiPtr.reset
+        (
+            new fvPatchField<tensor>
+            (
+                fvc::grad(vvf)()
+               .boundaryField()[patch().index()]
+            )
+        );
+    }
+
+    const fvPatchField<tensor>& gradpsi = gradpsiPtr();
 
     vectorField n = this->patch().nf();
     vectorField delta = this->patch().delta();
@@ -176,11 +240,44 @@ template<>
 Foam::tmp<Foam::Field<Foam::scalar> > 
 Foam::genericRegionCoupledJumpFvPatchField<Foam::scalar>::gradientBoundaryCoeffs() const
 {
-    const fvPatchField<vector>& gradpsi =
-        patch().lookupPatchField<GeometricField<vector, fvPatchField, volMesh>, vector>
+    const volScalarField& vsf =
+        this->db().objectRegistry::lookupObject<volScalarField>
         (
-            "grad(" + psiName_ + ")"
+            this->dimensionedInternalField().name()
         );
+
+    autoPtr<fvPatchField<vector> > gradpsiPtr(nullptr);
+
+    if
+    (
+        this->db().objectRegistry::foundObject<volVectorField>
+        ("grad(" + this->dimensionedInternalField().name() + ")") 
+    )
+    {
+        const fvPatchField<vector>& gradpsi_ =
+            patch().lookupPatchField<volVectorField, vector>
+            (
+                "grad(" + this->dimensionedInternalField().name() + ")"
+            );
+
+        gradpsiPtr.reset
+        (
+            new fvPatchField<vector>(gradpsi_)
+        );
+    }
+    else
+    {
+        gradpsiPtr.reset
+        (
+            new fvPatchField<vector>
+            (
+                fvc::grad(vsf)()
+               .boundaryField()[patch().index()]
+            )
+        );
+    }
+
+    const fvPatchField<vector>& gradpsi = gradpsiPtr();
 
     vectorField n = this->patch().nf();
     vectorField delta = this->patch().delta();
@@ -213,11 +310,44 @@ template<>
 Foam::tmp<Foam::Field<Foam::vector> > 
 Foam::genericRegionCoupledJumpFvPatchField<Foam::vector>::gradientBoundaryCoeffs() const
 {
-    const fvPatchField<tensor>& gradpsi =
-        patch().lookupPatchField<volTensorField, tensor>
+    const volVectorField& vvf =
+        this->db().objectRegistry::lookupObject<volVectorField>
         (
-            "grad(" + psiName_ + ")"
+            this->dimensionedInternalField().name()
         );
+
+    autoPtr<fvPatchField<tensor> > gradpsiPtr(nullptr);
+
+    if
+    (
+        this->db().objectRegistry::foundObject<volTensorField>
+        ("grad(" + this->dimensionedInternalField().name() + ")") 
+    )
+    {
+        const fvPatchField<tensor>& gradpsi_ =
+            patch().lookupPatchField<volTensorField, tensor>
+            (
+                "grad(" + this->dimensionedInternalField().name() + ")"
+            );
+
+        gradpsiPtr.reset
+        (
+            new fvPatchField<tensor>(gradpsi_)
+        );
+    }
+    else
+    {
+        gradpsiPtr.reset
+        (
+            new fvPatchField<tensor>
+            (
+                fvc::grad(vvf)()
+               .boundaryField()[patch().index()]
+            )
+        );
+    }
+
+    const fvPatchField<tensor>& gradpsi = gradpsiPtr();
 
     vectorField n = this->patch().nf();
     vectorField delta = this->patch().delta();

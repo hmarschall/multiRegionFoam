@@ -29,12 +29,15 @@ boundaryField
     }
     bottom
     {
-        type                    regionCoupleTemperature;
+        type                    regionCoupledScalarJump;
+        k                       "alpha";
+        //K                       "K"; // default jump coefficient is 1
         neighbourRegionName     solid;
         neighbourPatchName      top;
         neighbourFieldName      T;
-        K                       1.0;
-        value                   $internalField;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   uniform 0;
     }
     left
     {

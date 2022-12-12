@@ -96,89 +96,20 @@ Foam::regionTypes::conductTemperature::conductTemperature
         dimensionedScalar(transportProperties_.lookup("rho"))
     ),
 
-//    k_
-//    (
-//        IOobject
-//        (
-//            "k",
-//            this->time().timeName(),
-//            *this,
-//            IOobject::READ_IF_PRESENT,
-////            IOobject::MUST_READ,
-//            IOobject::NO_WRITE
-//        ),
-//        *this,
-//        dimensionedScalar(transportProperties_.lookup("k"))
-//    ),
-//    T_
-//    (
-//        IOobject
-//        (
-//            "T",
-//            this->time().timeName(),
-//            *this,
-//            IOobject::NO_READ,
-//            IOobject::NO_WRITE
-//        ),
-//        *this,
-//        dimensionedScalar("T0", dimTemperature, pTraits<scalar>::zero),
-//        zeroGradientFvPatchScalarField::typeName
-//    ),
-    kSolid_(nullptr),
     k_(nullptr),
     T_(nullptr)
 {
-    kSolid_.reset
+    // set thermal diffusivity field
+    k_ = lookupOrRead<volScalarField>
     (
-        new volScalarField
-        (
-            IOobject
-            (
-                "kSolid",
-                mesh().time().timeName(),
-                mesh(),
-                IOobject::READ_IF_PRESENT,
-                IOobject::NO_WRITE
-            ),
-            mesh(),
-            dimensionedScalar(transportProperties_.lookup("kSolid"))
-        )
+        mesh(),
+        "k", 
+        dimensionedScalar(transportProperties_.lookup("k")),
+        true
     );
 
-    k_.reset
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "k",
-                mesh().time().timeName(),
-                mesh(),
-                IOobject::READ_IF_PRESENT,
-                IOobject::NO_WRITE
-            ),
-            mesh(),
-            dimensionedScalar("k", dimensionSet(0,2,-1,0,0,0,0), 0)
-        )
-    );
-
-    T_.reset
-    (
-        new volScalarField
-        (
-            IOobject
-            (
-                "T",
-                mesh().time().timeName(),
-                mesh(),
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh()
-        )
-    );
-
-    k_() = kSolid_()/(rho_*cv_);
+    // set temperature field
+    T_ = lookupOrRead<volScalarField>(mesh(), "T");
 }
 
 
@@ -203,17 +134,17 @@ Foam::scalar Foam::regionTypes::conductTemperature::getMinDeltaT()
 
 void Foam::regionTypes::conductTemperature::setCoupledEqns()
 {
-    fvScalarMatrix TEqn =
+    tTEqn =
     (
-        fvm::ddt(rho_*cv_, T_())
+        fvm::ddt(rho_*cv_, T())
      ==
-        fvm::laplacian(kSolid_(), T_(), "laplacian(k,T)")
+        fvm::laplacian(k_(), T(), "laplacian(k,T)")
     );
 
     fvScalarMatrices.set
     (
         T_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(TEqn)
+        &tTEqn()
     );
 }
 

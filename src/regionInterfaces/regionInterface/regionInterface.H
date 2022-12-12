@@ -154,6 +154,14 @@ private:
 
     // Private Member Functions
 
+        //- assemble interface name
+        static word assembleName
+        (
+            const fvPatch& patchA,
+            const fvPatch& patchB,
+            const word& typeName
+        );
+
         //- Make global poly patch
         void makeGlobalPatches() const;
 
@@ -286,7 +294,7 @@ public:
 			}
 
             //- Return interface name
-            virtual word name() const;
+            virtual word interfaceName() const;
 
             //- Return a reference to the patch A
             inline const fvPatch& patchA() const

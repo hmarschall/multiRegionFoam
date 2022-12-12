@@ -34,12 +34,17 @@ Description
     Example usage:
         interfacePatch
         {
-            type                    genericRegionCoupledFluxFvPatchField;
+            type                    genericRegionCoupledFlux;
             neighbourRegionName     neighbourRegion;
             neighbourPatchName      neighbourPatch;
-            k                       "mu";
+            neighbourFieldName      neighbourField;
+            k                       "D";
+            nonOrthCorr             yes;
+            secondOrder             yes;
             value                   uniform 0;
         }
+
+    Note: neighbourFieldName must be the name of the field on this side.
 
 SourceFiles
     genericRegionCoupledFluxFvPatchField.C
@@ -69,31 +74,35 @@ class genericRegionCoupledFluxFvPatchField
     public interfaceToInterfaceCoupleManager
 {
 
+    // Private data
+
+        //- Neighbour names
+        word neighbourRegionName_;
+
+        word neighbourPatchName_;
+
+        word neighbourFieldName_;
 
 protected:
 
-    //- Field name
-    word psiName_;
+    // Protected data
 
-    //- Diffusion coefficient
-    word kName_;
+        //- Diffusion coefficient
+        word kName_;
 
-    //- Neighbour names
-    word neighbourRegionName_;
+        //- NonOrthogonal correction
+        Switch nonOrthCorr_;
 
-    word neighbourPatchName_;
+        //- Second order accuracy correction
+        Switch secondOrder_;
 
-    //- NonOrthogonal correction
-    Switch nonOrthCorr_;
+    // Protected member functions
 
-    //- Second order accuracy correction
-    Switch secondOrder_;
-
-    //- Update phi 
-    virtual void updatePhi()
-    {
-        //- Override in child class if needed
-    };
+        //- Update phi 
+        virtual void updatePhi()
+        {
+            //- Override in child class if needed
+        };
 
 public:
 
@@ -161,7 +170,14 @@ public:
         //- Calculate flux jump
         virtual tmp<Field<Type>> fluxJump() const
         {
-                return (*this * 0);
+            notImplemented
+            (
+                "genericRegionCoupledFluxFvPatchField.C\n"
+                "tmp<Field<Type>> fluxJump()\n"
+                "not implemented"
+            );
+
+            return (*this * 0);
         };
 
         //- Update the patch field coefficients

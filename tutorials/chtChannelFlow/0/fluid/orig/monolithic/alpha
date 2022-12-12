@@ -16,7 +16,7 @@ FoamFile
 
 dimensions      [0 2 -1 0 0 0 0];
 
-internalField   uniform 1.0;
+internalField   uniform 2.458603e-05;
 
 boundaryField
 {
@@ -28,7 +28,7 @@ boundaryField
     {
         type            chtRcThermalDiffusivity;
         remoteField     k;
-        value           uniform 1.0;
+        value           uniform 2.458603e-05;
     }
     left
     {

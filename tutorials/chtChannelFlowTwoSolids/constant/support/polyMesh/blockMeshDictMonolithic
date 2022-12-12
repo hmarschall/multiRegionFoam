@@ -48,7 +48,7 @@ boundary
         attached        off;
         isWall          on;
         zone            topZone;
-        master          off;
+        master          on;
         bridgeOverlap   off;
 
         faces

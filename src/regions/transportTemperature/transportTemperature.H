@@ -85,6 +85,9 @@ class transportTemperature
         //- flux
         autoPtr<surfaceScalarField> phi_;
 
+        //- Cached temperature matrix
+        tmp<fvScalarMatrix> tTEqn;
+
 protected:
 
         //- temperature

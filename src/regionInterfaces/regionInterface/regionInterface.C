@@ -39,6 +39,38 @@ namespace Foam
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
+word Foam::regionInterface::assembleName
+(
+    const fvPatch& patchA,
+    const fvPatch& patchB,
+    const word& typeName
+)
+{
+    word meshAName = patchA.boundaryMesh().mesh().name();
+
+    word patchAName = patchA.name();
+    word PatchAName = word(toupper(patchAName[0]));
+    PatchAName = PatchAName + patchAName.substr(1);
+
+    word meshBName = patchB.boundaryMesh().mesh().name();
+    word MeshBName = word(toupper(meshBName[0]));
+    MeshBName = MeshBName + meshBName.substr(1);
+
+    word patchBName = patchB.name();
+    word PatchBName = word(toupper(patchBName[0]));
+    PatchBName = PatchBName + patchBName.substr(1);
+
+    word InterfaceTypeName = word(toupper(typeName[0]));
+    InterfaceTypeName = InterfaceTypeName + typeName.substr(1);
+
+    return
+    (
+        meshAName + PatchAName
+      + MeshBName + PatchBName
+//      + InterfaceTypeName
+    );
+}
+
 void Foam::regionInterface::makeGlobalPatches() const
 {
     if (globalPatchAPtr_.valid() || globalPatchBPtr_.valid())
@@ -50,7 +82,7 @@ void Foam::regionInterface::makeGlobalPatches() const
     Info<< "Creating global patches : "
     << patchA().name() << " and "
     << patchB().name() << " for regionInterface "
-    << name()
+    << interfaceName()
     << endl;
 
     globalPatchAPtr_.set(new globalPolyPatch(patchA().name(), meshA()));
@@ -150,10 +182,7 @@ void Foam::regionInterface::makeFaMesh() const
 }
 
 void Foam::regionInterface::makeUs() const
-{
-    // error if U is initialized in the constructor
-    const volVectorField& U = meshA().lookupObject<volVectorField>("U");
-         
+{         
     if (!UsPtr_.empty())
     {
         FatalErrorIn("regionInterface::makeUs()")
@@ -161,6 +190,7 @@ void Foam::regionInterface::makeUs() const
             << abort(FatalError);
     }
 
+    // Set patch field types for Us
     wordList patchFieldTypes
     (
         aMesh().boundary().size(),
@@ -202,14 +232,15 @@ void Foam::regionInterface::makeUs() const
             }
         }
     }
-    
+
+    // Set surface velocity
     UsPtr_.reset
     (
         new areaVectorField
         (
             IOobject
             (
-                U.name() + "s",
+                patchA().name() + "Us",
                 runTime().timeName(), 
                 meshA(), 
                 IOobject::NO_READ,
@@ -220,6 +251,13 @@ void Foam::regionInterface::makeUs() const
             patchFieldTypes
         )
     );
+
+    if (meshA().foundObject<volVectorField>("U"))
+    {
+        const volVectorField& U = meshA().lookupObject<volVectorField>("U");
+
+        UsPtr_().internalField() = U.boundaryField()[patchAID()];
+    }
 }
 
 //void Foam::regionInterface::makeK() const
@@ -253,10 +291,6 @@ void Foam::regionInterface::makeUs() const
 
 void Foam::regionInterface::makePhis() const
 {
-
-    const surfaceScalarField& phi = 
-        meshA().lookupObject<surfaceScalarField>("phi");
-
     if (!phisPtr_.empty())
     {
         FatalErrorIn("regionInterface::makePhis()")
@@ -270,7 +304,7 @@ void Foam::regionInterface::makePhis() const
         (
             IOobject
             (
-                phi.name() + "s",
+                patchA().name() + "Phis",
                 runTime().timeName(), 
                 meshA(),
                 IOobject::NO_READ,
@@ -466,8 +500,7 @@ Foam::regionInterface::regionInterface
     (
         IOobject
         (
-            patchA.boundaryMesh().mesh().name() + patchA.name() 
-            + patchB.boundaryMesh().mesh().name() + patchB.name(),
+            assembleName(patchA, patchB, type),
             runTime.constant(),
             runTime,
             IOobject::NO_READ,
@@ -517,20 +550,6 @@ Foam::regionInterface::regionInterface
     interfaceToInterfacePtr_(),
     meshA_(patchA_.boundaryMesh().mesh()),
     meshB_(patchB_.boundaryMesh().mesh()),
-//    meshA_
-//    (
-//        runTime.lookupObject<dynamicFvMesh>
-//        (
-//            patchA_.boundaryMesh().mesh().name()
-//        )
-//    ),
-//    meshB_
-//    (
-//        runTime.lookupObject<dynamicFvMesh>
-//        (
-//            patchB_.boundaryMesh().mesh().name()
-//        )
-//    ),
     attachedA_(false),
     attachedB_(false),
     changing_(false),
@@ -580,8 +599,6 @@ Foam::regionInterface::regionInterface
         }
     }
 
-    Info << "This is the regionInterface : " << name() << endl;
-
     // Force creation of interface-to-interface object 
     // as they may need to read fields on restart
     interfaceToInterface();
@@ -589,7 +606,7 @@ Foam::regionInterface::regionInterface
     if (debug)
     {
         //Output region interface information
-        Pout<< "regionInterface Info: " << name() << nl
+        Pout<< "regionInterface Info: " << interfaceName() << nl
             << "local patchA: " << nl
             << " name: " << patchA_.name()
             << " size: " << patchA_.size()
@@ -628,20 +645,9 @@ regionInterface::~regionInterface()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::word Foam::regionInterface::name() const
+Foam::word Foam::regionInterface::interfaceName() const
 {
-    word meshAName = meshA_.name();
-
-    word meshBName = meshB_.name();
-//    meshBName[0] = toupper(meshBName[0]);
-
-    word name1(Pair<word>::first());
-//    name1[0] = toupper(name1[0]);
-
-    word name2(Pair<word>::second());
-//    name2[0] = toupper(name2[0]);
-
-    return meshAName + name1 + meshBName + name2;
+    return IOdictionary::name();
 }
 
 const Foam::globalPolyPatch& Foam::regionInterface::globalPatchA() const
@@ -811,6 +817,11 @@ void Foam::regionInterface::update()
 
 void Foam::regionInterface::updateUs()
 {
+    if (!meshA().foundObject<volVectorField>("U"))
+    {
+        return;
+    }
+
     Us().internalField() = Up();
 
     correctUsBoundaryConditions();

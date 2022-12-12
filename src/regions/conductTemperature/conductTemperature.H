@@ -69,11 +69,11 @@ class conductTemperature
         // dimensionedScalar rho_;
         volScalarField rho_;
 
-        //- thermal diffusivity
-        autoPtr<volScalarField> kSolid_;
-
         //- thermal conductivity
         autoPtr<volScalarField> k_;
+
+        //- Cached temperature matrix
+        tmp<fvScalarMatrix> tTEqn;
 
 protected:
 

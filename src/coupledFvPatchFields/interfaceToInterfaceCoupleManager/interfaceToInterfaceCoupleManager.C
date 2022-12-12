@@ -30,17 +30,72 @@ License
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
+Foam::word Foam::interfaceToInterfaceCoupleManager::assembleName
+(
+    const fvPatch& refPatch,
+    const word& nbrRgName,
+    const word& nbrPatchName,
+    const word& typeName,
+    const bool& reverseOrder
+)
+{
+    const fvMesh& mesh = refPatch.boundaryMesh().mesh();
+
+    word meshAName = nbrRgName;
+    word patchAName = nbrPatchName;
+    word meshBName = mesh.name();
+    word patchBName = refPatch.name();
+
+    if (reverseOrder)
+    {
+        meshAName = mesh.name();
+        patchAName = refPatch.name();
+        meshBName = nbrRgName;
+        patchBName = nbrPatchName;
+    }
+
+    word PatchAName = word(toupper(patchAName[0]));
+    PatchAName = PatchAName + patchAName.substr(1);
+
+    word MeshBName = word(toupper(meshBName[0]));
+    MeshBName = MeshBName + meshBName.substr(1);
+
+    word PatchBName = word(toupper(patchBName[0]));
+    PatchBName = PatchBName + patchBName.substr(1);
+
+    word InterfaceTypeName = word(toupper(typeName[0]));
+    InterfaceTypeName = InterfaceTypeName + typeName.substr(1);
+
+    return
+    (
+        meshAName + PatchAName
+      + MeshBName + PatchBName
+//      + InterfaceTypeName
+    );
+}
+
 const Foam::regionInterface& 
 Foam::interfaceToInterfaceCoupleManager::rgInterface() const
 {
     const fvMesh& mesh = refPatch().boundaryMesh().mesh();
     const objectRegistry& obr = mesh.objectRegistry::parent();
 
-    word rgIntName = neighbourRegionName_ + neighbourPatchName_;
-    rgIntName += mesh.name() + refPatch().name();
+    word rgIntName = assembleName
+    (
+        refPatch(),
+        neighbourRegionName_,
+        neighbourPatchName_,
+        typeName_
+    );
 
-    word rgIntNameRev = mesh.name() + refPatch().name();
-    rgIntNameRev += neighbourRegionName_ + neighbourPatchName_;
+    word rgIntNameRev = assembleName
+    (
+        refPatch(),
+        neighbourRegionName_,
+        neighbourPatchName_,
+        typeName_,
+        true //reverse order
+    );
 
     if
     (
@@ -105,10 +160,12 @@ void Foam::interfaceToInterfaceCoupleManager::updateRegionInterface()
 
 Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 (
-    const fvPatch& patch
+    const fvPatch& patch,
+    const word type
 )
 :
     patch_(patch),
+    typeName_(type),
     neighbourRegionName_(),
     neighbourPatchName_(),
     neighbourFieldName_(),
@@ -119,10 +176,12 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 (
     const fvPatch& patch,
-    const dictionary& dict
+    const dictionary& dict,
+    const word type
 )
 :
     patch_(patch),
+    typeName_(type),
     neighbourRegionName_(dict.lookup("neighbourRegionName")),
     neighbourPatchName_(dict.lookup("neighbourPatchName")),
     neighbourFieldName_(dict.lookup("neighbourFieldName")),
@@ -132,10 +191,12 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 
 Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 (
-    const interfaceToInterfaceCoupleManager& pcm
+    const interfaceToInterfaceCoupleManager& pcm,
+    const word type
 )
 :
     patch_(pcm.refPatch()),
+    typeName_(type),
     neighbourRegionName_(pcm.neighbourRegionName()),
     neighbourPatchName_(pcm.neighbourPatchName()),
     neighbourFieldName_(pcm.neighbourFieldName()),
