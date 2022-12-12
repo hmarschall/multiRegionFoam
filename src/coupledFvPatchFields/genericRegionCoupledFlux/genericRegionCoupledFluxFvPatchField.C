@@ -168,9 +168,9 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     {
         k = dimensionedScalar
         (
-            refPatch().boundaryMesh().mesh().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
-            .lookup(kName_)
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
         ).value();
     }
 
@@ -215,9 +215,9 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
     {
         k = dimensionedScalar
         (
-            refPatch().boundaryMesh().mesh().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
-            .lookup(kName_)
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
         ).value();
     }
 
@@ -293,9 +293,9 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
     {
         k = dimensionedScalar
         (
-            refPatch().boundaryMesh().mesh().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
-            .lookup(kName_)
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
         ).value();
     }
 
@@ -357,9 +357,9 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
     {
         k = dimensionedScalar
         (
-            refPatch().boundaryMesh().mesh().objectRegistry::
+            this->db().objectRegistry::
             lookupObject<IOdictionary>("transportProperties")
-            .lookup(kName_)
+            .subDict(refPatch().boundaryMesh().mesh().name()).lookup(kName_)
         ).value();
     }
 
