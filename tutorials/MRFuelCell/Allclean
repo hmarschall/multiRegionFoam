@@ -1,0 +1,66 @@
+#!/bin/sh
+
+find -type l -delete
+
+rm -rf 0.* [1-9]* log* proc* VTK
+
+rm constant/anodeGDL/polyMesh/blockMeshDict 2>/dev/null
+rm constant/anodeCL/polyMesh/blockMeshDict 2>/dev/null
+rm constant/membrane/polyMesh/blockMeshDict 2>/dev/null
+rm constant/cathodeCL/polyMesh/blockMeshDict 2>/dev/null
+rm constant/cathodeGDL/polyMesh/blockMeshDict 2>/dev/null
+
+rm 0/anodeGDL/T 2>/dev/null
+rm 0/anodeGDL/phiE 2>/dev/null
+rm 0/anodeGDL/xH2 2>/dev/null
+rm 0/anodeGDL/xV 2>/dev/null
+rm 0/anodeGDL/k 2>/dev/null
+rm 0/anodeGDL/sigma 2>/dev/null
+rm 0/anodeGDL/DH2Eff 2>/dev/null
+rm 0/anodeGDL/DVEff 2>/dev/null
+
+rm 0/anodeCL/T 2>/dev/null
+rm 0/anodeCL/phiE 2>/dev/null
+rm 0/anodeCL/phiP 2>/dev/null
+rm 0/anodeCL/xH2 2>/dev/null
+rm 0/anodeCL/xV 2>/dev/null
+rm 0/anodeCL/lambda 2>/dev/null
+rm 0/anodeCL/k 2>/dev/null
+rm 0/anodeCL/sigma 2>/dev/null
+rm 0/anodeCL/kappa 2>/dev/null
+rm 0/anodeCL/DH2Eff 2>/dev/null
+rm 0/anodeCL/DVEff 2>/dev/null
+rm 0/anodeCL/DLambda 2>/dev/null
+
+rm 0/membrane/T 2>/dev/null
+rm 0/membrane/phiP 2>/dev/null
+rm 0/membrane/lambda 2>/dev/null
+rm 0/membrane/k 2>/dev/null
+rm 0/membrane/kappa 2>/dev/null
+rm 0/membrane/DLambda 2>/dev/null
+
+rm 0/cathodeCL/T 2>/dev/null
+rm 0/cathodeCL/phiE 2>/dev/null
+rm 0/cathodeCL/phiP 2>/dev/null
+rm 0/cathodeCL/xO2 2>/dev/null
+rm 0/cathodeCL/xV 2>/dev/null
+rm 0/cathodeCL/lambda 2>/dev/null
+rm 0/cathodeCL/s 2>/dev/null
+rm 0/cathodeCL/k 2>/dev/null
+rm 0/cathodeCL/sigma 2>/dev/null
+rm 0/cathodeCL/kappa 2>/dev/null
+rm 0/cathodeCL/DO2Eff 2>/dev/null
+rm 0/cathodeCL/DVEff 2>/dev/null
+rm 0/cathodeCL/DLambda 2>/dev/null
+rm 0/cathodeCL/K 2>/dev/null
+
+rm 0/cathodeGDL/T 2>/dev/null
+rm 0/cathodeGDL/phiE 2>/dev/null
+rm 0/cathodeGDL/xO2 2>/dev/null
+rm 0/cathodeGDL/xV 2>/dev/null
+rm 0/cathodeGDL/s 2>/dev/null
+rm 0/cathodeGDL/k 2>/dev/null
+rm 0/cathodeGDL/sigma 2>/dev/null
+rm 0/cathodeGDL/DO2Eff 2>/dev/null
+rm 0/cathodeGDL/DVEff 2>/dev/null
+rm 0/cathodeGDL/K 2>/dev/null

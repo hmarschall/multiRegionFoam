@@ -128,18 +128,18 @@ Foam::scalar Foam::regionTypes::transportTemperature::getMinDeltaT()
 
 void Foam::regionTypes::transportTemperature::setCoupledEqns()
 {
-    fvScalarMatrix TEqn =
+    tTEqn =
     (
-        fvm::ddt(T_())
-      + fvm::div(phi_(), T_())
+        fvm::ddt(T())
+      + fvm::div(phi_(), T())
      ==
-        fvm::laplacian(alpha_(), T_())
+        fvm::laplacian(alpha_(), T())
     );
 
     fvScalarMatrices.set
     (
         T_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(TEqn)
+        &tTEqn()
     );
 }
 

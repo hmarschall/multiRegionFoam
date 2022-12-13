@@ -1,0 +1,191 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      regionInterfaceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+partitionedCoupledPatches
+(
+    anodeGDLanodeCL
+    {
+        interfaceType defaultInterface;
+
+        coupledPatchPair
+        (
+            (anodeGDL right)
+            (anodeCL left)
+        );
+
+        coupledFields
+        (
+            //phiE T xH2 xV
+            T phiE xH2 xV
+        );
+        
+        defaultInterfaceCoeffs
+        {}
+    }
+
+    anodeCLmembrane
+    {
+        interfaceType defaultInterface;
+
+        coupledPatchPair
+        (
+            (anodeCL right)
+            (membrane left)
+        );
+
+        coupledFields
+        (
+            //phiP T lambda
+            T phiP lambda
+        );
+        
+        defaultInterfaceCoeffs
+        {}
+    }
+
+    membranecathodeCL
+    {
+        interfaceType defaultInterface;
+
+        coupledPatchPair
+        (
+            (membrane right)
+            (cathodeCL left)
+        );
+
+        coupledFields
+        (
+            //phiP T lambda
+            T phiP lambda
+        );
+        
+        defaultInterfaceCoeffs
+        {}
+    }
+
+    cathodeCLcathodeGDL
+    {
+        interfaceType defaultInterface;
+
+        coupledPatchPair
+        (
+            (cathodeCL right)
+            (cathodeGDL left)
+        );
+
+        coupledFields
+        (
+            //phiE T xO2 xV s
+            T phiE xO2 xV s
+        );
+        
+        defaultInterfaceCoeffs
+        {}
+    }
+);
+
+monolithicCoupledPatches
+(
+    /*anodeGDLanodeCL
+    {
+        interfaceType defaultInterface;
+
+        coupledPatchPair
+        (
+            (anodeGDL right)
+            (anodeCL left)
+        );
+
+        coupledFields
+        (
+            phiE T xH2 xV
+        );
+        
+        defaultInterfaceCoeffs
+        {}
+    }
+
+    anodeCLmembrane
+    {
+        interfaceType defaultInterface;
+
+        coupledPatchPair
+        (
+            (anodeCL right)
+            (membrane left)
+        );
+
+        coupledFields
+        (
+            phiP T lambda
+        );
+        
+        defaultInterfaceCoeffs
+        {}
+    }
+
+    membranecathodeCL
+    {
+        interfaceType defaultInterface;
+
+        coupledPatchPair
+        (
+            (memrbane right)
+            (cathodeCL left)
+        );
+
+        coupledFields
+        (
+            phiP T lambda
+        );
+        
+        defaultInterfaceCoeffs
+        {}
+    }
+
+    cathodeCLcathodeGDL
+    {
+        interfaceType defaultInterface;
+
+        coupledPatchPair
+        (
+            (cathodeCL right)
+            (cathodeGDL left)
+        );
+
+        coupledFields
+        (
+            phiE T xO2 xV s
+        );
+        
+        defaultInterfaceCoeffs
+        {}
+    }*/
+);
+
+curvatureCorrectedSurfacePatches 0();
+
+interpolatorUpdateFrequency 1;
+
+interfaceTransferMethod directMap;
+
+directMapCoeffs
+{}
+
+GGICoeffs
+{}
+
+// ************************************************************************* //

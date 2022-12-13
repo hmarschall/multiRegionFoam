@@ -187,6 +187,24 @@ class anodicCL
         //- mass source vapor
         volScalarField sV_;
 
+        //- cached temperature matrix
+        tmp<fvScalarMatrix> TEqn;
+
+        //- cached electric potential matrix
+        tmp<fvScalarMatrix> phiEEqn;
+
+        //- cached electrolyte potential matrix
+        tmp<fvScalarMatrix> phiPEqn;
+
+        //- cached water content in ionomer matrix
+        tmp<fvScalarMatrix> lambdaEqn;
+
+        //- cached hydrogen mole fraction matrix
+        tmp<fvScalarMatrix> xH2Eqn;
+
+        //- cached vapor mole fraction matrix
+        tmp<fvScalarMatrix> xVEqn;
+
     // Private member functions
 
         //- update ionomer properties

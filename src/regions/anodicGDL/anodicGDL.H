@@ -106,6 +106,18 @@ class anodicGDL
         //- heat sources
         volScalarField sT_;
 
+        //- cached temperature matrix
+        tmp<fvScalarMatrix> TEqn;
+
+        //- cached electric potential matrix
+        tmp<fvScalarMatrix> phiEEqn;
+
+        //- cached hydrogen mole fraction matrix
+        tmp<fvScalarMatrix> xH2Eqn;
+
+        //- cached vapor mole fraction matrix
+        tmp<fvScalarMatrix> xVEqn;
+
     // Private member functions	
 
         //- update gas species transport parameters

@@ -1,0 +1,31 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           dictionary;
+    object          materialProperties;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Ionomer content: -
+epsilonI	epsilonI  [0 0 0 0 0 0 0] 1;
+
+// layer thickness - Dimensions: m
+d		d  [0 1 0 0 0 0 0] 2.5e-5;
+
+//- molar volume of liquid water - Dimensions: m³/mol
+VW		VW  [0 3 0 0 -1 0 0] 1.841e-5;
+
+//- molar volume of membrane - Dimensions: m³/mol
+VM		VM  [0 3 0 0 -1 0 0] 5.177e-4;
+
+// ************************************************************************* //

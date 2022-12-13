@@ -322,7 +322,7 @@ void Foam::regionTypes::anodicGDL::setCoupledEqns()
 
     // set Eqns
     // fourier heat conduction
-    fvScalarMatrix TEqn =
+    TEqn =
     (
           rho_*cv_*fvm::ddt(T_())
         - fvm::laplacian(k_(), T_(), "laplacian(k,T)")
@@ -331,13 +331,13 @@ void Foam::regionTypes::anodicGDL::setCoupledEqns()
     );
 
     // ohm's law for electrons
-    fvScalarMatrix phiEEqn =
+    phiEEqn =
     (
         -fvm::laplacian(sigma_(), phiE_(), "laplacian(sigma,phiE)")
     );
 
     // fick diffusion for hydrogen
-    fvScalarMatrix xH2Eqn =
+    xH2Eqn =
     (
           c_*fvm::ddt(xH2_())
         ==
@@ -345,7 +345,7 @@ void Foam::regionTypes::anodicGDL::setCoupledEqns()
     );
 
     // fick diffusion for vapor
-    fvScalarMatrix xVEqn =
+    xVEqn =
     (
           c_*fvm::ddt(xV_())
         ==
@@ -355,25 +355,25 @@ void Foam::regionTypes::anodicGDL::setCoupledEqns()
     fvScalarMatrices.set
     (
         T_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(TEqn)
+        &TEqn()
     );
 
     fvScalarMatrices.set
     (
         phiE_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(phiEEqn)
+        &phiEEqn()
     );
 
     fvScalarMatrices.set
     (
         xH2_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(xH2Eqn)
+        &xH2Eqn()
     );
 
     fvScalarMatrices.set
     (
         xV_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(xVEqn)
+        &xVEqn()
     );
 }
 

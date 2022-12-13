@@ -105,6 +105,15 @@ class ionomer
         //- water content source - electro-osmotic drag
         volScalarField sLambda_;
 
+        //- cached temperature matrix
+        tmp<fvScalarMatrix> TEqn;
+
+        //- cached electrolyte potential matrix
+        tmp<fvScalarMatrix> phiPEqn;
+
+        //- cached water content in ionomer matrix
+        tmp<fvScalarMatrix> lambdaEqn;
+
     // Private member functions
 
         //- update Ionomer Properties

@@ -1,0 +1,28 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           dictionary;
+    object          operatingConditions;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// electrode Type - input "cathodic" or "anodic"
+electrodeType	"cathodic";
+
+// pressure - Dimensions: Pa
+p       	p [1 -1 -2 0 0 0 0] 1.5E5;
+
+// relative Humidity - Dimensions: RH
+RH             	RH  [0 0 0 0 0 0 0] 0.9;
+
+// ************************************************************************* //

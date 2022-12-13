@@ -148,6 +148,21 @@ class cathodicGDL
         //- mass source liquid water
         volScalarField ss_;
 
+        //- cached temperature matrix
+        tmp<fvScalarMatrix> TEqn;
+
+        //- cached electrode potential matrix
+        tmp<fvScalarMatrix> phiEEqn;
+
+        //- cached oxygen mole fraction matrix
+        tmp<fvScalarMatrix> xO2Eqn;
+
+        //- cached vapor mole fraction matrix
+        tmp<fvScalarMatrix> xVEqn;
+
+        //- cached saturation matrix
+        tmp<fvScalarMatrix> sEqn;
+
     // Private member functions	
 
         //- update gas species transport parameters

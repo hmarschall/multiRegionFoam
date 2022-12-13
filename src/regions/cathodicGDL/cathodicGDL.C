@@ -483,7 +483,7 @@ void Foam::regionTypes::cathodicGDL::setCoupledEqns()
 
     // set Eqns
     // fourier heat conduction
-    fvScalarMatrix TEqn =
+    TEqn =
     (
           rho_*cv_*fvm::ddt(T_())
         - fvm::laplacian(k_(), T_(), "laplacian(k,T)")
@@ -492,13 +492,13 @@ void Foam::regionTypes::cathodicGDL::setCoupledEqns()
     );
     
     // ohm's law for electrons
-    fvScalarMatrix phiEEqn =
+    phiEEqn =
     (
         -fvm::laplacian(sigma_(), phiE_(), "laplacian(sigma,phiE)")
     );
     
     // fick diffusion for oxygen
-    fvScalarMatrix xO2Eqn =
+    xO2Eqn =
     (
           c_*fvm::ddt(xO2_())
         ==
@@ -506,7 +506,7 @@ void Foam::regionTypes::cathodicGDL::setCoupledEqns()
     );
 
     // fick diffusion for vapor
-    fvScalarMatrix xVEqn =
+    xVEqn =
     (
           c_*fvm::ddt(xV_())
         - fvm::laplacian(c_*DEffV_(), xV_(), "laplacian(D,x)")
@@ -515,7 +515,7 @@ void Foam::regionTypes::cathodicGDL::setCoupledEqns()
     );
 
     // liquid water transport (derived from Darcy's Law)
-    fvScalarMatrix sEqn =
+    sEqn =
     (
           1/VW_*fvm::ddt(s_())
         - fvm::laplacian(K_()*dpCds_/(mu_*VW_), s_(), "laplacian(K,s)")
@@ -526,31 +526,31 @@ void Foam::regionTypes::cathodicGDL::setCoupledEqns()
     fvScalarMatrices.set
     (
         T_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(TEqn)
+        &TEqn()
     );
 
     fvScalarMatrices.set
     (
         phiE_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(phiEEqn)
+        &phiEEqn()
     );
 
     fvScalarMatrices.set
     (
         xO2_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(xO2Eqn)
+        &xO2Eqn()
     );
 
     fvScalarMatrices.set
     (
         xV_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(xVEqn)
+        &xVEqn()
     );
 
     fvScalarMatrices.set
     (
         s_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(sEqn)
+        &sEqn()
     );
 }
 

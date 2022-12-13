@@ -182,10 +182,7 @@ void Foam::regionInterface::makeFaMesh() const
 }
 
 void Foam::regionInterface::makeUs() const
-{
-    // error if U is initialized in the constructor
-    const volVectorField& U = meshA().lookupObject<volVectorField>("U");
-         
+{         
     if (!UsPtr_.empty())
     {
         FatalErrorIn("regionInterface::makeUs()")
@@ -193,6 +190,7 @@ void Foam::regionInterface::makeUs() const
             << abort(FatalError);
     }
 
+    // Set patch field types for Us
     wordList patchFieldTypes
     (
         aMesh().boundary().size(),
@@ -234,14 +232,15 @@ void Foam::regionInterface::makeUs() const
             }
         }
     }
-    
+
+    // Set surface velocity
     UsPtr_.reset
     (
         new areaVectorField
         (
             IOobject
             (
-                U.name() + "s",
+                patchA().name() + "Us",
                 runTime().timeName(), 
                 meshA(), 
                 IOobject::NO_READ,
@@ -252,6 +251,13 @@ void Foam::regionInterface::makeUs() const
             patchFieldTypes
         )
     );
+
+    if (meshA().foundObject<volVectorField>("U"))
+    {
+        const volVectorField& U = meshA().lookupObject<volVectorField>("U");
+
+        UsPtr_().internalField() = U.boundaryField()[patchAID()];
+    }
 }
 
 //void Foam::regionInterface::makeK() const
@@ -285,10 +291,6 @@ void Foam::regionInterface::makeUs() const
 
 void Foam::regionInterface::makePhis() const
 {
-
-    const surfaceScalarField& phi = 
-        meshA().lookupObject<surfaceScalarField>("phi");
-
     if (!phisPtr_.empty())
     {
         FatalErrorIn("regionInterface::makePhis()")
@@ -302,7 +304,7 @@ void Foam::regionInterface::makePhis() const
         (
             IOobject
             (
-                phi.name() + "s",
+                patchA().name() + "Phis",
                 runTime().timeName(), 
                 meshA(),
                 IOobject::NO_READ,
@@ -815,6 +817,11 @@ void Foam::regionInterface::update()
 
 void Foam::regionInterface::updateUs()
 {
+    if (!meshA().foundObject<volVectorField>("U"))
+    {
+        return;
+    }
+
     Us().internalField() = Up();
 
     correctUsBoundaryConditions();

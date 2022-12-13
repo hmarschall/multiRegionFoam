@@ -323,7 +323,7 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
     }
 
     // fourier heat conduction
-    fvScalarMatrix TEqn =
+    TEqn =
     (
           rho_*cv_*fvm::ddt(T_())
         - fvm::laplacian(k_(), T_(), "laplacian(k,T)")
@@ -332,13 +332,13 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
     );
 
     // ohm's law for protons
-    fvScalarMatrix phiPEqn =
+    phiPEqn =
     (
         -fvm::laplacian(kappa_(), phiP_(), "laplacian(kappa,phiP)")
     );
 
     // water transport in ionomer
-    fvScalarMatrix lambdaEqn =
+    lambdaEqn =
     (
           1/VM_*fvm::ddt(lambda_())
         - fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")
@@ -348,19 +348,19 @@ void Foam::regionTypes::ionomer::setCoupledEqns()
     fvScalarMatrices.set
     (
         T_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(TEqn)
+        &TEqn()
     );
 
     fvScalarMatrices.set
     (
         phiP_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(phiPEqn)
+        &phiPEqn()
     );
 
     fvScalarMatrices.set
     (
         lambda_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(lambdaEqn)
+        &lambdaEqn()
     );
 }
 
