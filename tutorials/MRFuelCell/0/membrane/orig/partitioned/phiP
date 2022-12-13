@@ -31,7 +31,7 @@ boundaryField
     {
         type                    regionCoupledScalarJump;
         k			"kappa";
-        relax			0.01;
+        relax			0.1;
        	neighbourRegionName     anodeCL;
        	neighbourPatchName      right;
        	neighbourFieldName      phiP;
@@ -41,8 +41,9 @@ boundaryField
     }
     right
     {
-        type                    regionCoupledScalarFlux;
+        type                    regionCoupledScalarJump;
         k			"kappa";
+        relax			0.1;
        	neighbourRegionName     cathodeCL;
        	neighbourPatchName      left;
        	neighbourFieldName      phiP;

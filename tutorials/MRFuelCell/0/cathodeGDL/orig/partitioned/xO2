@@ -29,7 +29,7 @@ boundaryField
     }
     left
     {
-        type                    regionCoupledScalarJump;
+        type                    regionCoupledScalarFlux;
         k			"DEffO2";
        	neighbourRegionName     cathodeCL;
        	neighbourPatchName      right;

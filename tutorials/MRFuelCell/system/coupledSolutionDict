@@ -18,7 +18,7 @@ couplingMethod          	partitioned; //monolithic;
 
 partitioned
 {
-    coupleRelaxFactor		0.2;
+    coupleRelaxFactor		0.01;
     relConvergeTolerance	1e-05;
     maxCoupleIter		100;
 }

@@ -33,9 +33,8 @@ boundaryField
     }
     right
     {
-        type                    regionCoupledScalarJump;
+        type                    regionCoupledScalarFlux;
         k			"DLambda";
-        relax			0.01;
        	neighbourRegionName     membrane;
        	neighbourPatchName      left;
        	neighbourFieldName      lambda;

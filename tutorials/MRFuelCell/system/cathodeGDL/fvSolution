@@ -155,7 +155,7 @@ SIMPLE
 PIMPLE
 {
     // p-U coupling
-    nOuterCorrectors            10; // SIMPLEC loops
+    nOuterCorrectors            3; // SIMPLEC loops
     nCorrectors                 2; // PISO loops
     nNonOrthogonalCorrectors    3;
 
@@ -173,7 +173,7 @@ relaxationFactors
 {
 	T	0.2;
 	phiE	0.01;
-	xO2	0.2;
+	xO2	0.1;
 	xV	0.2;
 	s	0.2;
 }

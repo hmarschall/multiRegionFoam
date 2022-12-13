@@ -29,8 +29,9 @@ boundaryField
     }
     left
     {
-        type                    regionCoupledScalarFlux;
+        type                    regionCoupledScalarJump;
         k			"DLambda";
+        relax			0.01;
        	neighbourRegionName     anodeCL;
        	neighbourPatchName      right;
        	neighbourFieldName      lambda;

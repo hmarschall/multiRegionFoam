@@ -123,7 +123,7 @@ relaxationFactors
 {
 	T	0.2;
 	phiP	0.001;
-	lambda	0.2;
+	lambda	0.01;
 }
 
 

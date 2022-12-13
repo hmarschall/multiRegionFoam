@@ -34,7 +34,7 @@ boundaryField
     }
     right
     {
-        type                    regionCoupledScalarJump;
+        type                    regionCoupledScalarFlux;
         k			"DEffH2";
        	neighbourRegionName     anodeCL;
        	neighbourPatchName      left;

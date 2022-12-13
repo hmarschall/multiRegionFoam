@@ -25,7 +25,7 @@ regions
 
 partitionedCoupling
 {
-    maxCoupleIter 3;
+    maxCoupleIter 10;
 }
 
 DNA
@@ -44,7 +44,7 @@ DNA
     }
     phiP
     {
-        maxCoupleIter 3;
+        maxCoupleIter 1;
 
         residualControl
         {
@@ -70,7 +70,7 @@ DNA
     }
     lambda
     {
-        maxCoupleIter 3;
+        maxCoupleIter 1;
 
         residualControl
         {
@@ -109,7 +109,7 @@ DNA
     }
     xV
     {
-        maxCoupleIter 3;
+        maxCoupleIter 2;
 
         residualControl
         {

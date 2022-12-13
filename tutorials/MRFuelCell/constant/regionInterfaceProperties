@@ -49,7 +49,7 @@ partitionedCoupledPatches
         coupledFields
         (
             //phiP T lambda
-            T lambda phiP
+            T phiP lambda
         );
         
         defaultInterfaceCoeffs
@@ -69,7 +69,7 @@ partitionedCoupledPatches
         coupledFields
         (
             //phiP T lambda
-            T lambda phiP
+            T phiP lambda
         );
         
         defaultInterfaceCoeffs
@@ -89,7 +89,7 @@ partitionedCoupledPatches
         coupledFields
         (
             //phiE T xO2 xV s
-            T phiE xO2 s xV
+            T phiE xO2 xV s
         );
         
         defaultInterfaceCoeffs

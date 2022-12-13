@@ -29,8 +29,9 @@ boundaryField
     }
     left
     {
-        type                    regionCoupledScalarFlux;
+        type                    regionCoupledScalarJump;
         k			"DEffH2";
+        relax			0.01;
        	neighbourRegionName     anodeGDL;
        	neighbourPatchName      right;
        	neighbourFieldName      xH2;

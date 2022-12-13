@@ -35,7 +35,7 @@ boundaryField
     {
         type                    regionCoupledScalarJump;
         k			"DEffV";
-        relax			0.1;
+        relax			0.01;
        	neighbourRegionName     cathodeGDL;
        	neighbourPatchName      left;
        	neighbourFieldName      xV;

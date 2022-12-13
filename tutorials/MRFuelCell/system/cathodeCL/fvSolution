@@ -224,8 +224,8 @@ relaxationFactors
 	T	0.2;
 	phiE	0.01;
 	phiP	0.01;
-	lambda	0.2;
-	xO2	0.2:
+	lambda	0.01;
+	xO2	0.1:
 	xV	0.2;
 	s	0.2;
 }

@@ -29,9 +29,8 @@ boundaryField
     }
     left
     {
-        type                    regionCoupledScalarJump;
+        type                    regionCoupledScalarFlux;
         k			"kappa";
-        relax			0.01;
        	neighbourRegionName     membrane;
        	neighbourPatchName      right;
        	neighbourFieldName      phiP;

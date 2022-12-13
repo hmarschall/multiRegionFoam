@@ -33,8 +33,9 @@ boundaryField
     }
     right
     {
-        type                    regionCoupledScalarFlux;
+        type                    regionCoupledScalarJump;
         k			"DEffO2";
+        relax			0.01;
        	neighbourRegionName     cathodeGDL;
        	neighbourPatchName      left;
        	neighbourFieldName      xO2;

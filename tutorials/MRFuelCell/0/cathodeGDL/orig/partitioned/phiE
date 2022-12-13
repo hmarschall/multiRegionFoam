@@ -19,7 +19,7 @@ FoamFile
 
 dimensions      [1 2 -3 0 0 -1 0];
 
-internalField   uniform 1.0;
+internalField   uniform 1;
 
 boundaryField
 {
@@ -41,8 +41,8 @@ boundaryField
     }
     right
     {
-	type			fixedValue;
-	value			uniform 1.0;
+        type			fixedValue;
+        value			uniform 1.0;
         //type                    timeVaryingUniformFixedValue;
 	//fileName		"potentialRamp";
         //outOfBounds		clamp;
