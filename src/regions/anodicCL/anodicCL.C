@@ -647,7 +647,7 @@ void Foam::regionTypes::anodicCL::setCoupledEqns()
 
     // set anodic Eqns
     // fourier heat conduction
-    fvScalarMatrix TEqn =
+    TEqn =
     (
           rho_*cv_*fvm::ddt(T_())
         - fvm::laplacian(k_(), T_(), "laplacian(k,T)")
@@ -656,7 +656,7 @@ void Foam::regionTypes::anodicCL::setCoupledEqns()
     );
 
     // ohm's law for electrons
-    fvScalarMatrix phiEEqn =
+    phiEEqn =
     (
         - fvm::laplacian(sigma_(), phiE_(), "laplacian(sigma,phiE)")
         ==
@@ -664,7 +664,7 @@ void Foam::regionTypes::anodicCL::setCoupledEqns()
     );
 
     // ohm's law for protons
-    fvScalarMatrix phiPEqn =
+    phiPEqn =
     (
           fvm::laplacian(kappa_(), phiP_(), "laplacian(kappa,phiP)")
         ==
@@ -672,7 +672,7 @@ void Foam::regionTypes::anodicCL::setCoupledEqns()
     );
 
     // water transport in ionomer
-    fvScalarMatrix lambdaEqn =
+    lambdaEqn =
     (
           1/VM_*fvm::ddt(lambda_())
         - fvm::laplacian(DLambda_()/VM_, lambda_(), "laplacian(DLambda,lambda)")
@@ -681,58 +681,58 @@ void Foam::regionTypes::anodicCL::setCoupledEqns()
           fvm::SuSp(sLambda_, lambda_()) 
     );
 
-    // fick diffusion for vapor
-    fvScalarMatrix xVEqn =
-    (
-          c_*fvm::ddt(xV_())
-        - c_*fvm::laplacian(DEffV_(), xV_(), "laplacian(D,x)")
-        ==
-          fvm::SuSp(sV_, xV_())
-    );
-
     // fick diffusion for hydrogen
-    fvScalarMatrix xH2Eqn =
+    xH2Eqn =
     (
           c_*fvm::ddt(xH2_())
         - c_*fvm::laplacian(DEffH2_(), xH2_(), "laplacian(D,x)")
         ==
           fvm::SuSp(-j_/2/FConst_/xH2_(), xH2_())
     );
+
+    // fick diffusion for vapor
+    xVEqn =
+    (
+          c_*fvm::ddt(xV_())
+        - c_*fvm::laplacian(DEffV_(), xV_(), "laplacian(D,x)")
+        ==
+          fvm::SuSp(sV_, xV_())
+    );
   
     fvScalarMatrices.set
     (
         T_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(TEqn)
+        &TEqn()
     );
 
     fvScalarMatrices.set
     (
         phiE_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(phiEEqn)
+        &phiEEqn()
     );
 
     fvScalarMatrices.set
     (
         phiP_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(phiPEqn)
+        &phiPEqn()
     );
 
     fvScalarMatrices.set
     (
         lambda_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(lambdaEqn)
+        &lambdaEqn()
     );
 
     fvScalarMatrices.set
     (
         xV_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(xVEqn)
+        &xVEqn()
     );  
       
     fvScalarMatrices.set
     (
         xH2_().name() + mesh().name() + "Eqn",
-        new fvScalarMatrix(xH2Eqn)
+        &xH2Eqn()
     );
 }
 
