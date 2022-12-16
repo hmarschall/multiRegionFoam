@@ -810,9 +810,7 @@ void Foam::regionInterface::update()
         makeGlobalPatches();
     }
 
-    updateK();
-    updateUs();
-    updatePhis();
+    this->correct();
 }
 
 void Foam::regionInterface::updateUs()

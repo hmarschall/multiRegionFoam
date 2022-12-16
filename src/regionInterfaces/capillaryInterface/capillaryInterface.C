@@ -86,8 +86,14 @@ Foam::regionInterfaces::capillaryInterface::capillaryInterface
 
 void Foam::regionInterfaces::capillaryInterface::correct()
 {
-    //TO-Do call function to calculate new sigma_ with interface equation of state 
-    // for contaminated surfaces 
+    // Update transport properties
+    updateK();
+    updateUs();
+    updatePhis();
+
+    // Update interface physics
+    // TODO: call function to calculate new sigma_ with 
+    // interface equation of state for contaminated surfaces 
 }
 
 Foam::scalar Foam::regionInterfaces::capillaryInterface::getMinDeltaT()
