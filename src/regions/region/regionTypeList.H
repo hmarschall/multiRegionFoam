@@ -93,7 +93,7 @@ public:
 
     // Member Functions
 
-        //- Return active status
+        //- Return active PIMPLE status
         bool active(const bool active = false) const;
 
         //- Reset the source list

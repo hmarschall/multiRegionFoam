@@ -130,7 +130,7 @@ public:
 
         virtual bool active() const
         {
-            return true;
+            return false;
         }
 
         virtual void correct();

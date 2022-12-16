@@ -412,6 +412,14 @@ void Foam::multiRegionSystem::solve()
     // Solve individual region physics
     regions_->solveRegion();
 
+    // Solve pressure-velocity system using PIMPLE
+    // Check if at least one region implements PIMPLE loop
+    if (regions_->active())
+    {
+        // PIMPLE p-U-coupling
+        regions_->solvePIMPLE();
+    }
+
     // Solve region-region coupling (partitioned)
 
     //- Solve pressure-velocity system using PIMPLE

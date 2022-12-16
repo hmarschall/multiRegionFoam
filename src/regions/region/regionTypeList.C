@@ -68,7 +68,7 @@ bool Foam::regionTypeList::active(const bool warn) const
 
     if (warn && this->size() && !a)
     {
-        Info<< "No models active" << endl;
+        Info<< "No PIMPLE active" << endl;
     }
 
     return a;
