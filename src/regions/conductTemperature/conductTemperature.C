@@ -134,17 +134,20 @@ Foam::scalar Foam::regionTypes::conductTemperature::getMinDeltaT()
 
 void Foam::regionTypes::conductTemperature::setCoupledEqns()
 {
-    tTEqn =
+    TEqn.set
     (
-        fvm::ddt(rho_*cv_, T())
-     ==
-        fvm::laplacian(k_(), T(), "laplacian(k,T)")
+        new fvScalarMatrix
+        (
+            fvm::ddt(rho_*cv_, T())
+         ==
+            fvm::laplacian(k_(), T(), "laplacian(k,T)")
+        )
     );
 
     fvScalarMatrices.set
     (
         T_().name() + mesh().name() + "Eqn",
-        &tTEqn()
+        TEqn.ptr()
     );
 }
 

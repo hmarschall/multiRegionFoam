@@ -191,25 +191,6 @@ public:
             return p_();
         }
 
-        // Access by name
-        template<class T>
-        const T& getObject(const word& name)
-        {
-            return
-            (
-                mesh().thisDb().lookupObject<T>(name)
-            );
-        }
-
-        template<class T>
-        T& getObject(const word& name)
-        {
-            return
-            (
-                const_cast<const T&>(mesh().thisDb().lookupObject<T>(name))
-            );
-        }
-
         virtual bool active() const
         {
             return true;

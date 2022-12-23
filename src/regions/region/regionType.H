@@ -209,18 +209,22 @@ public:
             word name
         );
 
+        // Get a ref to the fvMatrix 
+        template<class T>
+        bool clearCoupledEqn
+        (
+            const T& fld
+        );
+
+        // Get a ref to the fields 
+        template<class T>
+        const T& getObject(word name, const fvMesh& mesh);
+
         // Check if region holds fvMatrix 
         bool foundCoupledEqn
         (
             word name
         );
-
-        // Get a ref to the fields 
-        template<class T>
-        const T& getObject(const word& name);
-
-        template<class T>
-        T& getObject(const word& name);
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
