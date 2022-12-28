@@ -38,8 +38,7 @@ boundaryField
     }
     bottom
     {
-        type            fixedValue;
-        value           $internalField;
+        type            zeroGradient;
     }
     defaultFaces
     {

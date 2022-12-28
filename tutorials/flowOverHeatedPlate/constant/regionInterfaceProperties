@@ -16,7 +16,24 @@ FoamFile
 
 partitionedCoupledPatches
 (
+/*    fluidsolid*/
+/*    {*/
+/*        interfaceType defaultInterface;*/
 
+/*        coupledPatchPair*/
+/*        (*/
+/*            (fluid interface)*/
+/*            (solid top)*/
+/*        );*/
+
+/*        coupledFields*/
+/*        (*/
+/*            T*/
+/*        );*/
+/*        */
+/*        defaultInterfaceCoeffs*/
+/*        {}*/
+/*    }*/
 );
 
 monolithicCoupledPatches
