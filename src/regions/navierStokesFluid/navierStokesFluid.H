@@ -178,6 +178,11 @@ public:
             return p_();
         }
 
+        word regionTypeName() const
+        {
+            return navierStokesFluid::typeName;
+        }
+
         virtual bool active() const
         {
             return true;

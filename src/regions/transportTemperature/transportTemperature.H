@@ -122,6 +122,11 @@ public:
             return T_();
         }
 
+        word regionTypeName() const
+        {
+            return transportTemperature::typeName;
+        }
+
         virtual bool active() const
         {
             return false;

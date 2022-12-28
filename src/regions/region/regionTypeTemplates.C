@@ -175,7 +175,8 @@ fvBlockMatrix<vector4>& regionType::getCoupledEqn
 template<class T>
 bool regionType::clearCoupledEqn
 (
-    const T& fld
+    const T& fld,
+    const word& typeName
 )
 {
     notImplemented
@@ -194,13 +195,17 @@ bool regionType::clearCoupledEqn
 template<>
 bool regionType::clearCoupledEqn
 (
-    const volScalarField& fld
+    const volScalarField& fld,
+    const word& typeName
 )
 {
     HashPtrTable<fvScalarMatrix>::iterator it =
         fvScalarMatrices.find
         (
-            fld.name() + fld.mesh().name() + "Eqn"
+            fld.name() 
+          + fld.mesh().name() + "Mesh"
+          + typeName + "Type" 
+          + "Eqn"
         );
 
     return fvScalarMatrices.erase(it);
@@ -209,13 +214,17 @@ bool regionType::clearCoupledEqn
 template<>
 bool regionType::clearCoupledEqn
 (
-    const volVectorField& fld
+    const volVectorField& fld,
+    const word& typeName
 )
 {
     HashPtrTable<fvVectorMatrix>::iterator it =
         fvVectorMatrices.find
         (
-            fld.name() + fld.mesh().name() + "Eqn"
+            fld.name() 
+          + fld.mesh().name() + "Mesh"
+          + typeName + "Type" 
+          + "Eqn"
         );
 
     return fvVectorMatrices.erase(it);
@@ -224,13 +233,17 @@ bool regionType::clearCoupledEqn
 template<>
 bool regionType::clearCoupledEqn
 (
-    const volSymmTensorField& fld
+    const volSymmTensorField& fld,
+    const word& typeName
 )
 {
     HashPtrTable<fvSymmTensorMatrix>::iterator it =
         fvSymmTensorMatrices.find
         (
-            fld.name() + fld.mesh().name() + "Eqn"
+            fld.name() 
+          + fld.mesh().name() + "Mesh"
+          + typeName + "Type" 
+          + "Eqn"
         );
 
     return fvSymmTensorMatrices.erase(it);
@@ -239,13 +252,17 @@ bool regionType::clearCoupledEqn
 template<>
 bool regionType::clearCoupledEqn
 (
-    const volTensorField& fld
+    const volTensorField& fld,
+    const word& typeName
 )
 {
     HashPtrTable<fvTensorMatrix>::iterator it =
         fvTensorMatrices.find
         (
-            fld.name() + fld.mesh().name() + "Eqn"
+            fld.name() 
+          + fld.mesh().name() + "Mesh"
+          + typeName + "Type" 
+          + "Eqn"
         );
 
     return fvTensorMatrices.erase(it);
@@ -254,13 +271,17 @@ bool regionType::clearCoupledEqn
 template<>
 bool regionType::clearCoupledEqn
 (
-    const volVector4Field& fld
+    const volVector4Field& fld,
+    const word& typeName
 )
 {
     HashPtrTable<fvBlockMatrix<vector4> >::iterator it =
         fvVector4Matrices.find
         (
-            fld.name() + fld.mesh().name() + "Eqn"
+            fld.name() 
+          + fld.mesh().name() + "Mesh"
+          + typeName + "Type" 
+          + "Eqn"
         );
 
     return fvVector4Matrices.erase(it);

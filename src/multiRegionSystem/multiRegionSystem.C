@@ -77,8 +77,8 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
 
     if (nEqns == 0) return;
 
-    Info<< fldName << ": "
-       << "Number of coupled fields : " << nEqns << endl;
+    //Info<< fldName << ": "
+    //   << "Number of coupled fields : " << nEqns << endl;
 
     // assemble and solve block matrix system
     coupledFvMatrix<T> coupledEqns(nEqns);
@@ -89,6 +89,14 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
     {
         regionType& rg = const_cast<regionType&>(regions_()[regI]);
 
+        word matrixSystemName =
+        (
+            fldName
+          + rg.mesh().name() + "Mesh"
+          + rg.regionTypeName() + "Type"
+          + "Eqn"
+        );
+
         // Check if coupled field is registered to region 
         // and if it is of correct type
         if
@@ -96,7 +104,7 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
             !(
                 rg.foundCoupledEqn
                 (
-                    fldName + rg.mesh().name() + "Eqn"
+                    matrixSystemName
                 )
              && 
                 rg.mesh().thisDb().foundObject
@@ -110,11 +118,12 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
             continue;
         }
 
+        Info<< "Get equation for "
+            << fldName << " in " 
+            << rg.regionTypeName() << endl;
+
         M<T>& eqn =
-            rg.getCoupledEqn<M,T>
-            (
-                fldName + rg.mesh().name() + "Eqn"
-            );
+            rg.getCoupledEqn<M,T>(matrixSystemName);
 
         coupledEqns.set(nReg, &eqn);
 
@@ -126,28 +135,42 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
         regions_()[0].mesh().solutionDict().solver(fldName + "coupled")
     );
 
-//    forAll (regions_(), regI)
-//    {
-//        // Check if coupled field is registered to region 
-//        // and if it is of correct type
-//        if
-//        (
-//            !(
-//                regions_()[regI].mesh().thisDb().foundObject
-//                <GeometricField<T, fvPatchField, volMesh> >
-//                (
-//                    fldName
-//                )
-//            )
-//        )
-//        {
-//            continue;
-//        }
+    forAll (regions_(), regI)
+    {
+        regionType& rg = const_cast<regionType&>(regions_()[regI]);
 
-//        // Post-solve actions
-//        regionType& rg = const_cast<regionType&>(regions_()[regI]);
-//        rg.postSolve();
-//    }
+        word matrixSystemName =
+        (
+            fldName
+          + rg.mesh().name() + "Mesh"
+          + rg.regionTypeName() + "Type"
+          + "Eqn"
+        );
+
+        // Check if coupled field is registered to region 
+        // and if it is of correct type
+        if
+        (
+            !(
+                rg.foundCoupledEqn
+                (
+                    matrixSystemName
+                )
+             && 
+                rg.mesh().thisDb().foundObject
+                <GeometricField<T, fvPatchField, volMesh> >
+                (
+                    fldName
+                )
+            )
+        )
+        {
+            continue;
+        }
+
+        // Post-solve actions
+        rg.postSolve();
+    }
 }
 
 template< template<class> class M, class T>
@@ -161,6 +184,14 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
     {
         regionType& rg = const_cast<regionType&>(regions_()[regI]);
 
+        word matrixSystemName =
+        (
+            fldName
+          + rg.mesh().name() + "Mesh"
+          + rg.regionTypeName() + "Type"
+          + "Eqn"
+        );
+
         // Check if coupled field is registered to region mesh
         // and if it is of correct type
         // and if this region holds the equation
@@ -169,7 +200,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             !(
                 rg.foundCoupledEqn
                 (
-                    fldName + rg.mesh().name() + "Eqn"
+                    matrixSystemName
                 )
              && 
                 rg.mesh().thisDb().foundObject
@@ -209,18 +240,15 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
 
         Info<< nl 
             << "Solving for " << fldName
-            << " in " << rg.mesh().name()
+            << " in " << rg.regionTypeName()
             << endl;
 
         // set coupled equation again
         // since boundary conditions have been updated
-//        rg.setCoupledEqns();
+        //rg.setCoupledEqns();
 
         M<T>& eqn =
-            rg.getCoupledEqn<M,T>
-            (
-                fldName + rg.mesh().name() + "Eqn"
-            );
+            rg.getCoupledEqn<M,T>(matrixSystemName);
 
         rg.relaxEqn<T>(eqn);
 
@@ -230,17 +258,14 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
 
         // Memory management:
         // clear coupled equation for transport variable
-//        const GeometricField<T, fvPatchField, volMesh>& fld =
-//            rg.getObject<GeometricField<T, fvPatchField, volMesh> >
-//            (fldName, rg.mesh());
-
         const GeometricField<T, fvPatchField, volMesh>& fld =
             rg.mesh().lookupObject
             <
                 GeometricField<T, fvPatchField, volMesh>
             >(fldName);
 
-        rg.clearCoupledEqn<GeometricField<T, fvPatchField, volMesh> >(fld);
+        rg.clearCoupledEqn<GeometricField<T, fvPatchField, volMesh> >
+            (fld, rg.regionTypeName());
     }
 }
 
@@ -251,14 +276,23 @@ void Foam::multiRegionSystem::assembleCoupledFields
     const hashedWordList& fldNms
 ) const
 {
+    // Get list of meshes registered
+    const fvMesh& mesh = regions_()[0].mesh();
+    const objectRegistry& obr = mesh.objectRegistry::parent();
+
+    meshList meshes = obr.lookupClass<fvMesh>();
+
     label n = 0;
 
-    forAll (regions_(), regI) // go through all regions
+    // go through all meshes
+    forAllConstIter(meshList, meshes, iter)
     {
+        const fvMesh& mesh = *iter();
+
         // get list of all objects registered to region
         IOobjectList objects
         (
-            regions_()[regI].mesh(),
+            mesh,
             "0"
         );
 
@@ -282,8 +316,10 @@ void Foam::multiRegionSystem::assembleCoupledFields
             )
             {
                 const GeometricField<T, fvPatchField, volMesh>& fld =
-                    regions_()[regI].mesh().thisDb().lookupObject
-                    <GeometricField<T, fvPatchField, volMesh> >
+                    mesh.thisDb().lookupObject
+                    <
+                        GeometricField<T, fvPatchField, volMesh>
+                    >
                     (
                         iter()->name()
                     );
@@ -294,9 +330,9 @@ void Foam::multiRegionSystem::assembleCoupledFields
 
                 n++;
 
-                // Info<< "Name of coupled field in region "
-                //    << regions_()[regI].name() << " : " 
-                //    << iter()->name() << endl;
+                //Info<< "Name of coupled field in mesh "
+                //   << mesh.name() << " : " 
+                //   << iter()->name() << endl;
             }
         }
     }

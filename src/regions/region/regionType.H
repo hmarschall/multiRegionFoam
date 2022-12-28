@@ -44,6 +44,7 @@ SourceFiles
 #include "fvCFD.H"
 #include "fvBlockMatrix.H"
 #include "HashPtrTable.H"
+#include "hashedWordList.H"
 
 #include "mergePolyMesh.H"
 
@@ -72,7 +73,7 @@ protected:
 
     // Protected data
 
-        //- coupled governing equations
+        //- coupled matrix systems
         HashPtrTable<fvMatrix<scalar> > fvScalarMatrices;
         HashPtrTable<fvMatrix<vector> > fvVectorMatrices;
         HashPtrTable<fvMatrix<symmTensor> > fvSymmTensorMatrices;
@@ -165,6 +166,11 @@ public:
 
         // virtual functions
 
+        virtual word regionTypeName() const
+        {
+            return word("regionTypeBase");
+        }
+
         virtual bool active() const
         {
             return true;
@@ -213,7 +219,8 @@ public:
         template<class T>
         bool clearCoupledEqn
         (
-            const T& fld
+            const T& fld,
+            const word& typeName
         );
 
         // Get a ref to the fields 

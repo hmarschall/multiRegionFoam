@@ -109,6 +109,11 @@ public:
             return T_();
         }
 
+        word regionTypeName() const
+        {
+            return conductTemperature::typeName;
+        }
+
         virtual bool active() const
         {
             return false;

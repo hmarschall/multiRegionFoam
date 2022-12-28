@@ -141,7 +141,10 @@ void Foam::regionTypes::transportTemperature::setCoupledEqns()
 
     fvScalarMatrices.set
     (
-        T_().name() + mesh().name() + "Eqn",
+        T_().name()
+      + mesh().name() + "Mesh"
+      + transportTemperature::typeName + "Type"
+      + "Eqn",
         TEqn.ptr()
     );
 }

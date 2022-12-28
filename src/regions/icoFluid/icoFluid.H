@@ -191,6 +191,11 @@ public:
             return p_();
         }
 
+        word regionTypeName() const
+        {
+            return icoFluid::typeName;
+        }
+
         virtual bool active() const
         {
             return true;

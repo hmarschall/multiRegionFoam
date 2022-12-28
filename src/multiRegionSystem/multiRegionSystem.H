@@ -101,6 +101,13 @@ class multiRegionSystem
 
         HashPtrTable<dnaControl> dnaControls_;
 
+        typedef HashTable
+        <
+            const fvMesh*,
+            word,
+            string::hash
+        > meshList;
+
     // Private member functions
 
         //- assemble and solve blockMatrix system
