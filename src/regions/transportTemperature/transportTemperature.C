@@ -74,7 +74,7 @@ Foam::regionTypes::transportTemperature::transportTemperature
     rho_(transportProperties_.lookup("rho")),
 
     U_(nullptr),
-    alpha_(nullptr),
+    kappa_(nullptr),
     phi_(nullptr),
     T_(nullptr)
 {
@@ -93,12 +93,12 @@ Foam::regionTypes::transportTemperature::transportTemperature
         linearInterpolate(U_()) & mesh().Sf()
     );
 
-    // set thermal heat transfer coefficient field
-    alpha_ = lookupOrRead<volScalarField>
+    // set thermal conductivity field
+    kappa_ = lookupOrRead<volScalarField>
     (
         mesh(),
-        "alpha", 
-        k_/(rho_*cp_),
+        "k", 
+        k_,
         true
     );
 
@@ -116,7 +116,7 @@ Foam::regionTypes::transportTemperature::~transportTemperature()
 
 void Foam::regionTypes::transportTemperature::correct()
 {
-    // do nothing, add as required
+    kappa_().correctBoundaryConditions();
 }
 
 
@@ -128,15 +128,15 @@ Foam::scalar Foam::regionTypes::transportTemperature::getMinDeltaT()
 
 void Foam::regionTypes::transportTemperature::setCoupledEqns()
 {
-    TEqn.set
+    TEqn =
     (
-        new fvScalarMatrix
-        (
+        rho_*cp_
+       *(
             fvm::ddt(T())
           + fvm::div(phi_(), T())
-         ==
-            fvm::laplacian(alpha_(), T())
         )
+     ==
+        fvm::laplacian(kappa_(), T())
     );
 
     fvScalarMatrices.set
@@ -145,7 +145,7 @@ void Foam::regionTypes::transportTemperature::setCoupledEqns()
       + mesh().name() + "Mesh"
       + transportTemperature::typeName + "Type"
       + "Eqn",
-        TEqn.ptr()
+        &TEqn()
     );
 }
 

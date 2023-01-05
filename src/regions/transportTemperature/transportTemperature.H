@@ -79,14 +79,14 @@ class transportTemperature
         //- transport
         autoPtr<volVectorField> U_;
 
-        //- thermal diffusivity
-        autoPtr<volScalarField> alpha_;
+        //- thermal conductivity field
+        autoPtr<volScalarField> kappa_;
 
         //- flux
         autoPtr<surfaceScalarField> phi_;
 
         //- Cached temperature matrix
-        autoPtr<fvScalarMatrix> TEqn;
+        tmp<fvScalarMatrix> TEqn;
 
 protected:
 

@@ -96,11 +96,11 @@ Foam::regionTypes::conductTemperature::conductTemperature
         dimensionedScalar(transportProperties_.lookup("rho"))
     ),
 
-    k_(nullptr),
+    kappa_(nullptr),
     T_(nullptr)
 {
     // set thermal diffusivity field
-    k_ = lookupOrRead<volScalarField>
+    kappa_ = lookupOrRead<volScalarField>
     (
         mesh(),
         "k", 
@@ -122,7 +122,7 @@ Foam::regionTypes::conductTemperature::~conductTemperature()
 
 void Foam::regionTypes::conductTemperature::correct()
 {
-    // do nothing, add as required
+    kappa_().correctBoundaryConditions();
 }
 
 
@@ -134,14 +134,11 @@ Foam::scalar Foam::regionTypes::conductTemperature::getMinDeltaT()
 
 void Foam::regionTypes::conductTemperature::setCoupledEqns()
 {
-    TEqn.set
+    TEqn =
     (
-        new fvScalarMatrix
-        (
-            fvm::ddt(rho_*cv_, T())
-         ==
-            fvm::laplacian(k_(), T(), "laplacian(k,T)")
-        )
+        fvm::ddt(rho_*cv_, T())
+     ==
+        fvm::laplacian(kappa_(), T(), "laplacian(k,T)")
     );
 
     fvScalarMatrices.set
@@ -150,7 +147,7 @@ void Foam::regionTypes::conductTemperature::setCoupledEqns()
       + mesh().name() + "Mesh"
       + conductTemperature::typeName + "Type"
       + "Eqn",
-        TEqn.ptr()
+        &TEqn()
     );
 }
 

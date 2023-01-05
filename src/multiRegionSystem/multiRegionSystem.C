@@ -85,6 +85,8 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
 
     // assemble and solve all matrices one-by-one
     label nReg = 0;
+    DynamicList<M<T>* > eqns;
+
     forAll (regions_(), regI)
     {
         regionType& rg = const_cast<regionType&>(regions_()[regI]);
@@ -96,6 +98,9 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
           + rg.regionTypeName() + "Type"
           + "Eqn"
         );
+
+        // set coupled equation
+        rg.setCoupledEqns();
 
         // Check if coupled field is registered to region 
         // and if it is of correct type
@@ -125,7 +130,11 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
         M<T>& eqn =
             rg.getCoupledEqn<M,T>(matrixSystemName);
 
-        coupledEqns.set(nReg, &eqn);
+//        coupledEqns.set(nReg, &eqn);
+
+        eqns.append(new M<T>(eqn));
+
+        coupledEqns.set(nReg, eqns[nReg]);
 
         nReg++;
     }
@@ -191,6 +200,9 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
           + rg.regionTypeName() + "Type"
           + "Eqn"
         );
+
+        // set coupled equation
+        rg.setCoupledEqns();
 
         // Check if coupled field is registered to region mesh
         // and if it is of correct type
@@ -258,14 +270,14 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
 
         // Memory management:
         // clear coupled equation for transport variable
-        const GeometricField<T, fvPatchField, volMesh>& fld =
-            rg.mesh().lookupObject
-            <
-                GeometricField<T, fvPatchField, volMesh>
-            >(fldName);
+//        const GeometricField<T, fvPatchField, volMesh>& fld =
+//            rg.mesh().lookupObject
+//            <
+//                GeometricField<T, fvPatchField, volMesh>
+//            >(fldName);
 
-        rg.clearCoupledEqn<GeometricField<T, fvPatchField, volMesh> >
-            (fld, rg.regionTypeName());
+//        rg.clearCoupledEqn<GeometricField<T, fvPatchField, volMesh> >
+//            (fld, rg.regionTypeName());
     }
 }
 
