@@ -23,7 +23,7 @@ solvers
         tolerance       1e-15;
         relTol          0;
         minIter         2;
-        maxIter         50;
+        maxIter         250;
     };
 
     Tcoupled
@@ -62,7 +62,7 @@ PISO
 PIMPLE
 {
     // p-U coupling
-    nOuterCorrectors            2; // SIMPLEC loops
+    //nOuterCorrectors            3; // SIMPLEC loops, see constant/fvSolution
     nCorrectors                 2; // PISO loops
     nNonOrthogonalCorrectors    1;
 

@@ -30,13 +30,13 @@ DNA
 {
     T
     {
-        maxCoupleIter 3;
+        maxCoupleIter 20;
 
         residualControl
         {
-            maxJumpRes 1e-4;
+            maxJumpRes 0.5;
             outputJumpResField no;
-            maxFluxRes 1e-3;
+            maxFluxRes 1e-07;
             outputFluxResField no;
         }
     }

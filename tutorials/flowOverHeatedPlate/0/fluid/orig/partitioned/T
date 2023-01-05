@@ -34,7 +34,8 @@ boundaryField
         value                   $internalField;
 */        
         type                    regionCoupledScalarJump;
-        k                       "alpha";
+        k                       "k";
+        relax                   0.5;
         neighbourRegionName     solid;
         neighbourPatchName      top;
         neighbourFieldName      T;

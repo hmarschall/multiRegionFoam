@@ -23,38 +23,32 @@ boundaryField
 {
     interface
     {
-        type            fixedValue;
-        value           $internalField;
+        type            zeroGradient;
     }
     inlet
     {
-        type            fixedValue;
-        value           $internalField;
+        type            zeroGradient;
     }
     outlet
     {
         type            fixedValue;
-        value           $internalField;
+        value           uniform 101325;
     }
     top
     {
-        type            fixedValue;
-        value           $internalField;
+        type            zeroGradient;
     }
     bottom
     {
-        type            fixedValue;
-        value           $internalField;
+        type            zeroGradient;
     }
     slip-bottom
     {
-        type            fixedValue;
-        value           $internalField;
+        type            zeroGradient;
     }
     defaultFaces
     {
-        type            fixedValue;
-        value           $internalField;
+        type            empty;
     }
 }
 

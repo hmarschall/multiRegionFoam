@@ -30,7 +30,7 @@ while getopts "pm" OPTION; do
 
         m)
             cp 0/fluid/orig/monolithic/T 0/fluid/.
-            cp 0/fluid/orig/monolithic/alpha 0/fluid/.
+            cp 0/fluid/orig/monolithic/k 0/fluid/.
             cp 0/solid/orig/monolithic/T 0/solid/.
             cp 0/solid/orig/monolithic/k 0/solid/.
 

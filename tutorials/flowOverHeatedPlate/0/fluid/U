@@ -16,21 +16,20 @@ FoamFile
 
 dimensions      [0 1 -1 0 0 0 0];
 
-internalField   uniform (0.1 0 0);
+internalField   uniform (1 0 0);
 
 boundaryField
 {
     interface
     {
-        //type            noSlip;
-        //type            fixedValue;
-        type            movingWallVelocity;
+/*        type            noSlip;*/
+        type            fixedValue;
         value           uniform (0 0 0);
     }
     inlet
     {
         type            fixedValue;
-        value           $internalField;
+        value           uniform (1 0 0);
     }
     outlet
     {
@@ -38,18 +37,17 @@ boundaryField
     }
     top
     {
-        type            slip;
+        type            zeroGradient;
     }
     bottom
     {
-        //type            noSlip;
-        //type            fixedValue;
-        type            movingWallVelocity;
+/*        type            noSlip;*/
+        type            fixedValue;
         value           uniform (0 0 0);
     }
     slip-bottom
     {
-        type            slip;
+        type            zeroGradient;
     }
     defaultFaces
     {
