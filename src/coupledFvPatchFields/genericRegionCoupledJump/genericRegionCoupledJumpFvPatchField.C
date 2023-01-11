@@ -159,10 +159,10 @@ genericRegionCoupledJumpFvPatchField<Type>::gradientBoundaryCoeffs() const
 template<class Type>
 void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
 {
-//    if (this->updated())
-//    {
-//        return;
-//    }
+    if (this->updated())
+    {
+        return;
+    }
 
     // Update and correct the region interface physics
     const_cast<regionInterface&>(rgInterface()).update();

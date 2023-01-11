@@ -163,10 +163,10 @@ void genericRegionCoupledFluxFvPatchField<Type>::evaluate(const Pstream::commsTy
 template<class Type>
 void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
 {
-//    if (this->updated())
-//    {
-//        return;
-//    }
+    if (this->updated())
+    {
+        return;
+    }
 
     // Update and correct the region interface physics
     const_cast<regionInterface&>(rgInterface()).update();
