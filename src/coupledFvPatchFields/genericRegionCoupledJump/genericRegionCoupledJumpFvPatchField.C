@@ -49,7 +49,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(),
     kName_("k"),
     KName_("K"),
-    relax_(1.0),
+    relaxModel_(p.boundaryMesh().mesh().time(), *this),
     nonOrthCorr_(false),
     secondOrder_(false)
 {}
@@ -70,7 +70,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(grcj.neighbourFieldName_),
     kName_(grcj.kName_),
     KName_(grcj.KName_),
-    relax_(grcj.relax_),
+    relaxModel_(grcj.relaxModel_),
     nonOrthCorr_(grcj.nonOrthCorr_),
     secondOrder_(grcj.secondOrder_)
 {}
@@ -90,7 +90,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(this->dimensionedInternalField().name()),
     kName_(dict.lookup("k")),
     KName_(dict.lookupOrDefault<word>("K", word::null)),
-    relax_(dict.lookupOrDefault<scalar>("relax",1.0)),
+    relaxModel_(p.boundaryMesh().mesh().time(), dict, *this),
     nonOrthCorr_(dict.lookupOrDefault<Switch>("nonOrthCorr",false)),
     secondOrder_(dict.lookupOrDefault<Switch>("secondOrder",false))
 {
@@ -121,7 +121,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(grcj.neighbourFieldName_),
     kName_(grcj.kName_),
     KName_(grcj.KName_),
-    relax_(grcj.relax_),
+    relaxModel_(grcj.relaxModel_),
     nonOrthCorr_(grcj.nonOrthCorr_),
     secondOrder_(grcj.secondOrder_)
 {}
@@ -187,18 +187,16 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
     fieldNbrToOwn += valueJump();
 
     Field<Type>& patchField = *this;
+    patchField = fieldNbrToOwn;
 
-    patchField = *this + relax_*(fieldNbrToOwn - *this);
+    Info << "updateCoeffs in coupledJumpFvPatchField" << endl;
+
+    relaxModel_.relax(patchField);
 
     // Enforce fixed value condition
     fvPatchField<Type>::operator==
     (
-        *this 
-      + relax_*
-        (
-            fieldNbrToOwn 
-          - *this
-        )
+        1.0 * patchField
     );
 
     updatePhi();
@@ -399,7 +397,6 @@ void genericRegionCoupledJumpFvPatchField<Type>::write
     os.writeKeyword("neighbourFieldName") << neighbourFieldName_ 
         << token::END_STATEMENT << nl;
     os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
-    os.writeKeyword("relax") << relax_ << token::END_STATEMENT << nl;
     os.writeKeyword("nonOrthCorr") << nonOrthCorr_ 
         << token::END_STATEMENT << nl;
     os.writeKeyword("secondOrder") << secondOrder_ 
