@@ -91,15 +91,13 @@ public:
         relaxationModel
         (
             const Time& runTime,
-            const dictionary& dict,
-            const Field<Type> fld
+            const dictionary& dict
         );
 
         //- Construct from runTime
         relaxationModel
         (
-            const Time& runTime,
-            const Field<Type> fld
+            const Time& runTime
         );
 
         //- Construct as copy
@@ -131,6 +129,8 @@ public:
             };
 
         // Edit
+            void initialize(const Field<Type> &field);
+
             //- Relax field 
             virtual void relax(Field<Type> &field);
 

@@ -32,14 +32,13 @@ template<class Type>
 Foam::relaxationModel<Type>::relaxationModel
 (
     const Time& runTime,
-    const dictionary& dict,
-    const Field<Type> fld
+    const dictionary& dict
 )
 :
     runTime_(runTime),
     curTime_(runTime.value()),
     corr_(0),
-    prevFld_(fld),
+    prevFld_(),
     resFld_(),
     prevResFld_(),
     initRelax_(dict.lookupOrDefault<scalar>("relax",1.0))
@@ -48,14 +47,13 @@ Foam::relaxationModel<Type>::relaxationModel
 template<class Type>
 Foam::relaxationModel<Type>::relaxationModel
 (
-    const Time& runTime,
-    const Field<Type> fld
+    const Time& runTime
 )
 :
     runTime_(runTime),
     curTime_(runTime.value()),
     corr_(0),
-    prevFld_(fld),
+    prevFld_(),
     resFld_(),
     prevResFld_(),
     initRelax_(1.0)
@@ -86,8 +84,21 @@ Foam::relaxationModel<Type>::~relaxationModel()
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 template<class Type>
+void Foam::relaxationModel<Type>::initialize(const Field<Type> &initFld)
+{
+    prevFld_ = initFld;
+}
+
+template<class Type>
 void Foam::relaxationModel<Type>::relax(Field<Type> &curFld)
 {
+    if (prevFld_.empty())
+    {
+        FatalErrorIn("relaxationModel<Type>::relax(Field<Type> &curFld)")
+            << "relaxationModel has not been initialised"
+            << abort(FatalError);
+    }
+
     //- Check if solver time is time saved by relaxation model
     if (runTime_.value() != curTime_)
     {

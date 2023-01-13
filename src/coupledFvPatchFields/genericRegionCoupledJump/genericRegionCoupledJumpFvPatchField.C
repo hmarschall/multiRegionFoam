@@ -49,10 +49,12 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(),
     kName_("k"),
     KName_("K"),
-    relaxModel_(p.boundaryMesh().mesh().time(), *this),
+    relaxModel_(p.boundaryMesh().mesh().time()),
     nonOrthCorr_(false),
     secondOrder_(false)
-{}
+{
+    relaxModel_.initialize(*this);
+}
 
 template<class Type>
 genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
@@ -90,7 +92,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(this->dimensionedInternalField().name()),
     kName_(dict.lookup("k")),
     KName_(dict.lookupOrDefault<word>("K", word::null)),
-    relaxModel_(p.boundaryMesh().mesh().time(), dict, *this),
+    relaxModel_(p.boundaryMesh().mesh().time(), dict),
     nonOrthCorr_(dict.lookupOrDefault<Switch>("nonOrthCorr",false)),
     secondOrder_(dict.lookupOrDefault<Switch>("secondOrder",false))
 {
@@ -105,6 +107,8 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     {
         this->evaluate();
     }
+
+    relaxModel_.initialize(*this);
 }
 
 template<class Type>
@@ -186,18 +190,14 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
     // Add interfacial jump
     fieldNbrToOwn += valueJump();
 
-    Field<Type>& patchField = *this;
-    patchField = fieldNbrToOwn;
-
-    Info << "updateCoeffs in coupledJumpFvPatchField" << endl;
-
-    relaxModel_.relax(patchField);
-
     // Enforce fixed value condition
     fvPatchField<Type>::operator==
     (
-        1.0 * patchField
+        fieldNbrToOwn
     );
+
+    // Relax fixed value condition
+    relaxModel_.relax(*this);
 
     updatePhi();
 

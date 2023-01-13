@@ -32,22 +32,20 @@ template<class Type>
 Foam::fixedRelaxation<Type>::fixedRelaxation
 (
     const Time& runTime,
-    const dictionary& dict,
-    const Field<Type> fld
+    const dictionary& dict
 )
 :
-    relaxationModel<Type>(runTime, dict, fld),
+    relaxationModel<Type>(runTime, dict),
     relax_(this->initRelax_)
 {}
 
 template<class Type>
 Foam::fixedRelaxation<Type>::fixedRelaxation
 (
-    const Time& runTime,
-    const Field<Type> fld
+    const Time& runTime
 )
 :
-    relaxationModel<Type>(runTime, fld),
+    relaxationModel<Type>(runTime),
     relax_(this->initRelax_)
 {}
 
