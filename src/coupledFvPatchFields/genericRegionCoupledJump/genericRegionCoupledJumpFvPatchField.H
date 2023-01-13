@@ -60,6 +60,7 @@ SourceFiles
 #include "regionInterface.H"
 #include "fixedValueFvPatchFields.H"
 #include "gradScheme.H"
+#include "fixedRelaxation.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -96,7 +97,7 @@ protected:
         word KName_;
 
         //- Relaxation factor for BC update
-        scalar relax_;
+        fixedRelaxation<Type> relaxModel_;
 
         //- NonOrthogonal correction
         Switch nonOrthCorr_;

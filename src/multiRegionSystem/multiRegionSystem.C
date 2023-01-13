@@ -99,26 +99,33 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
           + "Eqn"
         );
 
-        // set coupled equation
-        rg.setCoupledEqns();
-
-        // Check if coupled field is registered to region 
+        // Check if coupled field is registered to region mesh
         // and if it is of correct type
         if
         (
-            !(
-                rg.foundCoupledEqn
+            rg.mesh().thisDb().foundObject
+            <GeometricField<T, fvPatchField, volMesh> >
+            (
+                fldName
+            )
+        )
+        {
+            // set coupled equation
+            rg.setCoupledEqns();
+
+            // Check if this region holds the equation
+            if
+            (
+                !rg.foundCoupledEqn
                 (
                     matrixSystemName
                 )
-             && 
-                rg.mesh().thisDb().foundObject
-                <GeometricField<T, fvPatchField, volMesh> >
-                (
-                    fldName
-                )
             )
-        )
+            {
+                continue;
+            }
+        }
+        else
         {
             continue;
         }
@@ -201,27 +208,33 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
           + "Eqn"
         );
 
-        // set coupled equation
-        rg.setCoupledEqns();
-
         // Check if coupled field is registered to region mesh
         // and if it is of correct type
-        // and if this region holds the equation
         if
         (
-            !(
-                rg.foundCoupledEqn
+            rg.mesh().thisDb().foundObject
+            <GeometricField<T, fvPatchField, volMesh> >
+            (
+                fldName
+            )
+        )
+        {
+            // set coupled equation
+            rg.setCoupledEqns();
+
+            // Check if this region holds the equation
+            if
+            (
+                !rg.foundCoupledEqn
                 (
                     matrixSystemName
                 )
-             && 
-                rg.mesh().thisDb().foundObject
-                <GeometricField<T, fvPatchField, volMesh> >
-                (
-                    fldName
-                )
             )
-        )
+            {
+                continue;
+            }
+        }
+        else
         {
             continue;
         }
@@ -254,10 +267,6 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             << "Solving for " << fldName
             << " in " << rg.regionTypeName()
             << endl;
-
-        // set coupled equation again
-        // since boundary conditions have been updated
-        //rg.setCoupledEqns();
 
         M<T>& eqn =
             rg.getCoupledEqn<M,T>(matrixSystemName);
@@ -495,7 +504,7 @@ Foam::scalar Foam::multiRegionSystem::getMinDeltaT()
 void Foam::multiRegionSystem::solve()
 {
     // Set coupled equations
-    regions_->setCoupledEqns();
+    // regions_->setCoupledEqns();
 
     interfaces_->detach();
 

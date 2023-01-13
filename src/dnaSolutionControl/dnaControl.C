@@ -869,5 +869,9 @@ bool Foam::dnaControl::loop()
         return false;
     }
 
+    Info<< nl 
+    << "DNA iteration: " << corr_
+    << endl;
+
     return true;
 }
