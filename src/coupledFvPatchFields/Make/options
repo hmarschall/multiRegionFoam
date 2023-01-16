@@ -9,6 +9,7 @@ EXE_INC =  \
  -I./interfaceToInterfaceCoupleManager \
  -I./relaxation/relaxationModel \
  -I./relaxation/fixedRelaxation \
+ -I./relaxation/aitkenRelaxation \
  -I./../globalPolyPatch \
  -I./../regionInterfaces/regionInterface
 
