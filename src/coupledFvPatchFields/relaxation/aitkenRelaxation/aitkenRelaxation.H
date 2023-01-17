@@ -35,8 +35,8 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef fixedRelaxation_H
-#define fixedRelaxation_H
+#ifndef aitkenRelaxation_H
+#define aitkenRelaxation_H
 
 #include "relaxationModel.H"
 
