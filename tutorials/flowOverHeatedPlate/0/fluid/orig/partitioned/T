@@ -24,18 +24,21 @@ internalField   uniform 300;
 boundaryField
 {
     interface
-    {
-/*        
-        type                    regionCoupleTemperature;
-        neighbourRegionName     solid;
-        neighbourPatchName      interface;
-        neighbourFieldName      T;
-        K                       1.0;
-        value                   $internalField;
-*/        
+    {     
         type                    regionCoupledScalarJump;
         k                       "k";
-        relax                   0.5;
+
+        // relaxType               fixed;
+        // relax                   0.75;
+
+        // relaxType               aitken;
+        // relax                   0.75;
+
+        relaxType               IQN-ILS;
+        relax                   0.75;
+        couplingReuse           0; //2;
+
+
         neighbourRegionName     solid;
         neighbourPatchName      top;
         neighbourFieldName      T;

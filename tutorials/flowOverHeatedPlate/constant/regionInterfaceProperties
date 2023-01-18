@@ -16,28 +16,6 @@ FoamFile
 
 partitionedCoupledPatches
 (
-/*    fluidsolid*/
-/*    {*/
-/*        interfaceType defaultInterface;*/
-
-/*        coupledPatchPair*/
-/*        (*/
-/*            (fluid interface)*/
-/*            (solid top)*/
-/*        );*/
-
-/*        coupledFields*/
-/*        (*/
-/*            T*/
-/*        );*/
-/*        */
-/*        defaultInterfaceCoeffs*/
-/*        {}*/
-/*    }*/
-);
-
-monolithicCoupledPatches
-(
     fluidsolid
     {
         interfaceType defaultInterface;
@@ -56,6 +34,28 @@ monolithicCoupledPatches
         defaultInterfaceCoeffs
         {}
     }
+);
+
+monolithicCoupledPatches
+(
+    // fluidsolid
+    // {
+    //     interfaceType defaultInterface;
+
+    //     coupledPatchPair
+    //     (
+    //         (fluid interface)
+    //         (solid top)
+    //     );
+
+    //     coupledFields
+    //     (
+    //         T
+    //     );
+        
+    //     defaultInterfaceCoeffs
+    //     {}
+    // }
 );
 
 curvatureCorrectedSurfacePatches 0();
