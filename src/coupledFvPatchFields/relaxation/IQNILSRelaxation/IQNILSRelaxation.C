@@ -84,6 +84,16 @@ Foam::IQNILSRelaxation<Type>::~IQNILSRelaxation()
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 template<class Type>
+void Foam::IQNILSRelaxation<Type>::initialize(const Field<Type> &curFld)
+{
+    Info<< nl
+        << "Initializing IQNILSRelaxation model"
+        << nl << endl;
+
+    Foam::relaxationModel<Type>::initialize(curFld);
+}
+
+template<class Type>
 void Foam::IQNILSRelaxation<Type>::relax(Field<Type> &curFld)
 {
     //- Check if solver time is time saved by relaxation model

@@ -69,6 +69,16 @@ Foam::fixedRelaxation<Type>::~fixedRelaxation()
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 template<class Type>
+void Foam::fixedRelaxation<Type>::initialize(const Field<Type> &curFld)
+{
+    Info<< nl
+        << "Initializing fixedRelaxation model"
+        << nl << endl;
+
+    Foam::relaxationModel<Type>::initialize(curFld);
+}
+
+template<class Type>
 void Foam::fixedRelaxation<Type>::relax(Field<Type> &curFld)
 {
     //- Check if solver time is time saved by relaxation model

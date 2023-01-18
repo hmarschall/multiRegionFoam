@@ -50,15 +50,6 @@ namespace Foam
 template<class Type>
 class relaxationModel
 {
-
-private:
-
-    // Private Member Functions
-
-        //- Disallow default bitwise assignment
-        void operator=(const relaxationModel<Type>&);
-
-
 protected:
 
     // Protected data
@@ -129,7 +120,7 @@ public:
             };
 
         // Edit
-            void initialize(const Field<Type> &field);
+            virtual void initialize(const Field<Type> &field);
 
             //- Relax field 
             virtual void relax(Field<Type> &field);

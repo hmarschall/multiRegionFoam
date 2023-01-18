@@ -84,47 +84,32 @@ Foam::relaxationModel<Type>::~relaxationModel()
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 template<class Type>
-void Foam::relaxationModel<Type>::initialize(const Field<Type> &initFld)
-{
-    prevFld_ = initFld;
-}
-
-template<class Type>
 void Foam::relaxationModel<Type>::relax(Field<Type> &curFld)
 {
-    if (prevFld_.empty())
-    {
-        FatalErrorIn("relaxationModel<Type>::relax(Field<Type> &curFld)")
-            << "relaxationModel has not been initialised"
-            << abort(FatalError);
-    }
-
     //- Check if solver time is time saved by relaxation model
-    if (runTime_.value() != curTime_)
+
+    if (this->runTime_.value() != this->curTime_)
     {
         //- Reset counter for corrector steps
-        corr_ = 1;
-
+        this->corr_ = 1;
         //- Set curent time to solver time
-        curTime_ = runTime_.value();
+        this->curTime_ = this->runTime_.value();
     }
 
     //- Update residuals
-    updateResiual(curFld);
-
-    Info<< nl
-        << "Relaxing field with initial relaxation factor: "
-        << initRelax_ 
-        << endl;
-
-    //- Relax field
-    curFld = prevFld_ + initRelax_ * resFld_;
+    this->updateResiual(curFld);
 
     //- Store relaxed field a new field
-    prevFld_ = curFld;
+    this->prevFld_ = curFld;
 
     //- Increment corrector step counter
-    corr_++;
+    this->corr_++;
+}
+
+template<class Type>
+void Foam::relaxationModel<Type>::initialize(const Field<Type> &initFld)
+{
+    prevFld_ = initFld;
 }
 
 template<class Type>
