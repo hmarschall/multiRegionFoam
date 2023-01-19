@@ -289,7 +289,7 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::rawResidual() const
 }
 
 template<class Type>
-scalarField genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
+scalar genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
 {
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
@@ -326,7 +326,7 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
     //Return normalised residual
     return 
     (
-        rawResidual()/n
+        Foam::sqrt(gSum(magSqr(rawResidual())))/n
     );
 }
 
@@ -373,14 +373,6 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::ofNormResidual() const
         gSum(rawResidual())/n
     );
 
-}
-
-template<class Type>
-scalar genericRegionCoupledJumpFvPatchField<Type>::maxNormResidual() const
-{
-    scalar maxNormResidual = gMax(normResidual());
-
-    return maxNormResidual;
 }
 
 template<class Type>

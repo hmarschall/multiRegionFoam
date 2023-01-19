@@ -144,7 +144,7 @@ void Foam::dnaControl::maxTypeRes
         {
             scalar patchMaxJumpRes = 
                 refCast<const genericRegionCoupledJumpFvPatchField<Type> >
-                (patchAField).ofNormResidual();
+                (patchAField).normResidual();
 
             globalMaxJumpRes = 
                 max
@@ -155,7 +155,7 @@ void Foam::dnaControl::maxTypeRes
             
             scalar patchMaxFluxRes =
                 refCast<const genericRegionCoupledFluxFvPatchField<Type> >
-                (patchBField).ofNormResidual();
+                (patchBField).normResidual();
 
             globalMaxFluxRes = 
                 max
@@ -174,7 +174,7 @@ void Foam::dnaControl::maxTypeRes
             
             scalar patchMaxJumpRes =
                 refCast<const genericRegionCoupledJumpFvPatchField<Type> >
-                (patchBField).ofNormResidual();
+                (patchBField).normResidual();
 
             globalMaxJumpRes = 
                 max
@@ -185,7 +185,7 @@ void Foam::dnaControl::maxTypeRes
             
             scalar patchMaxFluxRes =
                 refCast<const genericRegionCoupledFluxFvPatchField<Type> >
-                (patchAField).ofNormResidual();
+                (patchAField).normResidual();
 
             globalMaxFluxRes = 
                 max
