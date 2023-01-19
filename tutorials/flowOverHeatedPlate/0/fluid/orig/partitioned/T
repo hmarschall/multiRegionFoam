@@ -28,15 +28,15 @@ boundaryField
         type                    regionCoupledScalarJump;
         k                       "k";
 
-        // relaxType               fixed;
-        // relax                   0.75;
+        relaxType               fixed;
+        relax                   1.0;
 
         // relaxType               aitken;
         // relax                   0.75;
 
-        relaxType               IQN-ILS;
-        relax                   0.75;
-        couplingReuse           0; //2;
+        // relaxType               IQN-ILS;
+        // relax                   0.75;
+        // couplingReuse           0; //2;
 
 
         neighbourRegionName     solid;
