@@ -34,7 +34,7 @@ DNA
 
         residualControl
         {
-            maxJumpRes 0.5;
+            maxJumpRes 1e-07;
             outputJumpResField no;
             maxFluxRes 1e-07;
             outputFluxResField no;

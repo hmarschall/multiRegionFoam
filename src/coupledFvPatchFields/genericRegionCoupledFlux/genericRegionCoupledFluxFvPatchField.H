@@ -193,14 +193,11 @@ public:
         scalarField rawResidual() const;
 
         //- Return the normalized coupled patch residual
-        scalarField normResidual() const;
+        scalar normResidual() const;
 
         //- Return the normalized coupled patch residual
         //- normalised similar to linear system solver residuals
         scalar ofNormResidual() const;
-
-        //- Return the maximum normalized coupled patch residual
-        scalar maxNormResidual() const;
 
         //- Write
         virtual void write(Ostream&) const;

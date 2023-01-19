@@ -54,15 +54,6 @@ class fixedRelaxation
 :
     public relaxationModel<Type>
 {
-
-private:
-
-    // Private Member Functions
-
-        //- Disallow default bitwise assignment
-        void operator=(const fixedRelaxation<Type>&);
-
-
 protected:
 
     // Protected data
@@ -102,6 +93,8 @@ public:
     // Member Functions
 
         // Edit
+            virtual void initialize(const Field<Type> &field);
+            
             //- Relax field 
             virtual void relax(Field<Type> &field);
 };

@@ -10,6 +10,7 @@ EXE_INC =  \
  -I./relaxation/relaxationModel \
  -I./relaxation/fixedRelaxation \
  -I./relaxation/aitkenRelaxation \
+ -I./relaxation/IQNILSRelaxation \
  -I./../globalPolyPatch \
  -I./../regionInterfaces/regionInterface
 
