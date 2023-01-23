@@ -508,8 +508,14 @@ void Foam::multiRegionSystem::solve()
 
     interfaces_->detach();
 
+    //- Initial cpu time call
+    runTime_.cpuTimeIncrement();
+
     // Solve individual region physics
     regions_->solveRegion();
+
+    Info<< "Solved region specific physics in "
+        << runTime_.cpuTimeIncrement() << " s." << endl;
 
     // Solve pressure-velocity system using PIMPLE
     // Check if at least one region implements PIMPLE loop
@@ -517,6 +523,9 @@ void Foam::multiRegionSystem::solve()
     {
         // PIMPLE p-U-coupling
         regions_->solvePIMPLE();
+
+        Info<< "Solved PIMPLE without coupling in "
+            << runTime_.cpuTimeIncrement() << " s." << endl;
     }
 
     // Solve region-region coupling (partitioned)
@@ -534,6 +543,9 @@ void Foam::multiRegionSystem::solve()
 
             interfaces_->update();
         }
+
+        Info<< "Solved PIMPLE with DNA coupling in "
+            << runTime_.cpuTimeIncrement() << " s." << endl;
     }
 
     //- Solve other region-region coupled fields   
@@ -554,6 +566,9 @@ void Foam::multiRegionSystem::solve()
 
 //            assembleAndSolveEqns<symmTensor>(fldName);
         }
+
+        Info<< "Solved "<< fldName << " field with DNA coupling in "
+            << runTime_.cpuTimeIncrement() << " s." << endl;
     }
 
 
@@ -588,6 +603,9 @@ void Foam::multiRegionSystem::solve()
 //        (
 //            monolithicCoupledVector4Flds_, fldName
 //        );
+
+        Info<< "Solved "<< fldName << " field with monolithic coupling in "
+            << runTime_.cpuTimeIncrement() << " s." << endl;
     }
 }
 
