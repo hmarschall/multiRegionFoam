@@ -70,46 +70,21 @@ class icoFluid
         pimpleControl pimple_;
 
         //- density
-        dimensionedScalar rhoFluid_;
-
         autoPtr<volScalarField> rho_;
 
         //- viscosity
-        dimensionedScalar muFluid_;
-
-        autoPtr<volScalarField> mu_;           
+        autoPtr<volScalarField> nu_;           
 
         //- transport
-        word velocityName_;
         autoPtr<volVectorField> U_;
 
         autoPtr<surfaceScalarField> phi_;
 
-        autoPtr<surfaceScalarField> phiHbyA_;
-
+        //- pressure
         autoPtr<volScalarField> p_;
 
-        //- fields for p-U coupling
-        autoPtr<volScalarField> AU_;
-
-        autoPtr<volVectorField> HU_;
-
-        IOobject UfHeader_;
-
-        surfaceVectorField Uf_;
-
-        //- gradients
-        autoPtr<volVectorField> gradp_;
-
-        autoPtr<volTensorField> gradU_;
-
-        //- pcorr
-        wordList pcorrTypes_;
-
-        autoPtr<volScalarField> pcorr_;
-
-        //- Under-relaxation factor
-        const scalar UUrf_;
+        //- field for p-U coupling
+        volScalarField rAU_;
 
         //- closed volume?
         Switch closedVolume_;
@@ -123,12 +98,6 @@ class icoFluid
         //- Reference pressure value
         scalar pRefValue_;
 
-        //- residual for inner correctors
-        scalar innerResidual_;
-
-        //- residual for pressure outer correctors
-        scalar residualPressure_;
-
         //- Current corrector loop index
         label corr_;
 
@@ -137,6 +106,7 @@ class icoFluid
 
         //- Moving reference frames
         MRFZones mrfZones_;
+
         label myTimeIndex_;
 
         //- Adjustable time-step switch
@@ -150,7 +120,8 @@ class icoFluid
 
         //- Cached momentum matrix
         //  shared between the momentum predictor and pressure corrector
-        tmp<fvVectorMatrix> tUEqn;
+        tmp<fvVectorMatrix> tHUEqn_;
+        tmp<fvVectorMatrix> tddtUEqn_;
 
 public:
 
