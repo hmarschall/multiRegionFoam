@@ -70,27 +70,50 @@ Foam::regionTypes::icoFluid::icoFluid
         )
     ),
     pimple_(mesh()),
-
+    rhoFluid_
+    (
+        transportProperties_.lookup("rho")
+    ),
     rho_(nullptr),
-    nu_(nullptr),
+    muFluid_
+    (
+        transportProperties_.lookup("mu")
+    ),
+    mu_(nullptr),
+    velocityName_
+    (
+        mesh().solutionDict()
+        .lookupOrDefault<word>("velocityName", "U")
+    ),
     U_(nullptr),
     phi_(nullptr),
+    phiHbyA_(nullptr),
     p_(nullptr),
-
-    rAU_
+    AU_(nullptr),
+    HU_(nullptr),
+    UfHeader_
     (
-        IOobject
-        (
-            "rAU",
-            runTime.timeName(),
-            mesh(),
-            IOobject::READ_IF_PRESENT,
-            IOobject::AUTO_WRITE
-        ),
+        "Uf",
+        mesh().time().timeName(),
         mesh(),
-        runTime.deltaT(),
-        zeroGradientFvPatchScalarField::typeName
+        IOobject::READ_IF_PRESENT,
+        IOobject::AUTO_WRITE
     ),
+    Uf_
+    (
+        UfHeader_,
+        mesh(),
+        dimensionedVector("0", dimVelocity, vector::zero)
+    ),
+    gradp_(nullptr),
+    gradU_(nullptr),
+    pcorrTypes_(),
+    pcorr_(nullptr),
+    UUrf_ 
+    ( 
+        mesh().solutionDict().subDict("relaxationFactors")
+        .lookupOrDefault<scalar>(velocityName_, 1)   
+    ), 
 
     closedVolume_
     (
@@ -107,6 +130,8 @@ Foam::regionTypes::icoFluid::icoFluid
     (
         readScalar(mesh().solutionDict().subDict("PISO").lookup("pRefValue"))
     ),
+    innerResidual_(1),
+    residualPressure_(1),
 
     corr_(0),
     corrNonOrtho_(0),
@@ -128,46 +153,429 @@ Foam::regionTypes::icoFluid::icoFluid
         mesh().time().controlDict().lookupOrDefault<scalar>("maxDeltaT", GREAT)
     )
 {
-    rho_ = lookupOrRead<volScalarField>
-    (
-        mesh(),
-        "rho", 
-        dimensionedScalar(transportProperties_.lookup("rho")),
-        false
-    );
+    // look up density field from object registry
+    if (mesh().foundObject<volScalarField>("rho"))
+    {
+        Info << nl << "Using already existing desity field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
 
-    nu_ = lookupOrRead<volScalarField>
-    (
-        mesh(),
-        "nu", 
-        dimensionedScalar(transportProperties_.lookup("nu")),
-        false
-    );
+        rho_.reset
+        (
+            const_cast<volScalarField*>
+            (
+                &mesh().lookupObject<volScalarField>("rho")
+            )
+        );
+    }
+    else // create new density field
+    {
+        rho_.reset
+        (
+            new volScalarField
+            (
+		        IOobject
+                (
+                    "rho",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                mesh(),
+                rhoFluid_
+            )
+        );
+    }
 
-    U_ = lookupOrRead<volVectorField>
-    (
-        mesh(), 
-        "U"
-    );
+    // look up viscosity field from object registry
+    if (mesh().foundObject<volScalarField>("mu"))
+    {
+        Info << nl << "Using already existing viscosity field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
 
-    phi_ = lookupOrRead<surfaceScalarField>
-    (
-        mesh(),
-        "phi",
-        false,
-        true,
-        linearInterpolate(U_()) & mesh().Sf()
-    );
+        mu_.reset
+        (
+            const_cast<volScalarField*>
+            (
+                &mesh().lookupObject<volScalarField>("mu")
+            )
+        );
+    }
+    else // create new density field
+    {
+        mu_.reset
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "mu",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                mesh(),
+                muFluid_
+            )
+        );
+    }
 
+    // look up velocity field from object registry
+    if (mesh().foundObject<volVectorField>("U"))
+    {
+        Info << nl << "Using already existing velocity field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
+
+        U_.reset
+        (
+            const_cast<volVectorField*>
+            (
+                &mesh().lookupObject<volVectorField>("U")
+            )
+        );
+    }
+    else // read velocity field
+    {
+        U_.reset
+        (
+            new volVectorField
+            (
+                IOobject
+                (
+                    "U",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::MUST_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh()
+            )
+        );
+    }
+
+    // look up flux field from object registry
+    if (mesh().foundObject<surfaceScalarField>("phi"))
+    {
+        Info << nl << "Using already existing flux field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
+
+        phi_.reset
+        (
+            const_cast<surfaceScalarField*>
+            (
+                &mesh().lookupObject<surfaceScalarField>("phi")
+            )
+        );
+    }
+    else // use pre-set velocity field
+    {
+        phi_.reset
+        (
+            new surfaceScalarField
+            (
+		        IOobject
+		        (
+			        "phi",
+                    mesh().time().timeName(),
+                    mesh(),
+			        IOobject::NO_READ,
+			        IOobject::AUTO_WRITE
+		        ),
+		        linearInterpolate(U_()) & mesh().Sf()
+            )
+        );
+    }
     phi_().oldTime();
 
+    // look up phiHbyA_ field from object registry
+    if (mesh().foundObject<surfaceScalarField>("phiHbyA"))
+    {
+        Info << nl << "Using already existing phiHbyA field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
+
+        phiHbyA_.reset
+        (
+            const_cast<surfaceScalarField*>
+            (
+                &mesh().lookupObject<surfaceScalarField>("phiHbyA")
+            )
+        );
+    }
+    else // use pre-set flux field
+    {
+        phiHbyA_.reset
+        (
+            new surfaceScalarField
+            (
+                IOobject
+                (
+                    "phiHbyA",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                phi_()
+            )
+        );
+    }
+
     // look up pressure field from object registry
-    p_ = lookupOrRead<volScalarField>
+    if (mesh().foundObject<volScalarField>("p"))
+    {
+        Info << nl << "Using already existing pressure field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
+
+        p_.reset
+        (
+            const_cast<volScalarField*>
+            (
+                &mesh().lookupObject<volScalarField>("p")
+            )
+        );
+    }
+    else // create new pressure field
+    {
+        p_.reset
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "p",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::MUST_READ,
+                    IOobject::AUTO_WRITE
+                ),
+                mesh()
+            )
+        );
+    }
+
+    // look up AU field from object registry
+    if (mesh().foundObject<volScalarField>("AU"))
+    {
+        Info << nl << "Using already existing AU field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
+
+        AU_.reset
+        (
+            const_cast<volScalarField*>
+            (
+                &mesh().lookupObject<volScalarField>("AU")
+            )
+        );
+    }
+    else // create new AU field
+    {
+        AU_.reset
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "AU",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::NO_WRITE,
+                    false
+                ),
+                mesh(),
+                dimMass/(dimVolume*dimTime),
+                zeroGradientFvPatchScalarField::typeName
+            )
+        );
+    }
+ 
+    // look up HU field from object registry
+    if (mesh().foundObject<volVectorField>("HU"))
+    {
+        Info << nl << "Using already existing HU field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
+
+        HU_.reset
+        (
+            const_cast<volVectorField*>
+            (
+                &mesh().lookupObject<volVectorField>("HU")
+            )
+        );
+    }
+    else // create new HU field
+    {
+        HU_.reset
+        (
+            new volVectorField
+            (
+                IOobject
+                (
+                    "HU",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::READ_IF_PRESENT,
+                    IOobject::NO_WRITE
+                ),
+                mesh(),
+                dimMass/sqr(dimLength*dimTime),
+                zeroGradientFvPatchVectorField::typeName
+            )
+        );
+    }
+
+    // look up pressure gradient field from object registry
+    if (mesh().foundObject<volVectorField>("grad(p)"))
+    {
+        Info << nl << "Using already existing pressure gradient field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
+
+        gradp_.reset
+        (
+            const_cast<volVectorField*>
+            (
+                &mesh().lookupObject<volVectorField>("grad(p)")
+            )
+        );
+    }
+    else // create new pressure gradient field
+    {
+        gradp_.reset
+        (
+            new volVectorField
+            (
+                IOobject
+                (
+                    "grad(p)",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                fvc::grad(p_())   
+            )
+        );
+    }
+
+    // look up velocity gradient field from object registry
+    if (mesh().foundObject<volTensorField>("grad(U)"))
+    {
+        Info << nl << "Using already existing velocity gradient field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
+
+        gradU_.reset
+        (
+            const_cast<volTensorField*>
+            (
+                &mesh().lookupObject<volTensorField>("grad(U)")
+            )
+        );
+    }
+    else // create new velocity gradient field
+    {
+        gradU_.reset
+        (
+            new volTensorField
+            (
+                IOobject
+                (
+                    "grad(U)",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                fvc::grad(U_()) 
+            )
+        );
+    }
+
+    pcorrTypes_ = wordList
     (
-        mesh(), 
-        "p"
+        p_().boundaryField().size(),
+        zeroGradientFvPatchScalarField::typeName
     );
     
+    for (label i = 0; i<p_().boundaryField().size(); i++)
+    {
+        if (p_().boundaryField()[i].fixesValue())
+        {
+            pcorrTypes_[i] = fixedValueFvPatchScalarField::typeName;
+        }
+    };  
+
+    // look up pressure correction field from object registry
+    if (mesh().foundObject<volScalarField>("pcorr"))
+    {
+        Info << nl << "Using already existing pressure correction field in region "
+             << mesh().name()
+             << " for regionType "
+             << this->name()
+             << nl << endl;
+
+        pcorr_.reset
+        (
+            const_cast<volScalarField*>
+            (
+                &mesh().lookupObject<volScalarField>("pcorr")
+            )
+        );
+    }
+    else // create new pressure correction field
+    {
+        pcorr_.reset
+        (
+            new volScalarField
+            (
+                IOobject
+                (
+                    "pcorr",
+                    mesh().time().timeName(),
+                    mesh(),
+                    IOobject::NO_READ,
+                    IOobject::NO_WRITE
+                ),
+                mesh(),
+                dimensionedScalar("pcorr", p_().dimensions(), 0.0),
+                pcorrTypes_
+            )
+        );
+    }
+    
+    gradU_().checkIn();
+    gradp_().checkIn();
+
     IOdictionary fvSchemesDict
     (
         IOobject
@@ -192,11 +600,12 @@ Foam::regionTypes::icoFluid::icoFluid
 
     // Get pressure reference cell
 #   include "setRefCell.H"
+}
 
-    // left from createFields    
+// left from createFields    
 //#   include "createUf.H"
 //#   include "createSf.H"
-}
+//#   include "setRefCell.H"
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
@@ -274,34 +683,52 @@ void Foam::regionTypes::icoFluid::momentumPredictor()
         << nl << endl;
 
         // Make the fluxes relative to the mesh motion
-        fvc::makeRelative(phi_(), U_());
+        phi_() == (phi_() - fvc::meshPhi(rho_(), U_()));
+//        fvc::makeRelative(phi_(), U_());
+
+//        mrfZones_.translationalMRFs().correctBoundaryVelocity(U_(), phi_());
 
         U_().storePrevIter();
 
-        // Time derivative matrix
-        tddtUEqn_ = fvm::ddt(U_());
-        fvVectorMatrix& ddtUEqn = tddtUEqn_();
-
-        mrfZones_.translationalMRFs().addFrameAcceleration(ddtUEqn);
-
         // Convection-diffusion matrix
-        tHUEqn_ =
+        fvVectorMatrix HUEqn
         (
-            fvm::div(phi_(), U_(), "div(phi,U)")
-          - fvm::laplacian(nu_(), U_())
+            fvm::div(fvc::interpolate(rho_())*phi_(), U_(), "div(phi,U)")
+          - fvm::laplacian(mu_(), U_())
         );
-        fvVectorMatrix& HUEqn = tHUEqn_();
+
+        // Time derivative matrix
+        fvVectorMatrix ddtUEqn(fvm::ddt(rho_(), U_()));
+
+//        if (myTimeIndex_ < mesh().time().timeIndex())
+        {
+            mrfZones_.translationalMRFs().addFrameAcceleration(ddtUEqn, rho_());
+
+//            myTimeIndex_ = mesh().time().timeIndex();
+        }
+
+        // UEqn
+        tUEqn = ddtUEqn + HUEqn;
+        fvVectorMatrix& UEqn = tUEqn();
+
+        // Save source and boundaryCoeffs
+        vectorField S0 = UEqn.source();
+        FieldField<Field, vector> B0 = UEqn.boundaryCoeffs();
+
+
+        // Relax and solve momentum equation
+        UEqn.relax(UUrf_);
 
         if (pimple_.momentumPredictor()) 
         {
-            solve(ddtUEqn + HUEqn == -fvc::grad(p_()));
+            solve(UEqn == -gradp_());
         }
 
-        // Store rAU for pressure correction 
-        //rAU_ = 1.0/HUEqn.A();
-
-        // Prepare clean 1/a_p without time derivative contribution
-        rAU_ = 1.0/HUEqn.A();
+        // reset equation to ensure relaxation parameter 
+        // is not causing problems with time consistency
+        UEqn = (ddtUEqn + HUEqn);
+        UEqn.source() = S0;
+        UEqn.boundaryCoeffs() = B0;
 }
 
 void Foam::regionTypes::icoFluid::pressureCorrector()
@@ -310,22 +737,35 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
         << " in region " << mesh().name() 
         << nl << endl;
 
-    fvVectorMatrix& ddtUEqn = tddtUEqn_();
-    fvVectorMatrix& HUEqn = tHUEqn_();
+    fvVectorMatrix& UEqn = tUEqn();
 
     // --- PISO loop
     while (pimple_.correct())
     {
         p_().storePrevIter();   
 
-        // Calculate U from convection-diffusion matrix
-        U_() = rAU_*HUEqn.H();
+        AU_() = UEqn.A();
+        HU_() = UEqn.H();
 
-        pimple_.calcTransientConsistentFlux(phi_(), U_(), rAU_, ddtUEqn);
-        // phi_() =
-        // (
-        //     fvc::interpolate(U_()) & mesh().Sf()
-        // );
+        U_() = HU_()/AU_();
+
+        phi_() =
+        (
+            (fvc::interpolate(HU_())/fvc::interpolate(AU_()))
+          & mesh().Sf()
+        );
+
+//        phi_() += fvc::ddtPhiCorr((1.0/AU_())(), rho_, U_(), phi_());
+
+//        phi += fvc::ddtPhiCorr
+//            (
+//                (rho_/AU_())(),
+//                U_(),
+//                phi_()
+//            );
+
+        // Global flux continuity
+//        adjustPhi(phiHbyA_(), U_(), p_());
 
 #       include "correctPatchPhi.H"
 
@@ -333,20 +773,9 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
         {
             fvScalarMatrix pEqn
             (
-                fvm::laplacian
-                (
-                    fvc::interpolate(rAU_)/pimple_.aCoeff("U"),
-                    p_(),
-                    "laplacian(rAU,p)"
-                )
+                fvm::laplacian(1.0/fvc::interpolate(AU_()), p_()) 
              == fvc::div(phi_())
             );
-
-            // fvScalarMatrix pEqn
-            // (
-            //     fvm::laplacian(1.0/fvc::interpolate(AU), p_()) 
-            //  == fvc::div(phi_())
-            // );
 
             // Find reference cell
             if (closedVolume_)
@@ -365,7 +794,7 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
             if (pimple_.finalNonOrthogonalIter())
             {
                 phi_() -= pEqn.flux();
-            }                         
+            }                            
         }
 
         //- Pressure relaxation except for last corrector
@@ -374,19 +803,24 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
             p_().relax();
         }
 
+        // Update of pressure gradient
+        gradp_() = fvc::grad(p_());
+
         // Momentum corrector
-        //U_() -= fvc::grad(p_())*rAU_;
-        pimple_.reconstructTransientVelocity(U_(), phi_(), ddtUEqn, rAU_, p_());
+        U_() -= fvc::grad(p_())/AU_();
 
         U_().correctBoundaryConditions();
-        p_().correctBoundaryConditions();  
+        p_().correctBoundaryConditions();
+
+        // Update of velocity gradient
+        gradU_() = fvc::grad(U_());       
     }
 
-    // set mrf boundary velocity
-    mrfZones_.translationalMRFs().correctBoundaryVelocity(U_(), phi_());
+    {
+        mrfZones_.translationalMRFs().correctBoundaryVelocity(U_(), phi_());
 
-    // set local time index after mrf boundary velocity has been set 
-    myTimeIndex_ = mesh().time().timeIndex();
+        myTimeIndex_ = mesh().time().timeIndex();
+    }
 
     Info<< nl
         << mesh().name() << " Pressure:" << nl
@@ -406,12 +840,12 @@ void Foam::regionTypes::icoFluid::meshMotionCorrector()
 {
     mesh().update();
 
-    // if(!UfHeader_.headerOk())
-    // {
-    //     Uf_ = fvc::interpolate(U_());
-    //     surfaceVectorField n(mesh().Sf()/mesh().magSf());
-    //     Uf_ += n*(phi_()/mesh().magSf() - (n & Uf_));
-    // }
+    if(!UfHeader_.headerOk())
+    {
+        Uf_ = fvc::interpolate(U_());
+        surfaceVectorField n(mesh().Sf()/mesh().magSf());
+        Uf_ += n*(phi_()/mesh().magSf() - (n & Uf_));
+    }
 }
 
 // ************************************************************************* //
