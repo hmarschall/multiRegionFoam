@@ -519,7 +519,7 @@ void Foam::multiRegionSystem::solve()
 
     // Solve pressure-velocity system using PIMPLE
     // Check if at least one region implements PIMPLE loop
-    if (regions_->active())
+    if (regions_->active() && !partitionedCoupledFldNames_.contains("UpPimple"))
     {
         // PIMPLE p-U-coupling
         regions_->solvePIMPLE();
