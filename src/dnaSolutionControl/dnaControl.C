@@ -98,6 +98,9 @@ void Foam::dnaControl::read()
         dnaResControl_.transfer(data);
     }
 
+    globalMaxJumpRes_.setSize(dnaResControl_.size());
+    globalMaxFluxRes_.setSize(dnaResControl_.size());
+
     if (debug)
     {
         forAll (dnaResControl_, i)
@@ -433,6 +436,101 @@ void Foam::dnaControl::writeResFlds
     // writeResFlds<tensor8>(interface, fldName, outputJumpResFieldoutputFluxResField, final);
 }
 
+void Foam::dnaControl::outputMaxResInfo
+(
+    bool criteriaSatisfied, 
+    label corr
+)
+{
+    if ((!dnaResControl_.empty()))
+    {
+        // output initial and final residual
+        if(corr == 2)
+        {
+            forAll (dnaResControl_, ctrlI)
+            {
+                word fldName = dnaResControl_[ctrlI].name;
+
+                Info<< "    " 
+                    << fldName 
+                    << " initialMaxJumpRes: " 
+                    << globalMaxJumpRes_[ctrlI] 
+                    << nl 
+                    << "    "
+                    << fldName
+                    << " initialMaxFluxRes: " 
+                    << globalMaxFluxRes_[ctrlI]
+                    << endl;
+            }
+            
+        forAll (interfaces_, intI)
+            {
+                forAll (dnaResControl_, ctrlI)
+                {
+                    word subFieldName = dnaResControl_[ctrlI].name;
+
+                    Switch outputJumpResField =
+                        dnaResControl_[ctrlI].outputJumpResField;
+
+                    Switch outputFluxResField =
+                        dnaResControl_[ctrlI].outputFluxResField;
+
+                    writeResFlds
+                    (
+                        interfaces_[intI],
+                        subFieldName,
+                        outputJumpResField,
+                        outputFluxResField,
+                        false
+                    );
+                }
+            }
+        }
+
+        if(criteriaSatisfied || corr > maxCoupleIter_)
+        {
+            forAll (dnaResControl_, ctrlI)
+            {
+                word fldName = dnaResControl_[ctrlI].name;
+
+                Info<< "    "
+                    << fldName
+                    << " finalMaxJumpRes: "
+                    << globalMaxJumpRes_[ctrlI]
+                    << nl 
+                    << "    "
+                    << fldName
+                    << " finalMaxFluxRes: "
+                    << globalMaxFluxRes_[ctrlI]
+                    << endl;
+            }
+
+            forAll (interfaces_, intI)
+            {
+                forAll (dnaResControl_, ctrlI)
+                {
+                    word subFieldName = dnaResControl_[ctrlI].name;
+
+                    Switch outputJumpResField =
+                        dnaResControl_[ctrlI].outputJumpResField;
+
+                    Switch outputFluxResField =
+                        dnaResControl_[ctrlI].outputFluxResField;
+
+                    writeResFlds
+                    (
+                        interfaces_[intI],
+                        subFieldName,
+                        outputJumpResField,
+                        outputFluxResField,
+                        true
+                    );
+                }
+            }
+        }
+    }
+}
+
 bool Foam::dnaControl::criteriaSatisfied()
 {
     if (dnaResControl_.empty())
@@ -441,39 +539,14 @@ bool Foam::dnaControl::criteriaSatisfied()
     }
 
     // no checks on first iteration - nothing has been calculated yet
-    // only write initial residual fields
     if (corr_ == 1)
     {
-        forAll (interfaces_, intI)
-        {
-            forAll (dnaResControl_, ctrlI)
-            {
-                word subFieldName = dnaResControl_[ctrlI].name;
-
-                Switch outputJumpResField =
-                    dnaResControl_[ctrlI].outputJumpResField;
-
-                Switch outputFluxResField =
-                    dnaResControl_[ctrlI].outputFluxResField;
-
-                writeResFlds
-                (
-                    interfaces_[intI],
-                    subFieldName,
-                    outputJumpResField,
-                    outputFluxResField,
-                    false
-                );
-            }
-        }
         return false;
     }
 
-    //- List of max interface residuals for each subField
-    List<scalar> globalMaxJumpRes(dnaResControl_.size());
-    List<scalar> globalMaxFluxRes(dnaResControl_.size());
-    globalMaxJumpRes = 0;
-    globalMaxFluxRes = 0;
+    //- Reset global max residuals to zero in each coupling iteration
+    globalMaxJumpRes_ = 0;
+    globalMaxFluxRes_ = 0;
 
     forAll (interfaces_, intI)
     {
@@ -485,8 +558,8 @@ bool Foam::dnaControl::criteriaSatisfied()
             (
                 interfaces_[intI],
                 subFieldName,
-                globalMaxJumpRes[ctrlI],
-                globalMaxFluxRes[ctrlI]
+                globalMaxJumpRes_[ctrlI],
+                globalMaxFluxRes_[ctrlI]
             );
         }
     }
@@ -497,74 +570,14 @@ bool Foam::dnaControl::criteriaSatisfied()
     {
         criteriaSatisfied =
             criteriaSatisfied 
-         && (globalMaxJumpRes[ctrlI] <= dnaResControl_[ctrlI].maxJumpRes);
+         && (globalMaxJumpRes_[ctrlI] <= dnaResControl_[ctrlI].maxJumpRes);
         
         criteriaSatisfied =
             criteriaSatisfied
-         && (globalMaxFluxRes[ctrlI] <= dnaResControl_[ctrlI].maxFluxRes);
+         && (globalMaxFluxRes_[ctrlI] <= dnaResControl_[ctrlI].maxFluxRes);
     }
 
-    // output initial and final residual
-    if(corr_ == 2)
-    {
-        forAll (dnaResControl_, ctrlI)
-        {
-            word fldName = dnaResControl_[ctrlI].name;
 
-            Info<< "    " 
-                << fldName 
-                << " initialMaxJumpRes: " 
-                << globalMaxJumpRes[ctrlI] 
-                << nl 
-                << "    "
-                << fldName
-                << " initialMaxFluxRes: " 
-                << globalMaxFluxRes[ctrlI]
-                << endl;
-        }
-    }
-
-    if(criteriaSatisfied || corr_ == maxCoupleIter_)
-    {
-        forAll (dnaResControl_, ctrlI)
-        {
-            word fldName = dnaResControl_[ctrlI].name;
-
-            Info<< "    "
-                << fldName
-                << " finalMaxJumpRes: "
-                << globalMaxJumpRes[ctrlI]
-                << nl 
-                << "    "
-                << fldName
-                << " finalMaxFluxRes: "
-                << globalMaxFluxRes[ctrlI]
-                << endl;
-        }
-
-        forAll (interfaces_, intI)
-        {
-            forAll (dnaResControl_, ctrlI)
-            {
-                word subFieldName = dnaResControl_[ctrlI].name;
-
-                Switch outputJumpResField =
-                    dnaResControl_[ctrlI].outputJumpResField;
-
-                Switch outputFluxResField =
-                    dnaResControl_[ctrlI].outputFluxResField;
-
-                writeResFlds
-                (
-                    interfaces_[intI],
-                    subFieldName,
-                    outputJumpResField,
-                    outputFluxResField,
-                    true
-                );
-            }
-        }
-    }
 
     return criteriaSatisfied;
 
@@ -791,6 +804,8 @@ Foam::dnaControl::dnaControl
     ),
     interfaces_(interfaces),
     dnaResControl_(),
+    globalMaxJumpRes_(),
+    globalMaxFluxRes_(),
     initJumpResFlds_(),
     initFluxResFlds_(),
     finalJumpResFlds_(),
@@ -842,7 +857,11 @@ bool Foam::dnaControl::loop()
 
     corr_++;
 
-    if (criteriaSatisfied())
+    bool satisfied = criteriaSatisfied();
+
+    outputMaxResInfo(satisfied, corr_);
+
+    if (satisfied)
     {
         Info<< "DNA: converged in "
             << corr_ - 1

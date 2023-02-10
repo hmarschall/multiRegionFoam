@@ -528,47 +528,47 @@ void Foam::multiRegionSystem::solve()
             << runTime_.cpuTimeIncrement() << " s." << endl;
     }
 
-    // Solve region-region coupling (partitioned)
-
-    //- Solve pressure-velocity system using PIMPLE
-    if (partitionedCoupledFldNames_.contains("UpPimple"))
-    {
-        while (dnaControls_["UpPimple"]->loop())
-        {
-            // PIMPLE p-U-coupling
-            regions_->solvePIMPLE();
-
-            // ALE mesh motion corrector
-            regions_->meshMotionCorrector();
-
-            interfaces_->update();
-        }
-
-        Info<< "Solved PIMPLE with DNA coupling in "
-            << runTime_.cpuTimeIncrement() << " s." << endl;
-    }
-
-    //- Solve other region-region coupled fields   
+    // Solve region-region coupling (partitioned)  
     forAll (partitionedCoupledFldNames_, fldI)
     {
         word fldName = partitionedCoupledFldNames_[fldI];
 
-        // outer coupling loop
-        while (dnaControls_[fldName]->loop())
+        //- Solve pressure-velocity system using PIMPLE
+        if (fldName == "UpPimple")
         {
-            assembleAndSolveEqns<fvMatrix, scalar>(fldName);
+            while (dnaControls_[fldName]->loop())
+            {
+                // PIMPLE p-U-coupling
+                regions_->solvePIMPLE();
 
-            assembleAndSolveEqns<fvMatrix, vector>(fldName);
+                // ALE mesh motion corrector
+                regions_->meshMotionCorrector();
 
-            assembleAndSolveEqns<fvMatrix, tensor>(fldName);
+                interfaces_->update();
+            }
 
-            assembleAndSolveEqns<fvBlockMatrix, vector4>(fldName);
-
-//            assembleAndSolveEqns<symmTensor>(fldName);
+            Info<< "Solved PIMPLE with DNA coupling in "
+                << runTime_.cpuTimeIncrement() << " s." << endl;
         }
+        else
+        {
+            //- Solve other partitioned coupled fields
+            while (dnaControls_[fldName]->loop())
+            {
+                assembleAndSolveEqns<fvMatrix, scalar>(fldName);
 
-        Info<< "Solved "<< fldName << " field with DNA coupling in "
-            << runTime_.cpuTimeIncrement() << " s." << endl;
+                assembleAndSolveEqns<fvMatrix, vector>(fldName);
+
+                assembleAndSolveEqns<fvMatrix, tensor>(fldName);
+
+                assembleAndSolveEqns<fvBlockMatrix, vector4>(fldName);
+
+                //assembleAndSolveEqns<symmTensor>(fldName);
+            }
+
+            Info<< "Solved "<< fldName << " field with DNA coupling in "
+                << runTime_.cpuTimeIncrement() << " s." << endl;
+        }
     }
 
 

@@ -350,9 +350,9 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
         (
             min
             (
-                gMax(mag(fluxOwn)), 
-                //gMax(mag(fluxNbrToOwn + fluxJump()))
-                gMax(mag(fluxNbrToOwn))
+                Foam::sqrt(gSum(magSqr(fluxOwn))), 
+                Foam::sqrt(gSum(magSqr(-1.0*fluxNbrToOwn + fluxJump())))
+                //gMax(mag(fluxNbrToOwn))
             ),
             SMALL
         );
