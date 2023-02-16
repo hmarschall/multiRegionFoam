@@ -317,8 +317,8 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
         (
             min
             (
-                gMax(mag(fown)), 
-                gMax(mag(fieldNbrToOwn + valueJump))
+                Foam::sqrt(gSum(magSqr(mag(fown)))), 
+                Foam::sqrt(gSum(magSqr(fieldNbrToOwn + valueJump)))
             ),
             SMALL
         );

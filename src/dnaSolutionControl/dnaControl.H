@@ -85,6 +85,10 @@ protected:
         //- List of residual data per sub field
         List<fieldData> dnaResControl_;
 
+        //- List of max interface residuals for each subField
+        List<scalar> globalMaxJumpRes_;
+        List<scalar> globalMaxFluxRes_;
+
         //- Hashed ptr tables for residual fields
         HashPtrTable<volScalarField> initJumpResFlds_;
         HashPtrTable<volScalarField> initFluxResFlds_;
@@ -137,6 +141,12 @@ protected:
             const Switch outputJumpResField,
             const Switch outputFluxResField,
             bool final
+        );
+
+        void outputMaxResInfo
+        (
+            bool criteriaSatisfied,
+            label corr
         );
 
         //- Return true if all convergence checks are satisfied
