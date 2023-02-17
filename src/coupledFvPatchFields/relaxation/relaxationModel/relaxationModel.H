@@ -38,6 +38,12 @@ SourceFiles
 #ifndef relaxationModel_H
 #define relaxationModel_H
 
+#include "autoPtr.H"
+#include "runTimeSelectionTables.H"
+#include "dictionary.H"
+#include "foamTime.H"
+#include "volFields.H"
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -76,25 +82,51 @@ protected:
 
 public:
 
+    //- Runtime type information
+    TypeName("relaxationModel");
+
+
+    //- Declare runtime constructor selection table
+
+        declareRunTimeSelectionTable
+        (
+            autoPtr,
+            relaxationModel,
+            dictionary,
+            (
+                const Time& runTime,
+                const dictionary& dict
+            ),
+            (runTime, dict)
+        );
+
+
     // Constructors
 
         //- Construct from dictionary
         relaxationModel
         (
             const Time& runTime,
-            const dictionary& dict
-        );
-
-        //- Construct from runTime
-        relaxationModel
-        (
-            const Time& runTime
+            const dictionary& dict = dictionary()
         );
 
         //- Construct as copy
         relaxationModel
         (
             const relaxationModel<Type>&
+        );
+
+        //- Construct and return a clone
+        virtual autoPtr<relaxationModel<Type> > clone() const = 0;
+
+    // Selectors
+
+        //- Return a pointer to the selected relaxation model
+        //  created from a dictionary
+        static autoPtr<relaxationModel> New
+        (
+            const Time& runTime,
+            const dictionary& dict = dictionary()
         );
 
 
@@ -123,7 +155,7 @@ public:
             virtual void initialize(const Field<Type> &field);
 
             //- Relax field 
-            virtual void relax(Field<Type> &field);
+            virtual void relax(Field<Type> &field) = 0;
 
             //- Compute residual
             void updateResiual(const Field<Type> &field);
@@ -133,6 +165,26 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#define makeRelaxationModel(Type)                                             \
+                                                                              \
+    defineNamedTemplateTypeNameAndDebug(relaxationModel<Type>, 0);            \
+                                                                              \
+    defineTemplateRunTimeSelectionTable                                       \
+    (                                                                         \
+        relaxationModel<Type>,                                                \
+        dictionary                                                            \
+    );
+
+
+#define makeRelaxationModelType(RS, Type)                                     \
+                                                                              \
+    defineNamedTemplateTypeNameAndDebug(RS<Type>, 0);                         \
+                                                                              \
+    relaxationModel<Type>::adddictionaryConstructorToTable<RS<Type> >       \
+        add##RS##Type##ConstructorToTable_;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

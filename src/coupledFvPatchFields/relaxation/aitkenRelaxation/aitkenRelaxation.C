@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "aitkenRelaxation.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -37,17 +38,11 @@ Foam::aitkenRelaxation<Type>::aitkenRelaxation
 :
     relaxationModel<Type>(runTime, dict),
     aitkenRelax_(this->initRelax_)
-{}
-
-template<class Type>
-Foam::aitkenRelaxation<Type>::aitkenRelaxation
-(
-    const Time& runTime
-)
-:
-    relaxationModel<Type>(runTime),
-    aitkenRelax_(this->initRelax_)
-{}
+{
+    Info<< "Selecting an aitkenRelaxation model for " << dict.dictName() 
+        << " with initial relaxation factor " << this->initRelax_
+        << endl;
+}
 
 template<class Type>
 Foam::aitkenRelaxation<Type>::aitkenRelaxation
