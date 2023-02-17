@@ -67,10 +67,6 @@ Foam::aitkenRelaxation<Type>::~aitkenRelaxation()
 template<class Type>
 void Foam::aitkenRelaxation<Type>::initialize(const Field<Type> &curFld)
 {
-    Info<< nl
-        << "Initializing aitkenRelaxation model"
-        << nl << endl;
-
     Foam::relaxationModel<Type>::initialize(curFld);
 }
 

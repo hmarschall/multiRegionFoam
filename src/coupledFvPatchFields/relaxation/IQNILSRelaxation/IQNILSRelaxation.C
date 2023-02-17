@@ -78,10 +78,6 @@ Foam::IQNILSRelaxation<Type>::~IQNILSRelaxation()
 template<class Type>
 void Foam::IQNILSRelaxation<Type>::initialize(const Field<Type> &curFld)
 {
-    Info<< nl
-        << "Initializing IQNILSRelaxation model"
-        << nl << endl;
-
     Foam::relaxationModel<Type>::initialize(curFld);
 }
 

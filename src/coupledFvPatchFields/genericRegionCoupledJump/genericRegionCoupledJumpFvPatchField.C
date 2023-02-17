@@ -58,7 +58,9 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     ),
     nonOrthCorr_(false),
     secondOrder_(false)
-{}
+{
+    relaxModel_->initialize(*this);
+}
 
 template<class Type>
 genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
