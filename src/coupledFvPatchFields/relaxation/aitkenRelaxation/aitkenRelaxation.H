@@ -63,6 +63,9 @@ protected:
 
 public:
 
+    //- Runtime type information
+    TypeName("aitken");
+
     // Constructors
 
         //- Construct from dictionary
@@ -72,17 +75,20 @@ public:
             const dictionary& dict
         );
 
-        //- Construct from runTime
-        aitkenRelaxation
-        (
-            const Time& runTime
-        );
-
         //- Construct as copy
         aitkenRelaxation
         (
             const aitkenRelaxation<Type>&
         );
+
+        //- Construct and return a clone
+        virtual autoPtr<relaxationModel<Type> > clone() const
+        {
+            return autoPtr<relaxationModel<Type> >
+            (
+                new aitkenRelaxation<Type>(*this)
+            );
+        }
 
 
     // Destructor

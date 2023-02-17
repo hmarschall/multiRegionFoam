@@ -82,6 +82,9 @@ protected:
 
 public:
 
+    //- Runtime type information
+    TypeName("IQNILS");
+
     // Constructors
 
         //- Construct from dictionary
@@ -91,17 +94,19 @@ public:
             const dictionary& dict
         );
 
-        //- Construct from runTime
-        IQNILSRelaxation
-        (
-            const Time& runTime
-        );
-
         //- Construct as copy
         IQNILSRelaxation
         (
             const IQNILSRelaxation<Type>&
         );
+
+        virtual autoPtr<relaxationModel<Type> > clone() const
+        {
+            return autoPtr<relaxationModel<Type> >
+            (
+                new IQNILSRelaxation<Type>(*this)
+            );
+        }
 
 
     // Destructor

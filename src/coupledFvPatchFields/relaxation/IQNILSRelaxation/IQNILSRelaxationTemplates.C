@@ -41,7 +41,7 @@ void Foam::IQNILSRelaxation<Type>::relaxIQNILS(Field<Type> &curFld)
 }
 
 template<>
-inline void Foam::IQNILSRelaxation<scalar>::relaxIQNILS(Field<scalar> &curFld)
+inline void Foam::IQNILSRelaxation<Foam::scalar>::relaxIQNILS(Field<scalar> &curFld)
 {
     label cols = V_.size();
 
@@ -130,7 +130,7 @@ inline void Foam::IQNILSRelaxation<scalar>::relaxIQNILS(Field<scalar> &curFld)
 
 
 template<>
-inline void Foam::IQNILSRelaxation<vector>::relaxIQNILS(Field<vector> &curFld)
+inline void Foam::IQNILSRelaxation<Foam::vector>::relaxIQNILS(Field<vector> &curFld)
 {
     label cols = V_.size();
 

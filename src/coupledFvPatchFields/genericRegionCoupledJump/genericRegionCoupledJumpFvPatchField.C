@@ -49,12 +49,16 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(),
     kName_("k"),
     KName_("K"),
-    relaxModel_(p.boundaryMesh().mesh().time()),
+    relaxModel_
+    (
+        relaxationModel<Type>::New
+        (
+            p.boundaryMesh().mesh().time()
+        )
+    ),
     nonOrthCorr_(false),
     secondOrder_(false)
-{
-    relaxModel_.initialize(*this);
-}
+{}
 
 template<class Type>
 genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
@@ -72,7 +76,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(grcj.neighbourFieldName_),
     kName_(grcj.kName_),
     KName_(grcj.KName_),
-    relaxModel_(grcj.relaxModel_),
+    relaxModel_(grcj.relaxModel_, false),
     nonOrthCorr_(grcj.nonOrthCorr_),
     secondOrder_(grcj.secondOrder_)
 {}
@@ -92,7 +96,14 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(this->dimensionedInternalField().name()),
     kName_(dict.lookup("k")),
     KName_(dict.lookupOrDefault<word>("K", word::null)),
-    relaxModel_(p.boundaryMesh().mesh().time(), dict),
+    relaxModel_
+    (
+        relaxationModel<Type>::New
+        (
+            p.boundaryMesh().mesh().time(),
+            dict
+        )
+    ),
     nonOrthCorr_(dict.lookupOrDefault<Switch>("nonOrthCorr",false)),
     secondOrder_(dict.lookupOrDefault<Switch>("secondOrder",false))
 {
@@ -108,7 +119,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
         this->evaluate();
     }
 
-    relaxModel_.initialize(*this);
+    relaxModel_->initialize(*this);
 }
 
 template<class Type>
@@ -125,7 +136,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(grcj.neighbourFieldName_),
     kName_(grcj.kName_),
     KName_(grcj.KName_),
-    relaxModel_(grcj.relaxModel_),
+    relaxModel_(grcj.relaxModel_, false),
     nonOrthCorr_(grcj.nonOrthCorr_),
     secondOrder_(grcj.secondOrder_)
 {}
@@ -197,7 +208,7 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
     );
 
     // Relax fixed value condition
-    relaxModel_.relax(*this);
+    relaxModel_->relax(*this);
 
     updatePhi();
 

@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "IQNILSRelaxation.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -42,22 +43,13 @@ Foam::IQNILSRelaxation<Type>::IQNILSRelaxation
     T_(),
     fldRef_(),
     resRef_()
-{}
-
-template<class Type>
-Foam::IQNILSRelaxation<Type>::IQNILSRelaxation
-(
-    const Time& runTime
-)
-:
-    relaxationModel<Type>(runTime),
-    reuse_(0),
-    V_(),
-    W_(),
-    T_(),
-    fldRef_(),
-    resRef_()
-{}
+{
+    Info<< "Selecting an IQNILSRelaxation model for " << dict.dictName()
+        << " with initial relaxation factor " << this->initRelax_ << "\n"
+        << "\twhile reusing coupling data from " << this->reuse_ 
+        << " time steps"
+        << endl;
+}
 
 template<class Type>
 Foam::IQNILSRelaxation<Type>::IQNILSRelaxation
