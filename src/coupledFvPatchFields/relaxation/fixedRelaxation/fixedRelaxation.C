@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "fixedRelaxation.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
@@ -37,17 +38,11 @@ Foam::fixedRelaxation<Type>::fixedRelaxation
 :
     relaxationModel<Type>(runTime, dict),
     relax_(this->initRelax_)
-{}
-
-template<class Type>
-Foam::fixedRelaxation<Type>::fixedRelaxation
-(
-    const Time& runTime
-)
-:
-    relaxationModel<Type>(runTime),
-    relax_(this->initRelax_)
-{}
+{
+    Info<< "Selecting an fixedRelaxation model for " << dict.dictName() 
+        << " with fixed relaxation factor " << this->relax_
+        << endl;
+}
 
 template<class Type>
 Foam::fixedRelaxation<Type>::fixedRelaxation

@@ -47,21 +47,6 @@ Foam::relaxationModel<Type>::relaxationModel
 template<class Type>
 Foam::relaxationModel<Type>::relaxationModel
 (
-    const Time& runTime
-)
-:
-    runTime_(runTime),
-    curTime_(runTime.value()),
-    corr_(0),
-    prevFld_(),
-    resFld_(),
-    prevResFld_(),
-    initRelax_(1.0)
-{}
-
-template<class Type>
-Foam::relaxationModel<Type>::relaxationModel
-(
     const relaxationModel<Type>& rM
 )
 :
@@ -84,29 +69,6 @@ Foam::relaxationModel<Type>::~relaxationModel()
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 template<class Type>
-void Foam::relaxationModel<Type>::relax(Field<Type> &curFld)
-{
-    //- Check if solver time is time saved by relaxation model
-
-    if (this->runTime_.value() != this->curTime_)
-    {
-        //- Reset counter for corrector steps
-        this->corr_ = 1;
-        //- Set curent time to solver time
-        this->curTime_ = this->runTime_.value();
-    }
-
-    //- Update residuals
-    this->updateResiual(curFld);
-
-    //- Store relaxed field a new field
-    this->prevFld_ = curFld;
-
-    //- Increment corrector step counter
-    this->corr_++;
-}
-
-template<class Type>
 void Foam::relaxationModel<Type>::initialize(const Field<Type> &initFld)
 {
     prevFld_ = initFld;
@@ -122,7 +84,8 @@ void Foam::relaxationModel<Type>::updateResiual(const Field<Type> &curFld)
     resFld_ = curFld - prevFld_;
 }
 
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-
+#include "newRelaxationModel.C"
 
 // ************************************************************************* //

@@ -63,6 +63,9 @@ protected:
 
 public:
 
+    //- Runtime type information
+    TypeName("fixed");
+
     // Constructors
 
         //- Construct from dictionary
@@ -72,18 +75,19 @@ public:
             const dictionary& dict
         );
 
-        //- Construct from runTime
-        fixedRelaxation
-        (
-            const Time& runTime
-        );
-
         //- Construct as copy
         fixedRelaxation
         (
             const fixedRelaxation<Type>&
         );
 
+        virtual autoPtr<relaxationModel<Type> > clone() const
+        {
+            return autoPtr<relaxationModel<Type> >
+            (
+                new fixedRelaxation<Type>(*this)
+            );
+        }
 
     // Destructor
 

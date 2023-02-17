@@ -41,7 +41,7 @@ void Foam::aitkenRelaxation<Type>::updateAitkenFactor(Field<Type> &curFld)
 }
 
 template<>
-inline void Foam::aitkenRelaxation<vector>::updateAitkenFactor(Field<vector> &curFld)
+inline void Foam::aitkenRelaxation<Foam::vector>::updateAitkenFactor(Field<vector> &curFld)
 {
     if (this->corr_ == 1)
     {
@@ -93,7 +93,7 @@ inline void Foam::aitkenRelaxation<vector>::updateAitkenFactor(Field<vector> &cu
 
 
 template<>
-inline void Foam::aitkenRelaxation<scalar>::updateAitkenFactor(Field<scalar> &curFld)
+inline void Foam::aitkenRelaxation<Foam::scalar>::updateAitkenFactor(Field<scalar> &curFld)
 {
     if (this->corr_ == 1)
     {
