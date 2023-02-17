@@ -49,9 +49,18 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     neighbourPatchName_(),
     neighbourFieldName_(),
     kName_("k"),
+    relaxModel_
+    (
+        relaxationModel<Type>::New
+        (
+            p.boundaryMesh().mesh().time()
+        )
+    ),
     nonOrthCorr_(false),
     secondOrder_(false)
-{}
+{
+    relaxModel_->initialize(*this);
+}
 
 template<class Type>
 genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
@@ -68,6 +77,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     neighbourPatchName_(grcf.neighbourPatchName_),
     neighbourFieldName_(grcf.neighbourFieldName_),
     kName_(grcf.kName_),
+    relaxModel_(grcf.relaxModel_, false),
     nonOrthCorr_(grcf.nonOrthCorr_),
     secondOrder_(grcf.secondOrder_)
 {}
@@ -86,6 +96,14 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     neighbourPatchName_(dict.lookup("neighbourPatchName")),
     neighbourFieldName_(this->dimensionedInternalField().name()),
     kName_(dict.lookup("k")),
+    relaxModel_
+    (
+        relaxationModel<Type>::New
+        (
+            p.boundaryMesh().mesh().time(),
+            dict
+        )
+    ),
     nonOrthCorr_(dict.lookupOrDefault<Switch>("nonOrthCorr",false)),
     secondOrder_(dict.lookupOrDefault<Switch>("secondOrder",false))
 {
@@ -128,6 +146,8 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
             << this->dimensionedInternalField().name()
             << exit(FatalError);
     }
+
+    relaxModel_->initialize(*this);
 }
 
 template<class Type>
@@ -143,6 +163,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     neighbourPatchName_(grcf.neighbourPatchName_),
     neighbourFieldName_(grcf.neighbourFieldName_),
     kName_(grcf.kName_),
+    relaxModel_(grcf.relaxModel_, false),
     nonOrthCorr_(grcf.nonOrthCorr_),
     secondOrder_(grcf.secondOrder_)
 {}
@@ -216,6 +237,9 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
 
     // Add interfacial flux
     this->gradient() = fluxNbrToOwn/k;
+
+    // Relax fixed gradient condition
+    relaxModel_->relax(this->gradient());
 
     fixedGradientFvPatchField<Type>::updateCoeffs();
 }
