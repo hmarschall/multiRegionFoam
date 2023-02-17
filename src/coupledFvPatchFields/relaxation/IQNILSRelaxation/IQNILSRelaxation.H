@@ -128,8 +128,8 @@ public:
             //- Relax the field using IQN-ILS
             void relaxIQNILS(Field<Type> &field);
 
-
-
+        //- Write
+            virtual void write(Ostream&) const;
 };
 
 

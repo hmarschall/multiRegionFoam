@@ -402,6 +402,7 @@ void genericRegionCoupledJumpFvPatchField<Type>::write
     os.writeKeyword("neighbourFieldName") << neighbourFieldName_ 
         << token::END_STATEMENT << nl;
     os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
+    relaxModel_->write(os);
     os.writeKeyword("nonOrthCorr") << nonOrthCorr_ 
         << token::END_STATEMENT << nl;
     os.writeKeyword("secondOrder") << secondOrder_ 

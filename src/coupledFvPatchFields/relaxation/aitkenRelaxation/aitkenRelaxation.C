@@ -104,6 +104,12 @@ void Foam::aitkenRelaxation<Type>::relax(Field<Type> &curFld)
     this->corr_++;
 }
 
+template<class Type>
+void Foam::aitkenRelaxation<Type>::write(Ostream& os) const
+{
+    relaxationModel<Type>::write(os);
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository

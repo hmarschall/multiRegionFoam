@@ -159,6 +159,10 @@ public:
 
             //- Compute residual
             void updateResiual(const Field<Type> &field);
+
+        // I-O
+            //- Write
+            virtual void write(Ostream&) const;
 };
 
 

@@ -106,4 +106,10 @@ void Foam::fixedRelaxation<Type>::relax(Field<Type> &curFld)
     this->corr_++;
 }
 
+template<class Type>
+void Foam::fixedRelaxation<Type>::write(Ostream& os) const
+{
+    relaxationModel<Type>::write(os);
+}
+
 // ************************************************************************* //

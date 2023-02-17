@@ -192,6 +192,12 @@ void Foam::IQNILSRelaxation<Type>::updateVW(Field<Type> &curFld)
     }
 }
 
+template<class Type>
+void Foam::IQNILSRelaxation<Type>::write(Ostream& os) const
+{
+    relaxationModel<Type>::write(os);
+    os.writeKeyword("couplingReuse") << reuse_ << token::END_STATEMENT << nl;
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
