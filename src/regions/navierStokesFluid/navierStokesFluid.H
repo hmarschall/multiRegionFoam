@@ -183,7 +183,7 @@ public:
             return navierStokesFluid::typeName;
         }
 
-        virtual bool active() const
+        virtual bool usesPIMPLE() const
         {
             return true;
         }

@@ -94,7 +94,7 @@ public:
     // Member Functions
 
         //- Return active PIMPLE status
-        bool active(const bool active = false) const;
+        bool usesPIMPLE(const bool warn = false) const;
 
         //- Reset the source list
         void reset(const regionProperties& region);

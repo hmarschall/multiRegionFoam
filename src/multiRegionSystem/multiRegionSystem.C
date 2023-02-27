@@ -519,7 +519,7 @@ void Foam::multiRegionSystem::solve()
 
     // Solve pressure-velocity system using PIMPLE
     // Check if at least one region implements PIMPLE loop
-    if (regions_->active())
+    if (regions_->usesPIMPLE())
     {
         // PIMPLE p-U-coupling
         regions_->solvePIMPLE();
@@ -534,7 +534,7 @@ void Foam::multiRegionSystem::solve()
         word fldName = partitionedCoupledFldNames_[fldI];
 
         //- Solve pressure-velocity system using PIMPLE
-        if (fldName == "UpPimple")
+        if (fldName == "pUPimple")
         {
             while (dnaControls_[fldName]->loop())
             {

@@ -171,7 +171,7 @@ public:
             return word("regionTypeBase");
         }
 
-        virtual bool active() const
+        virtual bool usesPIMPLE() const
         {
             return true;
         }

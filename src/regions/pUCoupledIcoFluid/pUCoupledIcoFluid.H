@@ -204,9 +204,9 @@ public:
             );
         }
 
-        virtual bool active() const
+        virtual bool usesPIMPLE() const
         {
-            return true;
+            return false;
         }
 
         virtual void correct();
