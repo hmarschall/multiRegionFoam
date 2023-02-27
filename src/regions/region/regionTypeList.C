@@ -52,18 +52,18 @@ Foam::regionTypeList::regionTypeList
 {
     reset(region_);
 
-    active(true);
+    usesPIMPLE(true);
 }
 
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-bool Foam::regionTypeList::active(const bool warn) const
+bool Foam::regionTypeList::usesPIMPLE(const bool warn) const
 {
     bool a = false;
     forAll(*this, i)
     {
-        a = a || this->operator[](i).active();
+        a = a || this->operator[](i).usesPIMPLE();
     }
 
     if (warn && this->size() && !a)

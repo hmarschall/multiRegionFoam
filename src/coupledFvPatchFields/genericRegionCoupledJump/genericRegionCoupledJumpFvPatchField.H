@@ -40,6 +40,7 @@ Description
             neighbourFieldName      neighbourField;
             k                       "D";
             K                       "H";
+            relaxType               fixed;
             relax                   0.5;
             nonOrthCorr             yes;
             secondOrder             yes;

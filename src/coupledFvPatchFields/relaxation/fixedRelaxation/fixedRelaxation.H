@@ -101,6 +101,9 @@ public:
             
             //- Relax field 
             virtual void relax(Field<Type> &field);
+
+        //- Write
+            virtual void write(Ostream&) const;
 };
 
 

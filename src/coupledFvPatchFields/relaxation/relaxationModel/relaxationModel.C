@@ -84,6 +84,13 @@ void Foam::relaxationModel<Type>::updateResiual(const Field<Type> &curFld)
     resFld_ = curFld - prevFld_;
 }
 
+template<class Type>
+void Foam::relaxationModel<Type>::write(Ostream& os) const
+{
+    os.writeKeyword("relaxType") << type() << token::END_STATEMENT << nl;
+    os.writeKeyword("relax") << initRelax_ << token::END_STATEMENT << nl;
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #include "newRelaxationModel.C"

@@ -196,7 +196,7 @@ public:
             return icoFluid::typeName;
         }
 
-        virtual bool active() const
+        virtual bool usesPIMPLE() const
         {
             return true;
         }
