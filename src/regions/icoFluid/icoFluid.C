@@ -846,6 +846,39 @@ void Foam::regionTypes::icoFluid::meshMotionCorrector()
         surfaceVectorField n(mesh().Sf()/mesh().magSf());
         Uf_ += n*(phi_()/mesh().magSf() - (n & Uf_));
     }
+
+    label intPatchID = mesh().boundaryMesh().findPatchID("interface");
+
+    if (intPatchID != -1)
+    {
+        Info<< "phi boundary field AFTER mesh motion : sum local = "
+            << gSum(mag(phi_().boundaryField()[intPatchID]))
+            << ", global = "
+            << gSum(phi_().boundaryField()[intPatchID]) << endl;
+
+        Info<< "mesh.phi boundary field AFTER mesh motion :"
+            << " sum local = " << gSum(mag(mesh().phi().boundaryField()[intPatchID]))
+            << ", global = " << gSum(mesh().phi().boundaryField()[intPatchID])
+            << endl;
+
+        Info<< "mesh.phi old time boundary field AFTER mesh motion :"
+            << " sum local = " << gSum(mag(mesh().phi().oldTime().boundaryField()[intPatchID])) 
+            << ", global = " << gSum(mesh().phi().oldTime().boundaryField()[intPatchID])
+            << endl;
+
+        Info<< "fvc::meshPhi boundary field AFTER mesh motion : sum local = "
+            << gSum(mag(fvc::meshPhi(rho_(),U_())().boundaryField()[intPatchID]))
+            << ", global = "
+            << gSum(fvc::meshPhi(rho_(),U_())().boundaryField()[intPatchID]) << endl;
+
+        scalarField netPhiA =
+            phi_().boundaryField()[intPatchID]
+          - fvc::meshPhi(rho_(),U_())().boundaryField()[intPatchID];
+
+        Info<< "Moving surface continuity error AFTER mesh motion : sum local = "
+            << gSum(mag(netPhiA)) << ", global = " << gSum(netPhiA)
+            << endl << endl;
+    }
 }
 
 // ************************************************************************* //
