@@ -55,7 +55,7 @@ Foam::regionTypes::icoFluid::icoFluid
 )
 :
     regionType(runTime, regionName),
-    
+
     regionName_(regionName),
 
     transportProperties_
@@ -64,7 +64,7 @@ Foam::regionTypes::icoFluid::icoFluid
         (
             "transportProperties",
             mesh().time().constant(),
-            mesh(), 
+            mesh(),
             IOobject::MUST_READ,
             IOobject::NO_WRITE
         )
@@ -109,11 +109,11 @@ Foam::regionTypes::icoFluid::icoFluid
     gradU_(nullptr),
     pcorrTypes_(),
     pcorr_(nullptr),
-    UUrf_ 
-    ( 
+    UUrf_
+    (
         mesh().solutionDict().subDict("relaxationFactors")
-        .lookupOrDefault<scalar>(velocityName_, 1)   
-    ), 
+        .lookupOrDefault<scalar>(velocityName_, 1)
+    ),
 
     closedVolume_
     (
@@ -410,7 +410,7 @@ Foam::regionTypes::icoFluid::icoFluid
             )
         );
     }
- 
+
     // look up HU field from object registry
     if (mesh().foundObject<volVectorField>("HU"))
     {
@@ -480,7 +480,7 @@ Foam::regionTypes::icoFluid::icoFluid
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
-                fvc::grad(p_())   
+                fvc::grad(p_())
             )
         );
     }
@@ -516,7 +516,7 @@ Foam::regionTypes::icoFluid::icoFluid
                     IOobject::NO_READ,
                     IOobject::NO_WRITE
                 ),
-                fvc::grad(U_()) 
+                fvc::grad(U_())
             )
         );
     }
@@ -526,14 +526,14 @@ Foam::regionTypes::icoFluid::icoFluid
         p_().boundaryField().size(),
         zeroGradientFvPatchScalarField::typeName
     );
-    
+
     for (label i = 0; i<p_().boundaryField().size(); i++)
     {
         if (p_().boundaryField()[i].fixesValue())
         {
             pcorrTypes_[i] = fixedValueFvPatchScalarField::typeName;
         }
-    };  
+    };
 
     // look up pressure correction field from object registry
     if (mesh().foundObject<volScalarField>("pcorr"))
@@ -572,7 +572,7 @@ Foam::regionTypes::icoFluid::icoFluid
             )
         );
     }
-    
+
     gradU_().checkIn();
     gradp_().checkIn();
 
@@ -602,7 +602,7 @@ Foam::regionTypes::icoFluid::icoFluid
 #   include "setRefCell.H"
 }
 
-// left from createFields    
+// left from createFields
 //#   include "createUf.H"
 //#   include "createSf.H"
 //#   include "setRefCell.H"
@@ -634,14 +634,21 @@ Foam::scalar Foam::regionTypes::icoFluid::getMinDeltaT()
 
 
 void Foam::regionTypes::icoFluid::setCoupledEqns()
-{  
+{
     // do nothing, add as required
 }
 
 
 void Foam::regionTypes::icoFluid::postSolve()
 {
-    // do nothing, add as required
+    if (myTimeIndex_ < mesh().time().timeIndex())
+    {
+        mrfZones_.translationalMRFs().correctMRF();
+
+        mrfZones_.translationalMRFs().correctBoundaryVelocity(U_(), phi_());
+
+        myTimeIndex_ = mesh().time().timeIndex();
+    }
 }
 
 
@@ -653,7 +660,7 @@ void Foam::regionTypes::icoFluid::solveRegion()
 void Foam::regionTypes::icoFluid::prePredictor()
 {
     Info<< nl << "Pre-predictor for " << this->typeName
-        << " in region " << mesh().name() 
+        << " in region " << mesh().name()
         << nl << endl;
 
     if (myTimeIndex_ < mesh().time().timeIndex())
@@ -669,17 +676,12 @@ void Foam::regionTypes::icoFluid::prePredictor()
     {
 #       include "correctPhi.H"
     }
-
-    if (myTimeIndex_ < mesh().time().timeIndex())
-    {
-        mrfZones_.translationalMRFs().correctMRF();
-    }
 }
 
 void Foam::regionTypes::icoFluid::momentumPredictor()
 {
     Info<< nl << "Momentum predictor for " << this->typeName
-        << " in region " << mesh().name() 
+        << " in region " << mesh().name()
         << nl << endl;
 
         // Make the fluxes relative to the mesh motion
@@ -719,12 +721,12 @@ void Foam::regionTypes::icoFluid::momentumPredictor()
         // Relax and solve momentum equation
         UEqn.relax(UUrf_);
 
-        if (pimple_.momentumPredictor()) 
+        if (pimple_.momentumPredictor())
         {
             solve(UEqn == -gradp_());
         }
 
-        // reset equation to ensure relaxation parameter 
+        // reset equation to ensure relaxation parameter
         // is not causing problems with time consistency
         UEqn = (ddtUEqn + HUEqn);
         UEqn.source() = S0;
@@ -734,7 +736,7 @@ void Foam::regionTypes::icoFluid::momentumPredictor()
 void Foam::regionTypes::icoFluid::pressureCorrector()
 {
     Info<< nl << "Pressure corrector for " << this->typeName
-        << " in region " << mesh().name() 
+        << " in region " << mesh().name()
         << nl << endl;
 
     fvVectorMatrix& UEqn = tUEqn();
@@ -742,7 +744,7 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
     // --- PISO loop
     while (pimple_.correct())
     {
-        p_().storePrevIter();   
+        p_().storePrevIter();
 
         AU_() = UEqn.A();
         HU_() = UEqn.H();
@@ -773,7 +775,7 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
         {
             fvScalarMatrix pEqn
             (
-                fvm::laplacian(1.0/fvc::interpolate(AU_()), p_()) 
+                fvm::laplacian(1.0/fvc::interpolate(AU_()), p_())
              == fvc::div(phi_())
             );
 
@@ -794,7 +796,7 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
             if (pimple_.finalNonOrthogonalIter())
             {
                 phi_() -= pEqn.flux();
-            }                            
+            }
         }
 
         //- Pressure relaxation except for last corrector
@@ -813,13 +815,7 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
         p_().correctBoundaryConditions();
 
         // Update of velocity gradient
-        gradU_() = fvc::grad(U_());       
-    }
-
-    {
-        mrfZones_.translationalMRFs().correctBoundaryVelocity(U_(), phi_());
-
-        myTimeIndex_ = mesh().time().timeIndex();
+        gradU_() = fvc::grad(U_());
     }
 
     Info<< nl
@@ -862,7 +858,7 @@ void Foam::regionTypes::icoFluid::meshMotionCorrector()
             << endl;
 
         Info<< "mesh.phi old time boundary field AFTER mesh motion :"
-            << " sum local = " << gSum(mag(mesh().phi().oldTime().boundaryField()[intPatchID])) 
+            << " sum local = " << gSum(mag(mesh().phi().oldTime().boundaryField()[intPatchID]))
             << ", global = " << gSum(mesh().phi().oldTime().boundaryField()[intPatchID])
             << endl;
 
