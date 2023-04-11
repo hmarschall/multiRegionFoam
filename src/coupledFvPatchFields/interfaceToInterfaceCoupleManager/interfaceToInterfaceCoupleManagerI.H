@@ -24,9 +24,19 @@ License
 
 \*---------------------------------------------------------------------------*/
 
+inline const Foam::fvMesh& Foam::interfaceToInterfaceCoupleManager::refMesh() const
+{
+    return refPatch().boundaryMesh().mesh();
+};
+
 inline const Foam::fvPatch& Foam::interfaceToInterfaceCoupleManager::refPatch() const
 {
     return patch_;
+};
+
+inline Foam::label Foam::interfaceToInterfaceCoupleManager::refPatchID() const
+{
+    return refMesh().boundaryMesh().findPatchID(refPatch().name());
 };
 
 
@@ -99,34 +109,15 @@ Foam::interfaceToInterfaceCoupleManager::interpolateFromNbrField
     // B is neighbour
     if (refPatch().name() == rgInterface().patchA().name())
     {
-        Field<Type> globalFromFld = 
-            rgInterface().globalPatchB().patchFaceToGlobal(fromField);
-
-        Field<Type> interpolatedGlobalFld =
-            rgInterface().transferFacesFromB<Type>(globalFromFld);
-
         return
         (
-            rgInterface().globalPatchA().globalFaceToPatch
-            (
-                interpolatedGlobalFld
-            )
+            rgInterface().interpolateFacesFromB<Type>(fromField)
         );
     }
-
     // A is neighbour
-    Field<Type> globalFromFld = 
-        rgInterface().globalPatchA().patchFaceToGlobal(fromField);
-
-    Field<Type> interpolatedGlobalFld = 
-        rgInterface().transferFacesFromA<Type>(globalFromFld);
-
     return
     (
-        rgInterface().globalPatchB().globalFaceToPatch
-        (
-            interpolatedGlobalFld
-        )
+        rgInterface().interpolateFacesFromA<Type>(fromField)
     );
 }
 

@@ -146,8 +146,14 @@ public:
 
         // Access
 
+            //- Return a reference to the local mesh
+            inline const fvMesh& refMesh() const;
+
             //- Return a reference to the local patch
             inline const fvPatch& refPatch() const;
+
+            //- Return a reference to the local patch
+            inline label refPatchID() const;
 
             //- Return the name of the neighbour region
             inline const word& neighbourRegionName() const;

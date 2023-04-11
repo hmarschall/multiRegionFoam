@@ -35,6 +35,7 @@ SourceFiles
 #include "regionInterface.H"
 #include "dimensionedScalar.H"
 #include "volFields.H"
+#include "surfaceFieldsFwd.H"
 #include "IOReferencer.H"
 #include "HashPtrTable.H"
 
@@ -58,10 +59,37 @@ class capillaryInterface
         // interface dictionary
         dictionary dict_;
 
-        // Surface tension 
+        // Surface tension
         dimensionedScalar sigma0_;
-        
+
         areaScalarField sigma_;
+
+protected:
+
+    // Private data
+
+        //- surface velocity field
+        mutable autoPtr<areaVectorField> UsPtr_;
+
+        //- surface flux field
+        mutable autoPtr<edgeScalarField> phisPtr_;
+
+private:
+
+    // Private Member Functions
+
+        //- Make surface velocity
+        void makeUs() const;
+
+        //- Make surface flux
+        void makePhis() const;
+
+protected:
+
+    // Protected Member Functions
+
+        //- Clear all demand-driven data
+        virtual void clearOut() const;
 
 public:
 
@@ -81,15 +109,85 @@ public:
     // Destructor
     virtual ~capillaryInterface()
     {}
-    
-      
-    // Access  
- 
-    // Correct interface physics - here surface tension
-    void correct(); 
 
-    // Get min time step based on stability criteria
-    scalar getMinDeltaT();
+    // Public Member Functions
+
+        // Access
+
+        // Correct interface physics - here surface tension
+        void correct();
+
+        // Get min time step based on stability criteria
+        scalar getMinDeltaT();
+
+        // Edit
+
+        // Update surface velocity
+        void updateUs();
+
+        // Update surface flux
+        void updatePhis();
+
+        //- Correct surface velocity b.c.
+        void correctUsBoundaryConditions();
+
+        //- interfacial transport
+
+        //-- return surface velocity
+        Foam::areaVectorField& Us()
+        {
+            if (UsPtr_.empty())
+            {
+                makeUs();
+            }
+
+            return UsPtr_();
+        }
+
+        const Foam::areaVectorField& Us() const
+        {
+            if (UsPtr_.empty())
+            {
+                makeUs();
+            }
+
+            return UsPtr_();
+        }
+
+        //-- return surface flux
+        edgeScalarField& Phis()
+        {
+            if (phisPtr_.empty())
+            {
+                makePhis();
+            }
+
+            return phisPtr_();
+        }
+
+        const edgeScalarField& Phis() const
+        {
+            if (phisPtr_.empty())
+            {
+               makePhis();
+            }
+
+            return phisPtr_();
+        }
+
+        //- interfacial forces
+
+        const areaScalarField& sigma() const
+        {
+            return sigma_;
+        }
+
+        tmp<vectorField> surfaceTensionForce() const;
+
+        tmp<vectorField> tangentialSurfaceTensionForce() const;
+
+        tmp<vectorField> normalSurfaceTensionForce() const;
+
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
