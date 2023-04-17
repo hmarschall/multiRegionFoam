@@ -129,6 +129,9 @@ class interTrackFluid
         //  shared between the momentum predictor and pressure corrector
         tmp<fvVectorMatrix> tUEqn;
 
+        //- continuity err
+        scalar cumulativeContErr_;
+
 public:
 
     TypeName("interTrackFluid");

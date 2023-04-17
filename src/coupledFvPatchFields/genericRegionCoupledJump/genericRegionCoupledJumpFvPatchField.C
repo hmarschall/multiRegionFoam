@@ -57,7 +57,8 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
         )
     ),
     nonOrthCorr_(false),
-    secondOrder_(false)
+    secondOrder_(false),
+    allowUpdate_(false)
 {
     relaxModel_->initialize(*this);
 }
@@ -80,7 +81,8 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     KName_(grcj.KName_),
     relaxModel_(grcj.relaxModel_, false),
     nonOrthCorr_(grcj.nonOrthCorr_),
-    secondOrder_(grcj.secondOrder_)
+    secondOrder_(grcj.secondOrder_),
+    allowUpdate_(false)
 {}
 
 template<class Type>
@@ -107,7 +109,8 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
         )
     ),
     nonOrthCorr_(dict.lookupOrDefault<Switch>("nonOrthCorr",false)),
-    secondOrder_(dict.lookupOrDefault<Switch>("secondOrder",false))
+    secondOrder_(dict.lookupOrDefault<Switch>("secondOrder",false)),
+    allowUpdate_(false)
 {
     if (dict.found("value"))
     {
@@ -140,7 +143,8 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     KName_(grcj.KName_),
     relaxModel_(grcj.relaxModel_, false),
     nonOrthCorr_(grcj.nonOrthCorr_),
-    secondOrder_(grcj.secondOrder_)
+    secondOrder_(grcj.secondOrder_),
+    allowUpdate_(false)
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -176,13 +180,13 @@ genericRegionCoupledJumpFvPatchField<Type>::gradientBoundaryCoeffs() const
 template<class Type>
 void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
 {
-    if (this->updated())
+    if (!allowUpdate_)
     {
         return;
     }
 
     // Update and correct the region interface physics
-    const_cast<regionInterface&>(rgInterface()).update();
+    //const_cast<regionInterface&>(rgInterface()).update();
 
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
@@ -214,6 +218,8 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
     updatePhi();
 
     fixedValueFvPatchField<Type>::updateCoeffs();
+
+    allowUpdate_ = false;
 }
 
 

@@ -106,6 +106,9 @@ protected:
         //- Second order accuracy correction
         Switch secondOrder_;
 
+        //- Allow BC update
+        mutable Switch allowUpdate_;
+
     // Protected member functions
 
         //- Update phi 
@@ -192,6 +195,13 @@ public:
 
         //- Update the patch field coefficients
         virtual void updateCoeffs();
+
+        //- Set allow update
+        void allowUpdate(Switch allowUpdate) const
+        {
+            Info<< "Setting allow update to " << allowUpdate << " on " << this->typeName << endl;
+            allowUpdate_ = allowUpdate;
+        }
 
         //- Return the patch flux
         virtual tmp<Field<Type>> flux() const;

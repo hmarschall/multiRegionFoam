@@ -435,6 +435,9 @@ public:
 
             // Set deltaT based on interface stability criteria
             virtual scalar getMinDeltaT() = 0;
+
+            // Log interface specific information
+            virtual void info() const = 0;
 };
 
 template<class Type>

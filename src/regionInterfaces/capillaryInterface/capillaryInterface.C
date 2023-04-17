@@ -82,6 +82,7 @@ Foam::regionInterfaces::capillaryInterface::capillaryInterface
     ),
 
     UsPtr_(),
+    UtFsPtr_(),
     phisPtr_()
 {}
 
@@ -162,6 +163,78 @@ void Foam::regionInterfaces::capillaryInterface::makeUs() const
             ),
             aMesh(),
             dimensioned<vector>("Us", dimVelocity, vector::zero),
+            patchFieldTypes
+        )
+    );
+}
+
+void Foam::regionInterfaces::capillaryInterface::makeUtFs() const
+{
+    if (!UtFsPtr_.empty())
+    {
+        FatalErrorIn("regionInterface::makeUtFs()")
+            << "surface velocity field already exists"
+            << abort(FatalError);
+    }
+
+    // Set patch field types for Us
+    wordList patchFieldTypes
+    (
+        aMesh().boundary().size(),
+        zeroGradientFaPatchVectorField::typeName
+    );
+
+    forAll(aMesh().boundary(), patchI)
+    {
+        if
+        (
+            aMesh().boundary()[patchI].type()
+         == wedgeFaPatch::typeName
+        )
+        {
+            patchFieldTypes[patchI] =
+                wedgeFaPatchVectorField::typeName;
+        }
+        else
+        {
+            label ngbPolyPatchID =
+                aMesh().boundary()[patchI].ngbPolyPatchIndex();
+
+            if (ngbPolyPatchID != -1)
+            {
+                if
+                (
+                    meshA().boundary()[ngbPolyPatchID].type()
+                 == wallFvPatch::typeName
+                )
+                {
+                    WarningIn("regionInterface::makeUtFs() const")
+                        << "Patch neighbouring to interface is wall" << nl
+                        << "Not appropriate for inlets/outlets" << nl
+                        << endl;
+
+                    patchFieldTypes[patchI] =
+                        slipFaPatchVectorField::typeName;
+                }
+            }
+        }
+    }
+
+    // Set surface velocity
+    UtFsPtr_.reset
+    (
+        new areaVectorField
+        (
+            IOobject
+            (
+                patchA().name() + "UtFs",
+                runTime().timeName(),
+                meshA(),
+                IOobject::NO_READ,
+                IOobject::NO_WRITE
+            ),
+            aMesh(),
+            dimensioned<vector>("UtFs", dimVelocity, vector::zero),
             patchFieldTypes
         )
     );
@@ -296,16 +369,21 @@ void Foam::regionInterfaces::capillaryInterface::updateUs()
     Us().internalField() += UnFs - nA*(nA&Us().internalField());
     correctUsBoundaryConditions();
 
-    vectorField UtFs =
+    UtFs().internalField() =
         muA.value()*DnA*UtPA
       + muB.value()*DnB*UtPB
       + (muB.value() - muA.value())
        *(fac::grad(Us())&aMesh().faceAreaNormals())().internalField()
       + tangentialSurfaceTensionForce();
 
-    UtFs /= muA.value()*DnA + muB.value()*DnB;
+    UtFs().internalField() /= muA.value()*DnA + muB.value()*DnB;
+    UtFs().correctBoundaryConditions();
 
-    Us().internalField() = UnFs + UtFs;
+    Us().internalField() = UnFs + UtFs().internalField();
+    correctUsBoundaryConditions();
+
+    Info << "UtFs: " << gSum(UtFs()) << endl;
+    Info << "UnFs: " << gSum(UnFs) << endl;
 
 }
 
@@ -319,7 +397,7 @@ Foam::regionInterfaces::capillaryInterface::surfaceTensionForce() const
 {
     return
     (
-        sigma_
+        sigma0_.value()
        *fac::edgeIntegrate
         (
             aMesh().Le()
@@ -389,5 +467,131 @@ Foam::scalar Foam::regionInterfaces::capillaryInterface::getMinDeltaT()
     return minDeltaT;
 }
 
+Foam::vector Foam::regionInterfaces::capillaryInterface::totalSurfaceTensionForce() const
+{
+    const scalarField& S = aMesh().S();
+
+    return gSum
+        (
+            S
+           *sigma0_.value()
+           *fac::edgeIntegrate
+            (
+                aMesh().Le()
+                *aMesh().edgeLengthCorrection()
+            )().internalField()
+        );
+}
+
+Foam::vector Foam::regionInterfaces::capillaryInterface::totalViscousForce() const
+{
+    const scalarField& S = aMesh().S();
+
+    const vectorField& n = aMesh().faceAreaNormals().internalField();
+
+    vectorField nGradU =
+        meshA().lookupObject<volVectorField>("U")
+        .boundaryField()[patchAID()]
+        .snGrad();
+
+    dimensionedScalar muA
+        (
+            meshA().lookupObject<IOdictionary>("transportProperties")
+            .lookup("mu")
+        );
+
+    vectorField viscousForces =
+      - muA.value()*S
+       *(
+            nGradU
+          + (fac::grad(Us())().internalField()&n)
+          - (n*fac::div(Us())().internalField())
+        );
+
+    Info << "n: "
+         << gSum(n)
+         << endl;
+    Info << "nGradU: "
+         << gSum(nGradU)
+         << endl;
+    Info << "gradUs: "
+         << gSum(fac::grad(Us())().internalField())
+         << endl;
+    Info << "divUs: "
+         << gSum(fac::div(Us())().internalField())
+         << endl;
+
+    return gSum(viscousForces);
+}
+
+Foam::vector Foam::regionInterfaces::capillaryInterface::totalPressureForce() const
+{
+    const scalarField& S = aMesh().S();
+
+    const vectorField& n = aMesh().faceAreaNormals().internalField();
+
+    const scalarField& p =
+        meshA().lookupObject<volScalarField>("p").boundaryField()[patchAID()];
+
+    vectorField pressureForces = S*p*n;
+
+    return gSum(pressureForces);
+}
+
+
+
+void Foam::regionInterfaces::capillaryInterface::surfaceForces() const
+{
+    Info << "Total surface tension force: "
+         << totalSurfaceTensionForce() << endl;
+
+    vector totalForce = totalViscousForce() + totalPressureForce();
+
+    Info << "Total force: " << totalForce << endl;
+}
+
+void Foam::regionInterfaces::capillaryInterface::maxCourantNumber() const
+{
+    const scalarField& dE = aMesh().lPN();
+
+    dimensionedScalar rhoA
+        (
+            meshA().lookupObject<IOdictionary>("transportProperties")
+            .lookup("rho")
+        );
+
+    scalar CoNum = gMax
+    (
+        runTime().deltaT().value()/
+        sqrt
+        (
+            rhoA.value()*dE*dE*dE/
+            2.0/M_PI/(sigma0_.value() + SMALL)
+        )
+    );
+
+    Info << "Max surface Courant Number = " << CoNum << endl;
+}
+
+void Foam::regionInterfaces::capillaryInterface::curvature() const
+{
+    const scalarField& K = aMesh().faceCurvatures().internalField();
+
+    Info << "Free surface curvature: min = " << gMin(K)
+        << ", max = " << gMax(K)
+        << ", average = " << gAverage(K) << endl << flush;
+}
+
+void Foam::regionInterfaces::capillaryInterface::info() const
+{
+    // Curvature
+    curvature();
+
+    // Surface courant number
+    maxCourantNumber();
+
+    // Surface Forces
+    surfaceForces();
+}
 
 // ************************************************************************* //

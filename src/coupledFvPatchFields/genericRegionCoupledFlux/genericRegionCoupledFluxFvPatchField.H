@@ -27,8 +27,8 @@ Class
 
 Description
     Generic region coupled flux boundary condition for size Psi. Is intended to
-    serve as a base class for coupled dirichlet boundary conditions. Includes a 
-    zero "fluxJump" condition across the interface that can be overridden by child 
+    serve as a base class for coupled dirichlet boundary conditions. Includes a
+    zero "fluxJump" condition across the interface that can be overridden by child
     classes.
 
     Example usage:
@@ -102,13 +102,10 @@ protected:
         //- Second order accuracy correction
         Switch secondOrder_;
 
-    // Protected member functions
+        //- Allow BC update
+        mutable Switch allowUpdate_;
 
-        //- Update phi 
-        virtual void updatePhi()
-        {
-            //- Override in child class if needed
-        };
+    // Protected member functions
 
 public:
 
@@ -194,6 +191,13 @@ public:
         (
             const Pstream::commsTypes commsType=Pstream::blocking
         );
+
+        //- Set allow update
+        void allowUpdate(Switch allowUpdate) const
+        {
+            Info<< "Setting allow update to " << allowUpdate << " on " << this->typeName << endl;
+            allowUpdate_ = allowUpdate;
+        }
 
         //- Return the raw coupled patch residual
         scalarField rawResidual() const;

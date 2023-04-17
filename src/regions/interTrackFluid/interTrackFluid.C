@@ -146,7 +146,9 @@ Foam::regionTypes::interTrackFluid::interTrackFluid
     maxDeltaT_
     (
         mesh().time().controlDict().lookupOrDefault<scalar>("maxDeltaT", GREAT)
-    )
+    ),
+    tUEqn(),
+    cumulativeContErr_(0)
 {
     rho_ = lookupOrRead<volScalarField>
     (
@@ -258,29 +260,39 @@ void Foam::regionTypes::interTrackFluid::prePredictor()
     << " in region " << mesh().name()
     << nl << endl;
 
-    if (myTimeIndex_ < mesh().time().timeIndex())
+    label intPatchID_ = mesh().boundaryMesh().findPatchID("interface");
+
+    if (intPatchID_ == -1)
     {
-#       include "CourantNo.H"
+        intPatchID_ = mesh().boundaryMesh().findPatchID("interfaceShadow");
+        Info << "intPatchID for interfaceShadow is " << intPatchID_;
+        refCast<const genericRegionCoupledJumpFvPatchField<vector> >(U().boundaryField()[intPatchID_]).allowUpdate(true);
+        refCast<const genericRegionCoupledFluxFvPatchField<scalar> >(p().boundaryField()[intPatchID_]).allowUpdate(true);
+
+        const_cast<genericRegionCoupledJumpFvPatchField<vector>& >
+        (
+            refCast<const genericRegionCoupledJumpFvPatchField<vector> >(U().boundaryField()[intPatchID_])
+        ).updateCoeffs();
+        const_cast<genericRegionCoupledFluxFvPatchField<scalar>& >
+        (
+            refCast<const genericRegionCoupledFluxFvPatchField<scalar> >(p().boundaryField()[intPatchID_])
+        ).updateCoeffs();
     }
+    else
+    {
+        Info << "intPatchID for interface is " << intPatchID_;
+        refCast<const genericRegionCoupledFluxFvPatchField<vector> >(U().boundaryField()[intPatchID_]).allowUpdate(true);
+        refCast<const genericRegionCoupledJumpFvPatchField<scalar> >(p().boundaryField()[intPatchID_]).allowUpdate(true);
 
-    // label intPatchID_ = mesh().boundaryMesh().findPatchID("interface");
-
-    // if (intPatchID_ == -1)
-    // {
-    //     intPatchID_ = mesh().boundaryMesh().findPatchID("interfaceShadow");
-    //     Info << "intPatchID for interfaceShadow is " << intPatchID_;
-    //     refCast<const genericRegionCoupledJumpFvPatchField<vector> >(U().boundaryField()[intPatchID_]).allowUpdate(true);
-    //     refCast<const genericRegionCoupledFluxFvPatchField<scalar> >(p().boundaryField()[intPatchID_]).allowUpdate(true);
-    // }
-    // else
-    // {
-    //     Info << "intPatchID for interface is " << intPatchID_;
-    //     refCast<const genericRegionCoupledFluxFvPatchField<vector> >(U().boundaryField()[intPatchID_]).allowUpdate(true);
-    //     refCast<const genericRegionCoupledJumpFvPatchField<scalar> >(p().boundaryField()[intPatchID_]).allowUpdate(true);
-    // }
-
-    // U_().correctBoundaryConditions();
-    // p_().correctBoundaryConditions();
+        const_cast<genericRegionCoupledFluxFvPatchField<vector>& >
+        (
+            refCast<const genericRegionCoupledFluxFvPatchField<vector> >(U().boundaryField()[intPatchID_])
+        ).updateCoeffs();
+        const_cast<genericRegionCoupledJumpFvPatchField<scalar>& >
+        (
+        refCast<const genericRegionCoupledJumpFvPatchField<scalar> >(p().boundaryField()[intPatchID_])
+        ).updateCoeffs();
+    }
 }
 
 void Foam::regionTypes::interTrackFluid::momentumPredictor()
@@ -292,7 +304,10 @@ void Foam::regionTypes::interTrackFluid::momentumPredictor()
     // Make the fluxes relative
     phi_() -= fvc::meshPhi(rho_(), U_());
 
-    U_().storePrevIter();
+    if (myTimeIndex_ < mesh().time().timeIndex())
+    {
+#       include "CourantNo.H"
+    }
 
     tUEqn =
     (
@@ -348,6 +363,8 @@ void Foam::regionTypes::interTrackFluid::pressureCorrector()
             }
         }
 
+#               include "continuityErrs.H"
+
         // Momentum corrector
         U_() -= fvc::grad(p_())/AU;
         U_().correctBoundaryConditions();
@@ -362,7 +379,7 @@ void Foam::regionTypes::interTrackFluid::pressureCorrector()
         << "  mean: " << gAverage(p_()) << nl
         << mesh().name() << " Velocity:" << nl
         << "  max: " << gMax(U_()) << nl
-        << "  min: "<< gMax(U_()) << nl
+        << "  min: "<< gMin(U_()) << nl
         << "  mean: " << gAverage(U_()) << nl
         << mesh().name() << " Volume: "
         << gSum(mesh().V()) << nl

@@ -57,7 +57,8 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
         )
     ),
     nonOrthCorr_(false),
-    secondOrder_(false)
+    secondOrder_(false),
+    allowUpdate_(false)
 {
     relaxModel_->initialize(*this);
 }
@@ -79,7 +80,8 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     kName_(grcf.kName_),
     relaxModel_(grcf.relaxModel_, false),
     nonOrthCorr_(grcf.nonOrthCorr_),
-    secondOrder_(grcf.secondOrder_)
+    secondOrder_(grcf.secondOrder_),
+    allowUpdate_(false)
 {}
 
 template<class Type>
@@ -105,7 +107,8 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
         )
     ),
     nonOrthCorr_(dict.lookupOrDefault<Switch>("nonOrthCorr",false)),
-    secondOrder_(dict.lookupOrDefault<Switch>("secondOrder",false))
+    secondOrder_(dict.lookupOrDefault<Switch>("secondOrder",false)),
+    allowUpdate_(false)
 {
     if (dict.found("value"))
     {
@@ -165,7 +168,8 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     kName_(grcf.kName_),
     relaxModel_(grcf.relaxModel_, false),
     nonOrthCorr_(grcf.nonOrthCorr_),
-    secondOrder_(grcf.secondOrder_)
+    secondOrder_(grcf.secondOrder_),
+    allowUpdate_(false)
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -184,13 +188,13 @@ void genericRegionCoupledFluxFvPatchField<Type>::evaluate(const Pstream::commsTy
 template<class Type>
 void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
 {
-    if (this->updated())
+    if (!allowUpdate_)
     {
         return;
     }
 
     // Update and correct the region interface physics
-    const_cast<regionInterface&>(rgInterface()).update();
+    //const_cast<regionInterface&>(rgInterface()).update();
 
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
@@ -241,6 +245,8 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     relaxModel_->relax(this->gradient());
 
     fixedGradientFvPatchField<Type>::updateCoeffs();
+
+    allowUpdate_ = false;
 }
 
 template<class Type>
