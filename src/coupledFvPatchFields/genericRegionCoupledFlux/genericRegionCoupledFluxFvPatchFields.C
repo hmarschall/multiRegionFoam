@@ -133,8 +133,6 @@ void Foam::genericRegionCoupledFluxFvPatchField<Foam::scalar>::evaluate
             );
     }
 
-    updatePhi();
-
     fvPatchField<scalar>::evaluate();
 }
 
@@ -221,8 +219,6 @@ void Foam::genericRegionCoupledFluxFvPatchField<Foam::vector>::evaluate
               + gradient()/this->patch().deltaCoeffs()
             );
     }
-
-    updatePhi();
 
     fvPatchField<vector>::evaluate();
 }
