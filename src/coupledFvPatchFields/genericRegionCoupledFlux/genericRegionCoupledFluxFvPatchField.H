@@ -102,9 +102,6 @@ protected:
         //- Second order accuracy correction
         Switch secondOrder_;
 
-        //- Allow BC update
-        mutable Switch allowUpdate_;
-
     // Protected member functions
 
 public:
@@ -191,13 +188,6 @@ public:
         (
             const Pstream::commsTypes commsType=Pstream::blocking
         );
-
-        //- Set allow update
-        void allowUpdate(Switch allowUpdate) const
-        {
-            Info<< "Setting allow update to " << allowUpdate << " on " << this->typeName << endl;
-            allowUpdate_ = allowUpdate;
-        }
 
         //- Return the raw coupled patch residual
         scalarField rawResidual() const;

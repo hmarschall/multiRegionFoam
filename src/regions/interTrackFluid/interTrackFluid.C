@@ -259,40 +259,6 @@ void Foam::regionTypes::interTrackFluid::prePredictor()
     Info<< nl << "Pre-predictor for " << this->typeName
     << " in region " << mesh().name()
     << nl << endl;
-
-    label intPatchID_ = mesh().boundaryMesh().findPatchID("interface");
-
-    if (intPatchID_ == -1)
-    {
-        intPatchID_ = mesh().boundaryMesh().findPatchID("interfaceShadow");
-        Info << "intPatchID for interfaceShadow is " << intPatchID_;
-        refCast<const genericRegionCoupledJumpFvPatchField<vector> >(U().boundaryField()[intPatchID_]).allowUpdate(true);
-        refCast<const genericRegionCoupledFluxFvPatchField<scalar> >(p().boundaryField()[intPatchID_]).allowUpdate(true);
-
-        const_cast<genericRegionCoupledJumpFvPatchField<vector>& >
-        (
-            refCast<const genericRegionCoupledJumpFvPatchField<vector> >(U().boundaryField()[intPatchID_])
-        ).updateCoeffs();
-        const_cast<genericRegionCoupledFluxFvPatchField<scalar>& >
-        (
-            refCast<const genericRegionCoupledFluxFvPatchField<scalar> >(p().boundaryField()[intPatchID_])
-        ).updateCoeffs();
-    }
-    else
-    {
-        Info << "intPatchID for interface is " << intPatchID_;
-        refCast<const genericRegionCoupledFluxFvPatchField<vector> >(U().boundaryField()[intPatchID_]).allowUpdate(true);
-        refCast<const genericRegionCoupledJumpFvPatchField<scalar> >(p().boundaryField()[intPatchID_]).allowUpdate(true);
-
-        const_cast<genericRegionCoupledFluxFvPatchField<vector>& >
-        (
-            refCast<const genericRegionCoupledFluxFvPatchField<vector> >(U().boundaryField()[intPatchID_])
-        ).updateCoeffs();
-        const_cast<genericRegionCoupledJumpFvPatchField<scalar>& >
-        (
-        refCast<const genericRegionCoupledJumpFvPatchField<scalar> >(p().boundaryField()[intPatchID_])
-        ).updateCoeffs();
-    }
 }
 
 void Foam::regionTypes::interTrackFluid::momentumPredictor()

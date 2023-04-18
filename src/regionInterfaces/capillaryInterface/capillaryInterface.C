@@ -381,10 +381,6 @@ void Foam::regionInterfaces::capillaryInterface::updateUs()
 
     Us().internalField() = UnFs + UtFs().internalField();
     correctUsBoundaryConditions();
-
-    Info << "UtFs: " << gSum(UtFs()) << endl;
-    Info << "UnFs: " << gSum(UnFs) << endl;
-
 }
 
 void Foam::regionInterfaces::capillaryInterface::updatePhis()
