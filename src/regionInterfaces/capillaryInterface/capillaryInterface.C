@@ -82,7 +82,6 @@ Foam::regionInterfaces::capillaryInterface::capillaryInterface
     ),
 
     UsPtr_(),
-    UtFsPtr_(),
     phisPtr_()
 {}
 
@@ -163,78 +162,6 @@ void Foam::regionInterfaces::capillaryInterface::makeUs() const
             ),
             aMesh(),
             dimensioned<vector>("Us", dimVelocity, vector::zero),
-            patchFieldTypes
-        )
-    );
-}
-
-void Foam::regionInterfaces::capillaryInterface::makeUtFs() const
-{
-    if (!UtFsPtr_.empty())
-    {
-        FatalErrorIn("regionInterface::makeUtFs()")
-            << "surface velocity field already exists"
-            << abort(FatalError);
-    }
-
-    // Set patch field types for Us
-    wordList patchFieldTypes
-    (
-        aMesh().boundary().size(),
-        zeroGradientFaPatchVectorField::typeName
-    );
-
-    forAll(aMesh().boundary(), patchI)
-    {
-        if
-        (
-            aMesh().boundary()[patchI].type()
-         == wedgeFaPatch::typeName
-        )
-        {
-            patchFieldTypes[patchI] =
-                wedgeFaPatchVectorField::typeName;
-        }
-        else
-        {
-            label ngbPolyPatchID =
-                aMesh().boundary()[patchI].ngbPolyPatchIndex();
-
-            if (ngbPolyPatchID != -1)
-            {
-                if
-                (
-                    meshA().boundary()[ngbPolyPatchID].type()
-                 == wallFvPatch::typeName
-                )
-                {
-                    WarningIn("regionInterface::makeUtFs() const")
-                        << "Patch neighbouring to interface is wall" << nl
-                        << "Not appropriate for inlets/outlets" << nl
-                        << endl;
-
-                    patchFieldTypes[patchI] =
-                        slipFaPatchVectorField::typeName;
-                }
-            }
-        }
-    }
-
-    // Set surface velocity
-    UtFsPtr_.reset
-    (
-        new areaVectorField
-        (
-            IOobject
-            (
-                patchA().name() + "UtFs",
-                runTime().timeName(),
-                meshA(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            aMesh(),
-            dimensioned<vector>("UtFs", dimVelocity, vector::zero),
             patchFieldTypes
         )
     );
@@ -321,65 +248,14 @@ void Foam::regionInterfaces::capillaryInterface::updateUs()
         return;
     }
 
-    // Get data needed for Us calculation
-    vectorField nA = meshA().boundary()[patchAID()].nf();
+    const volVectorField& U = meshA().lookupObject<volVectorField>("U");
 
-    const volVectorField& UA = meshA().lookupObject<volVectorField>("U");
-    vectorField UAp = UA.boundaryField()[patchAID()].patchInternalField();
+    const fvBoundaryMesh& fvbm = meshA().boundary();
 
-    const volVectorField& UB = meshB().lookupObject<volVectorField>("U");
-    vectorField UBp = interpolateFacesFromB
-        (
-            UB.boundaryField()[patchBID()].patchInternalField()()
-        );
+    const fvPatch& p = fvbm[patchAID()];
 
-    const surfaceScalarField& phi = meshA()
-        .lookupObject<surfaceScalarField>("phi");
-    scalarField phiP = phi.boundaryField()[patchAID()];
+    Us().internalField() = p.lookupPatchField<volVectorField, vector>(U.name());
 
-    dimensionedScalar muA
-        (
-            meshA().lookupObject<IOdictionary>("transportProperties")
-            .lookup("mu")
-        );
-
-    dimensionedScalar muB
-        (
-            meshB().lookupObject<IOdictionary>("transportProperties")
-            .lookup("mu")
-        );
-
-    scalarField DnA = meshA().boundary()[patchAID()].deltaCoeffs();
-
-    scalarField DnB = interpolateFacesFromB
-        (
-            meshB().boundary()[patchBID()].deltaCoeffs()
-        );
-
-
-    // Calculate Us
-    vectorField UtPA = UAp;
-    UtPA -= nA*(nA & UtPA);
-
-    vectorField UtPB = UBp;
-    UtPB -= nA*(nA & UtPB);
-
-    vectorField UnFs =nA*phiP/meshA().boundary()[patchAID()].magSf();
-
-    Us().internalField() += UnFs - nA*(nA&Us().internalField());
-    correctUsBoundaryConditions();
-
-    UtFs().internalField() =
-        muA.value()*DnA*UtPA
-      + muB.value()*DnB*UtPB
-      + (muB.value() - muA.value())
-       *(fac::grad(Us())&aMesh().faceAreaNormals())().internalField()
-      + tangentialSurfaceTensionForce();
-
-    UtFs().internalField() /= muA.value()*DnA + muB.value()*DnB;
-    UtFs().correctBoundaryConditions();
-
-    Us().internalField() = UnFs + UtFs().internalField();
     correctUsBoundaryConditions();
 }
 
@@ -503,19 +379,6 @@ Foam::vector Foam::regionInterfaces::capillaryInterface::totalViscousForce() con
           + (fac::grad(Us())().internalField()&n)
           - (n*fac::div(Us())().internalField())
         );
-
-    Info << "n: "
-         << gSum(n)
-         << endl;
-    Info << "nGradU: "
-         << gSum(nGradU)
-         << endl;
-    Info << "gradUs: "
-         << gSum(fac::grad(Us())().internalField())
-         << endl;
-    Info << "divUs: "
-         << gSum(fac::div(Us())().internalField())
-         << endl;
 
     return gSum(viscousForces);
 }

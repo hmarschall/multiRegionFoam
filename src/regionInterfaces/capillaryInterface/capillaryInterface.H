@@ -71,9 +71,6 @@ protected:
         //- surface velocity field
         mutable autoPtr<areaVectorField> UsPtr_;
 
-        //- surface tangential velocity field
-        mutable autoPtr<areaVectorField> UtFsPtr_;
-
         //- surface flux field
         mutable autoPtr<edgeScalarField> phisPtr_;
 
@@ -83,7 +80,6 @@ private:
 
         //- Make surface velocity
         void makeUs() const;
-        void makeUtFs() const;
 
         //- Make surface flux
         void makePhis() const;
@@ -156,26 +152,6 @@ public:
             }
 
             return UsPtr_();
-        }
-
-        Foam::areaVectorField& UtFs()
-        {
-            if (UtFsPtr_.empty())
-            {
-                makeUtFs();
-            }
-
-            return UtFsPtr_();
-        }
-
-        const Foam::areaVectorField& UtFs() const
-        {
-            if (UtFsPtr_.empty())
-            {
-                makeUtFs();
-            }
-
-            return UtFsPtr_();
         }
 
         //-- return surface flux
