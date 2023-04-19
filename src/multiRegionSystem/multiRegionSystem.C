@@ -551,7 +551,7 @@ void Foam::multiRegionSystem::solve()
 
             }
 
-            regions_->postSolve();
+            regions_->postSolvePIMPLE();
 
             Info<< "Solved PIMPLE with DNA coupling in "
                 << runTime_.cpuTimeIncrement() << " s." << endl;
