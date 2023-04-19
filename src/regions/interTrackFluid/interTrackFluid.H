@@ -83,6 +83,11 @@ class interTrackFluid
 
         autoPtr<volScalarField> p_;
 
+        //- pcorr
+        autoPtr<volScalarField> pcorr_;
+
+        wordList pcorrTypes_;
+
         //- Reference pressure cell
         label pRefCell_;
 

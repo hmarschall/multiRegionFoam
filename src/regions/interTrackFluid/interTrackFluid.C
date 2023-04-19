@@ -76,6 +76,9 @@ Foam::regionTypes::interTrackFluid::interTrackFluid
     phi_(nullptr),
     p_(nullptr),
 
+    pcorr_(nullptr),
+    pcorrTypes_(),
+
     pRefCell_(0),
     pRefValue_
     (
@@ -191,6 +194,29 @@ Foam::regionTypes::interTrackFluid::interTrackFluid
         true
     );
 
+    pcorrTypes_ = wordList
+    (
+        p_().boundaryField().size(),
+        zeroGradientFvPatchScalarField::typeName
+    );
+
+    for (label i = 0; i<p_().boundaryField().size(); i++)
+    {
+        if (p_().boundaryField()[i].fixesValue())
+        {
+            pcorrTypes_[i] = fixedValueFvPatchScalarField::typeName;
+        }
+    };
+
+    pcorr_ = lookupOrRead<volScalarField>
+    (
+        mesh(),
+        "pcorr",
+        dimensionedScalar("pcorr", p_().dimensions(), 0.0),
+        pcorrTypes_,
+        true
+    );
+
     IOdictionary fvSchemesDict
     (
         IOobject
@@ -246,6 +272,10 @@ void Foam::regionTypes::interTrackFluid::setCoupledEqns()
 
 void Foam::regionTypes::interTrackFluid::postSolve()
 {
+    Info<< nl << "Post solve actions for " << this->typeName
+    << " in region " << mesh().name()
+    << nl << endl;
+
 #       include "updateMovingReferenceFrame.H"
 }
 
@@ -259,6 +289,11 @@ void Foam::regionTypes::interTrackFluid::prePredictor()
     Info<< nl << "Pre-predictor for " << this->typeName
     << " in region " << mesh().name()
     << nl << endl;
+
+    if (mesh().changing())
+    {
+#       include "correctPhi.H"
+    }
 }
 
 void Foam::regionTypes::interTrackFluid::momentumPredictor()
@@ -334,6 +369,7 @@ void Foam::regionTypes::interTrackFluid::pressureCorrector()
         // Momentum corrector
         U_() -= fvc::grad(p_())/AU;
         U_().correctBoundaryConditions();
+        p_().correctBoundaryConditions();
     }
 
     myTimeIndex_ = mesh().time().timeIndex();
