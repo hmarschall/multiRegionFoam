@@ -40,6 +40,18 @@ checkAndReport \
     "!Does not have to be executed!"
 if [ $? -ne 0 ]; then result=1; fi
 
+checkAndReport \
+    "Pstream.H" \
+    "$FOAM_SRC/foam/db/IOstreams/Pstreams/" \
+    "$FOAM_SRC/foam"
+if [ $? -ne 0 ]; then result=1; fi
+
+checkAndReport \
+    "Pstream.C" \
+    "$FOAM_SRC/foam/db/IOstreams/Pstreams/" \
+    "$FOAM_SRC/foam"
+if [ $? -ne 0 ]; then result=1; fi
+
 if [ "$result" -ne 0 ]
 then
     echo
