@@ -518,7 +518,7 @@ void Foam::regionInterface::updateInterpolatorAndGlobalPatches()
         if
         (
             ((runTime().timeIndex() - 1) % interpolatorUpdateFrequency_) == 0
-         || changing()
+         || (!moving() && changing())
         )
         {
             // Clear current interpolators
