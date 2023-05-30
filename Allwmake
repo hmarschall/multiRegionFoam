@@ -18,16 +18,17 @@ wmakeLnInclude -f src/.
 ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.C" "src/multiRegionSystem/mergePolyMesh.C"
 ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.H" "src/multiRegionSystem/mergePolyMesh.H"
 
-while getopts ":withBear" option; do
+while getopts "withBear" option; do
    case $option in
       withBear) # compile with bear
          bear dependencies/movingReferenceFrame/Allwmake
+
+         bear -a wmake libso src/regionInterfaces
 
          bear -a wmake libso src/coupledFvPatchFields
 
          bear -a wmake libso src/multiRegionSystem
 
-         bear -a wmake applications/solvers/conjugateHeatFoam
          bear -a wmake applications/solvers/multiRegionFoam
          
          exit;;
