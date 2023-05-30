@@ -102,6 +102,16 @@ protected:
             const bool& write=true
         );
 
+        template <class T>
+        inline autoPtr<T> lookupOrRead
+        (
+            const fvMesh& mesh,
+            const word& fldName,
+            const dimensioned<typename T::cmptType> dimVal,
+            const wordList& patchFieldTypes,
+            const bool& write=true
+        );
+
 public:
 
     //- Runtime type information

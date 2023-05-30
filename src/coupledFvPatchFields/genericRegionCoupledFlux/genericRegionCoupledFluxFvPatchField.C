@@ -132,7 +132,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
         )
         {
             FatalError
-                << "\nIncorrect neigbour field name " 
+                << "\nIncorrect neigbour field name "
                 << dict.lookup("neighbourFieldName")
                 << " instead " << this->dimensionedInternalField().name()
                 << exit(FatalError);
@@ -142,7 +142,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     {
         FatalError
             << "\nNeigbour field name not found but needed for coupling manager"
-            << " Provide neighbourFieldName: " 
+            << " Provide neighbourFieldName: "
             << this->dimensionedInternalField().name()
             << exit(FatalError);
     }
@@ -191,7 +191,6 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
 
     // Update and correct the region interface physics
     const_cast<regionInterface&>(rgInterface()).update();
-    const_cast<regionInterface&>(rgInterface()).correct();
 
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
@@ -202,7 +201,7 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
         );
 
     // Interpolate flux face values from neighbour patch
-    tmp<Field<Type> > tnbrFlux = 
+    tmp<Field<Type> > tnbrFlux =
         refCast<const genericRegionCoupledJumpFvPatchField<Type>>
         (
             nbrPatch()
@@ -248,7 +247,7 @@ template<class Type>
 scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
 {
     // Lookup neighbouring patch field
-    const GeometricField<Type, fvPatchField, volMesh>& 
+    const GeometricField<Type, fvPatchField, volMesh>&
         nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
             // same field name as on this side
@@ -256,7 +255,7 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
         );
 
     // Interpolate flux face values from neighbour patch
-    tmp<Field<Type>> tnbrFlux = 
+    tmp<Field<Type>> tnbrFlux =
         refCast<const genericRegionCoupledJumpFvPatchField<Type>>
         (
             nbrPatch()
@@ -329,7 +328,7 @@ template<class Type>
 scalar genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
 {
     // Lookup neighbouring patch field
-    const GeometricField<Type, fvPatchField, volMesh>& 
+    const GeometricField<Type, fvPatchField, volMesh>&
         nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
         (
             //same field name as on this side
@@ -337,7 +336,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
         );
 
     // Interpolate flux face values from neighbour patch
-    tmp<Field<Type>> tnbrFlux = 
+    tmp<Field<Type>> tnbrFlux =
         refCast<const genericRegionCoupledJumpFvPatchField<Type>>
         (
             nbrPatch()
@@ -374,7 +373,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
         (
             min
             (
-                Foam::sqrt(gSum(magSqr(fluxOwn))), 
+                Foam::sqrt(gSum(magSqr(fluxOwn))),
                 Foam::sqrt(gSum(magSqr(-1.0*fluxNbrToOwn + fluxJump())))
                 //gMax(mag(fluxNbrToOwn))
             ),
@@ -382,7 +381,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
         );
 
     //Return normalised residual
-    return 
+    return
     (
         Foam::sqrt(gSum(magSqr(rawResidual())))/n
     );
@@ -392,7 +391,7 @@ template<class Type>
 scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
 {
     // Lookup neighbouring patch field
-    const GeometricField<Type, fvPatchField, volMesh>& 
+    const GeometricField<Type, fvPatchField, volMesh>&
         nbrField =
         nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
@@ -450,7 +449,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
             SMALL
         );
 
-    return 
+    return
     (
         gSum(rawResidual())/n
     );
@@ -464,17 +463,17 @@ void genericRegionCoupledFluxFvPatchField<Type>::write
 ) const
 {
     fvPatchField<Type>::write(os);
-    os.writeKeyword("neighbourRegionName") << neighbourRegionName_ 
+    os.writeKeyword("neighbourRegionName") << neighbourRegionName_
         << token::END_STATEMENT << nl;
-    os.writeKeyword("neighbourPatchName") << neighbourPatchName_ 
+    os.writeKeyword("neighbourPatchName") << neighbourPatchName_
         << token::END_STATEMENT << nl;
-    os.writeKeyword("neighbourFieldName") << neighbourFieldName_ 
+    os.writeKeyword("neighbourFieldName") << neighbourFieldName_
         << token::END_STATEMENT << nl;
     os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
     relaxModel_->write(os);
-    os.writeKeyword("nonOrthCorr") << nonOrthCorr_ 
+    os.writeKeyword("nonOrthCorr") << nonOrthCorr_
         << token::END_STATEMENT << nl;
-    os.writeKeyword("secondOrder") << secondOrder_ 
+    os.writeKeyword("secondOrder") << secondOrder_
         << token::END_STATEMENT << nl;
     this->writeEntry("value", os);
 }

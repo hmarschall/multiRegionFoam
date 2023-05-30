@@ -181,85 +181,6 @@ void Foam::regionInterface::makeFaMesh() const
     }
 }
 
-void Foam::regionInterface::makeUs() const
-{         
-    if (!UsPtr_.empty())
-    {
-        FatalErrorIn("regionInterface::makeUs()")
-            << "surface velocity field already exists"
-            << abort(FatalError);
-    }
-
-    // Set patch field types for Us
-    wordList patchFieldTypes
-    (
-        aMesh().boundary().size(),
-        zeroGradientFaPatchVectorField::typeName
-    );
-
-    forAll(aMesh().boundary(), patchI) 
-    {
-        if
-        (
-            aMesh().boundary()[patchI].type()
-         == wedgeFaPatch::typeName
-        )
-        {
-            patchFieldTypes[patchI] = 
-                wedgeFaPatchVectorField::typeName;
-        }
-        else
-        {
-            label ngbPolyPatchID = 
-                aMesh().boundary()[patchI].ngbPolyPatchIndex();
-
-            if (ngbPolyPatchID != -1)
-            {
-                if
-                (
-                    meshA().boundary()[ngbPolyPatchID].type() 
-                 == wallFvPatch::typeName
-                )
-                {
-                    WarningIn("regionInterface::makeUs() const")
-                        << "Patch neighbouring to interface is wall" << nl
-                        << "Not appropriate for inlets/outlets" << nl
-                        << endl;
-
-                    patchFieldTypes[patchI] =
-                        slipFaPatchVectorField::typeName;
-                }
-            }
-        }
-    }
-
-    // Set surface velocity
-    UsPtr_.reset
-    (
-        new areaVectorField
-        (
-            IOobject
-            (
-                patchA().name() + "Us",
-                runTime().timeName(), 
-                meshA(), 
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            aMesh(),
-            dimensioned<vector>("Us", dimVelocity, vector::zero),
-            patchFieldTypes
-        )
-    );
-
-    if (meshA().foundObject<volVectorField>("U"))
-    {
-        const volVectorField& U = meshA().lookupObject<volVectorField>("U");
-
-        UsPtr_().internalField() = U.boundaryField()[patchAID()];
-    }
-}
-
 //void Foam::regionInterface::makeK() const
 //{
 //    if (!KPtr_.empty())
@@ -276,8 +197,8 @@ void Foam::regionInterface::makeUs() const
 //            IOobject
 //            (
 //                "K",
-//                runTime().timeName(), 
-//                runTime(), 
+//                runTime().timeName(),
+//                runTime(),
 //                IOobject::NO_READ,
 //                IOobject::NO_WRITE
 //            ),
@@ -288,92 +209,6 @@ void Foam::regionInterface::makeUs() const
 //    );
 //}
 
-
-void Foam::regionInterface::makePhis() const
-{
-    if (!phisPtr_.empty())
-    {
-        FatalErrorIn("regionInterface::makePhis()")
-            << "surface fluid flux already exists"
-            << abort(FatalError);
-    }
-
-    phisPtr_.reset
-    (
-        new edgeScalarField
-        (
-            IOobject
-            (
-                patchA().name() + "Phis",
-                runTime().timeName(), 
-                meshA(),
-                IOobject::NO_READ,
-                IOobject::NO_WRITE
-            ),
-            linearEdgeInterpolate(Us()) & aMesh().Le()
-        )
-    );
-}
-
-const vectorField& Foam::regionInterface::Up()
-{
-    const volVectorField& U = meshA().lookupObject<volVectorField>("U");
-        
-    const fvBoundaryMesh& fvbm = meshA().boundary(); 
-
-    const fvPatch& p = fvbm[patchAID()];
-
-    return p.lookupPatchField<volVectorField, vector>(U.name());
-}
-
-void Foam::regionInterface::correctUsBoundaryConditions()
-{  
-    const volVectorField& U = meshA().lookupObject<volVectorField>("U");
-         
-    forAll(Us().boundaryField(), patchI)
-    {
-        if
-        (
-            UsPtr_().boundaryField()[patchI].type()
-         == calculatedFaPatchVectorField::typeName
-        )
-        {
-            vectorField& pUs = Us().boundaryField()[patchI];
-
-            pUs = Us().boundaryField()[patchI].patchInternalField();
-
-            label ngbPolyPatchID =
-                aMesh().boundary()[patchI].ngbPolyPatchIndex();
-
-            if (ngbPolyPatchID != -1)
-            {
-                if
-                (
-                    (
-                        U.boundaryField()[ngbPolyPatchID].type()
-                     == slipFvPatchVectorField::typeName
-                    )
-                 ||
-                    (
-                        U.boundaryField()[ngbPolyPatchID].type()
-                     == symmetryFvPatchVectorField::typeName
-                    )
-                )
-                {
-                    vectorField N
-                    (
-                        aMesh().boundary()[patchI].ngbPolyPatchFaceNormals()
-                    );
-
-                    pUs -= N*(N&pUs);
-                }
-            }
-        }
-    }
-
-    Us().correctBoundaryConditions();
-}
-
 void Foam::regionInterface::correctCurvature
 (
     areaScalarField& K
@@ -383,7 +218,7 @@ void Foam::regionInterface::correctCurvature
 
     forAll(curvatureCorrectedSurfacePatches_, patchI)
     {
-        label patchID = 
+        label patchID =
             aMesh().boundary().findPatchID
             (
                 curvatureCorrectedSurfacePatches_[patchI]
@@ -455,8 +290,8 @@ void Foam::regionInterface::correctCurvature
 
 //                    if (index == -1)
 //                    {
-//                        vector dr = 
-//                            fCentres[curFace] 
+//                        vector dr =
+//                            fCentres[curFace]
 //                          - fCentres[curFaceFaces[faceI]];
 
 //                        avrK += KI[curFaceFaces[faceI]]
@@ -478,8 +313,6 @@ void regionInterface::clearOut() const
 {
     interfaceToInterfacePtr_.clear();
 //    aMeshPtr_.clear();
-    UsPtr_.clear();
-    phisPtr_.clear();
 
     clearGlobalPatches();
 }
@@ -541,7 +374,7 @@ Foam::regionInterface::regionInterface
             IOobject::MUST_READ_IF_MODIFIED,
             IOobject::NO_WRITE
         )
-    ),    
+    ),
     runTime_(runTime),
     patchA_(patchA),
     patchB_(patchB),
@@ -564,9 +397,7 @@ Foam::regionInterface::regionInterface
     curvatureCorrectedSurfacePatches_
     (
         regionInterfaceProperties_.lookup("curvatureCorrectedSurfacePatches")
-    ),
-    UsPtr_(),
-    phisPtr_()
+    )
 {
     // Create global patches
     makeGlobalPatches();
@@ -599,7 +430,7 @@ Foam::regionInterface::regionInterface
         }
     }
 
-    // Force creation of interface-to-interface object 
+    // Force creation of interface-to-interface object
     // as they may need to read fields on restart
     interfaceToInterface();
 
@@ -687,7 +518,7 @@ void Foam::regionInterface::updateInterpolatorAndGlobalPatches()
         if
         (
             ((runTime().timeIndex() - 1) % interpolatorUpdateFrequency_) == 0
-         || changing()
+         || (!moving() && changing())
         )
         {
             // Clear current interpolators
@@ -810,31 +641,13 @@ void Foam::regionInterface::update()
         makeGlobalPatches();
     }
 
+    updateK();
     this->correct();
 }
 
-void Foam::regionInterface::updateUs()
-{
-    if (!meshA().foundObject<volVectorField>("U"))
-    {
-        return;
-    }
-
-    Us().internalField() = Up();
-
-    correctUsBoundaryConditions();
-}
-
-
-void Foam::regionInterface::updatePhis()
-{
-    Phis() = fac::interpolate(Us()) & aMesh().Le();
-}
-
-
 void Foam::regionInterface::updateK()
 {
-    areaScalarField& curv = 
+    areaScalarField& curv =
         const_cast<areaScalarField&>
         (
            aMesh().faceCurvatures()

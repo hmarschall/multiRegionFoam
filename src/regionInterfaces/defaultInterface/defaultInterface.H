@@ -77,6 +77,10 @@ public:
 
     // Get min time step based on stability criteria
     scalar getMinDeltaT();
+
+    // Log interface specific information
+    void info() const
+    {};
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

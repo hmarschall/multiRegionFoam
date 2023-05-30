@@ -255,6 +255,17 @@ void Foam::regionTypeList::postSolve()
     }
 }
 
+void Foam::regionTypeList::postSolvePIMPLE()
+{
+    forAll(*this, i)
+    {
+        if (this->operator[](i).usesPIMPLE())
+        {
+            this->operator[](i).postSolve();
+        }
+    }
+}
+
 void Foam::regionTypeList::clear()
 {
     forAll(*this, i)
