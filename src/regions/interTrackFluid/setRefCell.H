@@ -1,8 +1,5 @@
 labelList whichProcHasRef(Pstream::nProcs(), 0);
 
-label oldMsgType = Pstream::msgType();
-Pstream::msgType() = 55;
-
 // Find reference cell
 if (p_().needReference())
 {
@@ -48,6 +45,4 @@ if (p_().needReference())
         pRefCell_ = -1;
     }
 }
-
-Pstream::msgType() = oldMsgType;
 

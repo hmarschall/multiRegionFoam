@@ -87,9 +87,6 @@ void Foam::globalPolyPatch::calcGlobalPatch() const
             mesh_.boundaryMesh()[patchID.index()].localFaces();
     }
 
-    label oldMsgType = Pstream::msgType();
-    Pstream::msgType() = 33;
-
     // Communicate points
     Pstream::gatherList(procPatchPoints);
     Pstream::scatterList(procPatchPoints);
@@ -97,8 +94,6 @@ void Foam::globalPolyPatch::calcGlobalPatch() const
     // Communicate faces
     Pstream::gatherList(procPatchFaces);
     Pstream::scatterList(procPatchFaces);
-
-    Pstream::msgType() = oldMsgType;
 
     // At this point, all points and faces for the current patch
     // are available.
@@ -226,10 +221,10 @@ void Foam::globalPolyPatch::calcGlobalPatch() const
 
     if (debug)
     {
-        Pout << nl
+        Pout << nl 
              << "nDuplicatePoints: " << nDuplicatePoints
              << " on global patch: " << patchName_ << nl
-             << "resizing zonePoints from "
+             << "resizing zonePoints from " 
              << zonePoints.size() << " to " << nCurPoints << endl;
     }
 
