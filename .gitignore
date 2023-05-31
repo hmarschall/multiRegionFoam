@@ -158,6 +158,9 @@ vagrantSandbox/.vagrant/
 # bouml project directory
 *.bouml
 
+# clangd cache
+.cache
+
 # end-of-file
 src/dynamicFvMesh/
 src/coupledFvPatchFields/interfaceCoupledPressureFlux 
