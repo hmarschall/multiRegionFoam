@@ -22,7 +22,7 @@ License
     along with foam-extend.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::aitkenRelaxation
+    Foam::IQNILS
 
 Description
     Abstract base class for relaxation models
@@ -31,14 +31,15 @@ Author
     Constantin Habes, TU Darmstadt.  All rights reserved.
 
 SourceFiles
-    aitkenRelaxation.C
+    IQNILS.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef aitkenRelaxation_H
-#define aitkenRelaxation_H
+#ifndef IQNILS_H
+#define IQNILS_H
 
-#include "relaxationModel.H"
+#include "accelerationModel.H"
+#include "RectangularMatrix.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -46,70 +47,89 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class aitkenRelaxation Declaration
+                         Class IQNILS Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class Type>
-class aitkenRelaxation
+class IQNILS
 :
-    public relaxationModel<Type>
+    public accelerationModel<Type>
 {
 protected:
 
     // Protected data
 
-        //- Aitken relaxation factor
-        scalar aitkenRelax_;
+        //- Number of reused coupling data/ matrix columns
+        //  from previous time steps
+        const scalar reuse_;
+
+        //- Residual delta matrix
+        DynamicList<Field<Type> > V_;
+
+        //- BC value delta matrix
+        DynamicList<Field<Type> > W_;
+
+        //- List of time indices
+        DynamicList<scalar> T_;
+
+        //- Intermediate reference field for reaxed field
+        Field<Type> fldRef_;
+
+        //-Intermediate reference residual
+        Field<Type> resRef_;
+
+
 
 public:
 
     //- Runtime type information
-    TypeName("aitken");
+    TypeName("IQNILS");
 
     // Constructors
 
         //- Construct from dictionary
-        aitkenRelaxation
+        IQNILS
         (
             const Time& runTime,
             const dictionary& dict
         );
 
         //- Construct as copy
-        aitkenRelaxation
+        IQNILS
         (
-            const aitkenRelaxation<Type>&
+            const IQNILS<Type>&
         );
 
-        //- Construct and return a clone
-        virtual autoPtr<relaxationModel<Type> > clone() const
+        virtual autoPtr<accelerationModel<Type> > clone() const
         {
-            return autoPtr<relaxationModel<Type> >
+            return autoPtr<accelerationModel<Type> >
             (
-                new aitkenRelaxation<Type>(*this)
+                new IQNILS<Type>(*this)
             );
         }
 
 
     // Destructor
 
-        ~aitkenRelaxation();
+        ~IQNILS();
 
 
     // Member Functions
 
         // Edit
             virtual void initialize(const Field<Type> &field);
-            
-            //- Relax field 
+
+            //- Relax field
             virtual void relax(Field<Type> &field);
 
-            //- Update Aitken relaxation factor
-            void updateAitkenFactor(Field<Type> &field);
+            //- Update matrices V and W
+            void updateVW(Field<Type> &field);
+
+            //- Update the field using IQN-ILS
+            void updateIQNILS(Field<Type> &field);
 
         //- Write
             virtual void write(Ostream&) const;
-
 };
 
 
@@ -120,7 +140,7 @@ public:
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-#   include "aitkenRelaxation.C"
+#   include "IQNILS.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

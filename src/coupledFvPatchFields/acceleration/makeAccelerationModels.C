@@ -24,25 +24,25 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "volFields.H"
-#include "relaxationModel.H"
+#include "accelerationModel.H"
 #include "fixedRelaxation.H"
 #include "aitkenRelaxation.H"
-#include "IQNILSRelaxation.H"
+#include "IQNILS.H"
 
 #include "scalar.H"
 #include "vector.H"
 
 namespace Foam
 {
-    makeRelaxationModel(scalar);
-    makeRelaxationModelType(fixedRelaxation, scalar);
-    makeRelaxationModelType(aitkenRelaxation, scalar);
-    makeRelaxationModelType(IQNILSRelaxation, scalar);
+    makeAccelerationModel(scalar);
+    makeAccelerationModelType(fixedRelaxation, scalar);
+    makeAccelerationModelType(aitkenRelaxation, scalar);
+    makeAccelerationModelType(IQNILS, scalar);
 
-    makeRelaxationModel(vector);
-    makeRelaxationModelType(fixedRelaxation, vector);
-    makeRelaxationModelType(aitkenRelaxation, vector);
-    makeRelaxationModelType(IQNILSRelaxation, vector);
+    makeAccelerationModel(vector);
+    makeAccelerationModelType(fixedRelaxation, vector);
+    makeAccelerationModelType(aitkenRelaxation, vector);
+    makeAccelerationModelType(IQNILS, vector);
 };
 
 

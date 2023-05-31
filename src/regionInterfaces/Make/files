@@ -9,10 +9,10 @@ $(interfaceToInterface)/directMapInterfaceToInterfaceMapping/directMapInterfaceT
 
 interfaces = ./regionInterface
 $(interfaces)/interfaceKey.C
-$(interfaces)/regionInterface.C
-$(interfaces)/regionInterfaceTemplates.C
-$(interfaces)/regionInterfaceList.C
-$(interfaces)/newRegionInterface.C
+$(interfaces)/regionInterfaceType.C
+$(interfaces)/regionInterfaceTypeTemplates.C
+$(interfaces)/regionInterfaceTypeList.C
+$(interfaces)/newRegionInterfaceType.C
 
 capillaryInterface/capillaryInterface.C
 defaultInterface/defaultInterface.C

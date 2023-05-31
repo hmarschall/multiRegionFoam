@@ -117,7 +117,7 @@ void Foam::dnaControl::read()
 template<class Type>
 void Foam::dnaControl::maxTypeRes
 (
-    const regionInterface& interface,
+    const regionInterfaceType& interface,
     const word& fldName,
     scalar& globalMaxJumpRes,
     scalar& globalMaxFluxRes
@@ -219,7 +219,7 @@ void Foam::dnaControl::maxTypeRes
 
 void Foam::dnaControl::maxRes
 (
-    const regionInterface& interface,
+    const regionInterfaceType& interface,
     const word& fldName,
     scalar& globalMaxJumpRes,
     scalar& globalMaxFluxRes
@@ -254,7 +254,7 @@ void Foam::dnaControl::maxRes
 template<class Type>
 void Foam::dnaControl::writeResFlds
 (
-    const regionInterface& interface,
+    const regionInterfaceType& interface,
     const word& fldName,
     const Switch outputJumpResField,
     const Switch outputFluxResField,
@@ -403,7 +403,7 @@ void Foam::dnaControl::writeResFlds
 
 void Foam::dnaControl::writeResFlds
 (
-    const regionInterface& interface,
+    const regionInterfaceType& interface,
     const word& fldName,
     const Switch outputJumpResField,
     const Switch outputFluxResField,
@@ -590,7 +590,7 @@ void Foam::dnaControl::createResFlds()
 {
     forAll (interfaces_, intI)
     {
-        const regionInterface& interface = interfaces_[intI];
+        const regionInterfaceType& interface = interfaces_[intI];
 
         forAll (dnaResControl_, ctrlI)
         {
@@ -781,7 +781,7 @@ Foam::dnaControl::dnaControl
 (
     const Time& runTime,
     const word& fldName,
-    const regionInterfaceList& interfaces
+    const regionInterfaceTypeList& interfaces
 )
 :
     IOobject

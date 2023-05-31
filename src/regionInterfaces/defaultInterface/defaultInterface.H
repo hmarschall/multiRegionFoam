@@ -32,7 +32,7 @@ SourceFiles
 #ifndef defaultInterface_H
 #define defaultInterface_H
 
-#include "regionInterface.H"
+#include "regionInterfaceType.H"
 #include "IOReferencer.H"
 #include "HashPtrTable.H"
 
@@ -49,7 +49,7 @@ namespace regionInterfaces
 
 class defaultInterface
 :
-    public regionInterface
+    public regionInterfaceType
 {
 
 public:

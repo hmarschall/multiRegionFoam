@@ -23,18 +23,18 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    regionInterface
+    regionInterfaceType
 
 Description
     Class to handle the coupling of region patches.
 
 SourceFiles
-    regionInterface.C
+    regionInterfaceType.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef regionInterface_H
-#define regionInterface_H
+#ifndef regionInterfaceType_H
+#define regionInterfaceType_H
 
 #include "IOdictionary.H"
 #include "interfaceKey.H"
@@ -70,13 +70,13 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class regionInterface Declaration
+                         Class regionInterfaceType Declaration
 \*---------------------------------------------------------------------------*/
 
-class regionInterface
+class regionInterfaceType
 :
     public IOdictionary,
-    public MeshObject<fvMesh, regionInterface>,
+    public MeshObject<fvMesh, regionInterfaceType>,
     public interfaceKey
 {
     // Private data
@@ -176,15 +176,15 @@ private:
         );
 
         //- Disallow default bitwise copy construct
-        regionInterface(const regionInterface&);
+        regionInterfaceType(const regionInterfaceType&);
 
         //- Disallow default bitwise assignment
-        void operator=(const regionInterface&);
+        void operator=(const regionInterfaceType&);
 
 public:
 
     //- Runtime type information
-    TypeName("regionInterface");
+    TypeName("regionInterfaceType");
 
 
     // Declare run-time constructor selection table
@@ -192,7 +192,7 @@ public:
         declareRunTimeSelectionTable
         (
             autoPtr,
-            regionInterface,
+            regionInterfaceType,
             IOdictionary,
             (
                 const word& type,
@@ -208,7 +208,7 @@ public:
     // Constructors
 
         //- Construct from components
-        regionInterface
+        regionInterfaceType
         (
             const word& type,
             const dictionary& dict,
@@ -221,7 +221,7 @@ public:
     // Selectors
 
         //- Select constructed from fluid and solid meshes
-        static autoPtr<regionInterface> New
+        static autoPtr<regionInterfaceType> New
         (
             const word& type,
             const dictionary& dict,
@@ -233,9 +233,9 @@ public:
 
     // Destructor
 
-/*        virtual ~regionInterface()*/
+/*        virtual ~regionInterfaceType()*/
 /*        {}*/
-        ~regionInterface();
+        ~regionInterfaceType();
 
 protected:
 
@@ -441,15 +441,15 @@ public:
 };
 
 template<class Type>
-tmp<Field<Type> > regionInterface::interpolateFacesFromA
+tmp<Field<Type> > regionInterfaceType::interpolateFacesFromA
 (
     const Field<Type>& fromField
 ) const
 {
     notImplemented
     (
-        "regionInterfaceTemplates.C\n"
-        "tmp<Field<Type> > regionInterface::interpolateFacesFromA\n"
+        "regionInterfaceTypeTemplates.C\n"
+        "tmp<Field<Type> > regionInterfaceType::interpolateFacesFromA\n"
         "(\n"
         "const Field<Type>& fromField\n"
         ") const\n"
@@ -465,15 +465,15 @@ tmp<Field<Type> > regionInterface::interpolateFacesFromA
 }
 
 template<class Type>
-tmp<Field<Type> > regionInterface::interpolateFacesFromB
+tmp<Field<Type> > regionInterfaceType::interpolateFacesFromB
 (
     const Field<Type>& fromField
 ) const
 {
     notImplemented
     (
-        "regionInterfaceTemplates.C\n"
-        "tmp<Field<Type> > regionInterface::interpolateFacesFromB\n"
+        "regionInterfaceTypeTemplates.C\n"
+        "tmp<Field<Type> > regionInterfaceType::interpolateFacesFromB\n"
         "(\n"
         "const Field<Type>& fromField\n"
         ") const\n"
@@ -490,25 +490,25 @@ tmp<Field<Type> > regionInterface::interpolateFacesFromB
 
 //-Specialisations
 template<>
-tmp<Field<scalar> > regionInterface::interpolateFacesFromA
+tmp<Field<scalar> > regionInterfaceType::interpolateFacesFromA
 (
     const Field<scalar>& fromField
 ) const;
 
 template<>
-tmp<Field<vector> > regionInterface::interpolateFacesFromA
+tmp<Field<vector> > regionInterfaceType::interpolateFacesFromA
 (
     const Field<vector>& fromField
 ) const;
 
 template<>
-tmp<Field<scalar> > regionInterface::interpolateFacesFromB
+tmp<Field<scalar> > regionInterfaceType::interpolateFacesFromB
 (
     const Field<scalar>& fromField
 ) const;
 
 template<>
-tmp<Field<vector> > regionInterface::interpolateFacesFromB
+tmp<Field<vector> > regionInterfaceType::interpolateFacesFromB
 (
     const Field<vector>& fromField
 ) const;

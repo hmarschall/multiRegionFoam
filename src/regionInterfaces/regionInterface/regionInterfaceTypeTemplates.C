@@ -24,7 +24,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "regionInterface.H"
+#include "regionInterfaceType.H"
 
 // * * * * * * * * * * * * * Public Member Functions  * * * * * * * * * * * //
 
@@ -33,7 +33,7 @@ namespace Foam
 
 
 template<>
-tmp<Field<scalar> > regionInterface::interpolateFacesFromA
+tmp<Field<scalar> > regionInterfaceType::interpolateFacesFromA
 (
     const Field<scalar>& fromField
 ) const
@@ -58,7 +58,7 @@ tmp<Field<scalar> > regionInterface::interpolateFacesFromA
 }
 
 template<>
-tmp<Field<vector> > regionInterface::interpolateFacesFromA
+tmp<Field<vector> > regionInterfaceType::interpolateFacesFromA
 (
     const Field<vector>& fromField
 ) const
@@ -85,7 +85,7 @@ tmp<Field<vector> > regionInterface::interpolateFacesFromA
 
 
 template<>
-tmp<Field<scalar> > regionInterface::interpolateFacesFromB
+tmp<Field<scalar> > regionInterfaceType::interpolateFacesFromB
 (
     const Field<scalar>& fromField
 ) const
@@ -110,7 +110,7 @@ tmp<Field<scalar> > regionInterface::interpolateFacesFromB
 }
 
 template<>
-tmp<Field<vector> > regionInterface::interpolateFacesFromB
+tmp<Field<vector> > regionInterfaceType::interpolateFacesFromB
 (
     const Field<vector>& fromField
 ) const

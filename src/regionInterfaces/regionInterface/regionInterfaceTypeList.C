@@ -23,18 +23,18 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "regionInterfaceList.H"
+#include "regionInterfaceTypeList.H"
 #include "volFields.H"
 #include "IOdictionary.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::regionInterfaceList::regionInterfaceList
+Foam::regionInterfaceTypeList::regionInterfaceTypeList
 (
     const Time& runTime
 )
 :
-    PtrList<regionInterface>(),
+    PtrList<regionInterfaceType>(),
     index_(0),
     monolithicCoupledFields_(),
     partitionedCoupledFields_(),
@@ -70,7 +70,7 @@ Foam::regionInterfaceList::regionInterfaceList
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-//bool Foam::regionInterfaceList::coupled(const bool warn) const
+//bool Foam::regionInterfaceTypeList::coupled(const bool warn) const
 //{
 //    bool a = false;
 //    forAll(*this, i)
@@ -86,7 +86,7 @@ Foam::regionInterfaceList::regionInterfaceList
 //    return a;
 //}
 
-void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
+void Foam::regionInterfaceTypeList::reset(const regionInterfaceProperties& rip)
 {
     forAll (rip, cpldPatchI)
     {
@@ -101,7 +101,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
         {
             FatalErrorIn
             (
-                "regionInterfaceList::reset"
+                "regionInterfaceTypeList::reset"
             )   << "An interface is made of two patches." << nl
                 << "For each interface create a separate entry."
                 << abort(FatalError);
@@ -142,7 +142,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
         this->set
         (
             index_++,
-            regionInterface::New
+            regionInterfaceType::New
             (
                 interfaceType,
                 interfaceDict,
@@ -155,7 +155,7 @@ void Foam::regionInterfaceList::reset(const regionInterfaceProperties& rip)
 }
 
 
-void Foam::regionInterfaceList::setFieldNamesPartitionedCoupling
+void Foam::regionInterfaceTypeList::setFieldNamesPartitionedCoupling
 (
     const regionInterfaceProperties& rip
 )
@@ -195,7 +195,7 @@ void Foam::regionInterfaceList::setFieldNamesPartitionedCoupling
     }
 }
 
-void Foam::regionInterfaceList::setFieldNamesMonolithicCoupling
+void Foam::regionInterfaceTypeList::setFieldNamesMonolithicCoupling
 (
     const regionInterfaceProperties& rip
 )
@@ -237,7 +237,7 @@ void Foam::regionInterfaceList::setFieldNamesMonolithicCoupling
     // Info << monolithicCoupledFields_.toc() << endl;
 }
 
-void Foam::regionInterfaceList::attach()
+void Foam::regionInterfaceTypeList::attach()
 {
    forAll(*this, i)
    {
@@ -245,7 +245,7 @@ void Foam::regionInterfaceList::attach()
    }
 }
 
-void Foam::regionInterfaceList::detach()
+void Foam::regionInterfaceTypeList::detach()
 {
    forAll(*this, i)
    {
@@ -253,7 +253,7 @@ void Foam::regionInterfaceList::detach()
    }
 }
 
-void Foam::regionInterfaceList::update()
+void Foam::regionInterfaceTypeList::update()
 {
    forAll(*this, i)
    {
@@ -264,7 +264,7 @@ void Foam::regionInterfaceList::update()
    }
 }
 
-Foam::scalar Foam::regionInterfaceList::getMinDeltaT()
+Foam::scalar Foam::regionInterfaceTypeList::getMinDeltaT()
 {
     scalar minDeltaT = GREAT;
     forAll(*this, i)

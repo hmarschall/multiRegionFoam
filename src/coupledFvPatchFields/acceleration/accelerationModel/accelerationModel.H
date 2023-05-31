@@ -22,21 +22,21 @@ License
     along with foam-extend.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::relaxationModel
+    Foam::accelerationModel
 
 Description
-    Abstract base class for relaxation models
+    Abstract base class for acceleration models
 
 Author
     Constantin Habes, TU Darmstadt.  All rights reserved.
 
 SourceFiles
-    relaxationModel.C
+    accelerationModel.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef relaxationModel_H
-#define relaxationModel_H
+#ifndef accelerationModel_H
+#define accelerationModel_H
 
 #include "autoPtr.H"
 #include "runTimeSelectionTables.H"
@@ -50,11 +50,11 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class relaxationModel Declaration
+                         Class accelerationModel Declaration
 \*---------------------------------------------------------------------------*/
 
 template<class Type>
-class relaxationModel
+class accelerationModel
 {
 protected:
 
@@ -83,7 +83,7 @@ protected:
 public:
 
     //- Runtime type information
-    TypeName("relaxationModel");
+    TypeName("accelerationModel");
 
 
     //- Declare runtime constructor selection table
@@ -91,7 +91,7 @@ public:
         declareRunTimeSelectionTable
         (
             autoPtr,
-            relaxationModel,
+            accelerationModel,
             dictionary,
             (
                 const Time& runTime,
@@ -104,26 +104,26 @@ public:
     // Constructors
 
         //- Construct from dictionary
-        relaxationModel
+        accelerationModel
         (
             const Time& runTime,
             const dictionary& dict = dictionary()
         );
 
         //- Construct as copy
-        relaxationModel
+        accelerationModel
         (
-            const relaxationModel<Type>&
+            const accelerationModel<Type>&
         );
 
         //- Construct and return a clone
-        virtual autoPtr<relaxationModel<Type> > clone() const = 0;
+        virtual autoPtr<accelerationModel<Type> > clone() const = 0;
 
     // Selectors
 
-        //- Return a pointer to the selected relaxation model
+        //- Return a pointer to the selected acceleration model
         //  created from a dictionary
-        static autoPtr<relaxationModel> New
+        static autoPtr<accelerationModel> New
         (
             const Time& runTime,
             const dictionary& dict = dictionary()
@@ -132,7 +132,7 @@ public:
 
     // Destructor
 
-        virtual ~relaxationModel();
+        virtual ~accelerationModel();
 
 
     // Member Functions
@@ -172,28 +172,28 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#define makeRelaxationModel(Type)                                             \
+#define makeAccelerationModel(Type)                                             \
                                                                               \
-    defineNamedTemplateTypeNameAndDebug(relaxationModel<Type>, 0);            \
+    defineNamedTemplateTypeNameAndDebug(accelerationModel<Type>, 0);            \
                                                                               \
     defineTemplateRunTimeSelectionTable                                       \
     (                                                                         \
-        relaxationModel<Type>,                                                \
+        accelerationModel<Type>,                                                \
         dictionary                                                            \
     );
 
 
-#define makeRelaxationModelType(RS, Type)                                     \
+#define makeAccelerationModelType(RS, Type)                                     \
                                                                               \
     defineNamedTemplateTypeNameAndDebug(RS<Type>, 0);                         \
                                                                               \
-    relaxationModel<Type>::adddictionaryConstructorToTable<RS<Type> >       \
+    accelerationModel<Type>::adddictionaryConstructorToTable<RS<Type> >       \
         add##RS##Type##ConstructorToTable_;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-#   include "relaxationModel.C"
+#   include "accelerationModel.C"
 #endif
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

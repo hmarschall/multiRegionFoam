@@ -25,7 +25,7 @@ Class
     Foam::fixedRelaxation
 
 Description
-    Abstract base class for relaxation models
+    A acceleration model that applies a fixed relaxation factor
 
 Author
     Constantin Habes, TU Darmstadt.  All rights reserved.
@@ -38,7 +38,7 @@ SourceFiles
 #ifndef fixedRelaxation_H
 #define fixedRelaxation_H
 
-#include "relaxationModel.H"
+#include "accelerationModel.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -52,7 +52,7 @@ namespace Foam
 template<class Type>
 class fixedRelaxation
 :
-    public relaxationModel<Type>
+    public accelerationModel<Type>
 {
 protected:
 
@@ -81,9 +81,9 @@ public:
             const fixedRelaxation<Type>&
         );
 
-        virtual autoPtr<relaxationModel<Type> > clone() const
+        virtual autoPtr<accelerationModel<Type> > clone() const
         {
-            return autoPtr<relaxationModel<Type> >
+            return autoPtr<accelerationModel<Type> >
             (
                 new fixedRelaxation<Type>(*this)
             );
@@ -98,8 +98,8 @@ public:
 
         // Edit
             virtual void initialize(const Field<Type> &field);
-            
-            //- Relax field 
+
+            //- Relax field
             virtual void relax(Field<Type> &field);
 
         //- Write

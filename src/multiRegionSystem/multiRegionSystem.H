@@ -44,7 +44,7 @@ SourceFiles
 #include "fvMatrix.H"
 
 #include "regionTypeList.H"
-#include "regionInterfaceList.H"
+#include "regionInterfaceTypeList.H"
 
 #include "dnaControl.H"
 
@@ -56,7 +56,7 @@ namespace Foam
 
 // Forward declaration of classes
 class regionTypeList;
-class regionInterfaceList;
+class regionInterfaceTypeList;
 
 /*---------------------------------------------------------------------------*\
                       Class multiRegionSystem Declaration
@@ -75,7 +75,7 @@ class multiRegionSystem
         autoPtr<regionTypeList> regions_;
 
         //- list of region interfaces
-        autoPtr<regionInterfaceList> interfaces_;
+        autoPtr<regionInterfaceTypeList> interfaces_;
 
         //- PtrLists of coupled finite volume fields
         //  per coupling method
@@ -175,7 +175,7 @@ public:
 
         regionTypeList& regions();
 
-        regionInterfaceList& interfaces();
+        regionInterfaceTypeList& interfaces();
 
         //- Read base dictionary
 //        bool read();

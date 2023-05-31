@@ -23,93 +23,76 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "fixedRelaxation.H"
-#include "addToRunTimeSelectionTable.H"
+#include "accelerationModel.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 
 template<class Type>
-Foam::fixedRelaxation<Type>::fixedRelaxation
+Foam::accelerationModel<Type>::accelerationModel
 (
     const Time& runTime,
     const dictionary& dict
 )
 :
-    relaxationModel<Type>(runTime, dict),
-    relax_(this->initRelax_)
-{
-    if (relax_ != 1.0)
-    {
-        Info<< "Selecting an fixedRelaxation model for " << dict.dictName() 
-            << " with fixed relaxation factor " << this->relax_
-            << endl;
-    }
-}
+    runTime_(runTime),
+    curTime_(runTime.value()),
+    corr_(0),
+    prevFld_(),
+    resFld_(),
+    prevResFld_(),
+    initRelax_(dict.lookupOrDefault<scalar>("relax",1.0))
+{}
 
 template<class Type>
-Foam::fixedRelaxation<Type>::fixedRelaxation
+Foam::accelerationModel<Type>::accelerationModel
 (
-    const fixedRelaxation<Type>& fR
+    const accelerationModel<Type>& rM
 )
 :
-    relaxationModel<Type>(fR),
-    relax_(fR.relax_)
+    runTime_(rM.runTime_),
+    curTime_(rM.curTime_),
+    corr_(rM.corr_),
+    prevFld_(rM.prevFld_),
+    resFld_(rM.resFld_),
+    prevResFld_(rM.prevResFld_),
+    initRelax_(rM.initRelax_)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::fixedRelaxation<Type>::~fixedRelaxation()
+Foam::accelerationModel<Type>::~accelerationModel()
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 template<class Type>
-void Foam::fixedRelaxation<Type>::initialize(const Field<Type> &curFld)
+void Foam::accelerationModel<Type>::initialize(const Field<Type> &initFld)
 {
-    Foam::relaxationModel<Type>::initialize(curFld);
+    prevFld_ = initFld;
 }
 
 template<class Type>
-void Foam::fixedRelaxation<Type>::relax(Field<Type> &curFld)
+void Foam::accelerationModel<Type>::updateResiual(const Field<Type> &curFld)
 {
-    //- Check if solver time is time saved by relaxation model
+    //- Store old residual
+    prevResFld_ = resFld_;
 
-    if (this->runTime_.value() != this->curTime_)
-    {
-        //- Reset counter for corrector steps
-        this->corr_ = 1;
-        //- Set curent time to solver time
-        this->curTime_ = this->runTime_.value();
-    }
-
-    //- Update residuals
-    this->updateResiual(curFld);
-
-    if (relax_ != 1.0)
-    {
-        Info<< nl
-            << "Relaxing field with fixed relaxation factor: "
-            << relax_ 
-            << endl;
-    }
-
-    //- Relax field
-    curFld = this->prevFld_ + this->initRelax_ * this->resFld_;
-
-    //- Store relaxed field a new field
-    this->prevFld_ = curFld;
-
-    //- Increment corrector step counter
-    this->corr_++;
+    //- Compute new residual with curent and previous field
+    resFld_ = curFld - prevFld_;
 }
 
 template<class Type>
-void Foam::fixedRelaxation<Type>::write(Ostream& os) const
+void Foam::accelerationModel<Type>::write(Ostream& os) const
 {
-    relaxationModel<Type>::write(os);
+    os.writeKeyword("accType") << type() << token::END_STATEMENT << nl;
+    os.writeKeyword("relax") << initRelax_ << token::END_STATEMENT << nl;
 }
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+#include "newAccelerationModel.C"
 
 // ************************************************************************* //

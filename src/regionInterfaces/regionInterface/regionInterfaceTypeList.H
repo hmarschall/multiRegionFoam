@@ -22,25 +22,25 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::regionInterfaceList
+    Foam::regionInterfaceTypeList
 
 Description
     List container for region interfaces
 
 SourceFiles
-    regionInterfaceList.C
+    regionInterfaceTypeList.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef regionInterfaceList_H
-#define regionInterfaceList_H
+#ifndef regionInterfaceTypeList_H
+#define regionInterfaceTypeList_H
 
 #include "Tuple2.H"
 #include "fvMesh.H"
 #include "dictionary.H"
 #include "hashedWordList.H"
 #include "regionInterfaceProperties.H"
-#include "regionInterface.H"
+#include "regionInterfaceType.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -48,12 +48,12 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                      Class regionInterfaceList Declaration
+                      Class regionInterfaceTypeList Declaration
 \*---------------------------------------------------------------------------*/
 
-class regionInterfaceList
+class regionInterfaceTypeList
 :
-    public PtrList<regionInterface>
+    public PtrList<regionInterfaceType>
 {
 public:
 
@@ -81,10 +81,10 @@ private:
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
-        regionInterfaceList(const regionInterfaceList&);
+        regionInterfaceTypeList(const regionInterfaceTypeList&);
 
         //- Disallow default bitwise assignment
-        void operator=(const regionInterfaceList&);
+        void operator=(const regionInterfaceTypeList&);
 
 
 protected:
@@ -108,10 +108,10 @@ protected:
 public:
 
     // Constructor
-    regionInterfaceList(const Time& runTime);
+    regionInterfaceTypeList(const Time& runTime);
 
     // Destructor
-    virtual ~regionInterfaceList()
+    virtual ~regionInterfaceTypeList()
     {}
 
 

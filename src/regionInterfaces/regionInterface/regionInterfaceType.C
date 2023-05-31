@@ -25,21 +25,21 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "fixedGradientFaPatchFields.H"
-#include "regionInterface.H"
+#include "regionInterfaceType.H"
 #include "OFstream.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
 namespace Foam
 {
-    defineTypeNameAndDebug(regionInterface, 0);
-    defineRunTimeSelectionTable(regionInterface, IOdictionary);
+    defineTypeNameAndDebug(regionInterfaceType, 0);
+    defineRunTimeSelectionTable(regionInterfaceType, IOdictionary);
 }
 
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
-word Foam::regionInterface::assembleName
+word Foam::regionInterfaceType::assembleName
 (
     const fvPatch& patchA,
     const fvPatch& patchB,
@@ -71,7 +71,7 @@ word Foam::regionInterface::assembleName
     );
 }
 
-void Foam::regionInterface::makeGlobalPatches() const
+void Foam::regionInterfaceType::makeGlobalPatches() const
 {
     if (globalPatchAPtr_.valid() || globalPatchBPtr_.valid())
     {
@@ -81,7 +81,7 @@ void Foam::regionInterface::makeGlobalPatches() const
 
     Info<< "Creating global patches : "
     << patchA().name() << " and "
-    << patchB().name() << " for regionInterface "
+    << patchB().name() << " for regionInterfaceType "
     << interfaceName()
     << endl;
 
@@ -92,13 +92,13 @@ void Foam::regionInterface::makeGlobalPatches() const
     globalPatchBPtr_().globalPatch();
 }
 
-void Foam::regionInterface::clearGlobalPatches() const
+void Foam::regionInterfaceType::clearGlobalPatches() const
 {
     globalPatchAPtr_.clear();
     globalPatchBPtr_.clear();
 }
 
-void Foam::regionInterface::makeInterfaceToInterface() const
+void Foam::regionInterfaceType::makeInterfaceToInterface() const
 {
     if (interfaceToInterfacePtr_.valid())
     {
@@ -129,7 +129,7 @@ void Foam::regionInterface::makeInterfaceToInterface() const
     );
 }
 
-void Foam::regionInterface::resetFaMesh() const
+void Foam::regionInterfaceType::resetFaMesh() const
 {
     word aMeshName = patchA().name() + "FaMesh";
 
@@ -149,11 +149,11 @@ void Foam::regionInterface::resetFaMesh() const
 //    }
 }
 
-void Foam::regionInterface::makeFaMesh() const
+void Foam::regionInterfaceType::makeFaMesh() const
 {
     if (!aMeshPtr_.empty())
     {
-        FatalErrorIn("regionInterface::makeFaMesh()")
+        FatalErrorIn("regionInterfaceType::makeFaMesh()")
             << "finite area mesh already exists"
             << abort(FatalError);
     }
@@ -181,11 +181,11 @@ void Foam::regionInterface::makeFaMesh() const
     }
 }
 
-//void Foam::regionInterface::makeK() const
+//void Foam::regionInterfaceType::makeK() const
 //{
 //    if (!KPtr_.empty())
 //    {
-//        FatalErrorIn("regionInterface::makeK()")
+//        FatalErrorIn("regionInterfaceType::makeK()")
 //            << "surface curvature field already exists"
 //            << abort(FatalError);
 //    }
@@ -209,7 +209,7 @@ void Foam::regionInterface::makeFaMesh() const
 //    );
 //}
 
-void Foam::regionInterface::correctCurvature
+void Foam::regionInterfaceType::correctCurvature
 (
     areaScalarField& K
 )
@@ -226,7 +226,7 @@ void Foam::regionInterface::correctCurvature
 
         if(patchID == -1)
         {
-            FatalErrorIn("regionInterface::correctCurvature(...)")
+            FatalErrorIn("regionInterfaceType::correctCurvature(...)")
                 << "Wrong faPatch name in the curvatureCorrectedSurfacePatches"
                     << " list defined in regionInterfaceProperties"
                     << abort(FatalError);
@@ -309,7 +309,7 @@ void Foam::regionInterface::correctCurvature
     }
 }
 
-void regionInterface::clearOut() const
+void regionInterfaceType::clearOut() const
 {
     interfaceToInterfacePtr_.clear();
 //    aMeshPtr_.clear();
@@ -320,7 +320,7 @@ void regionInterface::clearOut() const
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::regionInterface::regionInterface
+Foam::regionInterfaceType::regionInterfaceType
 (
     const word& type,
     const dictionary& dict,
@@ -340,7 +340,7 @@ Foam::regionInterface::regionInterface
             IOobject::NO_WRITE
         )
     ),
-    MeshObject<fvMesh, regionInterface>(patchA.boundaryMesh().mesh()),
+    MeshObject<fvMesh, regionInterfaceType>(patchA.boundaryMesh().mesh()),
     interfaceKey(patchA.name(), patchB.name()),
     multiRegionProperties_
     (
@@ -437,7 +437,7 @@ Foam::regionInterface::regionInterface
     if (debug)
     {
         //Output region interface information
-        Pout<< "regionInterface Info: " << interfaceName() << nl
+        Pout<< "regionInterfaceType Info: " << interfaceName() << nl
             << "local patchA: " << nl
             << " name: " << patchA_.name()
             << " size: " << patchA_.size()
@@ -468,7 +468,7 @@ Foam::regionInterface::regionInterface
 
 // * * * * * * * * * * * * * * * Destructor * * * * * * * * * * * * * * * * * //
 
-regionInterface::~regionInterface()
+regionInterfaceType::~regionInterfaceType()
 {
     clearOut();
 }
@@ -476,12 +476,12 @@ regionInterface::~regionInterface()
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-Foam::word Foam::regionInterface::interfaceName() const
+Foam::word Foam::regionInterfaceType::interfaceName() const
 {
     return IOdictionary::name();
 }
 
-const Foam::globalPolyPatch& Foam::regionInterface::globalPatchA() const
+const Foam::globalPolyPatch& Foam::regionInterfaceType::globalPatchA() const
 {
     if (globalPatchAPtr_.empty())
     {
@@ -493,7 +493,7 @@ const Foam::globalPolyPatch& Foam::regionInterface::globalPatchA() const
     return globalPatchAPtr_();
 }
 
-const Foam::globalPolyPatch& Foam::regionInterface::globalPatchB() const
+const Foam::globalPolyPatch& Foam::regionInterfaceType::globalPatchB() const
 {
     if (globalPatchBPtr_.empty())
     {
@@ -505,9 +505,9 @@ const Foam::globalPolyPatch& Foam::regionInterface::globalPatchB() const
     return globalPatchBPtr_();
 }
 
-void Foam::regionInterface::updateInterpolatorAndGlobalPatches()
+void Foam::regionInterfaceType::updateInterpolatorAndGlobalPatches()
 {
-    Info << "Updating interpolator and global patches for regionInterface" << endl;
+    Info << "Updating interpolator and global patches for regionInterfaceType" << endl;
 
     if (interfaceToInterfacePtr_.empty())
     {
@@ -535,7 +535,7 @@ void Foam::regionInterface::updateInterpolatorAndGlobalPatches()
 }
 
 const Foam::interfaceToInterfaceMapping&
-Foam::regionInterface::interfaceToInterface() const
+Foam::regionInterfaceType::interfaceToInterface() const
 {
     if (interfaceToInterfacePtr_.empty())
     {
@@ -545,7 +545,7 @@ Foam::regionInterface::interfaceToInterface() const
     return interfaceToInterfacePtr_();
 }
 
-void Foam::regionInterface::attach()
+void Foam::regionInterfaceType::attach()
 {
     if (!attachedA_)
     {
@@ -588,7 +588,7 @@ void Foam::regionInterface::attach()
     }
 }
 
-void Foam::regionInterface::detach()
+void Foam::regionInterfaceType::detach()
 {
     if (attachedA_)
     {
@@ -631,7 +631,7 @@ void Foam::regionInterface::detach()
     }
 }
 
-void Foam::regionInterface::update()
+void Foam::regionInterfaceType::update()
 {
     // critical: only if mesh topology has changed
     if (!moving() && changing())
@@ -645,7 +645,7 @@ void Foam::regionInterface::update()
     this->correct();
 }
 
-void Foam::regionInterface::updateK()
+void Foam::regionInterfaceType::updateK()
 {
     areaScalarField& curv =
         const_cast<areaScalarField&>
@@ -659,18 +659,18 @@ void Foam::regionInterface::updateK()
 }
 
 // Update for mesh motion
-bool Foam::regionInterface::movePoints() const
+bool Foam::regionInterfaceType::movePoints() const
 {
     return true;
 }
 
 
 // Update on topology change
-bool Foam::regionInterface::updateMesh(const mapPolyMesh& mpm) const
+bool Foam::regionInterfaceType::updateMesh(const mapPolyMesh& mpm) const
 {
     if (debug)
     {
-        Info << "Clearing out regionInterface after topology change" << endl;
+        Info << "Clearing out regionInterfaceType after topology change" << endl;
     }
 
     // Wipe out demand-driven data

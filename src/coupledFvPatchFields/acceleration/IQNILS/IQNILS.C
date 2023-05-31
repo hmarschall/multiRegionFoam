@@ -23,20 +23,20 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "IQNILSRelaxation.H"
+#include "IQNILS.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 
 template<class Type>
-Foam::IQNILSRelaxation<Type>::IQNILSRelaxation
+Foam::IQNILS<Type>::IQNILS
 (
     const Time& runTime,
     const dictionary& dict
 )
 :
-    relaxationModel<Type>(runTime, dict),
+    accelerationModel<Type>(runTime, dict),
     reuse_(dict.lookupOrDefault<label>("couplingReuse", 0)),
     V_(),
     W_(),
@@ -44,20 +44,20 @@ Foam::IQNILSRelaxation<Type>::IQNILSRelaxation
     fldRef_(),
     resRef_()
 {
-    Info<< "Selecting an IQNILSRelaxation model for " << dict.dictName()
+    Info<< "Selecting an IQNILS acceleration model for " << dict.dictName()
         << " with initial relaxation factor " << this->initRelax_ << "\n"
-        << "\twhile reusing coupling data from " << this->reuse_ 
+        << "\twhile reusing coupling data from " << this->reuse_
         << " time steps"
         << endl;
 }
 
 template<class Type>
-Foam::IQNILSRelaxation<Type>::IQNILSRelaxation
+Foam::IQNILS<Type>::IQNILS
 (
-    const IQNILSRelaxation<Type>& fR
+    const IQNILS<Type>& fR
 )
 :
-    relaxationModel<Type>(fR),
+    accelerationModel<Type>(fR),
     reuse_(fR.reuse_),
     V_(fR.V_),
     W_(fR.W_),
@@ -70,21 +70,21 @@ Foam::IQNILSRelaxation<Type>::IQNILSRelaxation
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::IQNILSRelaxation<Type>::~IQNILSRelaxation()
+Foam::IQNILS<Type>::~IQNILS()
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
 template<class Type>
-void Foam::IQNILSRelaxation<Type>::initialize(const Field<Type> &curFld)
+void Foam::IQNILS<Type>::initialize(const Field<Type> &curFld)
 {
-    Foam::relaxationModel<Type>::initialize(curFld);
+    Foam::accelerationModel<Type>::initialize(curFld);
 }
 
 template<class Type>
-void Foam::IQNILSRelaxation<Type>::relax(Field<Type> &curFld)
+void Foam::IQNILS<Type>::relax(Field<Type> &curFld)
 {
-    //- Check if solver time is time saved by relaxation model
+    //- Check if solver time is time saved by acceleration model
 
     if (this->runTime_.value() != this->curTime_)
     {
@@ -102,16 +102,16 @@ void Foam::IQNILSRelaxation<Type>::relax(Field<Type> &curFld)
     if (T_.size() > 1)
     {
         Info<< nl
-            << "Relaxing field with IQN-ILS procedure" 
+            << "Updating field with IQN-ILS procedure"
             << endl;
 
-        relaxIQNILS(curFld);
+        updateIQNILS(curFld);
     }
     else
-    {   
+    {
         Info<< nl
             << "Relaxing field with initial relaxation factor: "
-            << this->initRelax_ 
+            << this->initRelax_
             << endl;
 
         //- Relax with a field relaxation factor
@@ -126,7 +126,7 @@ void Foam::IQNILSRelaxation<Type>::relax(Field<Type> &curFld)
 }
 
 template<class Type>
-void Foam::IQNILSRelaxation<Type>::updateVW(Field<Type> &curFld)
+void Foam::IQNILS<Type>::updateVW(Field<Type> &curFld)
 {
     if (this->corr_ == 1)
     {
@@ -138,7 +138,7 @@ void Foam::IQNILSRelaxation<Type>::updateVW(Field<Type> &curFld)
             {
                 if
                 (
-                    this->runTime_.timeIndex() - reuse_ 
+                    this->runTime_.timeIndex() - reuse_
                   > T_[0]
                 )
                 {
@@ -193,16 +193,16 @@ void Foam::IQNILSRelaxation<Type>::updateVW(Field<Type> &curFld)
 }
 
 template<class Type>
-void Foam::IQNILSRelaxation<Type>::write(Ostream& os) const
+void Foam::IQNILS<Type>::write(Ostream& os) const
 {
-    relaxationModel<Type>::write(os);
+    accelerationModel<Type>::write(os);
     os.writeKeyword("couplingReuse") << reuse_ << token::END_STATEMENT << nl;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 #ifdef NoRepository
-#   include "IQNILSRelaxationTemplates.C"
+#   include "IQNILSTemplates.C"
 #endif
 
 // ************************************************************************* //

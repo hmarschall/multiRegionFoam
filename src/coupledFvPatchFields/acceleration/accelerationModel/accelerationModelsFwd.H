@@ -22,24 +22,24 @@ License
     along with foam-extend.  If not, see <http://www.gnu.org/licenses/>.
 
 Typedef
-    Foam::scalarRelaxationModel
+    Foam::scalarAccelerationModel
 
 Description
-    Foam::scalarRelaxationModel
+    Foam::scalarAccelerationModel
 
 Typedef
-    Foam::vectorRelaxationModel;
+    Foam::vectorAccelerationModel;
 
 Description
-    Foam::vectorRelaxationModel;
+    Foam::vectorAccelerationModel;
 
 SourceFiles
-    relaxationModel.C
+    accelerationModel.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef relaxationModelsFwd_H
-#define relaxationModelsFwd_H
+#ifndef accelerationModelsFwd_H
+#define accelerationModelsFwd_H
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -49,10 +49,10 @@ namespace Foam
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 template<class Type>
-class relaxationModel;
+class accelerationModel;
 
-typedef relaxationModel<scalar> scalarRelaxationModel;
-typedef relaxationModel<vector> vectorRelaxationModel;
+typedef accelerationModel<scalar> scalarAccelerationModel;
+typedef accelerationModel<vector> vectorAccelerationModel;
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

@@ -39,7 +39,7 @@ Description
             neighbourPatchName      neighbourPatch;
             neighbourFieldName      neighbourField;
             k                       "D";
-            relaxType               fixed;
+            accType                 fixed;
             relax                   1.0;
             nonOrthCorr             yes;
             secondOrder             yes;
@@ -56,9 +56,9 @@ SourceFiles
 #ifndef genericRegionCoupledFluxFvPatchField_H
 #define genericRegionCoupledFluxFvPatchField_H
 
-#include "relaxationModel.H"
+#include "accelerationModel.H"
 #include "interfaceToInterfaceCoupleManager.H"
-#include "regionInterface.H"
+#include "regionInterfaceType.H"
 #include "fixedGradientFvPatchFields.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -93,8 +93,8 @@ protected:
         //- Diffusion coefficient
         word kName_;
 
-        //- Relaxation factor for BC update
-        autoPtr<relaxationModel<Type>> relaxModel_;
+        //- Acceleration model for BC update
+        autoPtr<accelerationModel<Type>> accModel_;
 
         //- NonOrthogonal correction
         Switch nonOrthCorr_;

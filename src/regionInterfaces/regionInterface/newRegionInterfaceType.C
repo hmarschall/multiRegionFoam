@@ -23,10 +23,10 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    regionInterface
+    regionInterfaceType
 
 SourceFiles
-    regionInterface.C
+    regionInterfaceType.C
 
 Author
     Holger Marschall (holger.marschall@tu-darmstadt.de, Affiliation A)
@@ -57,7 +57,7 @@ Description
 \*---------------------------------------------------------------------------*/
 
 
-#include "regionInterface.H"
+#include "regionInterfaceType.H"
 #include "volFields.H"
 #include "surfaceFields.H"
 
@@ -68,7 +68,7 @@ namespace Foam
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-autoPtr<regionInterface> regionInterface::New
+autoPtr<regionInterfaceType> regionInterfaceType::New
 (
     const word& type,
     const dictionary& dict,
@@ -92,7 +92,7 @@ autoPtr<regionInterface> regionInterface::New
             << exit(FatalError);
     }
 
-    return autoPtr<regionInterface>
+    return autoPtr<regionInterfaceType>
         (cstrIter()(type, dict, runTime, patchA, patchB));
 }
 

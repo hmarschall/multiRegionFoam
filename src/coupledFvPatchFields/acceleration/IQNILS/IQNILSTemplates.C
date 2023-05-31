@@ -27,12 +27,12 @@ License
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 template<class Type>
-void Foam::IQNILSRelaxation<Type>::relaxIQNILS(Field<Type> &curFld)
+void Foam::IQNILS<Type>::updateIQNILS(Field<Type> &curFld)
 {
     notImplemented
     (
-        "IQNILSRelaxationTemplates.C\n"
-        "void IQNILSRelaxation<Type>::relaxIQNILS\n"
+        "IQNILSTemplates.C\n"
+        "void IQNILS<Type>::updateIQNILS\n"
         "(\n"
         "    Field<Type> &curFld\n"
         ")\n"
@@ -41,7 +41,7 @@ void Foam::IQNILSRelaxation<Type>::relaxIQNILS(Field<Type> &curFld)
 }
 
 template<>
-inline void Foam::IQNILSRelaxation<Foam::scalar>::relaxIQNILS(Field<scalar> &curFld)
+inline void Foam::IQNILS<Foam::scalar>::updateIQNILS(Field<scalar> &curFld)
 {
     label cols = V_.size();
 
@@ -121,7 +121,7 @@ inline void Foam::IQNILSRelaxation<Foam::scalar>::relaxIQNILS(Field<scalar> &cur
         }
     }
 
-    //- Relax curent field
+    //- Update curent field
     for (label i = 0; i < cols; i++)
     {
         curFld += W_[i]*C[cols-1-i][0];
@@ -130,7 +130,7 @@ inline void Foam::IQNILSRelaxation<Foam::scalar>::relaxIQNILS(Field<scalar> &cur
 
 
 template<>
-inline void Foam::IQNILSRelaxation<Foam::vector>::relaxIQNILS(Field<vector> &curFld)
+inline void Foam::IQNILS<Foam::vector>::updateIQNILS(Field<vector> &curFld)
 {
     label cols = V_.size();
 
@@ -210,7 +210,7 @@ inline void Foam::IQNILSRelaxation<Foam::vector>::relaxIQNILS(Field<vector> &cur
         }
     }
 
-    //- Relax curent field
+    //- Update curent field
     for (label i = 0; i < cols; i++)
     {
         curFld += W_[i]*C[cols-1-i][0];

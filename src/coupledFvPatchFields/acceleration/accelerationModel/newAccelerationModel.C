@@ -24,13 +24,13 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "error.H"
-#include "relaxationModel.H"
+#include "accelerationModel.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::autoPtr<Foam::relaxationModel<Type> >
-Foam::relaxationModel<Type>::New
+Foam::autoPtr<Foam::accelerationModel<Type> >
+Foam::accelerationModel<Type>::New
 (
     const Time& runTime,
     const dictionary& dict
@@ -40,53 +40,54 @@ Foam::relaxationModel<Type>::New
     {
             WarningIn
             (
-                "relaxationModel<Type>::New\n"
+                "accelerationModel<Type>::New\n"
             )
-                << "relaxationModel is constructed without dictionary.\n"
-                << "\tSelecting a fixed relaxation model with relaxation factor of 1 "
+                << "accelerationModel is constructed without dictionary.\n"
+                << "\tSelecting a fixed relaxation model with a "
+                << "relaxation factor of 1 "
                 << "to be safe."
                 << endl;
-    } 
-    else if (!dict.found("relaxType")) 
+    }
+    else if (!dict.found("accType"))
     {
             WarningIn
             (
-                "relaxationModel<Type>::New\n"
+                "accelerationModel<Type>::New\n"
             )
-                << "No relaxType entry in " << dict.dictName() << "\n"
-                << "\tAssuming that no relaxation should be applied"
+                << "No accType entry in " << dict.dictName() << "\n"
+                << "\tAssuming that no acceleration model should be applied"
                 << endl;
     }
 
-    word relaxationModelTypeName
+    word accelerationModelTypeName
         (
-            dict.lookupOrDefault<word>("relaxType", "fixed")
+            dict.lookupOrDefault<word>("accType", "fixed")
         );
 
     if (debug)
     {
-        Info<< "relaxationModel<Type>::New(const Time& runTime, "
-               "const dictionary& dict) : relaxationModelTypeName = "  
-            << relaxationModelTypeName
+        Info<< "accelerationModel<Type>::New(const Time& runTime, "
+               "const dictionary& dict) : accelerationModelTypeName = "
+            << accelerationModelTypeName
             << endl;
     }
 
     typename dictionaryConstructorTable::iterator cstrIter =
-        dictionaryConstructorTablePtr_->find(relaxationModelTypeName);
+        dictionaryConstructorTablePtr_->find(accelerationModelTypeName);
 
     if (cstrIter == dictionaryConstructorTablePtr_->end())
     {
         FatalErrorIn
         (
-            "relaxationModel::New(const Time& runTime, const dictionary& dict) "
-        )   << "Unknown relaxationModel type "
-            << relaxationModelTypeName << nl << nl
-            << "Valid relaxationModel types are:" << nl
+            "accelerationModel::New(const Time& runTime, const dictionary& dict)"
+        )   << "Unknown accelerationModel type "
+            << accelerationModelTypeName << nl << nl
+            << "Valid accelerationModel types are:" << nl
             << dictionaryConstructorTablePtr_->sortedToc() << nl
             << exit(FatalError);
     }
 
-    return autoPtr<relaxationModel<Type> >(cstrIter()(runTime, dict));
+    return autoPtr<accelerationModel<Type> >(cstrIter()(runTime, dict));
 }
 
 // ************************************************************************* //

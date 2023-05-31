@@ -37,7 +37,7 @@ namespace regionInterfaces
 
     addToRunTimeSelectionTable
     (
-        regionInterface,
+        regionInterfaceType,
         capillaryInterface,
         IOdictionary
     );
@@ -55,7 +55,7 @@ Foam::regionInterfaces::capillaryInterface::capillaryInterface
     const fvPatch& patchB
 )
 :
-    regionInterface(type, dict, runTime, patchA, patchB),
+    regionInterfaceType(type, dict, runTime, patchA, patchB),
 
     dict_(dict),
 
@@ -92,14 +92,14 @@ void Foam::regionInterfaces::capillaryInterface::clearOut() const
     UsPtr_.clear();
     phisPtr_.clear();
 
-    regionInterface::clearOut();
+    regionInterfaceType::clearOut();
 }
 
 void Foam::regionInterfaces::capillaryInterface::makeUs() const
 {
     if (!UsPtr_.empty())
     {
-        FatalErrorIn("regionInterface::makeUs()")
+        FatalErrorIn("regionInterfaceType::makeUs()")
             << "surface velocity field already exists"
             << abort(FatalError);
     }
@@ -135,7 +135,7 @@ void Foam::regionInterfaces::capillaryInterface::makeUs() const
                  == wallFvPatch::typeName
                 )
                 {
-                    WarningIn("regionInterface::makeUs() const")
+                    WarningIn("regionInterfaceType::makeUs() const")
                         << "Patch neighbouring to interface is wall" << nl
                         << "Not appropriate for inlets/outlets" << nl
                         << endl;
@@ -171,7 +171,7 @@ void Foam::regionInterfaces::capillaryInterface::makePhis() const
 {
     if (!phisPtr_.empty())
     {
-        FatalErrorIn("regionInterface::makePhis()")
+        FatalErrorIn("regionInterfaceType::makePhis()")
             << "surface fluid flux already exists"
             << abort(FatalError);
     }

@@ -412,7 +412,7 @@ Foam::multiRegionSystem::multiRegionSystem
     Info << nl << "Creating region interfaces:" << endl;
     interfaces_.set
     (
-        new regionInterfaceList
+        new regionInterfaceTypeList
         (
             runTime_
         )
@@ -626,7 +626,7 @@ Foam::regionTypeList& Foam::multiRegionSystem::regions()
     return regions_();
 }
 
-Foam::regionInterfaceList& Foam::multiRegionSystem::interfaces()
+Foam::regionInterfaceTypeList& Foam::multiRegionSystem::interfaces()
 {
     return interfaces_();
 }

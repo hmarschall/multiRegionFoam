@@ -23,76 +23,97 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "relaxationModel.H"
+#include "aitkenRelaxation.H"
+#include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
 
 template<class Type>
-Foam::relaxationModel<Type>::relaxationModel
+Foam::aitkenRelaxation<Type>::aitkenRelaxation
 (
     const Time& runTime,
     const dictionary& dict
 )
 :
-    runTime_(runTime),
-    curTime_(runTime.value()),
-    corr_(0),
-    prevFld_(),
-    resFld_(),
-    prevResFld_(),
-    initRelax_(dict.lookupOrDefault<scalar>("relax",1.0))
-{}
+    accelerationModel<Type>(runTime, dict),
+    aitkenRelax_(this->initRelax_)
+{
+    Info<< "Selecting an aitkenRelaxation model for " << dict.dictName() 
+        << " with initial relaxation factor " << this->initRelax_
+        << endl;
+}
 
 template<class Type>
-Foam::relaxationModel<Type>::relaxationModel
+Foam::aitkenRelaxation<Type>::aitkenRelaxation
 (
-    const relaxationModel<Type>& rM
+    const aitkenRelaxation<Type>& fR
 )
 :
-    runTime_(rM.runTime_),
-    curTime_(rM.curTime_),
-    corr_(rM.corr_),
-    prevFld_(rM.prevFld_),
-    resFld_(rM.resFld_),
-    prevResFld_(rM.prevResFld_),
-    initRelax_(rM.initRelax_)
+    accelerationModel<Type>(fR),
+    aitkenRelax_(fR.aitkenRelax_)
 {}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
 
 template<class Type>
-Foam::relaxationModel<Type>::~relaxationModel()
+Foam::aitkenRelaxation<Type>::~aitkenRelaxation()
 {}
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
+
 template<class Type>
-void Foam::relaxationModel<Type>::initialize(const Field<Type> &initFld)
+void Foam::aitkenRelaxation<Type>::initialize(const Field<Type> &curFld)
 {
-    prevFld_ = initFld;
+    Foam::accelerationModel<Type>::initialize(curFld);
 }
 
 template<class Type>
-void Foam::relaxationModel<Type>::updateResiual(const Field<Type> &curFld)
+void Foam::aitkenRelaxation<Type>::relax(Field<Type> &curFld)
 {
-    //- Store old residual
-    prevResFld_ = resFld_;
+    //- Check if solver time is time saved by relaxation model
 
-    //- Compute new residual with curent and previous field
-    resFld_ = curFld - prevFld_;
+    if (this->runTime_.value() != this->curTime_)
+    {
+        //- Reset counter for corrector steps
+        this->corr_ = 1;
+        //- Set curent time to solver time
+        this->curTime_ = this->runTime_.value();
+    }
+
+    //- Update residuals
+    this->updateResiual(curFld);
+
+    //- Update Aitken relaxation factor
+    updateAitkenFactor(curFld);
+
+    Info<< nl
+        << "Relaxing field with Aitken relaxation factor: "
+        << aitkenRelax_ 
+        << endl;
+
+    //- Relax field
+    curFld = this->prevFld_ + aitkenRelax_ * this->resFld_;
+
+    //- Store relaxed field as new field
+    this->prevFld_ = curFld;
+
+    //- Increment corrector step counter
+    this->corr_++;
 }
 
 template<class Type>
-void Foam::relaxationModel<Type>::write(Ostream& os) const
+void Foam::aitkenRelaxation<Type>::write(Ostream& os) const
 {
-    os.writeKeyword("relaxType") << type() << token::END_STATEMENT << nl;
-    os.writeKeyword("relax") << initRelax_ << token::END_STATEMENT << nl;
+    accelerationModel<Type>::write(os);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#include "newRelaxationModel.C"
+#ifdef NoRepository
+#   include "aitkenRelaxationTemplates.C"
+#endif
 
 // ************************************************************************* //
