@@ -59,13 +59,13 @@ class accelerationModel
 protected:
 
     // Protected data
-    
+
         const Time& runTime_;
 
         //- Curent time
         scalar curTime_;
 
-        //- Counter for applied correction steps 
+        //- Counter for applied correction steps
         label corr_;
 
         //- Previous field
@@ -154,7 +154,7 @@ public:
         // Edit
             virtual void initialize(const Field<Type> &field);
 
-            //- Relax field 
+            //- Relax field
             virtual void relax(Field<Type> &field) = 0;
 
             //- Compute residual
@@ -172,18 +172,18 @@ public:
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-#define makeAccelerationModel(Type)                                             \
+#define makeAccelerationModel(Type)                                           \
                                                                               \
-    defineNamedTemplateTypeNameAndDebug(accelerationModel<Type>, 0);            \
+    defineNamedTemplateTypeNameAndDebug(accelerationModel<Type>, 0);          \
                                                                               \
     defineTemplateRunTimeSelectionTable                                       \
     (                                                                         \
-        accelerationModel<Type>,                                                \
+        accelerationModel<Type>,                                              \
         dictionary                                                            \
     );
 
 
-#define makeAccelerationModelType(RS, Type)                                     \
+#define makeAccelerationModelType(RS, Type)                                   \
                                                                               \
     defineNamedTemplateTypeNameAndDebug(RS<Type>, 0);                         \
                                                                               \

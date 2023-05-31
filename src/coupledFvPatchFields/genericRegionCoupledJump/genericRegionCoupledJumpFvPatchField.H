@@ -27,8 +27,8 @@ Class
 
 Description
     Generic region coupled jump boundary condition for size Psi. Is intended to
-    serve as a base class for coupled dirichlet boundary conditions. Includes a 
-    zero "jump" condition across the interface that can be overridden by child 
+    serve as a base class for coupled dirichlet boundary conditions. Includes a
+    zero "jump" condition across the interface that can be overridden by child
     classes.
 
     Example usage:
@@ -108,7 +108,7 @@ protected:
 
     // Protected member functions
 
-        //- Update phi 
+        //- Update phi
         virtual void updatePhi()
         {
             //- Override in child class if needed
@@ -224,7 +224,7 @@ genericRegionCoupledJumpFvPatchField<scalar>::snGrad() const;
 template<> tmp<Field<vector> >
 genericRegionCoupledJumpFvPatchField<vector>::snGrad() const;
 
-template<> tmp<Field<scalar> > 
+template<> tmp<Field<scalar> >
 genericRegionCoupledJumpFvPatchField<scalar>::gradientBoundaryCoeffs() const;
 
 template<> tmp<Field<vector> >

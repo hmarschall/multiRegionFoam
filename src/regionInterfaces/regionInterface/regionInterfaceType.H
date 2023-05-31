@@ -134,8 +134,6 @@ class regionInterfaceType
         //- Finite area mesh
         mutable autoPtr<faMesh> aMeshPtr_;
 
-/*        mutable faMesh areaMesh_;*/
-
         //- Surface patches requiring curvature correction
         //- e.g. fixedSurfacePatches or centerlinePatches (wedge cases)
         wordList curvatureCorrectedSurfacePatches_;
@@ -350,33 +348,6 @@ public:
 
                 return moving_;
             }
-
-            //-- return interfacial curvature
-/*            Foam::areaScalarField& K()*/
-/*            {*/
-/*                if (KPtr_.empty())*/
-/*                {*/
-/*                    makeK();*/
-/*                }*/
-
-/*                return KPtr_();*/
-
-/*                return K_;*/
-/*            }*/
-
-/*            const Foam::areaScalarField& K() const*/
-/*            {*/
-/*                if (KPtr_.empty())*/
-/*                {*/
-/*                    makeK();*/
-/*                }*/
-
-/*                return KPtr_();*/
-
-/*                K_ == aMesh().faceCurvatures();*/
-
-/*                return K_;*/
-/*            }*/
 
             //- Global poly patch
 

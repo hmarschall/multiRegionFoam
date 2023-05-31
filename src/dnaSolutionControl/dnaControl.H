@@ -76,7 +76,7 @@ protected:
         word fldName_;
 
         //- multiRegion properties dictionary
-        //- DNA solution 
+        //- DNA solution
         IOdictionary multiRegionProperties_;
 
         //- reference to list of region interfaces
@@ -193,7 +193,7 @@ public:
 
             //- DNA loop
             virtual bool loop();
-    
+
         // Access
 
             //- Return the solution dictionary

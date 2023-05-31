@@ -168,7 +168,7 @@ public:
         void setCoupledEqns();
 
         scalar getMinDeltaT();
-        
+
         void postSolve();
 
         // Access
@@ -176,9 +176,6 @@ public:
         regionTypeList& regions();
 
         regionInterfaceTypeList& interfaces();
-
-        //- Read base dictionary
-//        bool read();
 };
 
 

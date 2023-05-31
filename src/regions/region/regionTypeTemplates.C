@@ -202,9 +202,9 @@ bool regionType::clearCoupledEqn
     HashPtrTable<fvScalarMatrix>::iterator it =
         fvScalarMatrices.find
         (
-            fld.name() 
+            fld.name()
           + fld.mesh().name() + "Mesh"
-          + typeName + "Type" 
+          + typeName + "Type"
           + "Eqn"
         );
 
@@ -221,9 +221,9 @@ bool regionType::clearCoupledEqn
     HashPtrTable<fvVectorMatrix>::iterator it =
         fvVectorMatrices.find
         (
-            fld.name() 
+            fld.name()
           + fld.mesh().name() + "Mesh"
-          + typeName + "Type" 
+          + typeName + "Type"
           + "Eqn"
         );
 
@@ -240,9 +240,9 @@ bool regionType::clearCoupledEqn
     HashPtrTable<fvSymmTensorMatrix>::iterator it =
         fvSymmTensorMatrices.find
         (
-            fld.name() 
+            fld.name()
           + fld.mesh().name() + "Mesh"
-          + typeName + "Type" 
+          + typeName + "Type"
           + "Eqn"
         );
 
@@ -259,9 +259,9 @@ bool regionType::clearCoupledEqn
     HashPtrTable<fvTensorMatrix>::iterator it =
         fvTensorMatrices.find
         (
-            fld.name() 
+            fld.name()
           + fld.mesh().name() + "Mesh"
-          + typeName + "Type" 
+          + typeName + "Type"
           + "Eqn"
         );
 
@@ -278,9 +278,9 @@ bool regionType::clearCoupledEqn
     HashPtrTable<fvBlockMatrix<vector4> >::iterator it =
         fvVector4Matrices.find
         (
-            fld.name() 
+            fld.name()
           + fld.mesh().name() + "Mesh"
-          + typeName + "Type" 
+          + typeName + "Type"
           + "Eqn"
         );
 
@@ -293,7 +293,7 @@ bool regionType::foundCoupledEqn
     word name
 )
 {
-    return 
+    return
     (
         fvScalarMatrices.found(name) ||
         fvVectorMatrices.found(name) ||

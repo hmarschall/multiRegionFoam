@@ -22,7 +22,7 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Application
-    multiRegionConjugateHeatFoam
+    multiRegionFoam
 
 Description
     Solver for a system of multiple regions including heat-transfer.

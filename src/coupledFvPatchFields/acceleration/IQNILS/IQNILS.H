@@ -25,7 +25,8 @@ Class
     Foam::IQNILS
 
 Description
-    Abstract base class for relaxation models
+    An acceleration model that updates the boundary condition based
+    on the IQNILS procedure
 
 Author
     Constantin Habes, TU Darmstadt.  All rights reserved.

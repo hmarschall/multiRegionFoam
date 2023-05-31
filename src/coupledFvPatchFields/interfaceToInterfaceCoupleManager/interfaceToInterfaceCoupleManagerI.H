@@ -100,7 +100,7 @@ inline Foam::word& Foam::interfaceToInterfaceCoupleManager::neighbourPatchName()
 
 
 template<class Type>
-Foam::tmp<Field<Type> > 
+Foam::tmp<Field<Type> >
 Foam::interfaceToInterfaceCoupleManager::interpolateFromNbrField
 (
     const Field<Type>& fromField

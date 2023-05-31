@@ -83,7 +83,7 @@ tmp<scalarField> regionCoupledScalarFlux::fluxJump() const
 {
     return (*this * 0);
 }
-    
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam

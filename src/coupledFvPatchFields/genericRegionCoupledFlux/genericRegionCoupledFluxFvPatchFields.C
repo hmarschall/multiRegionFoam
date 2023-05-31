@@ -73,7 +73,7 @@ void Foam::genericRegionCoupledFluxFvPatchField<Foam::scalar>::evaluate
     if
     (
         this->db().objectRegistry::foundObject<volVectorField>
-        ("grad(" + this->dimensionedInternalField().name() + ")") 
+        ("grad(" + this->dimensionedInternalField().name() + ")")
     )
     {
         const fvPatchField<vector>& gradpsi_ =
@@ -160,7 +160,7 @@ void Foam::genericRegionCoupledFluxFvPatchField<Foam::vector>::evaluate
     if
     (
         this->db().objectRegistry::foundObject<volTensorField>
-        ("grad(" + this->dimensionedInternalField().name() + ")") 
+        ("grad(" + this->dimensionedInternalField().name() + ")")
     )
     {
         const fvPatchField<tensor>& gradpsi_ =

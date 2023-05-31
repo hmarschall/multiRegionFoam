@@ -39,7 +39,7 @@ Foam::aitkenRelaxation<Type>::aitkenRelaxation
     accelerationModel<Type>(runTime, dict),
     aitkenRelax_(this->initRelax_)
 {
-    Info<< "Selecting an aitkenRelaxation model for " << dict.dictName() 
+    Info<< "Selecting an aitkenRelaxation model for " << dict.dictName()
         << " with initial relaxation factor " << this->initRelax_
         << endl;
 }
@@ -91,7 +91,7 @@ void Foam::aitkenRelaxation<Type>::relax(Field<Type> &curFld)
 
     Info<< nl
         << "Relaxing field with Aitken relaxation factor: "
-        << aitkenRelax_ 
+        << aitkenRelax_
         << endl;
 
     //- Relax field

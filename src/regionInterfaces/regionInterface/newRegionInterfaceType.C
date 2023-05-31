@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Fork:     foam-extend
-    \\  /    A nd           | Version:  4.0                                 
+    \\  /    A nd           | Version:  4.0
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -46,11 +46,11 @@ Affiliations
 Acknowledgement
 
 Description
-    
+
     This file is part of the multiRegion coupling library.
 
     You may refer to this software as :
-       
+
     If you use this software for your scientific work or your publications,
     please don't forget to acknowledge explicitly the use of it.
 

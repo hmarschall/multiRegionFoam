@@ -144,9 +144,6 @@ void Foam::regionInterfaceType::resetFaMesh() const
             )
         );
     }
-//    else
-//    {
-//    }
 }
 
 void Foam::regionInterfaceType::makeFaMesh() const
@@ -180,34 +177,6 @@ void Foam::regionInterfaceType::makeFaMesh() const
         aMeshPtr_->rename(patchA().name() + "FaMesh");
     }
 }
-
-//void Foam::regionInterfaceType::makeK() const
-//{
-//    if (!KPtr_.empty())
-//    {
-//        FatalErrorIn("regionInterfaceType::makeK()")
-//            << "surface curvature field already exists"
-//            << abort(FatalError);
-//    }
-
-//    KPtr_.set
-//    (
-//        new areaScalarField
-//        (
-//            IOobject
-//            (
-//                "K",
-//                runTime().timeName(),
-//                runTime(),
-//                IOobject::NO_READ,
-//                IOobject::NO_WRITE
-//            ),
-//            aMesh(),
-//            dimensioned<scalar>("K", dimless/dimLength, pTraits<scalar>::zero),
-//            zeroGradientFaPatchVectorField::typeName
-//        )
-//    );
-//}
 
 void Foam::regionInterfaceType::correctCurvature
 (

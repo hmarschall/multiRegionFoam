@@ -37,22 +37,22 @@ namespace regionInterfaces
 
     addToRunTimeSelectionTable
     (
-        regionInterfaceType, 
-        defaultInterface, 
-        IOdictionary 
+        regionInterfaceType,
+        defaultInterface,
+        IOdictionary
     );
 }
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-    
+
 Foam::regionInterfaces::defaultInterface::defaultInterface
 (
     const word& type,
     const dictionary& dict,
-    const Time& runTime,   
-    const fvPatch& patchA, 
-    const fvPatch& patchB  
+    const Time& runTime,
+    const fvPatch& patchA,
+    const fvPatch& patchB
 )
 :
     regionInterfaceType(type, dict, runTime, patchA, patchB)

@@ -27,7 +27,7 @@ Class
 
 Description
     Helper class to handle the coupling of region patches.
-    Deployment with the regionInterfaceType class within the unified 
+    Deployment with the regionInterfaceType class within the unified
     multi-region coupling framework. It can be queried to return
     the neighbour information and data.
 
@@ -86,7 +86,10 @@ class interfaceToInterfaceCoupleManager
         );
 
         //- Disallow default bitwise copy construct
-        // interfaceToInterfaceCoupleManager(const interfaceToInterfaceCoupleManager&);
+        // interfaceToInterfaceCoupleManager
+        //     (
+        //         const interfaceToInterfaceCoupleManager&
+        //     );
 
         //- Disallow default bitwise assignment
         void operator=(const interfaceToInterfaceCoupleManager&);

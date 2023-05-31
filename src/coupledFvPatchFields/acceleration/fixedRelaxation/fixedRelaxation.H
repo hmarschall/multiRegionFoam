@@ -25,7 +25,7 @@ Class
     Foam::fixedRelaxation
 
 Description
-    A acceleration model that applies a fixed relaxation factor
+    An acceleration model that applies a fixed relaxation factor
 
 Author
     Constantin Habes, TU Darmstadt.  All rights reserved.

@@ -131,7 +131,7 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
         }
 
         Info<< "Get equation for "
-            << fldName << " in " 
+            << fldName << " in "
             << rg.regionTypeName() << endl;
 
         M<T>& eqn =
@@ -163,7 +163,7 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
           + "Eqn"
         );
 
-        // Check if coupled field is registered to region 
+        // Check if coupled field is registered to region
         // and if it is of correct type
         if
         (
@@ -172,7 +172,7 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
                 (
                     matrixSystemName
                 )
-             && 
+             &&
                 rg.mesh().thisDb().foundObject
                 <GeometricField<T, fvPatchField, volMesh> >
                 (
@@ -252,8 +252,8 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             {
                 if (isType<regionCouplePolyPatch>(patches[patchI]))
                 {
-                    FatalError  << "Error: Attempt to solve partitioned " 
-                                << "with a patch of type " 
+                    FatalError  << "Error: Attempt to solve partitioned "
+                                << "with a patch of type "
                                 << regionCouplePolyPatch::typeName
                                 << exit(FatalError);
                 }
@@ -263,7 +263,7 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             mesh.surfaceInterpolation::movePoints();
         }
 
-        Info<< nl 
+        Info<< nl
             << "Solving for " << fldName
             << " in " << rg.regionTypeName()
             << endl;
@@ -318,7 +318,7 @@ void Foam::multiRegionSystem::assembleCoupledFields
         );
 
         // get list of field objects of requested type
-        IOobjectList volTypeObjects = 
+        IOobjectList volTypeObjects =
             objects.lookupClass
             (
                 GeometricField<T, fvPatchField, volMesh>::typeName
@@ -352,7 +352,7 @@ void Foam::multiRegionSystem::assembleCoupledFields
                 n++;
 
                 //Info<< "Name of coupled field in mesh "
-                //   << mesh.name() << " : " 
+                //   << mesh.name() << " : "
                 //   << iter()->name() << endl;
             }
         }
@@ -506,9 +506,7 @@ Foam::scalar Foam::multiRegionSystem::getMinDeltaT()
 
 void Foam::multiRegionSystem::solve()
 {
-    // Set coupled equations
-    // regions_->setCoupledEqns();
-
+    //- Detach meshes
     interfaces_->detach();
 
     //- Initial cpu time call
@@ -531,7 +529,7 @@ void Foam::multiRegionSystem::solve()
             << runTime_.cpuTimeIncrement() << " s." << endl;
     }
 
-    // Solve region-region coupling (partitioned)  
+    // Solve region-region coupling (partitioned)
     forAll (partitionedCoupledFldNames_, fldI)
     {
         word fldName = partitionedCoupledFldNames_[fldI];
@@ -630,20 +628,5 @@ Foam::regionInterfaceTypeList& Foam::multiRegionSystem::interfaces()
 {
     return interfaces_();
 }
-
-
-//bool multiRegionSystem::read()
-//{
-//    if (IOdictionary::read())
-//    {
-//        bool readOK = true;
-
-//        lookup("coupledRegionInterfaces") >> coupledInterfaces_;
-
-//        return readOK;
-//    }
-
-//    return false;
-//}
 
 // ************************************************************************* //

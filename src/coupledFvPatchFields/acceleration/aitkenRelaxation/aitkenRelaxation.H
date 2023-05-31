@@ -25,7 +25,8 @@ Class
     Foam::aitkenRelaxation
 
 Description
-    Abstract base class for relaxation models
+    An acceleration model that applies a dynamic relaxation factor based on
+    the Aitken procedure
 
 Author
     Constantin Habes, TU Darmstadt.  All rights reserved.

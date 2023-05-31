@@ -29,8 +29,8 @@ SourceFiles
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef icoFluid_H 
-#define icoFluid_H 
+#ifndef icoFluid_H
+#define icoFluid_H
 
 #include "regionType.H"
 #include "MRFZones.H"
@@ -58,12 +58,12 @@ namespace regionTypes
 class icoFluid
 :
     public regionType
-{       
+{
 
         //- name
         word regionName_;
 
-        //- transport properties dictionary 
+        //- transport properties dictionary
         IOdictionary transportProperties_;
 
         //- PIMPLE control
@@ -77,7 +77,7 @@ class icoFluid
         //- viscosity
         dimensionedScalar muFluid_;
 
-        autoPtr<volScalarField> mu_;           
+        autoPtr<volScalarField> mu_;
 
         //- transport
         word velocityName_;
@@ -179,7 +179,7 @@ public:
         const volScalarField& p() const
         {
             return p_();
-        }        
+        }
 
         volVectorField& U()
         {
@@ -216,7 +216,7 @@ public:
         virtual void pressureCorrector();
 
         virtual void meshMotionCorrector();
-        
+
         virtual void postSolve();
 };
 

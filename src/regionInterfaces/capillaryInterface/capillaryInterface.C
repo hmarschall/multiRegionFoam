@@ -324,7 +324,10 @@ Foam::scalar Foam::regionInterfaces::capillaryInterface::getMinDeltaT()
         scalar minRhoA = gMin(rhoA);
 
         scalar maxCapillaryCo =
-            runTime().controlDict().lookupOrDefault<scalar>("maxCapillaryCo", 1.0);
+            runTime().controlDict().lookupOrDefault<scalar>
+            (
+                "maxCapillaryCo", 1.0
+            );
 
         minDeltaT =
             maxCapillaryCo*
@@ -339,7 +342,8 @@ Foam::scalar Foam::regionInterfaces::capillaryInterface::getMinDeltaT()
     return minDeltaT;
 }
 
-Foam::vector Foam::regionInterfaces::capillaryInterface::totalSurfaceTensionForce() const
+Foam::vector
+Foam::regionInterfaces::capillaryInterface::totalSurfaceTensionForce() const
 {
     const scalarField& S = aMesh().S();
 
@@ -355,7 +359,8 @@ Foam::vector Foam::regionInterfaces::capillaryInterface::totalSurfaceTensionForc
         );
 }
 
-Foam::vector Foam::regionInterfaces::capillaryInterface::totalViscousForce() const
+Foam::vector
+Foam::regionInterfaces::capillaryInterface::totalViscousForce() const
 {
     const scalarField& S = aMesh().S();
 
@@ -383,7 +388,8 @@ Foam::vector Foam::regionInterfaces::capillaryInterface::totalViscousForce() con
     return gSum(viscousForces);
 }
 
-Foam::vector Foam::regionInterfaces::capillaryInterface::totalPressureForce() const
+Foam::vector
+Foam::regionInterfaces::capillaryInterface::totalPressureForce() const
 {
     const scalarField& S = aMesh().S();
 

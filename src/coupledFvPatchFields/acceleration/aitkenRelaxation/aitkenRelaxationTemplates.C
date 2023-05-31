@@ -45,14 +45,14 @@ inline void Foam::aitkenRelaxation<Foam::vector>::updateAitkenFactor(Field<vecto
 {
     if (this->corr_ == 1)
     {
-        aitkenRelax_ = 
-            (aitkenRelax_ < this->initRelax_) 
+        aitkenRelax_ =
+            (aitkenRelax_ < this->initRelax_)
             ? this->initRelax_ : aitkenRelax_;
 
         return;
     }
 
-    aitkenRelax_ = 
+    aitkenRelax_ =
         -aitkenRelax_
        *(
             gSum
@@ -97,14 +97,14 @@ inline void Foam::aitkenRelaxation<Foam::scalar>::updateAitkenFactor(Field<scala
 {
     if (this->corr_ == 1)
     {
-        aitkenRelax_ = 
-            (aitkenRelax_ < this->initRelax_) 
+        aitkenRelax_ =
+            (aitkenRelax_ < this->initRelax_)
             ? this->initRelax_ : aitkenRelax_;
 
         return;
     }
 
-    aitkenRelax_ = 
+    aitkenRelax_ =
         -aitkenRelax_
        *(
             gSum
