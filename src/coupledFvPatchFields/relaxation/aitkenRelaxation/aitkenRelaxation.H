@@ -107,6 +107,9 @@ public:
             //- Update Aitken relaxation factor
             void updateAitkenFactor(Field<Type> &field);
 
+        //- Write
+            virtual void write(Ostream&) const;
+
 };
 
 

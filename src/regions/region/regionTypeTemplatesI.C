@@ -155,6 +155,53 @@ autoPtr<T> regionType::lookupOrRead
     return vfPtr;
 }
 
+template <class T>
+autoPtr<T> regionType::lookupOrRead
+(
+    const fvMesh& mesh,
+    const word& fldName,
+    const dimensioned<typename T::cmptType> dimVal,
+    const wordList& patchFieldTypes,
+    const bool& write
+)
+{
+    autoPtr<T> vfPtr(nullptr);
+
+    if (mesh.foundObject<T>(fldName))
+    {
+        vfPtr.reset
+        (
+            const_cast<T*>
+            (
+                &mesh.lookupObject<T>(fldName)
+            )
+        );
+    }
+    else
+    {
+        IOobject io
+        (
+            fldName,
+            mesh.time().timeName(),
+            mesh,
+            IOobject::READ_IF_PRESENT,
+            IOobject::AUTO_WRITE
+        );
+
+        if (!write)
+        {
+            io.writeOpt() = IOobject::NO_WRITE;
+        }
+
+        vfPtr.reset
+        (
+            new T(io, mesh, dimVal, patchFieldTypes)
+        );
+    }
+
+    return vfPtr;
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam

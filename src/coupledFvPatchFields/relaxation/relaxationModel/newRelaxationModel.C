@@ -54,7 +54,7 @@ Foam::relaxationModel<Type>::New
                 "relaxationModel<Type>::New\n"
             )
                 << "No relaxType entry in " << dict.dictName() << "\n"
-                << "\tAssuming a fixed relaxation model with relaxation factor of 1 "
+                << "\tAssuming that no relaxation should be applied"
                 << endl;
     }
 

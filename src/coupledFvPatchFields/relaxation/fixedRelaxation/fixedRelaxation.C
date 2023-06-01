@@ -39,9 +39,12 @@ Foam::fixedRelaxation<Type>::fixedRelaxation
     relaxationModel<Type>(runTime, dict),
     relax_(this->initRelax_)
 {
-    Info<< "Selecting an fixedRelaxation model for " << dict.dictName() 
-        << " with fixed relaxation factor " << this->relax_
-        << endl;
+    if (relax_ != 1.0)
+    {
+        Info<< "Selecting an fixedRelaxation model for " << dict.dictName() 
+            << " with fixed relaxation factor " << this->relax_
+            << endl;
+    }
 }
 
 template<class Type>
@@ -66,10 +69,6 @@ Foam::fixedRelaxation<Type>::~fixedRelaxation()
 template<class Type>
 void Foam::fixedRelaxation<Type>::initialize(const Field<Type> &curFld)
 {
-    Info<< nl
-        << "Initializing fixedRelaxation model"
-        << nl << endl;
-
     Foam::relaxationModel<Type>::initialize(curFld);
 }
 
@@ -89,11 +88,13 @@ void Foam::fixedRelaxation<Type>::relax(Field<Type> &curFld)
     //- Update residuals
     this->updateResiual(curFld);
 
-
-    Info<< nl
-        << "Relaxing field with fixed relaxation factor: "
-        << relax_ 
-        << endl;
+    if (relax_ != 1.0)
+    {
+        Info<< nl
+            << "Relaxing field with fixed relaxation factor: "
+            << relax_ 
+            << endl;
+    }
 
     //- Relax field
     curFld = this->prevFld_ + this->initRelax_ * this->resFld_;
@@ -103,6 +104,12 @@ void Foam::fixedRelaxation<Type>::relax(Field<Type> &curFld)
 
     //- Increment corrector step counter
     this->corr_++;
+}
+
+template<class Type>
+void Foam::fixedRelaxation<Type>::write(Ostream& os) const
+{
+    relaxationModel<Type>::write(os);
 }
 
 // ************************************************************************* //

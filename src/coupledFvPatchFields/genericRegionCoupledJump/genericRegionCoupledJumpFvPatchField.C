@@ -58,7 +58,9 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     ),
     nonOrthCorr_(false),
     secondOrder_(false)
-{}
+{
+    relaxModel_->initialize(*this);
+}
 
 template<class Type>
 genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
@@ -158,7 +160,7 @@ tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::snGrad() const
 }
 
 template<class Type>
-tmp<Field<Type> > 
+tmp<Field<Type> >
 genericRegionCoupledJumpFvPatchField<Type>::gradientBoundaryCoeffs() const
 {
     notImplemented
@@ -181,7 +183,6 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
 
     // Update and correct the region interface physics
     const_cast<regionInterface&>(rgInterface()).update();
-    const_cast<regionInterface&>(rgInterface()).correct();
 
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
@@ -258,7 +259,7 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::rawResidual() const
             nbrPatch()
             .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
         );
-    
+
     const Field<Type>& fown = *this;
 
     const tmp<Field<Type>> tmpValueJump = valueJump();
@@ -316,7 +317,7 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
         nbrPatch()
         .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
     );
-    
+
     const Field<Type>& fown = *this;
 
     const tmp<Field<Type>> tmpValueJump = valueJump();
@@ -328,14 +329,14 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
         (
             min
             (
-                Foam::sqrt(gSum(magSqr(mag(fown)))), 
+                Foam::sqrt(gSum(magSqr(mag(fown)))),
                 Foam::sqrt(gSum(magSqr(fieldNbrToOwn + valueJump)))
             ),
             SMALL
         );
 
     //Return normalised residual
-    return 
+    return
     (
         Foam::sqrt(gSum(magSqr(rawResidual())))/n
     );
@@ -379,7 +380,7 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::ofNormResidual() const
             SMALL
         );
 
-    return 
+    return
     (
         gSum(rawResidual())/n
     );
@@ -393,16 +394,17 @@ void genericRegionCoupledJumpFvPatchField<Type>::write
 ) const
 {
     fvPatchField<Type>::write(os);
-    os.writeKeyword("neighbourRegionName") << neighbourRegionName_ 
+    os.writeKeyword("neighbourRegionName") << neighbourRegionName_
         << token::END_STATEMENT << nl;
-    os.writeKeyword("neighbourPatchName") << neighbourPatchName_ 
+    os.writeKeyword("neighbourPatchName") << neighbourPatchName_
         << token::END_STATEMENT << nl;
-    os.writeKeyword("neighbourFieldName") << neighbourFieldName_ 
+    os.writeKeyword("neighbourFieldName") << neighbourFieldName_
         << token::END_STATEMENT << nl;
     os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
-    os.writeKeyword("nonOrthCorr") << nonOrthCorr_ 
+    relaxModel_->write(os);
+    os.writeKeyword("nonOrthCorr") << nonOrthCorr_
         << token::END_STATEMENT << nl;
-    os.writeKeyword("secondOrder") << secondOrder_ 
+    os.writeKeyword("secondOrder") << secondOrder_
         << token::END_STATEMENT << nl;
     this->writeEntry("value", os);
 }

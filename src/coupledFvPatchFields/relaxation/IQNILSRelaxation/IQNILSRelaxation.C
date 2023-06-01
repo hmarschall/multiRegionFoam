@@ -78,10 +78,6 @@ Foam::IQNILSRelaxation<Type>::~IQNILSRelaxation()
 template<class Type>
 void Foam::IQNILSRelaxation<Type>::initialize(const Field<Type> &curFld)
 {
-    Info<< nl
-        << "Initializing IQNILSRelaxation model"
-        << nl << endl;
-
     Foam::relaxationModel<Type>::initialize(curFld);
 }
 
@@ -196,6 +192,12 @@ void Foam::IQNILSRelaxation<Type>::updateVW(Field<Type> &curFld)
     }
 }
 
+template<class Type>
+void Foam::IQNILSRelaxation<Type>::write(Ostream& os) const
+{
+    relaxationModel<Type>::write(os);
+    os.writeKeyword("couplingReuse") << reuse_ << token::END_STATEMENT << nl;
+}
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

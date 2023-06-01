@@ -127,7 +127,7 @@ public:
             return transportTemperature::typeName;
         }
 
-        virtual bool active() const
+        virtual bool usesPIMPLE() const
         {
             return false;
         }

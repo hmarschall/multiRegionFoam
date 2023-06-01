@@ -22,22 +22,28 @@ License
     along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::conductTemperature.C
+    Foam::interTrackFluid.C
 
 SourceFiles
-    conductTemperature.C
+    interTrackFluid.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef conductTemperature_H
-#define conductTemperature_H
+#ifndef interTrackFluid_H
+#define interTrackFluid_H
 
 #include "regionType.H"
 #include "dimensionedScalar.H"
 #include "multiRegionSystem.H"
 #include "volFields.H"
+#include "surfaceFields.H"
 #include "IOReferencer.H"
 #include "HashPtrTable.H"
+#include "pimpleControl.H"
+#include "solutionControl.H"
+#include "inletOutletFvPatchFields.H"
+#include "genericRegionCoupledFluxFvPatchField.H"
+#include "genericRegionCoupledJumpFvPatchField.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -48,80 +54,143 @@ namespace regionTypes
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class conductTemperature Declaration
+                           Class interTrackFluid Declaration
 \*---------------------------------------------------------------------------*/
 
-class conductTemperature
+class interTrackFluid
 :
     public regionType
 {
         //- name
         word regionName_;
 
-        //- transport properties dictionary 
+        //- transport properties dictionary
         IOdictionary transportProperties_;
 
-        //- specific heat
-        // dimensionedScalar cv_;
-        volScalarField cv_;
+        //- PIMPLE control
+        pimpleControl pimple_;
 
         //- density
-        // dimensionedScalar rho_;
-        volScalarField rho_;
+        autoPtr<volScalarField> rho_;
 
-        //- thermal conductivity field
-        autoPtr<volScalarField> kappa_;
+        //- viscosity
+        autoPtr<volScalarField> mu_;
 
-        //- Cached temperature matrix
-        tmp<fvScalarMatrix> TEqn;
+        //- transport
+        autoPtr<volVectorField> U_;
 
-protected:
+        autoPtr<surfaceScalarField> phi_;
 
-        //- temperature
-        autoPtr<volScalarField> T_;
+        autoPtr<volScalarField> p_;
+
+        //- pcorr
+        autoPtr<volScalarField> pcorr_;
+
+        wordList pcorrTypes_;
+
+        //- Reference pressure cell
+        label pRefCell_;
+
+        //- Reference pressure value
+        scalar pRefValue_;
+
+        //- Moving reference frame
+        IOdictionary mrfProperties_;
+
+        IOdictionary movingReferenceFrame_;
+
+        scalar lambdaFf_;
+        scalar lambdaF0_;
+
+        word centerFromMesh_;
+        vector center_;
+        vector center0_;
+
+        dimensionedVector XF_;
+
+        dimensionedVector UF_;
+
+        dimensionedVector aF_;
+
+        //- closed volume?
+        Switch closedVolume_;
+
+        //- has space patch?
+        Switch hasSpacePatch_;
+
+        //- saved time index
+        label myTimeIndex_;
+
+        //- Adjustable time-step switch
+        const Switch adjustTimeStep_;
+
+        //- For adjustable time-step, this is the maximum Courant number
+        const scalar maxCo_;
+
+        //- For adjustable time-step, this is the maximum time-step
+        const scalar maxDeltaT_;
+
+        //- Cached momentum matrix
+        //  shared between the momentum predictor and pressure corrector
+        tmp<fvVectorMatrix> tUEqn;
+
+        //- continuity err
+        scalar cumulativeContErr_;
 
 public:
 
-    TypeName("conductTemperature");
+    TypeName("interTrackFluid");
 
     // Constructors
 
-        conductTemperature
+        interTrackFluid
         (
             const Time& runTime,
             const word& regionName
         );
 
     //- Destructor
-    virtual ~conductTemperature();
+    virtual ~interTrackFluid();
 
 
     // Member Functions
 
         // Access
-        const volScalarField& T() const
+        const volVectorField& U() const
         {
-            return T_();
+            return U_();
         }
 
-        volScalarField& T()
+        const volScalarField& p() const
         {
-            return T_();
+            return p_();
+        }
+
+        volVectorField& U()
+        {
+            return U_();
+        }
+
+        volScalarField& p()
+        {
+            return p_();
         }
 
         word regionTypeName() const
         {
-            return conductTemperature::typeName;
+            return interTrackFluid::typeName;
         }
 
         virtual bool usesPIMPLE() const
         {
-            return false;
+            return true;
         }
 
         virtual void correct();
 
         virtual scalar getMinDeltaT();
+
+        virtual void setCoupledEqns();
 
         virtual void solveRegion();
 
@@ -133,8 +202,6 @@ public:
 
         virtual void meshMotionCorrector();
 
-        virtual void setCoupledEqns();
-        
         virtual void postSolve();
 };
 

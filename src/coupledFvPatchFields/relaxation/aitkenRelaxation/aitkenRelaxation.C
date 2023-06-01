@@ -67,10 +67,6 @@ Foam::aitkenRelaxation<Type>::~aitkenRelaxation()
 template<class Type>
 void Foam::aitkenRelaxation<Type>::initialize(const Field<Type> &curFld)
 {
-    Info<< nl
-        << "Initializing aitkenRelaxation model"
-        << nl << endl;
-
     Foam::relaxationModel<Type>::initialize(curFld);
 }
 
@@ -106,6 +102,12 @@ void Foam::aitkenRelaxation<Type>::relax(Field<Type> &curFld)
 
     //- Increment corrector step counter
     this->corr_++;
+}
+
+template<class Type>
+void Foam::aitkenRelaxation<Type>::write(Ostream& os) const
+{
+    relaxationModel<Type>::write(os);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
