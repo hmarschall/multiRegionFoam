@@ -1,2 +1,0 @@
-faceSet CyclicFluid_faces new patchToFace CyclicFluid;
-quit;
