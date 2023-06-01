@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.3.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0/solid";
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 300;
+
+boundaryField
+{
+    solid_to_inner
+    {
+/*        type            compressible::turbulentTemperatureCoupledBaffleMixed;
+        refValue        uniform 300;
+        refGradient     uniform 0;
+        valueFraction   uniform 1;
+        value           uniform 300;
+        Tnbr            T;
+        thicknessLayers 0();
+        kappaLayers     0();
+        kappa           solidThermo;
+        kappaName       none;
+*/
+        type                    regionCoupledScalarFlux;
+        k                       "k";
+        neighbourRegionName     inner;
+        neighbourPatchName      inner_to_solid;
+        neighbourFieldName      T;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   $internalField;      
+    }
+    solid_to_outer
+    {
+        type                    regionCoupledScalarFlux;
+        k                       "k";
+        neighbourRegionName     outer;
+        neighbourPatchName      outer_to_solid;
+        neighbourFieldName      T;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   $internalField;       
+    }
+    solid_to_domain1 //walls
+    {
+        type            zeroGradient;
+    }
+}
+
+
+// ************************************************************************* //

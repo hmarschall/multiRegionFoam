@@ -13,3 +13,5 @@ rm 0/fluid/k 2>/dev/null
 rm 0/solid/T 2>/dev/null
 rm 0/solid/k 2>/dev/null
 
+rm constant/regionInterfaceProperties 2>/dev/null
+
