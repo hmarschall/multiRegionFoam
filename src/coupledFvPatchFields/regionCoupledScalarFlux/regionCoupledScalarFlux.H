@@ -64,9 +64,9 @@ namespace Foam
 
 class regionCoupledScalarFlux
 :
-    public genericRegionCoupledFluxFvPatchField<scalar>   
+    public genericRegionCoupledFluxFvPatchField<scalar>
 {
-        
+
 public:
 
     //- Runtime type information

@@ -17,7 +17,7 @@
                 U_().boundaryField()[patchi].evaluate();
 
                 phi_().boundaryField()[patchi] =
-                    U_().boundaryField()[patchi] 
+                    U_().boundaryField()[patchi]
                     & mesh().Sf().boundaryField()[patchi];
             }
         }
@@ -38,7 +38,7 @@
             (
                 rAUf,
                 pcorr_(),
-                "laplacian((1|A(U)),p)" 
+                "laplacian((1|A(U)),p)"
             ) == fvc::div(phi_())
         );
 

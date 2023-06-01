@@ -201,7 +201,7 @@ public:
         virtual void meshMotionCorrector() = 0;
 
         virtual void setCoupledEqns() = 0;
-        
+
         virtual void postSolve() = 0;
 
         template<class T>
@@ -218,14 +218,14 @@ public:
 
         //virtual void clear() = 0;
 
-        // Get a ref to the fvMatrix 
+        // Get a ref to the fvMatrix
         template< template<class> class M, class T>
         M<T>& getCoupledEqn
         (
             word name
         );
 
-        // Get a ref to the fvMatrix 
+        // Get a ref to the fvMatrix
         template<class T>
         bool clearCoupledEqn
         (
@@ -233,11 +233,11 @@ public:
             const word& typeName
         );
 
-        // Get a ref to the fields 
+        // Get a ref to the fields
         template<class T>
         const T& getObject(word name, const fvMesh& mesh);
 
-        // Check if region holds fvMatrix 
+        // Check if region holds fvMatrix
         bool foundCoupledEqn
         (
             word name

@@ -108,7 +108,7 @@ void Foam::regionTypeList::reset(const regionProperties& rp)
                 Info<< "Creating region "
                     << meshName
                     << ": "
-                    << regionTypes[regionI] 
+                    << regionTypes[regionI]
                     << endl;
 
                 this->set

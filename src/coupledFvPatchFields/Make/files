@@ -1,6 +1,6 @@
 interfaceToInterfaceCoupleManager/interfaceToInterfaceCoupleManager.C
 
-relaxation/makeRelaxationModels.C
+acceleration/makeAccelerationModels.C
 
 genericRegionCoupledJump/genericRegionCoupledJumpFvPatchFields.C
 genericRegionCoupledFlux/genericRegionCoupledFluxFvPatchFields.C

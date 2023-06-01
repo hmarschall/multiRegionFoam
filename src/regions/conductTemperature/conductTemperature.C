@@ -103,7 +103,7 @@ Foam::regionTypes::conductTemperature::conductTemperature
     kappa_ = lookupOrRead<volScalarField>
     (
         mesh(),
-        "k", 
+        "k",
         dimensionedScalar(transportProperties_.lookup("k")),
         true
     );

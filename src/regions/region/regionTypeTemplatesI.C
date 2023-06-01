@@ -55,7 +55,7 @@ autoPtr<T> regionType::lookupOrRead
         vfPtr.reset
         (
             const_cast<T*>
-            (   
+            (
                 &mesh.lookupObject<T>(fldName)
             )
         );
@@ -125,7 +125,7 @@ autoPtr<T> regionType::lookupOrRead
         vfPtr.reset
         (
             const_cast<T*>
-            (   
+            (
                 &mesh.lookupObject<T>(fldName)
             )
         );

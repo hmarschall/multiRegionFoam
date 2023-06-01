@@ -1,0 +1,93 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      fvSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    T
+    {
+/*        solver          PCG;
+        preconditioner  DIC;
+        tolerance       1e-15;
+        relTol          0;
+        minIter         2;
+        maxIter         50;
+*/
+        solver              GAMG;
+        tolerance           1e-7;
+        relTol              0;
+        smoother            GaussSeidel;
+        cacheAgglomeration  true;
+        nCellsInCoarsestLevel   10;
+        agglomerator    	faceAreaPair;
+        mergeLevels     	1;
+    };
+
+    Tcoupled
+    {
+        solver           BiCGStab;
+        
+        preconditioner      
+        {                   
+            preconditioner  Cholesky;
+        }
+
+        tolerance        1e-15;
+        relTol           0;
+
+        minIter          0;
+        maxIter          200;
+    };
+}
+
+PISO
+{
+    pRefPoint (0 0 0); 
+    pRefValue 0;
+}
+
+PIMPLE
+{
+    // p-U coupling
+    nOuterCorrectors            2; // SIMPLEC loops
+    nCorrectors                 2; // PISO loops
+    nNonOrthogonalCorrectors    0; //1;
+
+    residualControl
+    {
+        p
+        {
+            relTol         0;
+            tolerance      0;
+        }
+
+        U
+        {
+            relTol         0;
+            tolerance      0;
+        }
+    }
+}
+
+relaxationFactors
+{
+	T	0.7; //1.0;
+	U	0.7; 
+	p   0.3;
+}
+
+
+
+// ************************************************************************* //

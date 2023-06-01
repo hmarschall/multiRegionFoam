@@ -49,9 +49,9 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     neighbourPatchName_(),
     neighbourFieldName_(),
     kName_("k"),
-    relaxModel_
+    accModel_
     (
-        relaxationModel<Type>::New
+        accelerationModel<Type>::New
         (
             p.boundaryMesh().mesh().time()
         )
@@ -59,7 +59,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     nonOrthCorr_(false),
     secondOrder_(false)
 {
-    relaxModel_->initialize(*this);
+    accModel_->initialize(*this);
 }
 
 template<class Type>
@@ -77,7 +77,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     neighbourPatchName_(grcf.neighbourPatchName_),
     neighbourFieldName_(grcf.neighbourFieldName_),
     kName_(grcf.kName_),
-    relaxModel_(grcf.relaxModel_, false),
+    accModel_(grcf.accModel_, false),
     nonOrthCorr_(grcf.nonOrthCorr_),
     secondOrder_(grcf.secondOrder_)
 {}
@@ -96,9 +96,9 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     neighbourPatchName_(dict.lookup("neighbourPatchName")),
     neighbourFieldName_(this->dimensionedInternalField().name()),
     kName_(dict.lookup("k")),
-    relaxModel_
+    accModel_
     (
-        relaxationModel<Type>::New
+        accelerationModel<Type>::New
         (
             p.boundaryMesh().mesh().time(),
             dict
@@ -147,7 +147,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
             << exit(FatalError);
     }
 
-    relaxModel_->initialize(*this);
+    accModel_->initialize(*this);
 }
 
 template<class Type>
@@ -163,7 +163,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     neighbourPatchName_(grcf.neighbourPatchName_),
     neighbourFieldName_(grcf.neighbourFieldName_),
     kName_(grcf.kName_),
-    relaxModel_(grcf.relaxModel_, false),
+    accModel_(grcf.accModel_, false),
     nonOrthCorr_(grcf.nonOrthCorr_),
     secondOrder_(grcf.secondOrder_)
 {}
@@ -190,7 +190,7 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     }
 
     // Update and correct the region interface physics
-    const_cast<regionInterface&>(rgInterface()).update();
+    const_cast<regionInterfaceType&>(rgInterface()).update();
 
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
@@ -238,7 +238,7 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     this->gradient() = fluxNbrToOwn/k;
 
     // Relax fixed gradient condition
-    relaxModel_->relax(this->gradient());
+    accModel_->relax(this->gradient());
 
     fixedGradientFvPatchField<Type>::updateCoeffs();
 }
@@ -470,7 +470,7 @@ void genericRegionCoupledFluxFvPatchField<Type>::write
     os.writeKeyword("neighbourFieldName") << neighbourFieldName_
         << token::END_STATEMENT << nl;
     os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
-    relaxModel_->write(os);
+    accModel_->write(os);
     os.writeKeyword("nonOrthCorr") << nonOrthCorr_
         << token::END_STATEMENT << nl;
     os.writeKeyword("secondOrder") << secondOrder_

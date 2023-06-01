@@ -1,0 +1,2 @@
+faceSet InnerFluid_boundingFaces new patchToFace inner_to_solid;
+quit;

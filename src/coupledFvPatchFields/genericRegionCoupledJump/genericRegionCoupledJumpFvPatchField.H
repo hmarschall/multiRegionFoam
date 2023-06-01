@@ -27,8 +27,8 @@ Class
 
 Description
     Generic region coupled jump boundary condition for size Psi. Is intended to
-    serve as a base class for coupled dirichlet boundary conditions. Includes a 
-    zero "jump" condition across the interface that can be overridden by child 
+    serve as a base class for coupled dirichlet boundary conditions. Includes a
+    zero "jump" condition across the interface that can be overridden by child
     classes.
 
     Example usage:
@@ -40,7 +40,7 @@ Description
             neighbourFieldName      neighbourField;
             k                       "D";
             K                       "H";
-            relaxType               fixed;
+            accType                 fixed;
             relax                   0.5;
             nonOrthCorr             yes;
             secondOrder             yes;
@@ -57,9 +57,9 @@ SourceFiles
 #ifndef genericRegionCoupledJumpFvPatchField_H
 #define genericRegionCoupledJumpFvPatchField_H
 
-#include "relaxationModel.H"
+#include "accelerationModel.H"
 #include "interfaceToInterfaceCoupleManager.H"
-#include "regionInterface.H"
+#include "regionInterfaceType.H"
 #include "fixedValueFvPatchFields.H"
 #include "gradScheme.H"
 
@@ -97,8 +97,8 @@ protected:
         //- Jump coefficient
         word KName_;
 
-        //- Relaxation factor for BC update
-        autoPtr<relaxationModel<Type>> relaxModel_;
+        //- Acceleration model for BC update
+        autoPtr<accelerationModel<Type>> accModel_;
 
         //- NonOrthogonal correction
         Switch nonOrthCorr_;
@@ -108,7 +108,7 @@ protected:
 
     // Protected member functions
 
-        //- Update phi 
+        //- Update phi
         virtual void updatePhi()
         {
             //- Override in child class if needed
@@ -224,7 +224,7 @@ genericRegionCoupledJumpFvPatchField<scalar>::snGrad() const;
 template<> tmp<Field<vector> >
 genericRegionCoupledJumpFvPatchField<vector>::snGrad() const;
 
-template<> tmp<Field<scalar> > 
+template<> tmp<Field<scalar> >
 genericRegionCoupledJumpFvPatchField<scalar>::gradientBoundaryCoeffs() const;
 
 template<> tmp<Field<vector> >

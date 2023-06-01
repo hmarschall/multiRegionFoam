@@ -14,45 +14,19 @@ FoamFile
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
-numberOfSubdomains 2;
+numberOfSubdomains 4;
 
-method		simple;
-
-//globalFaceZones ( fluidFaceZone solidFaceZone );
-
+method      simple;
 
 simpleCoeffs
 {
-    n               (2 1 1);
+    n               (2 1 2);
     delta           0.001;
-}
-
-hierarchicalCoeffs
-{
-    n               (2 1 1);
-    delta           0.001;
-    order           xyz;
-}
-
-metisCoeffs
-{
-//    processorWeights
-//    (
-//        1
-//        1
-//        1
-//        1
-//    );
-}
-
-manualCoeffs
-{
-    dataFile        "";
 }
 
 distributed     no;
 
-roots           
+roots
 (
 );
 

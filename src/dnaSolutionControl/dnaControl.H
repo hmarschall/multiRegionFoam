@@ -39,7 +39,7 @@ Description
 #include "volFields.H"
 #include "surfaceFields.H"
 #include "HashPtrTable.H"
-#include "regionInterfaceList.H"
+#include "regionInterfaceTypeList.H"
 #include "genericRegionCoupledFluxFvPatchField.H"
 #include "genericRegionCoupledJumpFvPatchField.H"
 
@@ -76,11 +76,11 @@ protected:
         word fldName_;
 
         //- multiRegion properties dictionary
-        //- DNA solution 
+        //- DNA solution
         IOdictionary multiRegionProperties_;
 
         //- reference to list of region interfaces
-        const regionInterfaceList& interfaces_;
+        const regionInterfaceTypeList& interfaces_;
 
         //- List of residual data per sub field
         List<fieldData> dnaResControl_;
@@ -110,7 +110,7 @@ protected:
         template<class Type>
         void maxTypeRes
         (
-            const regionInterface& interface,
+            const regionInterfaceType& interface,
             const word& fldName,
             scalar& globalMaxJumpRes,
             scalar& globalMaxFluxRes
@@ -118,7 +118,7 @@ protected:
 
         void maxRes
         (
-            const regionInterface& interface,
+            const regionInterfaceType& interface,
             const word& fldName,
             scalar& globalMaxJumpRes,
             scalar& globalMaxFluxRes
@@ -127,7 +127,7 @@ protected:
         template<class Type>
         void writeResFlds
         (
-            const regionInterface& interface,
+            const regionInterfaceType& interface,
             const word& fldName,
             const Switch outputJumpResField,
             const Switch outputFluxResField,
@@ -136,7 +136,7 @@ protected:
 
         void writeResFlds
         (
-            const regionInterface& interface,
+            const regionInterfaceType& interface,
             const word& fldName,
             const Switch outputJumpResField,
             const Switch outputFluxResField,
@@ -180,7 +180,7 @@ public:
         (
             const Time& runTime,
             const word& fldName,
-            const regionInterfaceList& interfaces
+            const regionInterfaceTypeList& interfaces
         );
 
 
@@ -193,7 +193,7 @@ public:
 
             //- DNA loop
             virtual bool loop();
-    
+
         // Access
 
             //- Return the solution dictionary

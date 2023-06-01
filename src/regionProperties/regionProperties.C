@@ -44,18 +44,7 @@ Foam::regionProperties::regionProperties(const Time& runTime)
             )
         ).lookup("regions")
     )
-{
-
-
-    // forAll(regions, regionI)
-    // {
-    //     this->insert
-    //     (
-    //         regions[regionI].first(),
-    //         new wordList(regions[regionI].second())
-    //     );
-    // }
-}
+{}
 
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //

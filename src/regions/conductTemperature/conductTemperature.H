@@ -58,7 +58,7 @@ class conductTemperature
         //- name
         word regionName_;
 
-        //- transport properties dictionary 
+        //- transport properties dictionary
         IOdictionary transportProperties_;
 
         //- specific heat
@@ -134,7 +134,7 @@ public:
         virtual void meshMotionCorrector();
 
         virtual void setCoupledEqns();
-        
+
         virtual void postSolve();
 };
 

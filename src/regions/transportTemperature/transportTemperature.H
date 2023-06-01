@@ -64,7 +64,7 @@ class transportTemperature
 
         //surfaceScalarField phi_;
 
-        //- transport properties dictionary 
+        //- transport properties dictionary
         IOdictionary transportProperties_;
 
         //- thermal conductivity
@@ -147,7 +147,7 @@ public:
         virtual void meshMotionCorrector();
 
         virtual void setCoupledEqns();
-        
+
         virtual void postSolve();
 };
 

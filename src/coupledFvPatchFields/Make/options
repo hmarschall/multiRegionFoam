@@ -10,7 +10,7 @@ EXE_INC =  \
  -I./../globalPolyPatch \
  -I./../regionInterfaces/regionInterface
 
- 
+
 LIB_LIBS = \
  -lfoam  \
  -lfiniteVolume \

@@ -49,9 +49,9 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(),
     kName_("k"),
     KName_("K"),
-    relaxModel_
+    accModel_
     (
-        relaxationModel<Type>::New
+        accelerationModel<Type>::New
         (
             p.boundaryMesh().mesh().time()
         )
@@ -59,7 +59,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     nonOrthCorr_(false),
     secondOrder_(false)
 {
-    relaxModel_->initialize(*this);
+    accModel_->initialize(*this);
 }
 
 template<class Type>
@@ -78,7 +78,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(grcj.neighbourFieldName_),
     kName_(grcj.kName_),
     KName_(grcj.KName_),
-    relaxModel_(grcj.relaxModel_, false),
+    accModel_(grcj.accModel_, false),
     nonOrthCorr_(grcj.nonOrthCorr_),
     secondOrder_(grcj.secondOrder_)
 {}
@@ -98,9 +98,9 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(this->dimensionedInternalField().name()),
     kName_(dict.lookup("k")),
     KName_(dict.lookupOrDefault<word>("K", word::null)),
-    relaxModel_
+    accModel_
     (
-        relaxationModel<Type>::New
+        accelerationModel<Type>::New
         (
             p.boundaryMesh().mesh().time(),
             dict
@@ -121,7 +121,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
         this->evaluate();
     }
 
-    relaxModel_->initialize(*this);
+    accModel_->initialize(*this);
 }
 
 template<class Type>
@@ -138,7 +138,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     neighbourFieldName_(grcj.neighbourFieldName_),
     kName_(grcj.kName_),
     KName_(grcj.KName_),
-    relaxModel_(grcj.relaxModel_, false),
+    accModel_(grcj.accModel_, false),
     nonOrthCorr_(grcj.nonOrthCorr_),
     secondOrder_(grcj.secondOrder_)
 {}
@@ -182,7 +182,7 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
     }
 
     // Update and correct the region interface physics
-    const_cast<regionInterface&>(rgInterface()).update();
+    const_cast<regionInterfaceType&>(rgInterface()).update();
 
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
@@ -209,7 +209,7 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
     );
 
     // Relax fixed value condition
-    relaxModel_->relax(*this);
+    accModel_->relax(*this);
 
     updatePhi();
 
@@ -401,7 +401,7 @@ void genericRegionCoupledJumpFvPatchField<Type>::write
     os.writeKeyword("neighbourFieldName") << neighbourFieldName_
         << token::END_STATEMENT << nl;
     os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
-    relaxModel_->write(os);
+    accModel_->write(os);
     os.writeKeyword("nonOrthCorr") << nonOrthCorr_
         << token::END_STATEMENT << nl;
     os.writeKeyword("secondOrder") << secondOrder_

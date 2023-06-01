@@ -32,7 +32,7 @@ SourceFiles
 #ifndef capillaryInterface_H
 #define capillaryInterface_H
 
-#include "regionInterface.H"
+#include "regionInterfaceType.H"
 #include "dimensionedScalar.H"
 #include "volFields.H"
 #include "surfaceFieldsFwd.H"
@@ -52,7 +52,7 @@ namespace regionInterfaces
 
 class capillaryInterface
 :
-    public regionInterface
+    public regionInterfaceType
 {
     // Private data
 
