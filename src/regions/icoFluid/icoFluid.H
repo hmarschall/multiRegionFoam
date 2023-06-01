@@ -70,17 +70,12 @@ class icoFluid
         pimpleControl pimple_;
 
         //- density
-        dimensionedScalar rhoFluid_;
-
         autoPtr<volScalarField> rho_;
 
         //- viscosity
-        dimensionedScalar muFluid_;
-
         autoPtr<volScalarField> mu_;
 
         //- transport
-        word velocityName_;
         autoPtr<volVectorField> U_;
 
         autoPtr<surfaceScalarField> phi_;
@@ -89,19 +84,9 @@ class icoFluid
 
         autoPtr<volScalarField> p_;
 
-        //- fields for p-U coupling
-        autoPtr<volScalarField> AU_;
-
-        autoPtr<volVectorField> HU_;
-
         IOobject UfHeader_;
 
         surfaceVectorField Uf_;
-
-        //- gradients
-        autoPtr<volVectorField> gradp_;
-
-        autoPtr<volTensorField> gradU_;
 
         //- pcorr
         wordList pcorrTypes_;
@@ -109,7 +94,7 @@ class icoFluid
         autoPtr<volScalarField> pcorr_;
 
         //- Under-relaxation factor
-        const scalar UUrf_;
+        scalar UUrf_;
 
         //- closed volume?
         Switch closedVolume_;
