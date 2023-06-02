@@ -16,5 +16,6 @@ $(interfaces)/newRegionInterfaceType.C
 
 capillaryInterface/capillaryInterface.C
 defaultInterface/defaultInterface.C
+heatTransferInterface/heatTransferInterface.C
 
 LIB = $(FOAM_USER_LIBBIN)/libregionInterface

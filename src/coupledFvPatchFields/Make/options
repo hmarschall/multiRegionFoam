@@ -8,7 +8,7 @@ EXE_INC =  \
  -I$(LIB_SRC)/meshTools/lnInclude \
  -I./interfaceToInterfaceCoupleManager \
  -I./../globalPolyPatch \
- -I./../regionInterfaces/regionInterface
+ -I./../regionInterfaces/lnInclude
 
 
 LIB_LIBS = \

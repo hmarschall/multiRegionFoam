@@ -8,6 +8,9 @@ genericRegionCoupledFlux/genericRegionCoupledFluxFvPatchFields.C
 regionCoupledScalarJump/regionCoupledScalarJump.C
 regionCoupledScalarFlux/regionCoupledScalarFlux.C
 
+regionCoupledTemperatureJump/regionCoupledTemperatureJump.C
+regionCoupledHeatFlux/regionCoupledHeatFlux.C
+
 
 LIB = $(FOAM_USER_LIBBIN)/libcoupledFvPatchBCs
 
