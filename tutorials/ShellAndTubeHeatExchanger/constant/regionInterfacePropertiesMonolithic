@@ -16,14 +16,40 @@ FoamFile
 
 partitionedCoupledPatches
 (
-    fluidsolid
+);
+
+monolithicCoupledPatches
+(
+    innersolid
     {
         interfaceType heatTransferInterface;
 
         coupledPatchPair
         (
-            (fluid interface)
-            (solid top)
+            (inner inner_to_solid)
+            (solid solid_to_inner)
+        );
+
+        coupledFields
+        (
+            T
+        );
+
+        heatTransferInterfaceCoeffs
+        {
+            // Jump coefficient
+            K               K [ 0 0 0 0 0 0 0 ] 1;
+        }
+    }
+
+    outersolid
+    {
+        interfaceType heatTransferInterface;
+
+        coupledPatchPair
+        (
+            (outer outer_to_solid)
+            (solid solid_to_outer)
         );
 
         coupledFields
@@ -39,15 +65,11 @@ partitionedCoupledPatches
     }
 );
 
-monolithicCoupledPatches
-(
-);
-
 curvatureCorrectedSurfacePatches 0();
 
 interpolatorUpdateFrequency 1;
 
-interfaceTransferMethod directMap;
+interfaceTransferMethod GGI; // directMap;
 
 directMapCoeffs
 {}

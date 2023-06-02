@@ -23,38 +23,29 @@ boundaryField
 {
     solid_to_inner
     {
-/*        type            compressible::turbulentTemperatureCoupledBaffleMixed;
-        refValue        uniform 300;
-        refGradient     uniform 0;
-        valueFraction   uniform 1;
-        value           uniform 300;
-        Tnbr            T;
-        thicknessLayers 0();
-        kappaLayers     0();
-        kappa           solidThermo;
-        kappaName       none;
-*/
-        type                    regionCoupledScalarFlux;
+        type                    regionCoupledHeatFlux;
+        interfaceType           heatTransferInterface;
         k                       "k";
         neighbourRegionName     inner;
         neighbourPatchName      inner_to_solid;
         neighbourFieldName      T;
         secondOrder             false;
         nonOrthCorr             true;
-        value                   $internalField;      
+        value                   $internalField;
     }
     solid_to_outer
     {
-        type                    regionCoupledScalarFlux;
+        type                    regionCoupledHeatFlux;
+        interfaceType           heatTransferInterface;
         k                       "k";
         neighbourRegionName     outer;
         neighbourPatchName      outer_to_solid;
         neighbourFieldName      T;
         secondOrder             false;
         nonOrthCorr             true;
-        value                   $internalField;       
+        value                   $internalField;
     }
-    solid_to_domain1 //walls
+    solid_to_domain1
     {
         type            zeroGradient;
     }

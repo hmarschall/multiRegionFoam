@@ -23,36 +23,41 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    regionCoupledScalarFlux
+    regionCoupledTemperatureJump
 
 Author
     Constantin Habes (constantin.habes@stud.tu-darmstadt.de)
 
 Description
-    Neumann boundary condition for species within the ALE interface tracking.
-    Normal species flux jump is calculated from the neighbour patch flux.
+    Dirichlet boundary condition for species within the ALE interface tracking.
+    species jump across the interface is accounted for by adding the jump to
+    the neighbour patch value. Normal species flux is calculated and divided
+    by the density.
 
     Example usage:
-        interfacePatch
+        interfacePatchShadow
             {
-                type                    regionCoupledScalarFlux;
-                interfaceType           defaultInterface;
-                k                       "D";
-                neighbourRegionName     liquid;
-                neighbourPatchName      interfacePatchShadow;
+                type                    regionCoupledTemperatureJump;
+                interfaceType           heatTransferInterface;
+	            k			            "D";
+	            neighbourRegionName     gas;
+                neighbourPatchName      interfacePatch;
+                nonOrthCorr             yes;
+                secondOrder             yes;
                 value                   uniform 0;
             }
 
 
 SourceFiles
-    regionCoupledScalarFlux.C
+    regionCoupledTemperatureJump.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef regionCoupledScalarFlux_H
-#define regionCoupledScalarFlux_H
+#ifndef regionCoupledTemperatureJump_H
+#define regionCoupledTemperatureJump_H
 
-#include "genericRegionCoupledFluxFvPatchField.H"
+#include "genericRegionCoupledJumpFvPatchField.H"
+#include "heatTransferInterface.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -60,41 +65,42 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-   Class regionCoupledScalarFlux Declaration
+        Class regionCoupledTemperatureJump Declaration
 \*---------------------------------------------------------------------------*/
 
-class regionCoupledScalarFlux
+class regionCoupledTemperatureJump
 :
-    public genericRegionCoupledFluxFvPatchField<scalar>
+    public genericRegionCoupledJumpFvPatchField<scalar>
 {
 
 public:
 
     //- Runtime type information
-    TypeName("regionCoupledScalarFlux");
+    TypeName("regionCoupledTemperatureJump");
+
 
     // Constructors
 
         //- Construct from patch and internal field
-        regionCoupledScalarFlux
+        regionCoupledTemperatureJump
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        regionCoupledScalarFlux
+        regionCoupledTemperatureJump
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const dictionary&
         );
 
-        //- Construct by mapping given regionCoupledScalarFlux
+        //- Construct by mapping given regionCoupledTemperatureJump
         //  onto a new patch
-        regionCoupledScalarFlux
+        regionCoupledTemperatureJump
         (
-            const regionCoupledScalarFlux&,
+            const regionCoupledTemperatureJump&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
@@ -105,14 +111,14 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-            	new regionCoupledScalarFlux(*this)
+                new regionCoupledTemperatureJump(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        regionCoupledScalarFlux
+        regionCoupledTemperatureJump
         (
-            const regionCoupledScalarFlux&,
+            const regionCoupledTemperatureJump&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -124,15 +130,16 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new regionCoupledScalarFlux(*this, iF)
+                new regionCoupledTemperatureJump(*this, iF)
             );
         }
 
-
     // Member functions
 
-        //- Calculate species flux jump
-        virtual tmp<scalarField> fluxJump() const;
+        //- Calculate species jump
+        virtual tmp<scalarField> valueJump() const;
+
+        const regionInterfaces::heatTransferInterface& heatTransInterface() const;
 };
 
 

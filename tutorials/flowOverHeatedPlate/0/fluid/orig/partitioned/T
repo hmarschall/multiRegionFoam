@@ -24,8 +24,9 @@ internalField   uniform 300;
 boundaryField
 {
     interface
-    {     
-        type                    regionCoupledScalarJump;
+    {
+        type                    regionCoupledTemperatureJump;
+        interfaceType           heatTransferInterface;
         k                       "k";
 
         accType               fixed;

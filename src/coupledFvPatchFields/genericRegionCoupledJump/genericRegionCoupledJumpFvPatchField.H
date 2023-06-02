@@ -35,6 +35,7 @@ Description
         interfacePatch
         {
             type                    genericRegionCoupledJump;
+            interfaceType           defaultInterface;
             neighbourRegionName     neighbourRegion;
             neighbourPatchName      neighbourPatch;
             neighbourFieldName      neighbourField;

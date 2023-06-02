@@ -28,29 +28,19 @@ boundaryField
     inlet
     {
         type            fixedValue;
-        value           $internalField; 
+        value           $internalField;
     }
     inner_to_solid
     {
-/*        type            compressible::turbulentTemperatureCoupledBaffleMixed;
-        refValue        uniform 283;
-        refGradient     uniform 0;
-        valueFraction   uniform 1;
-        value           uniform 283;
-        Tnbr            T;
-        thicknessLayers 0();
-        kappaLayers     0();
-        kappa           fluidThermo;
-        kappaName       none;
-*/
-        type                    regionCoupledScalarJump;
+        type                    regionCoupledTemperatureJump;
+        interfaceType           heatTransferInterface;
         k                       "k";
         neighbourRegionName     solid;
         neighbourPatchName      solid_to_inner;
         neighbourFieldName      T;
         secondOrder             false;
         nonOrthCorr             true;
-        value                   $internalField;       
+        value                   $internalField;
     }
     inner_to_domain1
     {

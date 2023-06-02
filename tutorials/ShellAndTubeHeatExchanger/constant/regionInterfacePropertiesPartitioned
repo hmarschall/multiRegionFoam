@@ -18,7 +18,7 @@ partitionedCoupledPatches
 (
     innersolid
     {
-        interfaceType defaultInterface;
+        interfaceType heatTransferInterface;
 
         coupledPatchPair
         (
@@ -30,14 +30,17 @@ partitionedCoupledPatches
         (
             T
         );
-        
-        defaultInterfaceCoeffs
-        {}
+
+        heatTransferInterfaceCoeffs
+        {
+            // Jump coefficient
+            K               K [ 0 0 0 0 0 0 0 ] 1;
+        }
     }
-    
+
     outersolid
     {
-        interfaceType defaultInterface;
+        interfaceType heatTransferInterface;
 
         coupledPatchPair
         (
@@ -49,9 +52,12 @@ partitionedCoupledPatches
         (
             T
         );
-        
-        defaultInterfaceCoeffs
-        {}
+
+        heatTransferInterfaceCoeffs
+        {
+            // Jump coefficient
+            K               K [ 0 0 0 0 0 0 0 ] 1;
+        }
     }
 );
 

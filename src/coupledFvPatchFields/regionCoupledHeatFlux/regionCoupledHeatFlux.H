@@ -23,7 +23,7 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    regionCoupledScalarFlux
+    regionCoupledHeatFlux
 
 Author
     Constantin Habes (constantin.habes@stud.tu-darmstadt.de)
@@ -35,8 +35,8 @@ Description
     Example usage:
         interfacePatch
             {
-                type                    regionCoupledScalarFlux;
-                interfaceType           defaultInterface;
+                type                    regionCoupledHeatFlux;
+                interfaceType           heatTransferInterface;
                 k                       "D";
                 neighbourRegionName     liquid;
                 neighbourPatchName      interfacePatchShadow;
@@ -45,14 +45,15 @@ Description
 
 
 SourceFiles
-    regionCoupledScalarFlux.C
+    regionCoupledHeatFlux.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef regionCoupledScalarFlux_H
-#define regionCoupledScalarFlux_H
+#ifndef regionCoupledHeatFlux_H
+#define regionCoupledHeatFlux_H
 
 #include "genericRegionCoupledFluxFvPatchField.H"
+#include "heatTransferInterface.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -60,10 +61,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-   Class regionCoupledScalarFlux Declaration
+   Class regionCoupledHeatFlux Declaration
 \*---------------------------------------------------------------------------*/
 
-class regionCoupledScalarFlux
+class regionCoupledHeatFlux
 :
     public genericRegionCoupledFluxFvPatchField<scalar>
 {
@@ -71,30 +72,30 @@ class regionCoupledScalarFlux
 public:
 
     //- Runtime type information
-    TypeName("regionCoupledScalarFlux");
+    TypeName("regionCoupledHeatFlux");
 
     // Constructors
 
         //- Construct from patch and internal field
-        regionCoupledScalarFlux
+        regionCoupledHeatFlux
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        regionCoupledScalarFlux
+        regionCoupledHeatFlux
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const dictionary&
         );
 
-        //- Construct by mapping given regionCoupledScalarFlux
+        //- Construct by mapping given regionCoupledHeatFlux
         //  onto a new patch
-        regionCoupledScalarFlux
+        regionCoupledHeatFlux
         (
-            const regionCoupledScalarFlux&,
+            const regionCoupledHeatFlux&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
@@ -105,14 +106,14 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-            	new regionCoupledScalarFlux(*this)
+            	new regionCoupledHeatFlux(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        regionCoupledScalarFlux
+        regionCoupledHeatFlux
         (
-            const regionCoupledScalarFlux&,
+            const regionCoupledHeatFlux&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -124,7 +125,7 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new regionCoupledScalarFlux(*this, iF)
+                new regionCoupledHeatFlux(*this, iF)
             );
         }
 
@@ -133,6 +134,8 @@ public:
 
         //- Calculate species flux jump
         virtual tmp<scalarField> fluxJump() const;
+
+        const regionInterfaces::heatTransferInterface& heatTransInterface() const;
 };
 
 

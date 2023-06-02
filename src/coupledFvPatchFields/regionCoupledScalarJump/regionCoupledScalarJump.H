@@ -38,6 +38,7 @@ Description
         interfacePatchShadow
             {
                 type                    regionCoupledScalarJump;
+                interfaceType           defaultInterface;
 	            k			            "D";
 	            neighbourRegionName     gas;
                 neighbourPatchName      interfacePatch;

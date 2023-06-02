@@ -25,3 +25,5 @@ rm -rf postDictInner_data
 
 rm -rf postDictOuter_data
 
+rm constant/regionInterfaceProperties 2>/dev/null
+

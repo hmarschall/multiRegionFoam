@@ -67,7 +67,7 @@ word Foam::regionInterfaceType::assembleName
     (
         meshAName + PatchAName
       + MeshBName + PatchBName
-//      + InterfaceTypeName
+      + InterfaceTypeName
     );
 }
 

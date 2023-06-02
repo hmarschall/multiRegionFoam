@@ -22,7 +22,7 @@ monolithicCoupledPatches
 (
     fluidsolid
     {
-        interfaceType defaultInterface;
+        interfaceType heatTransferInterface;
 
         coupledPatchPair
         (
@@ -35,8 +35,11 @@ monolithicCoupledPatches
             T
         );
 
-        defaultInterfaceCoeffs
-        {}
+        heatTransferInterfaceCoeffs
+        {
+            // Jump coefficient
+            K               K [ 0 0 0 0 0 0 0 ] 1;
+        }
     }
 );
 
