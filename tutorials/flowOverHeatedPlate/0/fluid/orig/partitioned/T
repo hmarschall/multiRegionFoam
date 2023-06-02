@@ -26,6 +26,7 @@ boundaryField
     interface
     {
         type                    regionCoupledTemperatureJump;
+        interfaceType           heatTransferInterface;
         k                       "k";
 
         accType               fixed;

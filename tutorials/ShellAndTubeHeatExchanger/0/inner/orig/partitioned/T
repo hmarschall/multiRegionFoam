@@ -33,6 +33,7 @@ boundaryField
     inner_to_solid
     {
         type                    regionCoupledTemperatureJump;
+        interfaceType           heatTransferInterface;
         k                       "k";
         neighbourRegionName     solid;
         neighbourPatchName      solid_to_inner;
