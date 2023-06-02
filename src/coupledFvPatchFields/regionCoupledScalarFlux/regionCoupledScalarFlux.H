@@ -36,6 +36,7 @@ Description
         interfacePatch
             {
                 type                    regionCoupledScalarFlux;
+                interfaceType           defaultInterface;
                 k                       "D";
                 neighbourRegionName     liquid;
                 neighbourPatchName      interfacePatchShadow;

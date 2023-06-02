@@ -30,14 +30,15 @@ Author
 
 Description
     Dirichlet boundary condition for species within the ALE interface tracking.
-    species jump across the interface is accounted for by adding the jump to 
-    the neighbour patch value. Normal species flux is calculated and divided 
+    species jump across the interface is accounted for by adding the jump to
+    the neighbour patch value. Normal species flux is calculated and divided
     by the density.
 
     Example usage:
         interfacePatchShadow
             {
                 type                    regionCoupledTemperatureJump;
+                interfaceType           heatTransferInterface;
 	            k			            "D";
 	            neighbourRegionName     gas;
                 neighbourPatchName      interfacePatch;

@@ -70,7 +70,7 @@ Foam::word Foam::interfaceToInterfaceCoupleManager::assembleName
     (
         meshAName + PatchAName
       + MeshBName + PatchBName
-//      + InterfaceTypeName
+      + InterfaceTypeName
     );
 }
 
@@ -105,6 +105,7 @@ Foam::interfaceToInterfaceCoupleManager::rgInterface() const
     {
         FatalErrorIn("interfaceToInterfaceCoupleManager::rgInterface()")
             << "regionInterfaceType object not found but required."
+            << rgIntName << " " << rgIntNameRev
             << abort(FatalError);
     } else if
     (
@@ -184,7 +185,7 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 )
 :
     patch_(patch),
-    typeName_(type),
+    typeName_(dict.lookup("interfaceType")),
     neighbourRegionName_(dict.lookup("neighbourRegionName")),
     neighbourPatchName_(dict.lookup("neighbourPatchName")),
     neighbourFieldName_(dict.lookup("neighbourFieldName")),
@@ -194,12 +195,11 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 
 Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 (
-    const interfaceToInterfaceCoupleManager& pcm,
-    const word type
+    const interfaceToInterfaceCoupleManager& pcm
 )
 :
     patch_(pcm.refPatch()),
-    typeName_(type),
+    typeName_(pcm.typeName_),
     neighbourRegionName_(pcm.neighbourRegionName()),
     neighbourPatchName_(pcm.neighbourPatchName()),
     neighbourFieldName_(pcm.neighbourFieldName()),

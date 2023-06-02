@@ -35,6 +35,7 @@ Description
         interfacePatch
         {
             type                    genericRegionCoupledFlux;
+            interfaceType           defaultInterface;
             neighbourRegionName     neighbourRegion;
             neighbourPatchName      neighbourPatch;
             neighbourFieldName      neighbourField;

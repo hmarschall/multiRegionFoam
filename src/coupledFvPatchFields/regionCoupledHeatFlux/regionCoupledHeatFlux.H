@@ -36,6 +36,7 @@ Description
         interfacePatch
             {
                 type                    regionCoupledHeatFlux;
+                interfaceType           heatTransferInterface;
                 k                       "D";
                 neighbourRegionName     liquid;
                 neighbourPatchName      interfacePatchShadow;

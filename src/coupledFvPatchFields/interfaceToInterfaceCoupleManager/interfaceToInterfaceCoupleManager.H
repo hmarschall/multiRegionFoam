@@ -128,8 +128,7 @@ public:
         //- Copy constructor
         interfaceToInterfaceCoupleManager
         (
-            const interfaceToInterfaceCoupleManager& pcm,
-            const word type=word("default")
+            const interfaceToInterfaceCoupleManager& pcm
         );
 
 
