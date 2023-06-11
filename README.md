@@ -71,7 +71,7 @@ Released under the GNU Public License - see code headers for details.
 
 ## Contact
 
-[Email @hmarschall](mailto:holger-marschall@tu-darmstadt.de)
+[Email @hmarschall](mailto:holger.marschall@tu-darmstadt.de)
 
 
 ## Acknowledgements
