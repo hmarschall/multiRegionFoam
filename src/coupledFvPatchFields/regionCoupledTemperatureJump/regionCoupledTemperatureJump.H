@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright held by original author
+   \\    /   O peration     | Fork:     foam-extend
+    \\  /    A nd           | Version:  4.1                                 
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,8 +25,28 @@ License
 Class
     regionCoupledTemperatureJump
 
+SourceFiles
+    regionCoupledTemperatureJump.C
+
 Author
     Constantin Habes (constantin.habes@stud.tu-darmstadt.de)
+
+Contact
+    Holger Marschall (holger.marschall@tu-darmstadt.de)
+    main developer and principal investigator
+    TU Darmstadt
+
+Affiliations
+    Affiliation A)
+    Computational Multiphase Flow
+    Department of Mathematics
+    Technical University of Darmstadt, Germany
+
+Acknowledgement
+    Funded by
+    Hessian Ministry of Higher Education, Research, Science and the Arts,
+    National High Performance Computing Center for Computational Engineering
+    Science (NHR4CES)
 
 Description
     Dirichlet boundary condition for species within the ALE interface tracking.
@@ -34,24 +54,16 @@ Description
     the neighbour patch value. Normal species flux is calculated and divided
     by the density.
 
-    Example usage:
-        interfacePatchShadow
-            {
-                type                    regionCoupledTemperatureJump;
-                interfaceType           heatTransferInterface;
-	            k			            "D";
-	            neighbourRegionName     gas;
-                neighbourPatchName      interfacePatch;
-                nonOrthCorr             yes;
-                secondOrder             yes;
-                value                   uniform 0;
-            }
+    This file is part of the multiRegionFoam library.
 
+    You may refer to this software as :
+    https://doi.org/10.48550/arXiv.2306.01924
 
-SourceFiles
-    regionCoupledTemperatureJump.C
+    If you use this software for your scientific work or your publications,
+    please don't forget to acknowledge explicitly the use of it.
 
 \*---------------------------------------------------------------------------*/
+
 
 #ifndef regionCoupledTemperatureJump_H
 #define regionCoupledTemperatureJump_H
@@ -77,7 +89,6 @@ public:
 
     //- Runtime type information
     TypeName("regionCoupledTemperatureJump");
-
 
     // Constructors
 
@@ -141,7 +152,6 @@ public:
 
         const regionInterfaces::heatTransferInterface& heatTransInterface() const;
 };
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

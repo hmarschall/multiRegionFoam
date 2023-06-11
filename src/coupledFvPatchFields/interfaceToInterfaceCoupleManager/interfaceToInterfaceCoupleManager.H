@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright held by original author
+   \\    /   O peration     | Fork:     foam-extend
+    \\  /    A nd           | Version:  4.1                                 
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,16 +25,54 @@ License
 Class
     interfaceToInterfaceCoupleManager
 
+SourceFiles
+    interfaceToInterfaceCoupleManager.C
+
+Author
+    Holger Marschall (holger.marschall@tu-darmstadt.de, Affiliation A)
+    Constantin Habes (constantin.habes@tu-darmstadt.de, Affiliation A)
+    Heba Alkafri (heba.alkafri@tu-darmstadt.de, Affiliation A)
+    Luca Huefner (lucas.huefner@tu-darmstadt.de, Affiliation B)
+
+Contact
+    Holger Marschall (holger.marschall@tu-darmstadt.de)
+    main developer and principal investigator
+    TU Darmstadt
+
+Affiliations
+    Affiliation A)
+    Computational Multiphase Flow
+    Department of Mathematics
+    Technical University of Darmstadt, Germany
+
+    Affiliation B)
+    Technische Universität Darmstadt
+    AK Etzold / Technical Chemistry 1
+    Department of Chemistry
+    Technical University of Darmstadt, Germany
+
+Acknowledgement
+    Funded by
+    Hessian Ministry of Higher Education, Research, Science and the Arts,
+    National High Performance Computing Center for Computational Engineering
+    Science (NHR4CES)
+
 Description
     Helper class to handle the coupling of region patches.
     Deployment with the regionInterfaceType class within the unified
     multi-region coupling framework. It can be queried to return
     the neighbour information and data.
 
-SourceFiles
-    interfaceToInterfaceCoupleManager.C
+    This file is part of the multiRegionFoam library.
+
+    You may refer to this software as :
+    https://doi.org/10.48550/arXiv.2306.01924
+
+    If you use this software for your scientific work or your publications,
+    please don't forget to acknowledge explicitly the use of it.
 
 \*---------------------------------------------------------------------------*/
+
 
 #ifndef interfaceToInterfaceCoupleManager_H
 #define interfaceToInterfaceCoupleManager_H
@@ -105,7 +143,6 @@ protected:
         //- Reference to neighbour patch
         const fvPatch& nbrPatch() const;
 
-
 public:
 
     // Constructors
@@ -131,11 +168,9 @@ public:
             const interfaceToInterfaceCoupleManager& pcm
         );
 
-
     // Destructor
 
         ~interfaceToInterfaceCoupleManager();
-
 
     // Member Functions
 
@@ -182,7 +217,6 @@ public:
             //- Update region-interface
             void updateRegionInterface();
 
-
         // Edit
 
             //- Return the name of the neighbour region
@@ -194,7 +228,6 @@ public:
             //- Return the name of the field on the neighbour region
             word& neighbourFieldName();
 
-
         // Write
 
            //- Write couple to obj file
@@ -203,7 +236,6 @@ public:
            //- Write entries for patches
            void writeEntries(Ostream& os) const;
 };
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
