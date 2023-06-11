@@ -1,0 +1,11 @@
+pipelines:
+  default:
+    - step:
+        name: Sync GitHub Mirror
+        image: alpine/git:latest
+        clone:
+          enabled: false
+        script:
+          - git clone --bare git@bitbucket.org:hmarschall/multiregionfoam.git
+          - cd multiregionfoam.git
+          - git push --mirror git@github.com:hmarschall/multiRegionFoam.git
