@@ -1,5 +1,7 @@
 # multiRegionFoam
 
+[![DOI](https://zenodo.org/badge/652142737.svg)](https://zenodo.org/badge/latestdoi/652142737)
+
 Developed by the Computational Multiphase Flow research group.
 
 * [Research Group Website](https://www.mathematik.tu-darmstadt.de/cmf/)
