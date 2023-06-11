@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright held by original author
+   \\    /   O peration     | Fork:     foam-extend
+    \\  /    A nd           | Version:  4.1                                 
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,13 +25,44 @@ License
 Class
     regionInterfaceType
 
-Description
-    Class to handle the coupling of region patches.
-
 SourceFiles
     regionInterfaceType.C
 
+Author
+    Holger Marschall (holger.marschall@tu-darmstadt.de, Affiliation A)
+    Constantin Habes (constantin.habes@tu-darmstadt.de, Affiliation A)
+    Heba Alkafri (heba.alkafri@tu-darmstadt.de, Affiliation A)
+
+Contact
+    Holger Marschall (holger.marschall@tu-darmstadt.de)
+    main developer and principal investigator
+    TU Darmstadt
+
+Affiliations
+    Affiliation A)
+    Computational Multiphase Flow
+    Department of Mathematics
+    Technical University of Darmstadt, Germany
+
+Acknowledgement
+    Funded by
+    Hessian Ministry of Higher Education, Research, Science and the Arts,
+    National High Performance Computing Center for Computational Engineering
+    Science (NHR4CES)
+
+Description
+    Class to handle the coupling of region patches.
+
+    This file is part of the multiRegionFoam library.
+
+    You may refer to this software as :
+    https://doi.org/10.48550/arXiv.2306.01924
+
+    If you use this software for your scientific work or your publications,
+    please don't forget to acknowledge explicitly the use of it.
+
 \*---------------------------------------------------------------------------*/
+
 
 #ifndef regionInterfaceType_H
 #define regionInterfaceType_H
@@ -184,7 +215,6 @@ public:
     //- Runtime type information
     TypeName("regionInterfaceType");
 
-
     // Declare run-time constructor selection table
 #ifndef SWIG
         declareRunTimeSelectionTable
@@ -215,7 +245,6 @@ public:
             const fvPatch& patchB
         );
 
-
     // Selectors
 
         //- Select constructed from fluid and solid meshes
@@ -227,7 +256,6 @@ public:
             const fvPatch& patchA,
             const fvPatch& patchB
         );
-
 
     // Destructor
 
@@ -357,7 +385,6 @@ public:
             //-- Return const-access to the global poly patch B
             const globalPolyPatch& globalPatchB() const;
 
-
             //- interface-to-interface interpolation
 
             //-- Return const access to the interface-to-interface object
@@ -376,7 +403,6 @@ public:
             (
                 const Field<Type>& fromField
             ) const;
-
 
         // Edit
 
