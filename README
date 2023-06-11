@@ -42,7 +42,7 @@ build the library and solvers:
 
 ## Usage
 
-The `run` directory has tutorials to showcase the library's functionality. 
+The `tutorials` directory has tutorials to showcase the library's functionality. 
 Please take a look there for examples of usage. There are `Allrun` scripts 
 demonstrating the proper usage.
 
