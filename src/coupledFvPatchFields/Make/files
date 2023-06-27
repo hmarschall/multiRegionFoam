@@ -12,5 +12,14 @@ regionCoupledTemperatureJump/regionCoupledTemperatureJump.C
 regionCoupledHeatFlux/regionCoupledHeatFlux.C
 
 
+monolithicCoupling/monolithicCouplingFvPatchFields.C
+
+monolithicBase/monolithicBase.C
+monolithicThermalDiffusivity/monolithicThermalDiffusivityFvPatchScalarField.C
+monolithicTemperature/monolithicTemperatureFvPatchScalarField.C
+monolithicThermalDiffusivitySlave/monolithicThermalDiffusivitySlaveFvPatchScalarField.C
+
+
+
 LIB = $(FOAM_USER_LIBBIN)/libcoupledFvPatchBCs
 
