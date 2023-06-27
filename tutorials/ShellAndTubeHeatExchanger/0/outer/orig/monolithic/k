@@ -22,7 +22,7 @@ boundaryField
 {
     outer_to_solid
     {
-        type            chtRcThermalDiffusivity;
+        type            monolithicThermalDiffusivity;
         remoteField     k;
         value           $internalField;
     }

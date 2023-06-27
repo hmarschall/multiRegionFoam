@@ -24,13 +24,13 @@ boundaryField
 {
     solid_to_inner
     {
-        type            chtRcThermalDiffusivitySlave;
+        type            monolithicThermalDiffusivitySlave;
         remoteField     k;
         value           $internalField;
     }
     solid_to_outer
     {
-        type            chtRcThermalDiffusivitySlave;
+        type            monolithicThermalDiffusivitySlave;
         remoteField     k;
         value           $internalField;
     }

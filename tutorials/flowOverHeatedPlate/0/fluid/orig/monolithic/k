@@ -22,7 +22,7 @@ boundaryField
 {
     interface
     {
-        type            chtRcThermalDiffusivity;
+        type            monolithicThermalDiffusivity;
         remoteField     k;
         value           $internalField;
     }

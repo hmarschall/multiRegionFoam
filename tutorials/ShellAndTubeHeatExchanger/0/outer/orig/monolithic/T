@@ -32,11 +32,11 @@ boundaryField
     }
     outer_to_solid
     {
-        type                    chtRcTemperature;
+        type                    monolithicTemperature;
         radiation               off;
         K                       k;
         remoteField             T;
-        value                   $internalField;      
+        value                   $internalField;
     }
     outer_to_domain1
     {
