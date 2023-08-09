@@ -33,97 +33,105 @@ namespace Foam
 
 
 template<>
-tmp<Field<scalar> > regionInterface::transferFacesFromA
+tmp<Field<scalar> > regionInterface::interpolateFacesFromA
 (
     const Field<scalar>& fromField
 ) const
 {
-    tmp<Field<scalar> > ttoField
-    (
-        new Field<scalar>(globalPatchB().globalPatch().size())
-    );
-    Field<scalar>& toField = ttoField();
+    Field<scalar> globalFromFld =
+        globalPatchA().patchFaceToGlobal(fromField);
+
+    Field<scalar> globalToField(globalPatchB().globalPatch().size());
 
     interfaceToInterface().transferFacesZoneToZone
     (
         globalPatchA().globalPatch(),       // from zone
         globalPatchB().globalPatch(),       // to zone
-        fromField,                          // from field
-        toField                             // to field
+        globalFromFld,                      // from field
+        globalToField                       // to field
     );
 
-    return ttoField;
+    return globalPatchB().globalFaceToPatch
+        (
+            globalToField
+        );
 }
 
 template<>
-tmp<Field<vector> > regionInterface::transferFacesFromA
+tmp<Field<vector> > regionInterface::interpolateFacesFromA
 (
     const Field<vector>& fromField
 ) const
 {
-    tmp<Field<vector> > ttoField
-    (
-        new Field<vector>(globalPatchB().globalPatch().size())
-    );
-    Field<vector>& toField = ttoField();
+    Field<vector> globalFromFld =
+        globalPatchA().patchFaceToGlobal(fromField);
+
+    Field<vector> globalToField(globalPatchB().globalPatch().size());
 
     interfaceToInterface().transferFacesZoneToZone
     (
         globalPatchA().globalPatch(),       // from zone
         globalPatchB().globalPatch(),       // to zone
-        fromField,                          // from field
-        toField                             // to field
+        globalFromFld,                      // from field
+        globalToField                       // to field
     );
 
-    return ttoField;
+    return globalPatchB().globalFaceToPatch
+        (
+            globalToField
+        );
 }
 
 
 
 template<>
-tmp<Field<scalar> > regionInterface::transferFacesFromB
+tmp<Field<scalar> > regionInterface::interpolateFacesFromB
 (
     const Field<scalar>& fromField
 ) const
 {
-    tmp<Field<scalar> > ttoField
-    (
-        new Field<scalar>(globalPatchA().globalPatch().size())
-    );
-    Field<scalar>& toField = ttoField();
+    Field<scalar> globalFromFld =
+        globalPatchB().patchFaceToGlobal(fromField);
+
+    Field<scalar> globalToField(globalPatchA().globalPatch().size());
 
     interfaceToInterface().transferFacesZoneToZone
     (
         globalPatchB().globalPatch(),       // from zone
         globalPatchA().globalPatch(),       // to zone
-        fromField,                          // from field
-        toField                             // to field
+        globalFromFld,                      // from field
+        globalToField                       // to field
     );
 
-    return ttoField;
+    return globalPatchA().globalFaceToPatch
+        (
+            globalToField
+        );
 }
 
 template<>
-tmp<Field<vector> > regionInterface::transferFacesFromB
+tmp<Field<vector> > regionInterface::interpolateFacesFromB
 (
     const Field<vector>& fromField
 ) const
 {
-    tmp<Field<vector> > ttoField
-    (
-        new Field<vector>(globalPatchA().globalPatch().size())
-    );
-    Field<vector>& toField = ttoField();
+    Field<vector> globalFromFld =
+        globalPatchB().patchFaceToGlobal(fromField);
+
+    Field<vector> globalToField(globalPatchA().globalPatch().size());
 
     interfaceToInterface().transferFacesZoneToZone
     (
         globalPatchB().globalPatch(),       // from zone
         globalPatchA().globalPatch(),       // to zone
-        fromField,                          // from field
-        toField                             // to field
+        globalFromFld,                      // from field
+        globalToField                       // to field
     );
 
-    return ttoField;
+    return globalPatchA().globalFaceToPatch
+        (
+            globalToField
+        );
 }
 
 }

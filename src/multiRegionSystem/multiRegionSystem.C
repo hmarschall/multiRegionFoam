@@ -485,6 +485,9 @@ void Foam::multiRegionSystem::preSolve()
     // Correct region properties and update meshes
     regions_->preSolve();
 
+    // ALE mesh motion corrector
+    regions_->meshMotionCorrector();
+
     // Update interfaces on mesh change (motion or topology)
     interfaces_->update();
 }
@@ -519,7 +522,7 @@ void Foam::multiRegionSystem::solve()
 
     // Solve pressure-velocity system using PIMPLE
     // Check if at least one region implements PIMPLE loop
-    if (regions_->usesPIMPLE())
+    if (regions_->usesPIMPLE() && !partitionedCoupledFldNames_.contains("pUPimple"))
     {
         // PIMPLE p-U-coupling
         regions_->solvePIMPLE();
@@ -545,7 +548,10 @@ void Foam::multiRegionSystem::solve()
                 regions_->meshMotionCorrector();
 
                 interfaces_->update();
+
             }
+
+            regions_->postSolvePIMPLE();
 
             Info<< "Solved PIMPLE with DNA coupling in "
                 << runTime_.cpuTimeIncrement() << " s." << endl;

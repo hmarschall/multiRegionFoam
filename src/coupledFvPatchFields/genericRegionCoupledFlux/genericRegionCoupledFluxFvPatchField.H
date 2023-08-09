@@ -27,8 +27,8 @@ Class
 
 Description
     Generic region coupled flux boundary condition for size Psi. Is intended to
-    serve as a base class for coupled dirichlet boundary conditions. Includes a 
-    zero "fluxJump" condition across the interface that can be overridden by child 
+    serve as a base class for coupled dirichlet boundary conditions. Includes a
+    zero "fluxJump" condition across the interface that can be overridden by child
     classes.
 
     Example usage:
@@ -103,12 +103,6 @@ protected:
         Switch secondOrder_;
 
     // Protected member functions
-
-        //- Update phi 
-        virtual void updatePhi()
-        {
-            //- Override in child class if needed
-        };
 
 public:
 

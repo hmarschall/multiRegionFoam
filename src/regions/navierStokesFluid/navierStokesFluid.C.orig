@@ -833,12 +833,6 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
                  == fvc::div(phi_())
                 );
 
-<<<<<<< HEAD
-               if (closedVolume_)
-               {
-                   pEqn.setReference(pRefCell_, pRefValue_);
-               }
-=======
                 label pRefCell = 0;
                 scalar pRefValue = 0.0;
                 bool pNeedRef = false;
@@ -887,7 +881,6 @@ void Foam::regionTypes::navierStokesFluid::solveRegion()
 
 //                    pEqn.setReference(pRefCell_, pRefValue_);
 //                }
->>>>>>> feature-pUcoupled
 
                 pEqn.solve
                 (

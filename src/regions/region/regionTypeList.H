@@ -120,6 +120,9 @@ public:
         //- Update fields after solution
         void postSolve();
 
+        //- Post solve actions after PIMPLE solution
+        void postSolvePIMPLE();
+
         //- Clear regions
         void clear();
 };

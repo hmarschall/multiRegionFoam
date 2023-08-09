@@ -86,7 +86,7 @@ class regionInterface
 
         //- interface properties dictionary
         IOdictionary regionInterfaceProperties_;
-        
+
         //- gravitationalProperties
         IOdictionary gravitationalProperties_;
 
@@ -130,7 +130,7 @@ class regionInterface
 
         //- Interpolator update frequency
         label interpolatorUpdateFrequency_;
-        
+
         //- Finite area mesh
         mutable autoPtr<faMesh> aMeshPtr_;
 
@@ -139,16 +139,6 @@ class regionInterface
         //- Surface patches requiring curvature correction
         //- e.g. fixedSurfacePatches or centerlinePatches (wedge cases)
         wordList curvatureCorrectedSurfacePatches_;
-
-
-protected:
-
-        //- surface velocity field
-        mutable autoPtr<areaVectorField> UsPtr_;
-
-        //- surface flux field
-        mutable autoPtr<edgeScalarField> phisPtr_;
-
 
 private:
 
@@ -177,28 +167,13 @@ private:
         //- Reset interface physics
         void resetFaMesh() const;
 
-        //- Make surface velocity
-        void makeUs() const;
-
-        //- Make surface flux
-        void makePhis() const;
-
         //- Helper functions
 
-        //-- Return velocity field on patch
-        const vectorField& Up();
-            
-        //-- Correct surface velocity b.c.
-        void correctUsBoundaryConditions();
-            
         //-- Calculate interface curvature at wedge axis
         void correctCurvature
         (
             areaScalarField& K
         );
-
-        //- Clear all demand-driven data
-        void clearOut() const;
 
         //- Disallow default bitwise copy construct
         regionInterface(const regionInterface&);
@@ -262,6 +237,12 @@ public:
 /*        {}*/
         ~regionInterface();
 
+protected:
+
+    // Protected Member Functions
+
+        //- Clear all demand-driven data
+        virtual void clearOut() const;
 
 public:
 
@@ -286,7 +267,7 @@ public:
             {
                 return gravitationalProperties_;
             }
-            
+
 			//- Return reference to DB
 			const Time& runTime() const
 			{
@@ -370,50 +351,6 @@ public:
                 return moving_;
             }
 
-            //- interfacial transport
-        
-            //-- return surface velocity    
-            Foam::areaVectorField& Us() 
-            {
-                if (UsPtr_.empty())
-                {
-                    makeUs();
-                }
-
-                return UsPtr_();
-            }
-
-            const Foam::areaVectorField& Us() const
-            {
-                if (UsPtr_.empty())
-                {
-                    makeUs();
-                }
-
-                return UsPtr_();
-            }
-
-            //-- return surface flux
-            edgeScalarField& Phis()
-            {
-                if (phisPtr_.empty())
-                {
-                    makePhis();
-                }
-
-                return phisPtr_();
-            }
-
-            const edgeScalarField& Phis() const
-            {
-                if (phisPtr_.empty())
-                {
-                   makePhis();
-                }
-
-                return phisPtr_();
-            }
-
             //-- return interfacial curvature
 /*            Foam::areaScalarField& K()*/
 /*            {*/
@@ -455,16 +392,16 @@ public:
             //-- Return const access to the interface-to-interface object
             const interfaceToInterfaceMapping& interfaceToInterface() const;
 
-            //-- Transfer/map/interpolate 
+            //-- Transfer/map/interpolate
             //   from zone A/B faces (to zone B/A faces)
             template<class Type>
-            tmp<Field<Type> > transferFacesFromA
+            tmp<Field<Type> > interpolateFacesFromA
             (
                 const Field<Type>& fromField
             ) const;
 
             template<class Type>
-            tmp<Field<Type> > transferFacesFromB
+            tmp<Field<Type> > interpolateFacesFromB
             (
                 const Field<Type>& fromField
             ) const;
@@ -484,14 +421,8 @@ public:
             // Update surface transport
             void update();
 
-            // Update surface velocity
-            void updateUs();
-
             // Update interfacial curvature
             void updateK();
-
-            // Update surface flux
-            void updatePhis();
 
             // Correct interface physics
             virtual void correct() = 0;
@@ -504,10 +435,13 @@ public:
 
             // Set deltaT based on interface stability criteria
             virtual scalar getMinDeltaT() = 0;
+
+            // Log interface specific information
+            virtual void info() const = 0;
 };
 
 template<class Type>
-tmp<Field<Type> > regionInterface::transferFacesFromA
+tmp<Field<Type> > regionInterface::interpolateFacesFromA
 (
     const Field<Type>& fromField
 ) const
@@ -515,7 +449,7 @@ tmp<Field<Type> > regionInterface::transferFacesFromA
     notImplemented
     (
         "regionInterfaceTemplates.C\n"
-        "tmp<Field<Type> > regionInterface::transferFacesFromA\n"
+        "tmp<Field<Type> > regionInterface::interpolateFacesFromA\n"
         "(\n"
         "const Field<Type>& fromField\n"
         ") const\n"
@@ -531,7 +465,7 @@ tmp<Field<Type> > regionInterface::transferFacesFromA
 }
 
 template<class Type>
-tmp<Field<Type> > regionInterface::transferFacesFromB
+tmp<Field<Type> > regionInterface::interpolateFacesFromB
 (
     const Field<Type>& fromField
 ) const
@@ -539,7 +473,7 @@ tmp<Field<Type> > regionInterface::transferFacesFromB
     notImplemented
     (
         "regionInterfaceTemplates.C\n"
-        "tmp<Field<Type> > regionInterface::transferFacesFromB\n"
+        "tmp<Field<Type> > regionInterface::interpolateFacesFromB\n"
         "(\n"
         "const Field<Type>& fromField\n"
         ") const\n"
@@ -556,29 +490,28 @@ tmp<Field<Type> > regionInterface::transferFacesFromB
 
 //-Specialisations
 template<>
-tmp<Field<scalar> > regionInterface::transferFacesFromA
+tmp<Field<scalar> > regionInterface::interpolateFacesFromA
 (
     const Field<scalar>& fromField
 ) const;
 
 template<>
-tmp<Field<vector> > regionInterface::transferFacesFromA
+tmp<Field<vector> > regionInterface::interpolateFacesFromA
 (
     const Field<vector>& fromField
 ) const;
 
 template<>
-tmp<Field<scalar> > regionInterface::transferFacesFromB
+tmp<Field<scalar> > regionInterface::interpolateFacesFromB
 (
     const Field<scalar>& fromField
 ) const;
 
 template<>
-tmp<Field<vector> > regionInterface::transferFacesFromB
+tmp<Field<vector> > regionInterface::interpolateFacesFromB
 (
     const Field<vector>& fromField
 ) const;
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
