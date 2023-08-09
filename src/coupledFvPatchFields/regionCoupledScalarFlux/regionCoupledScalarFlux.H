@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright held by original author
+   \\    /   O peration     | Fork:     foam-extend
+    \\  /    A nd           | Version:  4.1                                 
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,29 +25,44 @@ License
 Class
     regionCoupledScalarFlux
 
+SourceFiles
+    regionCoupledScalarFlux.C
+
 Author
-    Constantin Habes (constantin.habes@stud.tu-darmstadt.de)
+    Constantin Habes (constantin.habes@tu-darmstadt.de, Affiliation A)
+    Holger Marschall (holger.marschall@tu-darmstadt.de, Affiliation A)
+
+Contact
+    Holger Marschall (holger.marschall@tu-darmstadt.de)
+    main developer and principal investigator
+    TU Darmstadt
+
+Affiliations
+    Affiliation A)
+    Computational Multiphase Flow
+    Department of Mathematics
+    Technical University of Darmstadt, Germany
+
+Acknowledgement
+    Funded by
+    Hessian Ministry of Higher Education, Research, Science and the Arts,
+    National High Performance Computing Center for Computational Engineering
+    Science (NHR4CES)
 
 Description
     Neumann boundary condition for species within the ALE interface tracking.
     Normal species flux jump is calculated from the neighbour patch flux.
 
-    Example usage:
-        interfacePatch
-            {
-                type                    regionCoupledScalarFlux;
-                interfaceType           defaultInterface;
-                k                       "D";
-                neighbourRegionName     liquid;
-                neighbourPatchName      interfacePatchShadow;
-                value                   uniform 0;
-            }
+    This file is part of the multiRegionFoam library.
 
+    You may refer to this software as :
+    https://doi.org/10.48550/arXiv.2306.01924
 
-SourceFiles
-    regionCoupledScalarFlux.C
+    If you use this software for your scientific work or your publications,
+    please don't forget to acknowledge explicitly the use of it.
 
 \*---------------------------------------------------------------------------*/
+
 
 #ifndef regionCoupledScalarFlux_H
 #define regionCoupledScalarFlux_H
@@ -128,13 +143,11 @@ public:
             );
         }
 
-
     // Member functions
 
         //- Calculate species flux jump
         virtual tmp<scalarField> fluxJump() const;
 };
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
