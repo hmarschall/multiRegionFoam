@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Fork:     foam-extend
-    \\  /    A nd           | Version:  4.0                                 
+    \\  /    A nd           | Version:  4.1                                 
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -29,37 +29,33 @@ SourceFiles
 
 Author
     Holger Marschall (holger.marschall@tu-darmstadt.de, Affiliation A)
+    Constantin Habes (constantin.habes@tu-darmstadt.de, Affiliation A)
+    Heba Alkafri (heba.alkafri@tu-darmstadt.de, Affiliation A)
 
 Contact
     Holger Marschall (holger.marschall@tu-darmstadt.de)
     main developer and principal investigator
     TU Darmstadt
-    ---
-    Martin Wörner (martin.woerner@kit.edu)
-    principal investigator
-    Karlsruhe Institute of Technology
 
 Affiliations
     Affiliation A)
     Computational Multiphase Flow
-    Research Group Leader
     Department of Mathematics
     Technical University of Darmstadt, Germany
 
 Acknowledgement
-    Financed by German Research Foundation (DFG) via
-    SFB TRR 150, Project 237267381 - TRR 150
-    SFB 1194, Procect 265191195 - SFB 1194
+    Funded by
+    Hessian Ministry of Higher Education, Research, Science and the Arts,
+    National High Performance Computing Center for Computational Engineering
+    Science (NHR4CES)
 
 Description
 
-    This file is part of the phaseFieldFoam library.
+    This file is part of the multiRegionFoam library.
 
     You may refer to this software as :
-    https://doi.org/10.1002/ceat.201500089
-    https://doi.org/10.1016/j.cattod.2016.03.053
-    https://doi.org/10.1016/j.cpc.2018.10.015
-       
+    https://doi.org/10.48550/arXiv.2306.01924
+
     If you use this software for your scientific work or your publications,
     please don't forget to acknowledge explicitly the use of it.
 

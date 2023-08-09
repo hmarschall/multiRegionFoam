@@ -70,11 +70,11 @@ Foam::word Foam::interfaceToInterfaceCoupleManager::assembleName
     (
         meshAName + PatchAName
       + MeshBName + PatchBName
-//      + InterfaceTypeName
+      + InterfaceTypeName
     );
 }
 
-const Foam::regionInterface& 
+const Foam::regionInterfaceType& 
 Foam::interfaceToInterfaceCoupleManager::rgInterface() const
 {
     const fvMesh& mesh = refPatch().boundaryMesh().mesh();
@@ -99,32 +99,33 @@ Foam::interfaceToInterfaceCoupleManager::rgInterface() const
 
     if
     (
-        !obr.foundObject<regionInterface>(rgIntName)
-     && !obr.foundObject<regionInterface>(rgIntNameRev)
+        !obr.foundObject<regionInterfaceType>(rgIntName)
+     && !obr.foundObject<regionInterfaceType>(rgIntNameRev)
     )
     {
         FatalErrorIn("interfaceToInterfaceCoupleManager::rgInterface()")
-            << "regionInterface object not found but required."
+            << "regionInterfaceType object not found but required."
+            << rgIntName << " " << rgIntNameRev
             << abort(FatalError);
     } else if
     (
-        obr.foundObject<regionInterface>(rgIntName)
-     && obr.foundObject<regionInterface>(rgIntNameRev)
+        obr.foundObject<regionInterfaceType>(rgIntName)
+     && obr.foundObject<regionInterfaceType>(rgIntNameRev)
     )
     {
         FatalErrorIn("interfaceCoupledVelocityValue::")
-            << "regionInterface object names ambiguous:"
+            << "regionInterfaceType object names ambiguous:"
             << rgIntName << " vs. " << rgIntNameRev << nl
             << "Choose unique patch/region names."
             << abort(FatalError);
     }
 
-    if (obr.foundObject<regionInterface>(rgIntNameRev))
+    if (obr.foundObject<regionInterfaceType>(rgIntNameRev))
     {
-        return obr.lookupObject<regionInterface>(rgIntNameRev);
+        return obr.lookupObject<regionInterfaceType>(rgIntNameRev);
     }
 
-    return obr.lookupObject<regionInterface>(rgIntName);
+    return obr.lookupObject<regionInterfaceType>(rgIntName);
 }
 
 const Foam::fvMesh& 
@@ -151,7 +152,10 @@ Foam::interfaceToInterfaceCoupleManager::nbrPatch() const
 
 void Foam::interfaceToInterfaceCoupleManager::updateRegionInterface()
 {
-    regionInterface& rgInt = const_cast<regionInterface&>(rgInterface());
+    regionInterfaceType& rgInt = const_cast<regionInterfaceType&>
+        (
+            rgInterface()
+        );
 
     rgInt.update();
 }
@@ -181,7 +185,7 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 )
 :
     patch_(patch),
-    typeName_(type),
+    typeName_(dict.lookup("interfaceType")),
     neighbourRegionName_(dict.lookup("neighbourRegionName")),
     neighbourPatchName_(dict.lookup("neighbourPatchName")),
     neighbourFieldName_(dict.lookup("neighbourFieldName")),
@@ -191,12 +195,11 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 
 Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 (
-    const interfaceToInterfaceCoupleManager& pcm,
-    const word type
+    const interfaceToInterfaceCoupleManager& pcm
 )
 :
     patch_(pcm.refPatch()),
-    typeName_(type),
+    typeName_(pcm.typeName_),
     neighbourRegionName_(pcm.neighbourRegionName()),
     neighbourPatchName_(pcm.neighbourPatchName()),
     neighbourFieldName_(pcm.neighbourFieldName()),

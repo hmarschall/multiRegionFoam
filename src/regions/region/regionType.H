@@ -1,17 +1,17 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright (C) 2011-2015 OpenFOAM Foundation
+   \\    /   O peration     | Fork:     foam-extend
+    \\  /    A nd           | Version:  4.1                                 
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
     This file is part of OpenFOAM.
 
-    OpenFOAM is free software: you can redistribute it and/or modify it
-    under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    OpenFOAM is free software; you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation; either version 2 of the License, or (at your
+    option) any later version.
 
     OpenFOAM is distributed in the hope that it will be useful, but WITHOUT
     ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
@@ -19,7 +19,8 @@ License
     for more details.
 
     You should have received a copy of the GNU General Public License
-    along with OpenFOAM.  If not, see <http://www.gnu.org/licenses/>.
+    along with OpenFOAM; if not, write to the Free Software Foundation,
+    Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
     Foam::regionType.C
@@ -27,7 +28,40 @@ Class
 SourceFiles
     regionType.C
 
+Author
+    Holger Marschall (holger.marschall@tu-darmstadt.de, Affiliation A)
+    Constantin Habes (constantin.habes@tu-darmstadt.de, Affiliation A)
+    Heba Alkafri (heba.alkafri@tu-darmstadt.de, Affiliation A)
+
+Contact
+    Holger Marschall (holger.marschall@tu-darmstadt.de)
+    main developer and principal investigator
+    TU Darmstadt
+
+Affiliations
+    Affiliation A)
+    Computational Multiphase Flow
+    Department of Mathematics
+    Technical University of Darmstadt, Germany
+
+Acknowledgement
+    Funded by
+    Hessian Ministry of Higher Education, Research, Science and the Arts,
+    National High Performance Computing Center for Computational Engineering
+    Science (NHR4CES)
+
+Description
+    
+    This file is part of the multiRegionFoam library.
+
+    You may refer to this software as :
+    https://doi.org/10.48550/arXiv.2306.01924
+
+    If you use this software for your scientific work or your publications,
+    please don't forget to acknowledge explicitly the use of it.
+
 \*---------------------------------------------------------------------------*/
+
 
 #ifndef regionType_H
 #define regionType_H
@@ -47,7 +81,6 @@ SourceFiles
 #include "hashedWordList.H"
 
 #include "mergePolyMesh.H"
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -201,7 +234,7 @@ public:
         virtual void meshMotionCorrector() = 0;
 
         virtual void setCoupledEqns() = 0;
-        
+
         virtual void postSolve() = 0;
 
         template<class T>
@@ -218,14 +251,14 @@ public:
 
         //virtual void clear() = 0;
 
-        // Get a ref to the fvMatrix 
+        // Get a ref to the fvMatrix
         template< template<class> class M, class T>
         M<T>& getCoupledEqn
         (
             word name
         );
 
-        // Get a ref to the fvMatrix 
+        // Get a ref to the fvMatrix
         template<class T>
         bool clearCoupledEqn
         (
@@ -233,11 +266,11 @@ public:
             const word& typeName
         );
 
-        // Get a ref to the fields 
+        // Get a ref to the fields
         template<class T>
         const T& getObject(word name, const fvMesh& mesh);
 
-        // Check if region holds fvMatrix 
+        // Check if region holds fvMatrix
         bool foundCoupledEqn
         (
             word name

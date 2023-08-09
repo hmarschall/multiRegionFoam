@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright held by original author
+   \\    /   O peration     | Fork:     foam-extend
+    \\  /    A nd           | Version:  4.1                                 
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -25,41 +25,53 @@ License
 Class
     genericRegionCoupledJumpFvPatchField
 
-Description
-    Generic region coupled jump boundary condition for size Psi. Is intended to
-    serve as a base class for coupled dirichlet boundary conditions. Includes a 
-    zero "jump" condition across the interface that can be overridden by child 
-    classes.
-
-    Example usage:
-        interfacePatch
-        {
-            type                    genericRegionCoupledJump;
-            neighbourRegionName     neighbourRegion;
-            neighbourPatchName      neighbourPatch;
-            neighbourFieldName      neighbourField;
-            k                       "D";
-            K                       "H";
-            relaxType               fixed;
-            relax                   0.5;
-            nonOrthCorr             yes;
-            secondOrder             yes;
-            value                   uniform 0;
-        }
-
-    Note: neighbourFieldName must be the name of the field on this side.
-
 SourceFiles
     genericRegionCoupledJumpFvPatchField.C
 
+Author
+    Constantin Habes (constantin.habes@tu-darmstadt.de, Affiliation A)
+    Holger Marschall (holger.marschall@tu-darmstadt.de, Affiliation A)
+
+Contact
+    Holger Marschall (holger.marschall@tu-darmstadt.de)
+    main developer and principal investigator
+    TU Darmstadt
+
+Affiliations
+    Affiliation A)
+    Computational Multiphase Flow
+    Department of Mathematics
+    Technical University of Darmstadt, Germany
+
+Acknowledgement
+    Funded by
+    Hessian Ministry of Higher Education, Research, Science and the Arts,
+    National High Performance Computing Center for Computational Engineering
+    Science (NHR4CES)
+
+Description
+    Generic region coupled jump boundary condition for size Psi. Is intended to
+    serve as a base class for coupled dirichlet boundary conditions. Includes a
+    zero "jump" condition across the interface that can be overridden by child
+    classes.
+
+    This file is part of the multiRegionFoam library.
+
+    You may refer to this software as :
+    https://doi.org/10.48550/arXiv.2306.01924
+
+    If you use this software for your scientific work or your publications,
+    please don't forget to acknowledge explicitly the use of it.
+
 \*---------------------------------------------------------------------------*/
+
 
 #ifndef genericRegionCoupledJumpFvPatchField_H
 #define genericRegionCoupledJumpFvPatchField_H
 
-#include "relaxationModel.H"
+#include "accelerationModel.H"
 #include "interfaceToInterfaceCoupleManager.H"
-#include "regionInterface.H"
+#include "regionInterfaceType.H"
 #include "fixedValueFvPatchFields.H"
 #include "gradScheme.H"
 
@@ -97,8 +109,8 @@ protected:
         //- Jump coefficient
         word KName_;
 
-        //- Relaxation factor for BC update
-        autoPtr<relaxationModel<Type>> relaxModel_;
+        //- Acceleration model for BC update
+        autoPtr<accelerationModel<Type>> accModel_;
 
         //- NonOrthogonal correction
         Switch nonOrthCorr_;
@@ -108,7 +120,7 @@ protected:
 
     // Protected member functions
 
-        //- Update phi 
+        //- Update phi
         virtual void updatePhi()
         {
             //- Override in child class if needed
@@ -118,7 +130,6 @@ public:
 
     //- Runtime type information
     TypeName("genericRegionCoupledJump");
-
 
     // Constructors
 
@@ -224,12 +235,11 @@ genericRegionCoupledJumpFvPatchField<scalar>::snGrad() const;
 template<> tmp<Field<vector> >
 genericRegionCoupledJumpFvPatchField<vector>::snGrad() const;
 
-template<> tmp<Field<scalar> > 
+template<> tmp<Field<scalar> >
 genericRegionCoupledJumpFvPatchField<scalar>::gradientBoundaryCoeffs() const;
 
 template<> tmp<Field<vector> >
 genericRegionCoupledJumpFvPatchField<vector>::gradientBoundaryCoeffs() const;
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

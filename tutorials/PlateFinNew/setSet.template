@@ -1,8 +1,0 @@
-cellSet solid new boxToCell "\("$x0 $y0 $z0"\)\("$x1 $y3 $z1"\)";
-cellSet solid add boxToCell "\("$x1 $y0 $z2"\)\("$x2 $y3 $z3"\)";
-cellSet solid add boxToCell "\("$x0 $y0 $z0"\)\("$x1 $y1 $z3"\)";
-cellSet solid add boxToCell "\("$x1 $y2 $z0"\)\("$x2 $y3 $z3"\)";
-
-cellSet fluid new boxToCell "\("$x0 $y1 $z1"\)\("$x1 $y3 $z3"\)";
-cellSet fluid add boxToCell "\("$x1 $y0 $z0"\)\("$x2 $y2 $z2"\)";
-quit;

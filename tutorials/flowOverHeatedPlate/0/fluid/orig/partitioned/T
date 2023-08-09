@@ -24,17 +24,18 @@ internalField   uniform 300;
 boundaryField
 {
     interface
-    {     
-        type                    regionCoupledScalarJump;
+    {
+        type                    regionCoupledTemperatureJump;
+        interfaceType           heatTransferInterface;
         k                       "k";
 
-        relaxType               fixed;
+        accType               fixed;
         relax                   1.0;
 
-        // relaxType               aitken;
+        // accType               aitken;
         // relax                   0.75;
 
-        // relaxType               IQN-ILS;
+        // accType               IQN-ILS;
         // relax                   0.75;
         // couplingReuse           0; //2;
 

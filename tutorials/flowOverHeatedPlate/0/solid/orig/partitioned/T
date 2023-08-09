@@ -25,14 +25,8 @@ boundaryField
 {
     top
     {
-/*       
-       type                     regionCoupleHeatFlux;
-       neighbourRegionName      fluid;
-       neighbourPatchName       interface;
-       neighbourFieldName       T;
-       value                    $internalField;
-*/
-        type                    regionCoupledScalarFlux;
+        type                    regionCoupledHeatFlux;
+        interfaceType           heatTransferInterface;
         k                       "k";
         neighbourRegionName     fluid;
         neighbourPatchName      interface;

@@ -1,12 +1,24 @@
 interfaceToInterfaceCoupleManager/interfaceToInterfaceCoupleManager.C
 
-relaxation/makeRelaxationModels.C
+acceleration/makeAccelerationModels.C
 
 genericRegionCoupledJump/genericRegionCoupledJumpFvPatchFields.C
 genericRegionCoupledFlux/genericRegionCoupledFluxFvPatchFields.C
 
 regionCoupledScalarJump/regionCoupledScalarJump.C
 regionCoupledScalarFlux/regionCoupledScalarFlux.C
+
+regionCoupledTemperatureJump/regionCoupledTemperatureJump.C
+regionCoupledHeatFlux/regionCoupledHeatFlux.C
+
+
+monolithicCoupling/monolithicCouplingFvPatchFields.C
+
+monolithicBase/monolithicBase.C
+monolithicThermalDiffusivity/monolithicThermalDiffusivityFvPatchScalarField.C
+monolithicTemperature/monolithicTemperatureFvPatchScalarField.C
+monolithicThermalDiffusivitySlave/monolithicThermalDiffusivitySlaveFvPatchScalarField.C
+
 
 
 LIB = $(FOAM_USER_LIBBIN)/libcoupledFvPatchBCs

@@ -1,0 +1,29 @@
+#!/bin/sh
+
+find -type l -delete # outer fluid files are linked from inner
+
+rm -rf 0.* [1-9]* log* proc* VTK
+
+rm -rf constant/inner/polyMesh 2>/dev/null
+rm -rf constant/outer/polyMesh 2>/dev/null
+rm -rf constant/solid/polyMesh 2>/dev/null
+
+rm -rf constant/inner/faMesh 2>/dev/null
+rm -rf constant/outer/faMesh 2>/dev/null
+
+rm 0/inner/T 2>/dev/null
+rm 0/inner/k 2>/dev/null
+
+rm 0/outer/T 2>/dev/null
+rm 0/outer/k 2>/dev/null
+
+rm 0/solid/T 2>/dev/null
+rm 0/solid/k 2>/dev/null
+
+
+rm -rf postDictInner_data
+
+rm -rf postDictOuter_data
+
+rm constant/regionInterfaceProperties 2>/dev/null
+

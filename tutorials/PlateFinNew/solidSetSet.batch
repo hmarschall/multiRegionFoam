@@ -1,2 +1,0 @@
-faceSet CyclicSolid_faces new patchToFace CyclicSolid;
-quit;

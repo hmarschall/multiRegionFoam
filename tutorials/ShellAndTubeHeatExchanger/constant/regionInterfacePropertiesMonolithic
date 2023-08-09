@@ -1,0 +1,80 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      regionInterfaceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+partitionedCoupledPatches
+(
+);
+
+monolithicCoupledPatches
+(
+    innersolid
+    {
+        interfaceType heatTransferInterface;
+
+        coupledPatchPair
+        (
+            (inner inner_to_solid)
+            (solid solid_to_inner)
+        );
+
+        coupledFields
+        (
+            T
+        );
+
+        heatTransferInterfaceCoeffs
+        {
+            // Jump coefficient
+            K               K [ 0 0 0 0 0 0 0 ] 1;
+        }
+    }
+
+    outersolid
+    {
+        interfaceType heatTransferInterface;
+
+        coupledPatchPair
+        (
+            (outer outer_to_solid)
+            (solid solid_to_outer)
+        );
+
+        coupledFields
+        (
+            T
+        );
+
+        heatTransferInterfaceCoeffs
+        {
+            // Jump coefficient
+            K               K [ 0 0 0 0 0 0 0 ] 1;
+        }
+    }
+);
+
+curvatureCorrectedSurfacePatches 0();
+
+interpolatorUpdateFrequency 1;
+
+interfaceTransferMethod GGI; // directMap;
+
+directMapCoeffs
+{}
+
+GGICoeffs
+{}
+
+// ************************************************************************* //

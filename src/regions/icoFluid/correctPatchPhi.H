@@ -68,7 +68,7 @@
             phi_().boundaryField()[intPatchID_] +=
                 p_().boundaryField()[intPatchID_].snGrad()
                *mesh().magSf().boundaryField()[intPatchID_]
-               /AU_().boundaryField()[intPatchID_];
+               /AU.boundaryField()[intPatchID_];
         }
 
         if (!closedVolume_ && hasSpacePatch_)

@@ -221,10 +221,10 @@ void Foam::globalPolyPatch::calcGlobalPatch() const
 
     if (debug)
     {
-        Pout << nl 
+        Pout << nl
              << "nDuplicatePoints: " << nDuplicatePoints
              << " on global patch: " << patchName_ << nl
-             << "resizing zonePoints from " 
+             << "resizing zonePoints from "
              << zonePoints.size() << " to " << nCurPoints << endl;
     }
 

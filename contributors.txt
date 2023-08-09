@@ -1,9 +1,9 @@
 List of contributors (generated from git shortlog)
 
-   308	Holger Marschall <holgermarschall@yahoo.de>
-   132	Constantin Habes <constantin.habes@stud.tu-darmstadt.de>
-    97	Heba Alkafri <heba.alkafri@tu-darmstadt.de>
-    53	Lucas Huefner <lucas.huefner@tu-darmstadt.de>
+   357	Holger Marschall <holgermarschall@yahoo.de>
+   200	Constantin Habes <constantin.habes@tu-darmstadt.de>
+   114	Heba Alkafri <heba.alkafri@tu-darmstadt.de>
+    57	Lucas Huefner <lucas.huefner@tu-darmstadt.de>
      7	Philip Cardiff <philip.cardiff@ucd.ie>
      5	Steffen Hess <s.hess@fz-juelich.de>
      3	Danial Khazaei <khazaeidanial@gmail.com>

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Fork:     foam-extend
-    \\  /    A nd           | Version:  4.0                                 
+    \\  /    A nd           | Version:  4.0
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -53,14 +53,14 @@ Acknowledgement
     SFB 1194, Procect 265191195 - SFB 1194
 
 Description
-    
+
     This file is part of the phaseFieldFoam library.
 
     You may refer to this software as :
     https://doi.org/10.1002/ceat.201500089
     https://doi.org/10.1016/j.cattod.2016.03.053
     https://doi.org/10.1016/j.cpc.2018.10.015
-       
+
     If you use this software for your scientific work or your publications,
     please don't forget to acknowledge explicitly the use of it.
 
@@ -70,7 +70,7 @@ Description
     https://doi.org/10.1002/ceat.201500089
     https://doi.org/10.1016/j.cattod.2016.03.053
     https://doi.org/10.1016/j.cpc.2018.10.015
-       
+
     If you use this software for your scientific work or your publications,
     please don't forget to acknowledge explicitly the use of it.
 
