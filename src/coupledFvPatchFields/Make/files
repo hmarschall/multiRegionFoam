@@ -19,7 +19,9 @@ monolithicThermalDiffusivity/monolithicThermalDiffusivityFvPatchScalarField.C
 monolithicTemperature/monolithicTemperatureFvPatchScalarField.C
 monolithicThermalDiffusivitySlave/monolithicThermalDiffusivitySlaveFvPatchScalarField.C
 
+solidSymmetry/solidSymmetryFvPatchScalarField.C
+solidSymmetry/solidSymmetryFvPatchVectorField.C
+solidTraction/solidTractionFvPatchVectorField.C
 
 
 LIB = $(FOAM_USER_LIBBIN)/libcoupledFvPatchBCs
-

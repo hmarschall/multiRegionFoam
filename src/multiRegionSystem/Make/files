@@ -12,6 +12,7 @@ $(regions)/transportTemperature/transportTemperature.C
 $(regions)/icoFluid/icoFluid.C
 $(regions)/pUCoupledIcoFluid/pUCoupledIcoFluid.C
 $(regions)/interTrackFluid/interTrackFluid.C
+$(regions)/solidStVK/solidStVK.C
 
 ../regionProperties/regionProperties.C
 
