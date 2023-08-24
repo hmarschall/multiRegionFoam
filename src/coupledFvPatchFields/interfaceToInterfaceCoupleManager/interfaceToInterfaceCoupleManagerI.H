@@ -77,7 +77,6 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-
 inline const Foam::fvMesh& Foam::interfaceToInterfaceCoupleManager::refMesh() const
 {
     return refPatch().boundaryMesh().mesh();

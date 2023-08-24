@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Fork:     foam-extend
-    \\  /    A nd           | Version:  4.1                                 
+    \\  /    A nd           | Version:  4.1
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -51,7 +51,7 @@ Acknowledgement
     Science (NHR4CES)
 
 Description
-    
+
     This file is part of the multiRegionFoam library.
 
     You may refer to this software as :
@@ -102,6 +102,13 @@ class regionType
         //- Mesh
         autoPtr<dynamicFvMesh> meshPtr_;
 
+
+        // Settings for Picard iterations if non-linearities need
+        // to be resolved during the solution process
+        HashTable<scalar> maxCorr_;
+        HashTable<scalar> relativeTolerance_;
+        HashTable<scalar> convergenceTolerance_;
+
 protected:
 
     // Protected data
@@ -131,7 +138,7 @@ protected:
         (
             const fvMesh& mesh,
             const word& fldName,
-            const dimensioned<typename T::cmptType> dimVal,
+            const dimensioned<typename T::PrimitiveType> dimVal,
             const bool& write=true
         );
 
@@ -140,7 +147,7 @@ protected:
         (
             const fvMesh& mesh,
             const word& fldName,
-            const dimensioned<typename T::cmptType> dimVal,
+            const dimensioned<typename T::PrimitiveType> dimVal,
             const wordList& patchFieldTypes,
             const bool& write=true
         );
@@ -275,6 +282,10 @@ public:
         (
             word name
         );
+
+        scalar maxCorr(word name);
+        scalar relativeTolerance(word name);
+        scalar convergenceTolerance(word name);
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

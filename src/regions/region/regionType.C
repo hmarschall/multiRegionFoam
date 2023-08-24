@@ -26,6 +26,7 @@ License
 #include "regionType.H"
 #include "multiRegionSystem.H"
 #include "IOReferencer.H"
+#include "scalar.H"
 
 namespace Foam
 {
@@ -85,6 +86,121 @@ Foam::regionType::regionType
             )
         );
     }
+
+    if (mesh().solutionDict().found("PICARD"))
+    {
+        const dictionary& picardControls = mesh().solutionDict().subDict("PICARD");
+
+        forAllConstIter(dictionary, picardControls, iter)
+        {
+            if (iter().isDict())
+            {
+                const dictionary& subFieldDict(iter().dict());
+                word fldName= iter().keyword();
+
+                maxCorr_.insert
+                (
+                    fldName,
+                    readScalar(subFieldDict.lookup("maxCorr"))
+                );
+
+                relativeTolerance_.insert
+                (
+                    fldName,
+                    readScalar(subFieldDict.lookup("relTol"))
+                );
+
+                convergenceTolerance_.insert
+                (
+                    fldName,
+                    readScalar(subFieldDict.lookup("tolerance"))
+                );
+            }
+        }
+    }
+}
+
+Foam::scalar Foam::regionType::maxCorr(word name)
+{
+    HashTable<scalar>::iterator it = maxCorr_.find(name);
+
+    if (it == maxCorr_.end()) // not found
+    {
+        // if
+        // (
+        //     relativeTolerance(name) != VGREAT
+        //  || convergenceTolerance(name)!= VGREAT)
+        // {
+        //     FatalErrorIn("scalar Foam::regionType::maxCorr(word name)")
+        //         << "Either relTol or tolerance are specified for the solution of field "
+        //         << name << " in region " << mesh().name()
+        //         << "but no number for maxCorr is provided"
+        //         << abort(FatalError);
+        // }
+
+        // If not specified no picard iterations are applied
+        return 0;
+    }
+
+    return *it;
+}
+
+
+Foam::scalar Foam::regionType::relativeTolerance(word name)
+{
+    HashTable<scalar>::iterator it = relativeTolerance_.find(name);
+
+    if (it == relativeTolerance_.end()) // not found
+    {
+
+        // if
+        // (
+        //     maxCorr(name) != 0
+        // )
+        // {
+        //     Warning
+        //         << "A number for maxCorr is specified for the solution of field "
+        //         << name << " in region " << mesh().name()
+        //         << "but no number for relTol is provided." << nl
+        //         << "Setting relTol to 0 by default" << nl
+        //         << endl;
+
+        //     return 0;
+        // }
+
+        // If not specified set tolerance to be satisfied by default
+        return VGREAT;
+    }
+
+    return *it;
+}
+
+Foam::scalar Foam::regionType::convergenceTolerance(word name)
+{
+    HashTable<scalar>::iterator it = convergenceTolerance_.find(name);
+
+    if (it == convergenceTolerance_.end()) // not found
+    {
+        // if
+        // (
+        //     maxCorr(name) != 0
+        // )
+        // {
+        //     Warning
+        //         << "A number for maxCorr is specified for the solution of field "
+        //         << name << " in region " << mesh().name()
+        //         << "but no number for tolerance is provided." << nl
+        //         << "Setting tolerance to 0 by default" << nl
+        //         << endl;
+
+        //     return 0;
+        // }
+
+        // If not specified set tolerance to be satisfied by default
+        return VGREAT;
+    }
+
+    return *it;
 }
 
 

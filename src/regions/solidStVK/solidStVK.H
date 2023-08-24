@@ -23,12 +23,13 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    Foam::interTrackFluid.C
+    Foam::solidStVK.C
 
 SourceFiles
-    interTrackFluid.C
+    solidStVK.C
 
 Author
+    Holger Marschall (holger.marschall@tu-darmstadt.de, Affiliation A)
     Constantin Habes (constantin.habes@tu-darmstadt.de, Affiliation A)
 
 Contact
@@ -60,21 +61,23 @@ Description
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef interTrackFluid_H
-#define interTrackFluid_H
+
+#ifndef solidStVK_H
+#define solidStVK_H
 
 #include "regionType.H"
 #include "dimensionedScalar.H"
 #include "multiRegionSystem.H"
 #include "volFields.H"
-#include "surfaceFields.H"
+#include "pointMesh.H"
+#include "pointFields.H"
 #include "IOReferencer.H"
 #include "HashPtrTable.H"
-#include "pimpleControl.H"
-#include "solutionControl.H"
-#include "inletOutletFvPatchFields.H"
-#include "genericRegionCoupledFluxFvPatchField.H"
-#include "genericRegionCoupledJumpFvPatchField.H"
+#include "volPointInterpolation.H"
+#include "EulerDdtScheme.H"
+#include "CrankNicolsonDdtScheme.H"
+#include "backwardDdtScheme.H"
+#include "steadyStateDdtScheme.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -85,116 +88,80 @@ namespace regionTypes
 {
 
 /*---------------------------------------------------------------------------*\
-                           Class interTrackFluid Declaration
+                           Class solidStVK Declaration
 \*---------------------------------------------------------------------------*/
 
-class interTrackFluid
+class solidStVK
 :
     public regionType
 {
         //- name
         word regionName_;
 
-        //- transport properties dictionary
-        IOdictionary transportProperties_;
+        // Interpolator for mesh deformation
+        const volPointInterpolation& cpi_;
 
-        //- PIMPLE control
-        pimpleControl pimple_;
+        // Properties
+        IOdictionary mechanicalProperties_;
+        dimensionedScalar rho_;
+        dimensionedScalar E_;
+        dimensionedScalar nu_;
+        dimensionedScalar mu_;
+        dimensionedScalar lambda_;
+        dimensionedScalar threeK_;
 
-        //- density
-        autoPtr<volScalarField> rho_;
-
-        //- viscosity
-        autoPtr<volScalarField> mu_;
-
-        //- transport
+        // Finite volume fields pointers
+        autoPtr<volVectorField> D_;
+        autoPtr<pointVectorField> pointD_;
         autoPtr<volVectorField> U_;
+        autoPtr<volTensorField> gradD_;
+        autoPtr<volSymmTensorField> sigma_;
+        autoPtr<volVectorField> DPrevOuterIter_;
 
-        autoPtr<surfaceScalarField> phi_;
-
-        autoPtr<volScalarField> p_;
-
-        //- pcorr
-        autoPtr<volScalarField> pcorr_;
-
-        wordList pcorrTypes_;
-
-        //- Reference pressure cell
-        label pRefCell_;
-
-        //- Reference pressure value
-        scalar pRefValue_;
-
-        //- Moving reference frame
-        IOdictionary mrfProperties_;
-
-        IOdictionary movingReferenceFrame_;
-
-        scalar lambdaFf_;
-        scalar lambdaF0_;
-
-        word centerFromMesh_;
-        vector center_;
-        vector center0_;
-
-        dimensionedVector XF_;
-
-        dimensionedVector UF_;
-
-        dimensionedVector aF_;
-
-        //- closed volume?
-        Switch closedVolume_;
-
-        //- has space patch?
-        Switch hasSpacePatch_;
-
-        //- saved time index
-        label myTimeIndex_;
-
-        //- Adjustable time-step switch
-        const Switch adjustTimeStep_;
-
-        //- For adjustable time-step, this is the maximum Courant number
-        const scalar maxCo_;
-
-        //- For adjustable time-step, this is the maximum time-step
-        const scalar maxDeltaT_;
-
-        //- Cached momentum matrix
-        //  shared between the momentum predictor and pressure corrector
-        tmp<fvVectorMatrix> tUEqn;
-
-        //- continuity err
-        scalar cumulativeContErr_;
+        //- Cached deformation matrix
+        tmp<fvVectorMatrix> DEqn;
 
 public:
 
-    TypeName("interTrackFluid");
+    TypeName("solidStVK");
 
     // Constructors
 
-        interTrackFluid
+        solidStVK
         (
             const Time& runTime,
             const word& regionName
         );
 
     //- Destructor
-    virtual ~interTrackFluid();
-
+    virtual ~solidStVK();
 
     // Member Functions
 
         // Access
+        const volVectorField& D() const
+        {
+            return D_();
+        }
+
+        volVectorField& D()
+        {
+            return D_();
+        }
+
+        const pointVectorField& pointD() const
+        {
+            return pointD_();
+        }
+
+        pointVectorField& pointD()
+        {
+            return pointD_();
+        }
+
         const volVectorField& U() const
         {
             return U_();
-        }
-
-        const volScalarField& p() const
-        {
-            return p_();
         }
 
         volVectorField& U()
@@ -202,26 +169,19 @@ public:
             return U_();
         }
 
-        volScalarField& p()
-        {
-            return p_();
-        }
-
         word regionTypeName() const
         {
-            return interTrackFluid::typeName;
+            return solidStVK::typeName;
         }
 
         virtual bool usesPIMPLE() const
         {
-            return true;
+            return false;
         }
 
         virtual void correct();
 
         virtual scalar getMinDeltaT();
-
-        virtual void setCoupledEqns();
 
         virtual void solveRegion();
 
@@ -233,9 +193,10 @@ public:
 
         virtual void meshMotionCorrector();
 
+        virtual void setCoupledEqns();
+
         virtual void postSolve();
 };
-
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 } // End namespace regionTypes

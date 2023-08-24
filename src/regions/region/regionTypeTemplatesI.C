@@ -114,7 +114,7 @@ autoPtr<T> regionType::lookupOrRead
 (
     const fvMesh& mesh,
     const word& fldName,
-    const dimensioned<typename T::cmptType> dimVal,
+    const dimensioned<typename T::PrimitiveType> dimVal,
     const bool& write
 )
 {
@@ -160,7 +160,7 @@ autoPtr<T> regionType::lookupOrRead
 (
     const fvMesh& mesh,
     const word& fldName,
-    const dimensioned<typename T::cmptType> dimVal,
+    const dimensioned<typename T::PrimitiveType> dimVal,
     const wordList& patchFieldTypes,
     const bool& write
 )
