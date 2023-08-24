@@ -24,12 +24,12 @@
 /constant/polyMesh/*
 !/constant/polyMesh/blockMeshDict
 !/constant/polyMesh/blockMeshDict.m4
-**/cellToRegion
-**/boundary
-**/faces
-**/neighbour
-**/owner
-**/points
+# **/cellToRegion
+# **/boundary
+# **/faces
+# **/neighbour
+# **/owner
+# **/points
 *.OpenFOAM
 
 # file-browser settings - anywhere
