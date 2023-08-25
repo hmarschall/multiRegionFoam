@@ -24,7 +24,7 @@ boundaryField
 {
     top
     {
-        type            chtRcThermalDiffusivitySlave;
+        type            monolithicThermalDiffusivitySlave;
         remoteField     k;
         value           $internalField;
     }

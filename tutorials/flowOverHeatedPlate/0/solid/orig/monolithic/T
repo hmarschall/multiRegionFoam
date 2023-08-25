@@ -26,7 +26,7 @@ boundaryField
 {
     top
     {
-        type                    chtRcTemperature;
+        type                    monolithicTemperature;
         radiation               off;
         K                       k;
         remoteField             T;
