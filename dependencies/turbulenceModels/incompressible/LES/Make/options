@@ -1,0 +1,15 @@
+EXE_INC = \
+    -I./turbulenceModels \
+    -I./turbulenceModels/LES/LESdeltas/lnInclude \
+    -I./turbulenceModels/LES/LESfilters/lnInclude \
+    -I$(LIB_SRC)/transportModels \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude
+
+LIB_LIBS = \
+    L$(FOAM_USER_LIBBIN) \
+    -lElectroIncompressibleTurbulenceModel \
+    -lLESdeltas \
+    -lLESfilters\
+    -lfiniteVolume \
+    -lmeshTools

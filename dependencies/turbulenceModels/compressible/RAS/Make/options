@@ -1,0 +1,13 @@
+EXE_INC = \
+    -I../../. \
+    -I../../../thermoModels/basic/lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/meshTools/lnInclude
+
+LIB_LIBS = \
+    -lfiniteVolume \
+    -lmeshTools \
+    -L$(FOAM_USER_LIBBIN) \
+    -lbasicElectroThermophysicalModels \
+    -lelectroSpecie \
+    -lElectroCompressibleTurbulenceModel
