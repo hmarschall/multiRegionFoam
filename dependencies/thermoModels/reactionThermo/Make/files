@@ -1,0 +1,13 @@
+chemistryReaders/chemistryReader/makeChemistryReaders.C
+
+mixtures/basicMultiComponentMixture/basicMultiComponentMixture.C
+mixtures/basicSpecieMixture/basicSpecieMixture.C
+mixtures/basicCombustionMixture/basicCombustionMixture.C
+
+rhoReactionThermo/rhoReactionThermo.C
+rhoReactionThermo/rhoReactionThermos.C
+
+psiReactionThermo/psiReactionThermo.C
+psiReactionThermo/psiReactionThermos.C
+ 
+LIB = $(FOAM_USER_LIBBIN)/libreactionElectroThermophysicalModels

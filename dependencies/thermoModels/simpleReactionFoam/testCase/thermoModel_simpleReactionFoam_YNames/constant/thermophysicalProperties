@@ -1,0 +1,157 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      binary;
+    class       dictionary;
+    location    "constant";
+    object      thermophysicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// thermoType heRhoThermo<multiComponentMixture<sutherland<hConstThermo<perfectGas<specie>>,sensibleEnthalpy>>>;
+
+// thermoType
+// {
+//     type            heRhoThermo;
+//     mixture         multiComponentMixture;
+//     transport       sutherland;
+//     thermo          hConstThermo; //janaf; // hConstThermo;
+//     equationOfState perfectGas;
+//     specie          specie;
+//     energy          sensibleEnthalpy;
+// }
+
+thermoType
+{
+    type            heRhoThermo;
+    mixture         multiComponentMixture;
+    transport       const;
+    thermo          hConstThermo; //janaf; // hConstThermo;
+    equationOfState perfectGas;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+
+
+species
+(
+    O2
+    H2
+    H2O
+);
+
+// inertSpecie H2O;
+
+// O2 O2   1   31.9988
+//     200 5000    1000
+//     3.69758 0.00061352 -1.25884e-07 1.77528e-11 -1.13644e-15 -1233.93 3.18917
+//     3.21294 0.00112749 -5.75615e-07 1.31388e-09 -8.76855e-13 -1005.25 6.03474
+//     1.67212e-06 170.672
+// 
+
+defaultSpecie H2O;
+
+O2
+{
+    specie
+    {
+        nMoles          1;
+        molarVolume     1;
+        valenceNumber   0;
+        molWeight       31.9988;
+    }
+    thermodynamics
+    {
+        Cp      4181;
+        Hf      -1.5833e7;
+    }
+    transport
+    {
+//         As              1.67212e-06;
+//         Ts              170.672;
+        mu      1e-3;
+        Pr  1;
+    }
+}
+
+H2
+{
+    specie
+    {
+        nMoles          1;
+        molWeight       2;
+        molarVolume     1;
+        valenceNumber   0;
+    }
+    thermodynamics
+    {
+        Cp      3185;
+        Hf      -1.8e7;
+    }
+    transport
+    {
+//         As              1.67212e-06;
+//         Ts              170.672;
+                mu      1e-3;
+        Pr  1;
+    }
+}
+
+
+
+H2O
+{
+    specie
+    {
+        nMoles          1;
+        molWeight      18.0153;
+        molarVolume     1;
+        valenceNumber   0;
+    }
+    thermodynamics
+    {
+        Cp      4000;
+        Hf      -1.2833e7;
+    }
+    transport
+    {
+//         As              1.67212e-06;
+//         Ts              170.672;
+                mu      1e-3;
+        Pr  1;
+    }
+}
+
+
+H2O
+{
+    specie
+    {
+        molWeight       18.0153;
+        molarVolume     1;
+        valenceNumber   0;
+    }
+    thermodynamics
+    {
+        Tlow            200;
+        Thigh           3500;
+        Tcommon         1000;
+        highCpCoeffs    ( 3.03399 0.00217692 -1.64073e-07 -9.7042e-11 1.68201e-14 -30004.3 4.96677 );
+        lowCpCoeffs     ( 4.19864 -0.00203643 6.5204e-06 -5.48797e-09 1.77198e-12 -30293.7 -0.849032 );
+    }
+    transport
+    {
+        As              1.67212e-06;
+        Ts              170.672;
+    }
+}
+
+
+// ************************************************************************* //

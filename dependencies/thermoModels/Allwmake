@@ -1,0 +1,22 @@
+#!/bin/bash
+cd ${0%/*} || exit 1    # run from this directory
+set -x
+
+wmakeLnInclude -f .
+
+wmakeLnInclude -f specie/.
+wmakeLnInclude -f basic/.
+wmakeLnInclude -f reactionThermo/.
+
+wmake libso specie
+wmake libso basic
+wmake libso reactionThermo
+
+wmake libso barotropicCompressibilityModel
+
+# ./reactionThermo/Allwmwake
+
+# Compile simpleReactionFoam for validation
+wmake simpleReactionFoam
+
+# ----------------------------------------------------------------- end-of-file

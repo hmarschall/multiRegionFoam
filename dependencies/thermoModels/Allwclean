@@ -1,0 +1,12 @@
+#!/bin/sh
+cd ${0%/*} || exit 1    # run from this directory
+set -x
+
+rm -r lnInclude
+wclean libso specie
+wclean libso basic
+wclean libso reactionThermo
+
+wclean simpleReactionFoam
+
+# ----------------------------------------------------------------- end-of-file

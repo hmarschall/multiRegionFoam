@@ -1,0 +1,12 @@
+window_sizes 1920 1015 450 1464 867 96
+cleanlooks_style
+diagrams
+  active  classdiagram_ref 128054 // thermos
+    1464 867 80 A4 119 0
+end
+show_stereotypes
+selected classdiagram_ref 128054 // thermos
+open
+  classview_ref 128054 // thermos
+end
+end

@@ -1,0 +1,7 @@
+format 224
+
+classcanvas 128054 class_ref 128054 // heRhoThermo
+  classdiagramsettings member_max_width 0 end
+  xyz 616.1 1044.2 2000
+end
+end

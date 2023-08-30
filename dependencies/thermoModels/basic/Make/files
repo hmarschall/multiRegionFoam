@@ -1,0 +1,14 @@
+basicThermo/basicThermo.C
+fluidThermo/fluidThermo.C
+
+psiThermo/psiThermo.C
+psiThermo/psiThermos.C
+
+rhoThermo/rhoThermo.C
+rhoThermo/rhoThermos.C
+
+derivedFvPatchFields/fixedEnthalpy/fixedEnthalpyFvPatchScalarField.C
+derivedFvPatchFields/gradientEnthalpy/gradientEnthalpyFvPatchScalarField.C
+derivedFvPatchFields/mixedEnthalpy/mixedEnthalpyFvPatchScalarField.C
+
+LIB = $(FOAM_USER_LIBBIN)/libbasicElectroThermophysicalModels

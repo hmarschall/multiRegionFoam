@@ -1,0 +1,37 @@
+[
+    {
+        "arguments": [
+            "c++",
+            "-c",
+            "-std=c++11",
+            "-m64",
+            "-Dlinux64",
+            "-DWM_ARCH_OPTION=64",
+            "-DWM_DP",
+            "-DWM_LABEL_SIZE=32",
+            "-Wall",
+            "-Wextra",
+            "-Wno-unused-parameter",
+            "-Wold-style-cast",
+            "-Wnon-virtual-dtor",
+            "-O0",
+            "-fdefault-inline",
+            "-ggdb3",
+            "-DFULLDEBUG",
+            "-DNoRepository",
+            "-ftemplate-depth-200",
+            "-I../lnInclude",
+            "-I/home/steffen/foam/foam-extend-4.1/src/finiteVolume/lnInclude",
+            "-IlnInclude",
+            "-I.",
+            "-I/home/steffen/foam/foam-extend-4.1/src/foam/lnInclude",
+            "-I/home/steffen/foam/foam-extend-4.1/src/OSspecific/POSIX/lnInclude",
+            "-fPIC",
+            "-o",
+            "Make/linux64GccDPInt32Debug/simpleReactionFoam.o",
+            "simpleReactionFoam.C"
+        ],
+        "directory": "/home/steffen/Work/OpenFOAM/Programming/solver/electrochemical/foamExtend/multiregionfoam/thermophysicalModels/2_weiterEntwicklung_angelehnt_ESI/simpleReactionFoam",
+        "file": "simpleReactionFoam.C"
+    }
+]

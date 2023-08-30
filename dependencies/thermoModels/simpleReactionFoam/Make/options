@@ -1,0 +1,14 @@
+EXE_INC = \
+    -I../lnInclude \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I$(LIB_SRC)/turbulenceModels \
+    -I$(LIB_SRC)/turbulenceModels/compressible/RAS/RASModel
+
+EXE_LIBS = \
+    -L$(FOAM_USER_LIBBIN) \
+    -lbasicElectroThermophysicalModels \
+    -lelectroSpecie \
+    -lreactionElectroThermophysicalModels \
+    -lfiniteVolume \
+    -lElectroCompressibleTurbulenceModel \
+    -lElectroCompressibleRASModels

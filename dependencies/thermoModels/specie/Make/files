@@ -1,0 +1,11 @@
+atomicWeights = atomicWeights
+specie = specie
+speciesTable = speciesTable
+equationOfState = equationOfState
+reactions = reaction/reactions
+
+$(atomicWeights)/atomicWeights.C
+$(specie)/specie.C
+$(speciesTable)/speciesTable.C
+
+LIB = $(FOAM_USER_LIBBIN)/libelectroSpecie
