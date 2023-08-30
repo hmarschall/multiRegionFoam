@@ -1,0 +1,1 @@
+cellSet membrane  new boxToCell (-40 -12.0 -0.01e-3) (40.0 12.0  0.01e-3)

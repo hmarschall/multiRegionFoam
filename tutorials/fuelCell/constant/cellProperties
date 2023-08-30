@@ -1,0 +1,53 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           dictionary;
+    object          cellProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+active      true;
+
+dissolved
+{
+//     type        surfaceNone; //surfaceStandard;       // type of the dissolved model
+    type        surfaceStandard; //surfaceStandard;       // type of the dissolved model
+
+//     surfaceNoneCoeffs
+    surfaceStandardCoeffs
+    {
+        region      phiI;
+        nd          0.12;       // electro-osmotic drag coefficient
+        rhoOnEW     1964;       // equivalent molecular weight of dry membrane
+
+        ksi                     // exponent
+        (
+            phiI_to_phiE0 1.3
+            phiI_to_phiE1 1.3
+        );
+
+        relax 1.0e-4;           // Relaxation parameter for the calculation of the water content
+    }
+}
+
+galvanostatic
+{
+    active      true;
+    region      phiEC;
+    patchName   interconnect0;
+
+    ibar 10000;
+}
+
+nx    24;
+ny    2;
+
+// ************************************************************************* //

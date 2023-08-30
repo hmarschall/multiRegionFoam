@@ -1,0 +1,125 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      phaseProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+type          singlePhaseSystem;
+
+air
+{
+    type            surfaceReactingFickPhaseModel;
+    diameterModel   isothermal;
+    isothermalCoeffs
+    {
+        d0              1e-3;
+        p0              1e5;
+    }
+
+    residualAlpha   1e-6;
+}
+
+phaseNames
+(
+        phase1      (air) 
+);
+
+
+//- ElectrochemicalReactingPhaseModel
+
+regions
+{
+    fluid
+    {
+        name    air;
+    }
+    electron
+    {
+        name    phiEC;
+    }
+    ion
+    {
+        name    phiI;
+    }
+    dissolved
+    {
+        name    dissolved;
+    }
+}
+
+saturation
+{
+    type ArdenBuck;
+}
+
+species
+{
+    O2
+    {
+        ksi     1.0;
+        cRef    5.4;
+    }
+}
+
+// Surface electrochemistry
+// surface electrochemistry using the boundary condittions for Yi and u
+surfaceElectrochemistry true;
+
+fluidCatalystName air_to_electrolyte;
+
+fluidCatalystName      air_to_electrolyte;
+ionCatalystName        phiI_to_phiE1;
+electronCatalystName   phiEC_to_phiI0;
+
+
+// Butler Volmer
+
+phiNames
+(
+    electron    phi
+    ion         phi
+);
+
+iNames
+(
+    electron    i
+    ion         i
+);
+
+i0              0.002400000;
+relax           0.5;
+alpha           0.5;
+gamma           1.5;
+
+Tref            353.15;
+EA              145000;
+
+
+
+// Nernst
+
+pRef        101325;
+
+RxnList
+(
+    O2      -0.5
+    H2O     1
+    e       -2
+);
+    
+
+// Minimum allowable pressure
+pMin            10000;
+
+// ************************************************************************* //

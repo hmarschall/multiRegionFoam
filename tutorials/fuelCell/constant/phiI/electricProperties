@@ -1,0 +1,47 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           dictionary;
+    object          cellProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+//- Add information here
+
+active          false;
+
+dissolveOnOff   true;
+relax           -1.0e-6;
+
+sigma
+{
+
+//     membrane
+//     {
+//         sigmaModel          constantSigma;
+//
+//         constantSigmaCoeffs
+//         {
+//             cellZone            membrane;
+//             sigma               15;
+//         }
+//     }
+
+    membrane
+    {
+        sigmaModel          lambdaSigma;
+        lambdaSigmaCoeffs
+        {
+            cellZone            membrane;
+            lambdaName          lambda;
+        }
+    }
+}

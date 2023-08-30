@@ -1,0 +1,83 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      regionInterfaceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+partitionedCoupledPatches
+(
+    phiEAphiI
+    {
+        interfaceType currentTransferInterface;
+
+        coupledPatchPair
+        (   // region patch
+            (phiEA phiEA_to_phiI0)
+            (phiI phiI_to_phiE0)
+        );
+
+        coupledFields
+        (
+            phi
+        );
+        
+        currentTransferInterfaceCoeffs
+        {
+            fluidPhaseName fuel;
+            fluidPatchName  fuel_to_electrolyte;
+            etaSign -1;
+        }
+    }
+    
+    phiECphiI
+    {
+        interfaceType currentTransferInterface;
+
+        coupledPatchPair
+        (   // region patch
+            (phiEC phiEC_to_phiI0)
+            (phiI phiI_to_phiE1)
+        );
+
+        coupledFields
+        (
+            phi
+        );
+        
+        currentTransferInterfaceCoeffs
+        {
+            fluidPhaseName air;
+            fluidPatchName  air_to_electrolyte;
+            etaSign 1;
+        }
+    }
+);
+
+monolithicCoupledPatches
+(
+
+);
+
+curvatureCorrectedSurfacePatches 0();
+
+interpolatorUpdateFrequency 1;
+
+interfaceTransferMethod GGI; // directMap;
+
+directMapCoeffs
+{}
+
+GGICoeffs
+{}
+
+// ************************************************************************* //

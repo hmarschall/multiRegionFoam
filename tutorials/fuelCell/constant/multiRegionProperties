@@ -1,0 +1,62 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      coupledSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+regions
+(
+    ( phiEA (surfaceElectricConductive) )
+    ( phiEC (surfaceElectricConductive) )
+    ( phiI (surfaceElectricConductive) )
+    ( air (singlePhaseAnisothermalMulticomponentFluid) )
+    ( fuel (singlePhaseAnisothermalMulticomponentFluid) )
+    ( interconnect (conductTemperature) )
+    ( electrolyte (conductTemperature) )
+);
+
+partitionedCoupling
+{
+    maxCoupleIter 1;
+}
+
+DNA
+{
+    phi
+    {
+        maxCoupleIter 1;
+
+        residualControl
+        {
+            maxJumpRes 1e-07;
+            outputJumpResField no;
+            maxFluxRes 1e-07;
+            outputFluxResField no;
+        }
+    }
+
+    T
+    {
+        maxCoupleIter 1;
+
+        residualControl
+        {
+            maxJumpRes 1e-07;
+            outputJumpResField no;
+            maxFluxRes 1e-07;
+            outputFluxResField no;
+        }
+    }
+}
+
+// ************************************************************************* //

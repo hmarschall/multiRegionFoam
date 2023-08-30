@@ -1,0 +1,80 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           volScalarField;
+    object          phi;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+dimensions      [1 2 -3 0 0 -1 0];
+
+internalField   uniform -0.1; // uniform (0.566711 0 0);
+
+boundaryField
+{
+
+	phiI_to_phiE1
+    {
+       type                     regionCoupledPotentialFlux;
+       interfaceType           currentTransferInterface;
+       k              "sigma";                   // k is sigma here, needed in both, the jumpBC and the flux BC
+       
+       neighbourRegionName      phiEC;
+       neighbourPatchName       phiEC_to_phiI0;
+       neighbourFieldName       phi;
+       secondOrder             false;
+       nonOrthCorr             true;
+       value                    $internalField;
+    }
+    
+    phiI_to_phiE0
+    {
+        type                    regionCoupledPotentialJump;
+        interfaceType           currentTransferInterface;
+        k              "sigma";                   // k is sigma here, needed in both, the jumpBC and the flux BC
+        
+        accType               fixed;
+        relax                   0.001;
+        
+        neighbourRegionName     phiEA;
+        neighbourPatchName      phiEA_to_phiI0;
+        etaSign                 -1;
+//         relaxJump               0.0005;
+        neighbourFieldName      phi;
+        fluidPatchName          fuel_to_electrolyte;
+        fluidPhaseName          fuel;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   $internalField;
+    }
+    
+    electrolyteSides
+    {
+        type            zeroGradient;
+    }
+    
+	cathodeSides
+    {
+        type            zeroGradient;
+    }
+    
+	anodeSides
+    {
+        type            zeroGradient;
+    }
+
+}
+
+
+// ************************************************************************* //

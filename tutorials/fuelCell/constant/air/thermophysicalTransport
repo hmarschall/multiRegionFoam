@@ -1,0 +1,83 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "constant";
+    object      momentumTransport;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+type Fickian; // FickianBosanquet; //MaxwellStefan; //Fickian;
+
+binaryDiffusivityModel  Fuller; //constantBinaryDiff; //ChapmanEnskog; //Fuller; //WilkeChang;
+
+
+constantBinaryDiffCoeff 
+{
+    O2-O2           0;
+    O2-H2O          13.72e-06;
+    O2-H2           19.91e-06;
+    H2O-H2O         0;
+    H2O-H2          8.48e-06;
+    H2-H2           0;
+}
+
+
+ChapmanEnskogCoeff
+{
+    epsilonLJ
+    {
+        H2    59.7;
+        H2O   809.1;
+        N2    71.4;
+        Air   "Missing Data";
+        O2    106.7;
+        CO    91.7;
+        CO2   195.2;
+        CH4   148.6;
+    }
+    
+    collisionalDiametre
+    {
+        H2    2.827;
+        H2O   2.641;
+        N2    3.798;
+        Air   "Missing Data";
+        O2    3.467;
+        CO    3.690;
+        CO2   3.941;
+        CH4   3.758;
+    }
+        
+}
+
+knudsenCoeff
+{
+    //- No data needed to be read in
+}
+
+FullerCoeff
+{
+    //- No data needed to be read in
+}
+
+WilkeChangCoeff
+{
+    soluteMolarVolume   1e-03;
+    associationFactor   1.9;
+    solventDynamicViscosity    1e-06;
+    solventMolarWeigth  18.0153;  
+    
+}
+
+
+
+// ************************************************************************* //

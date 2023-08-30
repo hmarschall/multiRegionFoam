@@ -1,0 +1,15 @@
+set logscale y
+set title "Residuals"
+set ylabel 'Residual'
+set xlabel 'Iteration'
+plot \
+"< cat log.multiRegionFoamElectro | grep 'Solving for p_rgh' | cut -d' ' -f9 | tr -d ','" every 6 title 'p' with lines,\
+"< cat log.multiRegionFoamElectro | grep 'Solving for O2' | cut -d' ' -f9 | tr -d ','" every 1 title 'YO2' with lines,\
+"< cat log.multiRegionFoamElectro | grep 'Solving for H2,' | cut -d' ' -f9 | tr -d ','" every 1 title 'YH2' with lines,\
+"< cat log.multiRegionFoamElectro | grep 'Solving for H2O' | cut -d' ' -f9 | tr -d ','" every 2 title 'YH2O' with lines,\
+"< cat log.multiRegionFoamElectro | grep 'Solving for T' | cut -d' ' -f9 | tr -d ','" every 2 title 'TAir' with lines,\
+"< cat log.multiRegionFoamElectro | grep 'Solving for phi,' | cut -d' ' -f9 | tr -d ','" every 3 title 'phi' with lines,\
+"< cat log.multiRegionFoamElectro | grep 'Solving for lambda' | cut -d' ' -f9 | tr -d ','" every 1 title 'lambda' with lines,\
+
+pause 1
+reread

@@ -1,0 +1,117 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           volScalarField;
+    object          yH2;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 363.15;
+
+boundaryField
+{
+    fuelInlet
+    {
+        type            fixedValue;
+        value           uniform 363.15;
+    }
+
+    fuelOutlet
+    {
+        type            inletOutlet;
+        phi             phi;
+        inletValue      $internalField;
+        value           $internalField;
+    }
+
+    fuelSides
+    {
+        type            zeroGradient;
+    }
+
+    fuelInletSides
+    {
+        type            zeroGradient;
+    }
+
+    fuelOutletSides
+    {
+        type            zeroGradient;
+    }
+
+    anodeSides
+    {
+        type            zeroGradient;
+    }
+    
+    aflSides
+    {
+        type            zeroGradient;
+    }
+    
+    fuel_to_electrolyte //anode
+    {
+        type                    regionCoupledTemperatureJump;
+        interfaceType           heatTransferInterface;
+        k                       "kappa";
+
+        accType               fixed;
+        relax                   0.01;
+
+        // accType               aitken;
+        // relax                   0.75;
+
+        // accType               IQN-ILS;
+        // relax                   0.75;
+        // couplingReuse           0; //2;
+
+
+        neighbourRegionName     electrolyte;
+        neighbourPatchName      electrolyte_to_fuel;
+        neighbourFieldName      T;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   $internalField;
+    }
+
+    fuel_to_interconnect
+    {
+        type                    regionCoupledTemperatureJump;
+        interfaceType           heatTransferInterface;
+        k                       "kappa";
+
+        accType               fixed;
+        relax                   0.01;
+
+        // accType               aitken;
+        // relax                   0.75;
+
+        // accType               IQN-ILS;
+        // relax                   0.75;
+        // couplingReuse           0; //2;
+
+
+        neighbourRegionName     interconnect;
+        neighbourPatchName      interconnect_to_fuel;
+        neighbourFieldName      T;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   $internalField;
+    }
+}
+
+
+// ************************************************************************* //

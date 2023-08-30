@@ -1,0 +1,173 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      regionInterfaceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+partitionedCoupledPatches
+(
+    phiEAphiI
+    {
+        interfaceType currentTransferInterface;
+
+        coupledPatchPair
+        (   // region patch
+            (phiEA phiEA_to_phiI0)
+            (phiI phiI_to_phiE0)
+        );
+
+        coupledFields
+        (
+            phi
+        );
+        
+        currentTransferInterfaceCoeffs
+        {
+            fluidPhaseName fuel;
+            fluidPatchName  fuel_to_electrolyte;
+            etaSign -1;
+        }
+    }
+    
+    phiECphiI
+    {
+        interfaceType currentTransferInterface;
+
+        coupledPatchPair
+        (   // region patch
+            (phiEC phiEC_to_phiI0)
+            (phiI phiI_to_phiE1)
+        );
+
+        coupledFields
+        (
+            phi
+        );
+        
+        currentTransferInterfaceCoeffs
+        {
+            fluidPhaseName air;
+            fluidPatchName  air_to_electrolyte;
+            etaSign 1;
+        }
+    }
+
+    // Temperature coupling
+    airInterconnect
+    {
+        interfaceType heatTransferInterface;
+
+        coupledPatchPair
+        (
+            (air air_to_interconnect)
+            (interconnect interconnect_to_air)
+        );
+
+        coupledFields
+        (
+            T
+        );
+
+        heatTransferInterfaceCoeffs
+        {
+            // Jump coefficient
+            K               K [ 0 0 0 0 0 0 0 ] 1;
+        }
+    }
+
+    airElectrolyte
+    {
+        interfaceType heatTransferInterface;
+
+        coupledPatchPair
+        (
+            (air air_to_electrolyte)
+            (electrolyte electrolyte_to_air)
+        );
+
+        coupledFields
+        (
+            T
+        );
+
+        heatTransferInterfaceCoeffs
+        {
+            // Jump coefficient
+            K               K [ 0 0 0 0 0 0 0 ] 1;
+        }
+    }
+
+
+    fuelInterconnect
+    {
+        interfaceType heatTransferInterface;
+
+        coupledPatchPair
+        (
+            (fuel fuel_to_interconnect)
+            (interconnect interconnect_to_fuel)
+        );
+
+        coupledFields
+        (
+            T
+        );
+
+        heatTransferInterfaceCoeffs
+        {
+            // Jump coefficient
+            K               K [ 0 0 0 0 0 0 0 ] 1;
+        }
+    }
+
+    fuelElectrolyte
+    {
+        interfaceType heatTransferInterface;
+
+        coupledPatchPair
+        (
+            (fuel fuel_to_electrolyte)
+            (electrolyte electrolyte_to_fuel)
+        );
+
+        coupledFields
+        (
+            T
+        );
+
+        heatTransferInterfaceCoeffs
+        {
+            // Jump coefficient
+            K               K [ 0 0 0 0 0 0 0 ] 1;
+        }
+    }
+);
+
+monolithicCoupledPatches
+(
+
+);
+
+curvatureCorrectedSurfacePatches 0();
+
+interpolatorUpdateFrequency 1;
+
+interfaceTransferMethod GGI; // directMap;
+
+directMapCoeffs
+{}
+
+GGICoeffs
+{}
+
+// ************************************************************************* //

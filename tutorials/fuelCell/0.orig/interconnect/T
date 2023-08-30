@@ -1,0 +1,96 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  6
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volScalarField;
+    location    "0/solid";
+    object      T;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [ 0 0 0 1 0 0 0 ];
+
+internalField   uniform 363.15;
+
+boundaryField
+{
+    interconnect0
+    {
+        type            fixedValue;
+        value           uniform 363.15;
+    }
+    interconnectSides
+    {
+        type            zeroGradient;
+    }
+    interconnect_to_air
+    {
+        type                    regionCoupledHeatFlux;
+        interfaceType           heatTransferInterface;
+        k                       "k";
+
+        accType               fixed;
+        relax                   0.01;
+
+        neighbourRegionName     air;
+        neighbourPatchName      air_to_interconnect;
+        neighbourFieldName      T;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   $internalField;
+    }
+    interconnect_to_fuel
+    {
+//         type                    regionCoupledTemperatureJump;
+//         interfaceType           heatTransferInterface;
+//         k                       "k";
+// 
+//         accType               fixed;
+//         relax                   0.01;
+// 
+//         // accType               aitken;
+//         // relax                   0.75;
+// 
+//         // accType               IQN-ILS;
+//         // relax                   0.75;
+//         // couplingReuse           0; //2;
+// 
+// 
+//         neighbourRegionName     fuel;
+//         neighbourPatchName      fuel_to_interconnect;
+//         neighbourFieldName      T;
+//         secondOrder             false;
+//         nonOrthCorr             true;
+//         value                   $internalField;
+        
+        type                    regionCoupledHeatFlux;
+        interfaceType           heatTransferInterface;
+        k                       "k";
+
+        accType               fixed;
+        relax                   0.01;
+
+        neighbourRegionName     fuel;
+        neighbourPatchName      fuel_to_interconnect;
+        neighbourFieldName      T;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   $internalField;
+    }
+
+    interconnect1
+    {
+        type            fixedValue;
+        value           uniform 363.15;
+    }
+}
+
+
+// ************************************************************************* //

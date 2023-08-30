@@ -1,0 +1,125 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+
+    root            "";
+    case            "";
+    instance        "";
+    local           "";
+
+    class           volScalarField;
+    object          T;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 363.15;
+
+boundaryField
+{
+
+    airInlet
+    {
+        type            fixedValue;
+        value           uniform 363.15;
+    }
+
+    airOutlet
+    {
+//         type            zeroGradient;
+        type            inletOutlet;
+        phi             phi;
+        inletValue      $internalField;
+        value           $internalField;
+    }
+
+    airSides
+    {
+        type            zeroGradient;
+    }
+
+    airInletSides
+    {
+        type            zeroGradient;
+    }
+
+    airOutletSides
+    {
+        type            zeroGradient;
+    }
+
+    cathodeSides
+    {
+        type            zeroGradient;
+    }
+
+    cflSides
+    {
+        type            zeroGradient;
+    }
+
+    air_to_interconnect
+    {
+        type                    regionCoupledTemperatureJump;
+        interfaceType           heatTransferInterface;
+        k                       "kappa";
+
+        accType               fixed;
+        relax                   0.1;
+
+        // accType               aitken;
+        // relax                   0.75;
+
+        // accType               IQN-ILS;
+        // relax                   0.75;
+        // couplingReuse           0; //2;
+
+
+        neighbourRegionName     interconnect;
+        neighbourPatchName      interconnect_to_air;
+        neighbourFieldName      T;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   $internalField;
+    }
+
+    air_to_electrolyte //cathode
+    {
+        type                    regionCoupledTemperatureJump;
+        interfaceType           heatTransferInterface;
+        k                       "kappa";
+
+        accType               fixed;
+        relax                   0.1;
+
+        // accType               aitken;
+        // relax                   0.75;
+
+        // accType               IQN-ILS;
+        // relax                   0.75;
+        // couplingReuse           0; //2;
+
+
+        neighbourRegionName     electrolyte;
+        neighbourPatchName      electrolyte_to_air;
+        neighbourFieldName      T;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   $internalField;
+    }
+}
+
+
+// ************************************************************************* //
