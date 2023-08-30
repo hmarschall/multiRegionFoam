@@ -194,6 +194,15 @@ template<class Thermo>
 Foam::tmp<Foam::surfaceScalarField> Foam::multiSpeciesTransportModels::FickianBosanquet<Thermo>::q() const
 {
 
+    // tmp<surfaceScalarField> tmpq
+    // (
+    //     surfaceScalarField::New
+    //     (
+    //         "q",
+    //        -fvc::interpolate(this->phase_*this->kappaEff())
+    //        *fvc::snGrad(this->thermo_.T())
+    //     )
+    // );
 
     tmp<surfaceScalarField> tmpq
     (
@@ -420,6 +429,7 @@ void Foam::multiSpeciesTransportModels::FickianBosanquet<Thermo>::correct()
 
     const volScalarField Wm(this->thermo_.W());
 
+    // TODO: Here, updating X_ -> This should be done in the newer Thermo
     forAll(Y, i)
     {
         const dimensionedScalar Wi
@@ -430,8 +440,11 @@ void Foam::multiSpeciesTransportModels::FickianBosanquet<Thermo>::correct()
         );
     }
 
+    // Calculate Dm == Dim for all species, this is also for the inert one
     forAll(Dm_, i)
     {
+        // if (composition.index(Y[i]) != d)
+        // {
             PtrList<volScalarField> sumXbyD(Y.size());
             sumXbyD.set
             (
@@ -457,7 +470,12 @@ void Foam::multiSpeciesTransportModels::FickianBosanquet<Thermo>::correct()
                 }
             }
 
+            Info << "Print Y[i].member() Bosanquet " << Y[i].member() << endl;
+            Info << "Print sumXbyD[i] Bosanquet " << gAverage(sumXbyD[i]) << endl;
+
+            // Do not set it again since I wanna write this fields
             Dm_[i] = (1-X_[i]) / (sumXbyD[i] + dimensionedScalar("SMALL", dimensionSet(0,-2,1,0,0), Foam::SMALL));
+            // Set DmK to the Fickian value for the non-porous zones
             DmK_[i] = Dm_[i];
     }
 
@@ -467,6 +485,17 @@ void Foam::multiSpeciesTransportModels::FickianBosanquet<Thermo>::correct()
         const word zoneName = this->pZones_[zoneI].name();
         label znId = this->mesh_.cellZones().findZoneID(zoneName);
         const labelList& cells = this->mesh_.cellZones()[znId];
+
+        // Calculate Knudsen diff coeffiecients
+
+        //  D_{knudsen} = (poreDiameter/2)*97*sqrt(T/MW)
+        //  where
+        //      poreDiameter = [m]
+        //      T ............ [K]
+        //      MW ........... [kg/kmol]
+        //  Geankoplis, Christie J, Transport Processes and Unit Operations,
+        //  second edition (1983), Allyn and Bacon Series in Engineering,
+        //  ISBN 0-205-07788-9, page 452.
 
         const dimensionedScalar RR("RR", dimensionSet(1,2,-2,-1,-1,0,0), 8314.51);
         const scalar PI = 3.14159;
@@ -481,18 +510,40 @@ void Foam::multiSpeciesTransportModels::FickianBosanquet<Thermo>::correct()
             }
         }
 
+        // // // Since I only calculate the scalarField here (Units from Knudsen are not consistent)
+        // // // one needs to define the boundaryField here
+
+        // forAll(T.boundaryField(), patchI)
+        // {
+        //     forAll(DK_, i)
+        //     {
+        //         const fvPatchScalarField& pT = T.boundaryField()[patchI];  
+        //         fvPatchScalarField& pDk = DK_[i].boundaryFieldRef()[patchI]; 
+
+        //         forAll(pT, faceI)
+        //         {
+        //             pDk[faceI] = 48.5*dp_[i] / 3* sqrt(8*RR.value()*T[faceI])/(PI*composition.W(i)); 
+        //         } 
+        //     }
+        // }
+
 
         forAll(DmK_, i)
         {
+            // Info << "Print average(DK_[i]) " << average(DK_[i]) << endl;
+            // Info << "Print average(Dm_[i]) " << average(Dm_[i]) << endl;
 
             forAll(cells, cellI)
             {
                 label porousID = cells[cellI];
+                // Info << "Print Dm_[i][cellI] " << Dm_[i][cellI] << endl;
+                // Info << "Print DK_[i][cellI] " << DK_[i][cellI] << endl;
 
                 // To prevent dividing by zero due to the fact that Xi of a specie is zero and so Dmi would be, add a SMALL number
                 // DmK_[i][porousID] = (eps_[zoneI]/tau_[zoneI]) * (1/( 1/(Dm_[i][porousID]+ Foam::SMALL) + 1/DK_[i][porousID]));    // Still a diffusion coefficient
                 DmK_[i][porousID] = (1/( 1/(Dm_[i][porousID]+ Foam::SMALL) + 1/DK_[i][porousID]));    // Still a diffusion coefficient
                 DmK_[i][porousID] *= pow(this->phase_[porousID],1.5);
+                // DmK_[i][porousID] = (eps_[zoneI]/tau_[zoneI]) * (1/( 1/(Dm_[i][porousID]+ Foam::SMALL) + 1/DK_[i][porousID]));    // Still a diffusion coefficient
             }
         }
     }

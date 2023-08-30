@@ -58,6 +58,20 @@ Foam::singlePhaseSystem::~singlePhaseSystem()
 
 // * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * * //
 
+// Foam::tmp<Foam::surfaceScalarField>
+// Foam::singlePhaseSystem::phirMag() const
+// {
+//     return mag(phase_.phi());
+// }
+
+
+// Foam::tmp<Foam::surfaceScalarField>
+// Foam::singlePhaseSystem::phiMagMax() const
+// {
+//     return mag(phase_.phi());
+// }
+
+
 void Foam::singlePhaseSystem::solve()
 {
     Info << "Solve for single phase flow:" << endl;
@@ -85,9 +99,28 @@ void Foam::singlePhaseSystem::solve()
 
         #include "YEqns.H"
 
-        #include "pU/UEqn.H"
-        #include "pU/pEqn.H"
+        Info << "Test debug " << endl;
 
+        // if (faceMomentum)
+        // {
+        //     #include "pUf/UEqn.H"
+        //     #include "pUf/pEqn.H"
+        // }
+    // //     else
+    // //     {
+            #include "pU/UEqn.H"
+            #include "pU/pEqn.H"
+
+            // #include "EEqn.H"
+            // #include "TEqn.H"
+    // //     }
+
+        // correctKinematics();
+
+    // //     if (pimple_.turbCorr())
+    // //     {
+    // //         correctTurbulence();
+    // //     }
     }
 
     // Update the boundary conditions for the surface coupled cases
@@ -108,13 +141,23 @@ void Foam::singlePhaseSystem::correct()
 
 Foam::tmp<Foam::fvScalarMatrix> Foam::singlePhaseSystem::TEqn()
 {
+
+    // const volScalarField& alpha = phase_;
+
+    // rhoThermo& thermo = phase_.thermoRef();
+    // volScalarField& rho = thermo.rho();
+
+    // volVectorField& U = phase_.URef();
+
+    // if (!phase_.isothermal())
+    // {
         tmp<fvScalarMatrix> tTEqn
         (
             phase_.TEqn()
         //  ==
         //    alpha*rho*(U&g)
         );
-
+    // } 
 
     return tTEqn;
 }

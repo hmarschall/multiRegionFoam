@@ -111,6 +111,15 @@ Foam::tmp<Foam::scalarField> Foam::multiSpeciesTransportModels::unityLewisFourie
 template<class Thermo>
 Foam::tmp<Foam::surfaceScalarField> Foam::multiSpeciesTransportModels::unityLewisFourier<Thermo>::q() const
 {
+    // tmp<surfaceScalarField> tmpq
+    // (
+    //     surfaceScalarField::New
+    //     (
+    //         "q",
+    //         -fvc::interpolate(this->phase_*this->thermo_.alphahe())
+    //         *fvc::snGrad(this->thermo_.he())
+    //     )
+    // );
 
     tmp<surfaceScalarField> tmpq
     (

@@ -117,6 +117,11 @@ Foam::tmp<Foam::volScalarField> Foam::multiSpeciesTransportModels::Fickian<Therm
 {
     const basicSpecieMixture& composition = this->thermo_.composition();
 
+    Info << "Print Yi.member() " << Yi.member() << endl;
+    Info << "Print composition.index(Yi) " << composition.index(Yi) << endl;
+    Info << "Print Dm_[composition.index(Yi)] " << gAverage(Dm_[composition.index(Yi)]) << endl;
+
+    // return this->thermo_.rho()*Dm_[composition.species()[Yi.member().substr(1)]];
     return this->thermo_.rho()*Dm_[composition.index(Yi)];
 }
 
@@ -139,6 +144,17 @@ Foam::tmp<Foam::scalarField> Foam::multiSpeciesTransportModels::Fickian<Thermo>:
 template<class Thermo>
 Foam::tmp<Foam::surfaceScalarField> Foam::multiSpeciesTransportModels::Fickian<Thermo>::q() const
 {
+
+    // tmp<surfaceScalarField> tmpq
+    // (
+    //     surfaceScalarField::New
+    //     (
+    //         "q",
+    //        -fvc::interpolate(this->phase_*this->kappaEff())
+    //        *fvc::snGrad(this->thermo_.T())
+    //     )
+    // );
+
     tmp<surfaceScalarField> tmpq
     (
         new surfaceScalarField
@@ -362,7 +378,9 @@ void Foam::multiSpeciesTransportModels::Fickian<Thermo>::correct()
     const PtrList<volScalarField>& Y = composition.Y();
     const volScalarField& T = this->thermo_.T();
     const volScalarField Wm(this->thermo_.W());
+    // const label d = composition.defaultSpecie();
 
+    // TODO: Here, updating X_ -> This should be done in the newer thermoModel
     forAll(Y, i)
     {
         const dimensionedScalar Wi
@@ -375,9 +393,11 @@ void Foam::multiSpeciesTransportModels::Fickian<Thermo>::correct()
         // X_[i] = Wm*Y[i]/Wi;
     }
 
-
+    // Calculate Dm == Dim for all species, this is also for the inert one
     forAll(Dm_, i)
     {
+        // if (composition.index(Y[i]) != d)
+        // {
             PtrList<volScalarField> sumXbyD(Y.size());
             sumXbyD.set
             (
@@ -403,7 +423,16 @@ void Foam::multiSpeciesTransportModels::Fickian<Thermo>::correct()
                 }
             }
 
+
+            Info << "Print Y[i].member() " << Y[i].member() << endl;
+            Info << "Print X_[i]" << gAverage(X_[i]) << endl;
+            Info << "Print sumXbyD[i] " << gAverage(sumXbyD[i]) << endl;
+            // Info << "Print sumXbyD[i] " << sumXbyD[i] << endl;
+
+            // Do not set it again since I wanna write this fields
             Dm_[i] = (1-X_[i]) / (sumXbyD[i] + dimensionedScalar("SMALL", dimensionSet(0,-2,1,0,0), Foam::SMALL));
+            // Dm_[i] = (1-X_[i]) / sumXbyD[i];
+            Info << "Print Dm_[i] " << gAverage(Dm_[i]) << endl;
     }
     // }
 }
@@ -418,6 +447,7 @@ void Foam::multiSpeciesTransportModels::Fickian<Thermo>::updateBinaryDiffusionCo
         for(label j=i; j < Y.size(); j++)
         {
             label k = Y.size()*i+j-0.5*i*(i+1);
+            // Dij_[k] = eps_/tau_*DijModels_[k].D();
             Dij_[k] = DijModels_[k].D();
         }
     }

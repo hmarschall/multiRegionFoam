@@ -65,4 +65,16 @@ Foam::multiSpeciesTransportModel::multiSpeciesTransportModel
     phaseSys_(phase.fluid()),
     pZones_(phaseSys_.porosityModels()),
     mesh_(phase.mesh())
+    // valenceList_
+    // (
+    //     this->lookup("valenceList")
+    // ),
+    // activationEnergyList_
+    // (
+    //     this->lookup("activationEnergyList")
+    // ),
+    // TrefList_
+    // (
+    //     this->lookup("TrefList")
+    // )
 {}

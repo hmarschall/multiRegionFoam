@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "noneDWModel.H"
+// #include "fuelCellSystem.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -80,6 +81,24 @@ void Foam::dissolvedModels::noneDWModel::correct()
 void Foam::dissolvedModels::noneDWModel::update
 (
     const word& clName
+)
+{
+    // nothing
+}
+
+
+void Foam::dissolvedModels::noneDWModel::mapToCell
+(
+    fuelCellSystem& fuelCell
+)
+{
+    // nothing
+}
+
+
+void Foam::dissolvedModels::noneDWModel::mapFromCell
+(
+    fuelCellSystem& fuelCell
 )
 {
     // nothing

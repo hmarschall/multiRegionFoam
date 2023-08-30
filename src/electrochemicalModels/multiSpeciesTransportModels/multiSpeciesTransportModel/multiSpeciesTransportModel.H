@@ -73,6 +73,15 @@ protected:
 
         //- Mesh
         const fvMesh& mesh_;
+
+        // //- HashTable, for number of valence electons of each specie
+        // HashTable<scalar> valenceList_;
+
+        // //- Activations energy for every species diffusion coefficent
+        // HashTable<scalar> activationEnergyList_;
+
+        // //- Activations energy for every species diffusion coefficent
+        // HashTable<scalar> TrefList_;
         
 
 

@@ -168,6 +168,20 @@ void Foam::surfaceDissolvedModels::surfaceStandardDWModel::correct()
 
     Dwm_.correctBoundaryConditions();
 
+    // The activity on the boundary is updated in electrochemicalReaction
+    // for the interface case
+
+    // For the interface case:
+    // I will map the calculated act_ (from electrochemicalReactions)
+    // onto the face cells in this region
+    // >> Dann kann ich ja ruhig correctBC hier machen, da es ja eh eine zeroGradient BC ist
+    // if(!this->surfaceElectrochemistry_)
+    // {
+        // Allerdings brauche ich act nur für den update des übertragenen Wassers
+        // d.h. ich brauche es eig. nur auf der Boundary um den Wert davon abzugreifen
+        //  act_.correctBoundaryConditions();
+    // }
+
     const scalarField& source = dmdt_;
     const scalarField& volume = mesh().V();
 

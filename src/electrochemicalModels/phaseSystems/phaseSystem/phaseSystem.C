@@ -26,7 +26,11 @@ License
 
 #include "fvCFD.H"
 #include "phaseSystem.H"
+// #include "fvcDiv.H"
+// #include "fvcGrad.H"
+// #include "fvcSnGrad.H"
 #include "pimpleControl.H"
+// #include "pressureReference.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -62,6 +66,11 @@ Foam::phaseSystem::phaseSystem
 
     mesh_(mesh),
     phaseModels_(0),
+    // phaseModels_
+    // (
+    //     lookup("phases"),
+    //     phaseModel::iNew(*this)
+    // ),
     porosityModels_
     (
        new porosityModelList
