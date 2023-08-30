@@ -31,7 +31,6 @@ License
 #include "IOobjectList.H"
 
 #include "pimpleControl.H"
-#include "scalar.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -77,9 +76,6 @@ void Foam::multiRegionSystem::assembleAndSolveCoupledMatrix
     }
 
     if (nEqns == 0) return;
-
-    //Info<< fldName << ": "
-    //   << "Number of coupled fields : " << nEqns << endl;
 
     // assemble and solve block matrix system
     coupledFvMatrix<T> coupledEqns(nEqns);
@@ -209,6 +205,8 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
           + "Eqn"
         );
 
+        Info << "Print matrixSystemName " << matrixSystemName << endl;
+
         // Check if coupled field is registered to region mesh
         // and if it is of correct type
         if
@@ -269,47 +267,17 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             << " in " << rg.regionTypeName()
             << endl;
 
+        M<T>& eqn =
+            rg.getCoupledEqn<M,T>(matrixSystemName);
 
-        scalar corr = 0;
-        scalar residual = VGREAT;
-        scalar initialResidual_ = 0;
-        do
-        {
+        rg.relaxEqn<T>(eqn);
 
-            if(corr != 0)
-            {
-                rg.setCoupledEqns();
-            }
+        eqn.solve();
 
-            M<T>& eqn =
-                rg.getCoupledEqn<M,T>(matrixSystemName);
+        rg.postSolve();
 
-            rg.relaxEqn<T>(eqn);
-
-            auto solPerf = eqn.solve();
-
-            residual = cmptMax(solPerf.initialResidual());
-            if(corr == 0)
-            {
-                initialResidual_ = residual;
-            }
-
-            rg.postSolve();
-
-            Info<< "nonlinear correction number " << corr
-                << ": relResidual=" << (residual/(initialResidual_ + SMALL))
-                << " residual=" << residual
-                << endl;
-
-        } while
-        (
-            (++corr < rg.maxCorr(fldName))
-            && (residual/(initialResidual_ + SMALL) > rg.relativeTolerance(fldName))
-            && (residual > rg.convergenceTolerance(fldName))
-        );
-
-//        // Memory management:
-//        // clear coupled equation for transport variable
+        // Memory management:
+        // clear coupled equation for transport variable
 //        const GeometricField<T, fvPatchField, volMesh>& fld =
 //            rg.mesh().lookupObject
 //            <
@@ -551,13 +519,7 @@ void Foam::multiRegionSystem::solve()
 
     // Solve pressure-velocity system using PIMPLE
     // Check if at least one region implements PIMPLE loop
-    if (
-            regions_->usesPIMPLE()
-            &&
-            !partitionedCoupledFldNames_.contains("pUPimple")
-            &&
-            !partitionedCoupledFldNames_.contains("D")
-        )
+    if (regions_->usesPIMPLE() && !partitionedCoupledFldNames_.contains("pUPimple"))
     {
         // PIMPLE p-U-coupling
         regions_->solvePIMPLE();
@@ -571,44 +533,45 @@ void Foam::multiRegionSystem::solve()
     {
         word fldName = partitionedCoupledFldNames_[fldI];
 
-        bool fsiOrMultiphase = (fldName == "pUPimple" || fldName == "D");
-
         //- Solve pressure-velocity system using PIMPLE
-        while (dnaControls_[fldName]->loop())
+        if (fldName == "pUPimple")
         {
-            if (fsiOrMultiphase)
+            while (dnaControls_[fldName]->loop())
             {
                 // PIMPLE p-U-coupling
                 regions_->solvePIMPLE();
-            }
 
-            assembleAndSolveEqns<fvMatrix, scalar>(fldName);
-
-            assembleAndSolveEqns<fvMatrix, vector>(fldName);
-
-            assembleAndSolveEqns<fvMatrix, tensor>(fldName);
-
-            assembleAndSolveEqns<fvBlockMatrix, vector4>(fldName);
-
-            //assembleAndSolveEqns<symmTensor>(fldName);
-
-            if (fsiOrMultiphase)
-            {
                 // ALE mesh motion corrector
                 regions_->meshMotionCorrector();
 
                 interfaces_->update();
+
             }
 
-        }
-
-        if (fsiOrMultiphase)
-        {
             regions_->postSolvePIMPLE();
-        }
 
-        Info<< "Solved "<< fldName << " field with DNA coupling in "
+            Info<< "Solved PIMPLE with DNA coupling in "
                 << runTime_.cpuTimeIncrement() << " s." << endl;
+        }
+        else
+        {
+            //- Solve other partitioned coupled fields
+            while (dnaControls_[fldName]->loop())
+            {
+                assembleAndSolveEqns<fvMatrix, scalar>(fldName);
+
+                assembleAndSolveEqns<fvMatrix, vector>(fldName);
+
+                assembleAndSolveEqns<fvMatrix, tensor>(fldName);
+
+                assembleAndSolveEqns<fvBlockMatrix, vector4>(fldName);
+
+                //assembleAndSolveEqns<symmTensor>(fldName);
+            }
+
+            Info<< "Solved "<< fldName << " field with DNA coupling in "
+                << runTime_.cpuTimeIncrement() << " s." << endl;
+        }
     }
 
 

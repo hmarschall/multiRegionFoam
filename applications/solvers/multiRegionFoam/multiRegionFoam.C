@@ -68,7 +68,6 @@ Description
 #include "regionTypeList.H"
 #include "multiRegionSystem.H"
 #include "pimpleControl.H"
-//#include "localEulerDdtScheme.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -81,27 +80,12 @@ int main(int argc, char *argv[])
     #include "createTimeControls.H"
     #include "multiRegionFoamWriteHeader.H"
 
-//     if (!LTS)
-//     {
-//        #include "multiRegionCourantNo.H"
-//        #include "setInitialMultiRegionDeltaT.H"
-//     }
-
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
     Info<< "\nStarting time loop\n" << endl;
 
     while (runTime.run())
     {
-//         if (!LTS)
-//         {
-//              #include "createTimeControls.H"
-//            #include "multiRegionCourantNo.H"
-//            #include "setMultiRegionDeltaT.H"
-//         }
-//         else
-//         {
-//         }
 
         #include "setDeltaT.H"
 

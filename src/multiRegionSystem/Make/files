@@ -7,15 +7,59 @@ regions = ./../regions
 $(regions)/region/regionType.C
 $(regions)/region/newRegionType.C
 $(regions)/region/regionTypeList.C
+$(regions)/icoFluid/icoFluid.C
 $(regions)/conductTemperature/conductTemperature.C
 $(regions)/transportTemperature/transportTemperature.C
-$(regions)/icoFluid/icoFluid.C
-$(regions)/pUCoupledIcoFluid/pUCoupledIcoFluid.C
 $(regions)/interTrackFluid/interTrackFluid.C
-$(regions)/solidStVK/solidStVK.C
+$(regions)/electricConductive/electricConductive.C
+$(regions)/surfaceElectricConductive/surfaceElectricConductive.C
+$(regions)/singlePhaseAnisothermalMulticomponentFluid/singlePhaseAnisothermalMulticomponentFluid.C
+
+electrochemicalModels = ./../electrochemicalModels
+$(electrochemicalModels)/dissolvedModels/dissolvedModel/dissolvedModel.C
+$(electrochemicalModels)/dissolvedModels/dissolvedModel/newDissolvedModel.C
+$(electrochemicalModels)/dissolvedModels/noneDWModel/noneDWModel.C
+$(electrochemicalModels)/dissolvedModels/standardDWModel/standardDWModel.C
+
+$(electrochemicalModels)/dissolvedModels/surfaceDissolvedModel/surfaceDissolvedModel.C
+$(electrochemicalModels)/dissolvedModels/surfaceDissolvedModel/newSurfaceDissolvedModel.C
+$(electrochemicalModels)/dissolvedModels/surfaceStandardDWModel/surfaceStandardDWModel.C
+$(electrochemicalModels)/dissolvedModels/surfaceNoneDWModel/surfaceNoneDWModel.C
+
+$(electrochemicalModels)/phaseSystems/phaseModel/phaseModel/phaseModel.C
+$(electrochemicalModels)/phaseSystems/phaseModel/phaseModel/newPhaseModel.C
+$(electrochemicalModels)/phaseSystems/phaseModel/phaseModel/phaseModels.C
+$(electrochemicalModels)/phaseSystems/phaseSystem/phaseSystem.C
+$(electrochemicalModels)/phaseSystems/phaseSystem/newPhaseSystem.C
+$(electrochemicalModels)/phaseSystems/singlePhaseSystem/singlePhaseSystem.C
+
+$(electrochemicalModels)/porosityModel/porosityModel/porosityModel.C
+$(electrochemicalModels)/porosityModel/porosityModel/porosityModelNew.C
+$(electrochemicalModels)/porosityModel/porosityModel/porosityModelList.C
+$(electrochemicalModels)/porosityModel/porosityModel/IOporosityModelList.C
+$(electrochemicalModels)/porosityModel/DarcyForchheimer/DarcyForchheimer.C
+
+$(electrochemicalModels)/saturationModels/saturationModel/saturationModel.C
+$(electrochemicalModels)/saturationModels/saturationModel/newSaturationModel.C
+$(electrochemicalModels)/saturationModels/ArdenBuck/ArdenBuck.C
+
+$(electrochemicalModels)/sigmaModels/sigmaModel/sigmaModel.C
+$(electrochemicalModels)/sigmaModels/sigmaModel/newSigmaModel.C
+$(electrochemicalModels)/sigmaModels/sigmaModel/sigmaModelList.C
+$(electrochemicalModels)/sigmaModels/constantSigma/constantSigma.C
+$(electrochemicalModels)/sigmaModels/lambdaSigma/lambdaSigma.C
+$(electrochemicalModels)/sigmaModels/porousSigma/porousSigma.C
+
+$(electrochemicalModels)/multiSpeciesTransportModels/fsgDiffusionVolumes/fsgDiffusionVolumes.C
+$(electrochemicalModels)/multiSpeciesTransportModels/fsgMolecularWeights/fsgMolecularWeights.C
+$(electrochemicalModels)/multiSpeciesTransportModels/binaryDiffusivityModels/binaryDiffusivityModel/binaryDiffusivityModels.C
+$(electrochemicalModels)/multiSpeciesTransportModels/multiSpeciesTransportModel/multiSpeciesTransportModel.C
+$(electrochemicalModels)/multiSpeciesTransportModels/multiSpeciesTransportModel/newMultiSpeciesTransportModel.C
+$(electrochemicalModels)/multiSpeciesTransportModels/MultiSpeciesTransportModel/MultiSpeciesTransportModels.C
+
 
 ../regionProperties/regionProperties.C
 
 multiRegionSystem.C
 
-LIB = $(FOAM_USER_LIBBIN)/libmultiRegionSystem
+LIB = $(FOAM_USER_LIBBIN)/libelectroMultiRegionSystem

@@ -106,6 +106,9 @@ protected:
         //- Diffusion coefficient
         word kName_;
 
+        //- Neighbour phase name
+        word nbrPhaseName_;
+
         //- Acceleration model for BC update
         autoPtr<accelerationModel<Type>> accModel_;
 

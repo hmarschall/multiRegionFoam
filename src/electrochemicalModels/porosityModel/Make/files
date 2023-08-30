@@ -1,0 +1,8 @@
+porosityModel/porosityModel.C
+porosityModel/porosityModelNew.C
+porosityModel/porosityModelList.C
+porosityModel/IOporosityModelList.C
+DarcyForchheimer/DarcyForchheimer.C
+
+
+LIB = $(FOAM_USER_LIBBIN)/libporosityModel

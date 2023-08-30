@@ -133,11 +133,46 @@ void Foam::dnaControl::maxTypeRes
      && interface.meshB().foundObject<fieldType>(fldName)
     )
     {
+
+        Info << "Print interface.meshA() " << interface.meshA().name() << endl;
+        Info << "Print interface.meshB() " << interface.meshB().name() << endl;
+        Info << "Print fldName " << fldName << endl;
+
         const fvPatchField<Type>& patchAField =
             interface.patchA().lookupPatchField<fieldType, Type>(fldName);
 
         const fvPatchField<Type>& patchBField =
             interface.patchB().lookupPatchField<fieldType, Type>(fldName);
+
+        if
+        (
+            isA<genericRegionCoupledJumpFvPatchField<Type>>(patchAField)
+        )
+        {
+            Info << " patchAField is a genericRegionCoupledJumpFvPatchField" << endl;
+        }
+        if
+        (
+            isA<genericRegionCoupledFluxFvPatchField<Type>>(patchAField)
+        )
+        {
+            Info << " patchAField is a genericRegionCoupledFluxFvPatchField" << endl;
+        }
+
+        if
+        (
+            isA<genericRegionCoupledJumpFvPatchField<Type>>(patchBField)
+        )
+        {
+            Info << " patchBField is a genericRegionCoupledJumpFvPatchField" << endl;
+        }
+        if
+        (
+            isA<genericRegionCoupledFluxFvPatchField<Type>>(patchBField)
+        )
+        {
+            Info << " patchBField is a genericRegionCoupledFluxFvPatchField" << endl;
+        }
 
         if
         (

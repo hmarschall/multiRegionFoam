@@ -7,6 +7,10 @@ EXE_INC = \
     -I../globalPolyPatch \
     -I../regionInterfaceProperties \
     -I../../lnInclude \
+    -I../../dependencies/thermoModels/lnInclude \
+    -I../../dependencies/turbulenceModels \
+    -I../../dependencies/turbulenceModelscompressible/RAS/RASModel \
+    -I../../dependencies/turbulenceModelscompressible/turbulenceModel \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/finiteArea/lnInclude \
     -I$(LIB_SRC)/coupledMatrix/lnInclude \
@@ -16,7 +20,6 @@ EXE_INC = \
     -I$(LIB_SRC)/dynamicMesh/dynamicFvMesh/lnInclude \
     -I$(LIB_SRC)/meshTools/lnInclude \
     -I$(LIB_SRC)/sampling/lnInclude \
-    -I$(LIB_SRC)/conjugateHeatTransfer/lnInclude \
     -I$(FOAM_UTILITIES)/mesh/manipulation/mergeMeshes
 
 LIB_LIBS = \
@@ -25,10 +28,15 @@ LIB_LIBS = \
     -lcoupledLduMatrix \
     -ldynamicMesh \
     -ldynamicFvMesh \
-    -ldynamicFvMesh \
     -lmeshTools \
     -lcoupledFvPatchBCs \
-    -lconjugateHeatTransfer \
     -L$(FOAM_USER_LIBBIN) -lmrfZones \
     -L$(FOAM_USER_LIBBIN) -lregionInterface \
-    -L$(FOAM_USER_LIBBIN) -lcoupledFvPatchBCs
+    -L$(FOAM_USER_LIBBIN) -lcoupledFvPatchBCs \
+    -L$(FOAM_USER_LIBBIN) -lelectroSpecie \
+    -L$(FOAM_USER_LIBBIN) -lbasicElectroThermophysicalModels \
+    -L$(FOAM_USER_LIBBIN) -lreactionElectroThermophysicalModels \
+    -L$(FOAM_USER_LIBBIN) -lElectroCompressibleTurbulenceModel \
+    -L$(FOAM_USER_LIBBIN) -lElectroCompressibleRASModels
+    
+

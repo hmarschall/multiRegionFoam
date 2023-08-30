@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/bin/sh
 
 source etc/bashrc
 
-# Replace mandatory files in the main foam libraries
-(cd filesToReplace && ./AllcheckMandatory)
-if [ $? -ne 0 ]
-then
-    echo "Fix the filesToReplaceInOF above!"
-    exit 1
-fi
+# # Replace mandatory files in the main foam libraries
+# (cd filesToReplace && ./AllcheckMandatory)
+# if [ $? -ne 0 ]
+# then
+#     echo "Fix the filesToReplaceInOF above!"
+#     exit 1
+# fi
 
 set -x
 
@@ -24,13 +24,13 @@ while getopts ":b" option; do
       b) # compile with bear
          bear -- dependencies/movingReferenceFrame/Allwmake
 
-         bear --append -- wmake libso src/regionInterfaces
+         bear --append  wmake libso src/regionInterfaces
 
-         bear --append -- libso src/coupledFvPatchFields
+         bear --append  wmake libso src/coupledFvPatchFields
 
-         bear --append -- libso src/multiRegionSystem
+         bear --append  wmake libso src/multiRegionSystem
 
-         bear --append -- applications/solvers/multiRegionFoam
+         bear --append  wmake applications/solvers/multiRegionFoam
 
          exit;;
      \?) # Invalid option
@@ -40,6 +40,10 @@ while getopts ":b" option; do
 done
 
 dependencies/movingReferenceFrame/Allwmake
+dependencies/thermoModels/Allwmake
+dependencies/turbulenceModels/incompressible/Allwmake
+dependencies/turbulenceModels/compressible/Allwmake
+# dependencies/thermophysicalconstitivemodels/Allwmake
 
 wmake libso src/regionInterfaces
 

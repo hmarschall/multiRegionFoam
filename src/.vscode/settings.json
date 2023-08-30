@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "AnisothermalPhaseModel.C": "cpp",
+        "SurfaceElectrochemicalReactingPhaseModel.C": "cpp"
+    }
+}

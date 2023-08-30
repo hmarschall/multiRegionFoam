@@ -6,6 +6,7 @@ rmdepall
 rmoall
 
 (cd dependencies/movingReferenceFrame/ && ./Allwclean )
+(cd dependencies/thermoModels/ && ./Allwclean )
 
 wclean libso src/coupledFvPatchFields
 

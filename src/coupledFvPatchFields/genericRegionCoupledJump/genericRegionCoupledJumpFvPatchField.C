@@ -95,7 +95,8 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
     interfaceToInterfaceCoupleManager(p, dict),
     neighbourRegionName_(dict.lookup("neighbourRegionName")),
     neighbourPatchName_(dict.lookup("neighbourPatchName")),
-    neighbourFieldName_(this->dimensionedInternalField().name()),
+    // neighbourFieldName_(this->dimensionedInternalField().name()),
+    neighbourFieldName_(dict.lookup("neighbourFieldName")),
     kName_(dict.lookup("k")),
     KName_(dict.lookupOrDefault<word>("K", word::null)),
     accModel_
@@ -190,6 +191,7 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
         (
             // same field name as on this side
             this->dimensionedInternalField().name()
+            // neighbourFieldName_
         );
 
     // Calculate interpolated patch field
@@ -226,6 +228,7 @@ tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::flux() const
 
     if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
     {
+        Info << "Searching for diffusivity values " << endl;
         k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
     }
     else

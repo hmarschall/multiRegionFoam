@@ -1,0 +1,4 @@
+binaryDiffusivityModel/binaryDiffusivityModel.C
+diffusivityModel/diffusivityModel.C
+
+LIB = $(FOAM_USER_LIBBIN)/libdiffusivityModels

@@ -49,6 +49,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     neighbourPatchName_(),
     neighbourFieldName_(),
     kName_("k"),
+    nbrPhaseName_("nbrPhaseName"),
     accModel_
     (
         accelerationModel<Type>::New
@@ -77,6 +78,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     neighbourPatchName_(grcf.neighbourPatchName_),
     neighbourFieldName_(grcf.neighbourFieldName_),
     kName_(grcf.kName_),
+    nbrPhaseName_(grcf.nbrPhaseName_),
     accModel_(grcf.accModel_, false),
     nonOrthCorr_(grcf.nonOrthCorr_),
     secondOrder_(grcf.secondOrder_)
@@ -94,7 +96,9 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     interfaceToInterfaceCoupleManager(p, dict),
     neighbourRegionName_(dict.lookup("neighbourRegionName")),
     neighbourPatchName_(dict.lookup("neighbourPatchName")),
-    neighbourFieldName_(this->dimensionedInternalField().name()),
+    nbrPhaseName_(dict.lookupOrDefault("nbrPhaseName", word::null)),
+    // neighbourFieldName_(this->dimensionedInternalField().name()),
+    neighbourFieldName_(dict.lookup("neighbourFieldName")),
     kName_(dict.lookup("k")),
     accModel_
     (
@@ -119,6 +123,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
         this->evaluate();
     }
 
+    // TODO: Why should this be the case?? (Fore multiple phases not suitabe)
     // Coupled fields should have same names,
     // e.g. there is only one temperature -> T
     // (disambiguous since fields are registered to different meshes)
@@ -163,6 +168,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     neighbourPatchName_(grcf.neighbourPatchName_),
     neighbourFieldName_(grcf.neighbourFieldName_),
     kName_(grcf.kName_),
+    nbrPhaseName_(grcf.nbrPhaseName_),
     accModel_(grcf.accModel_, false),
     nonOrthCorr_(grcf.nonOrthCorr_),
     secondOrder_(grcf.secondOrder_)
@@ -188,6 +194,8 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     {
         return;
     }
+
+    Info << "Updated BC " << endl;
 
     // Update and correct the region interface physics
     const_cast<regionInterfaceType&>(rgInterface()).update();

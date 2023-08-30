@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Fork:     foam-extend
-    \\  /    A nd           | Version:  4.1
+    \\  /    A nd           | Version:  4.1                                 
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -51,7 +51,7 @@ Acknowledgement
     Science (NHR4CES)
 
 Description
-
+    
     This file is part of the multiRegionFoam library.
 
     You may refer to this software as :
@@ -102,13 +102,6 @@ class regionType
         //- Mesh
         autoPtr<dynamicFvMesh> meshPtr_;
 
-
-        // Settings for Picard iterations if non-linearities need
-        // to be resolved during the solution process
-        HashTable<scalar> maxCorr_;
-        HashTable<scalar> relativeTolerance_;
-        HashTable<scalar> convergenceTolerance_;
-
 protected:
 
     // Protected data
@@ -119,6 +112,25 @@ protected:
         HashPtrTable<fvMatrix<symmTensor> > fvSymmTensorMatrices;
         HashPtrTable<fvMatrix<tensor> > fvTensorMatrices;
         HashPtrTable<fvBlockMatrix<vector4> > fvVector4Matrices;
+
+        // //- Cell and face label for mapping to/from main mesh
+        // //- read from files
+        // labelIOList faceRegionAddressingIO_;
+
+        // labelIOList cellMapIO_;
+
+        // labelIOList patchesMapIO_;
+
+        // labelList faceMap_;
+
+        // scalarField faceMask_;
+
+        // //- HashTable with label and label
+        // Map<label> faceRegionAddressing_;
+
+        // Map<label> cellMap_;
+
+        // Map<label> patchesMap_;
 
     // Protected member functions
 
@@ -138,7 +150,7 @@ protected:
         (
             const fvMesh& mesh,
             const word& fldName,
-            const dimensioned<typename T::PrimitiveType> dimVal,
+            const dimensioned<typename T::cmptType> dimVal,
             const bool& write=true
         );
 
@@ -147,7 +159,7 @@ protected:
         (
             const fvMesh& mesh,
             const word& fldName,
-            const dimensioned<typename T::PrimitiveType> dimVal,
+            const dimensioned<typename T::cmptType> dimVal,
             const wordList& patchFieldTypes,
             const bool& write=true
         );
@@ -213,6 +225,46 @@ public:
         {
             return mesh().update();
         }
+
+        //  const labelList& faceRegionAddressingIO() const
+        // {
+        //     return faceRegionAddressingIO_;
+        // }
+
+        // const Map<label>& faceRegionAddressing() const
+        // {
+        //     return faceRegionAddressing_;
+        // }
+
+        // const labelList& faceMap() const
+        // {
+        //     return faceMap_;
+        // }
+
+        // const scalarField& faceMask() const
+        // {
+        //     return faceMask_;
+        // }
+
+        // const labelList& cellMapIO() const
+        // {
+        //     return cellMapIO_;
+        // }
+
+        // const Map<label>& cellMap() const
+        // {
+        //     return cellMap_;
+        // }
+
+        // const labelList& patchesMapIO() const
+        // {
+        //     return patchesMapIO_;
+        // }
+
+        // const Map<label>& patchesMap() const
+        // {
+        //     return patchesMap_;
+        // }
 
         // virtual functions
 
@@ -282,10 +334,6 @@ public:
         (
             word name
         );
-
-        scalar maxCorr(word name);
-        scalar relativeTolerance(word name);
-        scalar convergenceTolerance(word name);
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
