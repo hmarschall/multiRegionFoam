@@ -28,28 +28,22 @@ License
 #include "rhoThermo.H"
 #include "rhoReactionThermo.H"
 
-// #include "CombustionModel.H"
-
 #include "phaseModel.H"
 #include "ThermoPhaseModel.H"
-// #include "IsothermalPhaseModel.H"
 #include "AnisothermalPhaseModel.H"
-// #include "PurePhaseModel.H"
 #include "MultiComponentPhaseModel.H"
 #include "SurfaceMultiComponentPhaseModel.H"
-// #include "MultiComponentFickPhaseModel.H"
-// #include "ElectrochemicalReactingPhaseModel.H"
 #include "SurfaceElectrochemicalReactingPhaseModel.H"
 #include "InertPhaseModel.H"
-// #include "ReactingPhaseModel.H"
 #include "MovingPhaseModel.H"
-// #include "StationaryPhaseModel.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
 {
+
+    // Volumetric electrochemistry
     // typedef
     //     // AnisothermalPhaseModel
     //     // <

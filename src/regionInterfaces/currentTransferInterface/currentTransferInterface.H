@@ -29,35 +29,33 @@ SourceFiles
     currentTransferInterface.C
 
 Author
-    Constantin Habes (constantin.habes@tu-darmstadt.de, Affiliation A)
+    Steffen Hess(s.hess@fz-juelich.de, Affiliation A) 
+    Constantin Habes (constantin.habes@tu-darmstadt.de, Affiliation B)
+    Holger Marschall (holger.marschall@tu-darmstadt.de, Affiliation B)
 
 Contact
+    Steffen Hess(s.hess@fz-juelich.de) 
     Holger Marschall (holger.marschall@tu-darmstadt.de)
     main developer and principal investigator
     TU Darmstadt
 
 Affiliations
     Affiliation A)
+    Forschungszentrum Jülich IEK-14
+    Affiliation B)
     Computational Multiphase Flow
     Department of Mathematics
     Technical University of Darmstadt, Germany
 
 Acknowledgement
     Funded by
+    AIDAS – AI, Data Analytics and Scalable Simulation and
     Hessian Ministry of Higher Education, Research, Science and the Arts,
     National High Performance Computing Center for Computational Engineering
-    Science (NHR4CES)
+    Science (NHR4CES) and 
 
 Description
     
-    This file is part of the multiRegionFoam library.
-
-    You may refer to this software as :
-    https://doi.org/10.48550/arXiv.2306.01924
-
-    If you use this software for your scientific work or your publications,
-    please don't forget to acknowledge explicitly the use of it.
-
     This file is part of the multiRegionFoam library.
 
     You may refer to this software as :

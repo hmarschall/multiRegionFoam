@@ -1,8 +1,8 @@
 /*---------------------------------------------------------------------------*\
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     |
-    \\  /    A nd           | Copyright held by original author
+   \\    /   O peration     | Fork:     foam-extend
+    \\  /    A nd           | Version:  4.1                                 
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -23,14 +23,32 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    Foam::multiSpeciesTransportModel
-
-Description
-    Abstract base class for multispecies mass transport model models.
+    multiSpeciesTransportModel.C
 
 SourceFiles
     multiSpeciesTransportModelI.H
     multiSpeciesTransportModel.C
+
+Author
+    Steffen Hess(s.hess@fz-juelich.de, Affiliation A) 
+
+    Basic structure and implemented models are based on:
+    “Novaresio V., Garcı́a-Camprubı́ M., Izquierdo
+    S., Asinari P., Fueyo N., An Open-Source Library for the Numerical Model-
+    ing of Mass-Transfer in Solid-Oxide Fuel Cells, Computer Physics Communi-
+    cations, Elsevier B.V., pp. 22, 2011, Vol. 183, pag. 125-146, ISSN: 0010-4655,
+    DOI: 10.1016/j.cpc.2011.08.003”
+
+Contact
+    Steffen Hess(s.hess@fz-juelich.de) 
+
+Affiliations
+    Affiliation A)
+    Forschungszentrum Jülich IEK-14
+
+Acknowledgement
+    Funded by
+    AIDAS – AI, Data Analytics and Scalable Simulation
 
 \*---------------------------------------------------------------------------*/
 

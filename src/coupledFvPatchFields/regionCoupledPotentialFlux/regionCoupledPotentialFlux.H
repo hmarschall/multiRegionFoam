@@ -23,35 +23,28 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    regionCoupledPotentialFlux
+    Foam::regionCoupledPotentialFlux.C
 
 SourceFiles
     regionCoupledPotentialFlux.C
 
 Author
-    Constantin Habes (constantin.habes@stud.tu-darmstadt.de)
+    Steffen Hess(s.hess@fz-juelich.de, Affiliation A) 
+    All rights reserved.
 
 Contact
-    Holger Marschall (holger.marschall@tu-darmstadt.de)
-    main developer and principal investigator
-    TU Darmstadt
+    Steffen Hess(s.hess@fz-juelich.de) 
 
 Affiliations
     Affiliation A)
-    Computational Multiphase Flow
-    Department of Mathematics
-    Technical University of Darmstadt, Germany
+    Forschungszentrum Jülich IEK-14
 
 Acknowledgement
     Funded by
-    Hessian Ministry of Higher Education, Research, Science and the Arts,
-    National High Performance Computing Center for Computational Engineering
-    Science (NHR4CES)
+    AIDAS – AI, Data Analytics and Scalable Simulation
 
 Description
-    Neumann boundary condition for species within the ALE interface tracking.
-    Normal species flux jump is calculated from the neighbour patch flux.
-
+    
     This file is part of the multiRegionFoam library.
 
     You may refer to this software as :

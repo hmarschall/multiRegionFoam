@@ -23,37 +23,28 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    regionCoupledPotentialJump
+    Foam::regionCoupledPotentialJump.C
 
 SourceFiles
     regionCoupledPotentialJump.C
 
 Author
-    Constantin Habes (constantin.habes@stud.tu-darmstadt.de)
+    Steffen Hess(s.hess@fz-juelich.de, Affiliation A) 
+    All rights reserved.
 
 Contact
-    Holger Marschall (holger.marschall@tu-darmstadt.de)
-    main developer and principal investigator
-    TU Darmstadt
+    Steffen Hess(s.hess@fz-juelich.de) 
 
 Affiliations
     Affiliation A)
-    Computational Multiphase Flow
-    Department of Mathematics
-    Technical University of Darmstadt, Germany
+    Forschungszentrum Jülich IEK-14
 
 Acknowledgement
     Funded by
-    Hessian Ministry of Higher Education, Research, Science and the Arts,
-    National High Performance Computing Center for Computational Engineering
-    Science (NHR4CES)
+    AIDAS – AI, Data Analytics and Scalable Simulation
 
 Description
-    Dirichlet boundary condition for species within the ALE interface tracking.
-    species jump across the interface is accounted for by adding the jump to
-    the neighbour patch value. Normal species flux is calculated and divided
-    by the density.
-
+    
     This file is part of the multiRegionFoam library.
 
     You may refer to this software as :
