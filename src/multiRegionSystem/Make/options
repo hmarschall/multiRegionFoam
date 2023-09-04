@@ -9,8 +9,8 @@ EXE_INC = \
     -I../../lnInclude \
     -I../../dependencies/thermoModels/lnInclude \
     -I../../dependencies/turbulenceModels \
-    -I../../dependencies/turbulenceModelscompressible/RAS/RASModel \
-    -I../../dependencies/turbulenceModelscompressible/turbulenceModel \
+    -I../../dependencies/turbulenceModels/compressible/RAS/RASModel \
+    -I../../dependencies/turbulenceModels/compressible/turbulenceModel \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/finiteArea/lnInclude \
     -I$(LIB_SRC)/coupledMatrix/lnInclude \

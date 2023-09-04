@@ -11,15 +11,10 @@ $(regions)/icoFluid/icoFluid.C
 $(regions)/conductTemperature/conductTemperature.C
 $(regions)/transportTemperature/transportTemperature.C
 $(regions)/interTrackFluid/interTrackFluid.C
-$(regions)/electricConductive/electricConductive.C
 $(regions)/surfaceElectricConductive/surfaceElectricConductive.C
 $(regions)/singlePhaseAnisothermalMulticomponentFluid/singlePhaseAnisothermalMulticomponentFluid.C
 
 electrochemicalModels = ./../electrochemicalModels
-$(electrochemicalModels)/dissolvedModels/dissolvedModel/dissolvedModel.C
-$(electrochemicalModels)/dissolvedModels/dissolvedModel/newDissolvedModel.C
-$(electrochemicalModels)/dissolvedModels/noneDWModel/noneDWModel.C
-$(electrochemicalModels)/dissolvedModels/standardDWModel/standardDWModel.C
 
 $(electrochemicalModels)/dissolvedModels/surfaceDissolvedModel/surfaceDissolvedModel.C
 $(electrochemicalModels)/dissolvedModels/surfaceDissolvedModel/newSurfaceDissolvedModel.C
