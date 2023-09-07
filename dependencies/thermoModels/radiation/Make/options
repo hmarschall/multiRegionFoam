@@ -1,0 +1,8 @@
+EXE_INC = \
+    -I$(LIB_SRC)/finiteVolume/lnInclude \
+    -I./../lnInclude \
+
+LIB_LIBS = \
+    -lfiniteVolume \
+    -L$(FOAM_USER_LIBBIN) -lbasicElectroThermophysicalModels \
+    -L$(FOAM_USER_LIBBIN) -lelectroSpecie
