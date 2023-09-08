@@ -209,7 +209,8 @@ Foam::tmp<Foam::volScalarField> Foam::heThermo<BasicThermo, MixtureType>::he
     forAll(heCells, celli)
     {
         heCells[celli] =
-            this->cellMixture(celli).Hs(pCells[celli], TCells[celli]);  // using Hs instead of HE
+            // this->cellMixture(celli).Hs(pCells[celli], TCells[celli]);  // using Hs instead of HE
+            this->cellMixture(celli).HE(pCells[celli], TCells[celli]);  // using Hs instead of HE
     }
 
     volScalarField::GeometricBoundaryField& heBf = he.boundaryField();
@@ -223,6 +224,7 @@ Foam::tmp<Foam::volScalarField> Foam::heThermo<BasicThermo, MixtureType>::he
         forAll(hep, facei)
         {
             hep[facei] =
+                // this->patchFaceMixture(patchi, facei).Hs(pp[facei], Tp[facei]);  // using Hs instead of HE
                 this->patchFaceMixture(patchi, facei).Hs(pp[facei], Tp[facei]);  // using Hs instead of HE
         }
     }
@@ -245,7 +247,8 @@ Foam::tmp<Foam::scalarField> Foam::heThermo<BasicThermo, MixtureType>::he
 
     forAll(T, celli)
     {
-        he[celli] = this->cellMixture(cells[celli]).Hs(p[celli], T[celli]);  // using Hs instead of HE
+        he[celli] = this->cellMixture(cells[celli]).Hs(p[celli], T[celli]);  // using Hs instead of HE, HE goes other ways, for now just take Hs
+        // he[celli] = this->cellMixture(cells[celli]).HE(p[celli], T[celli]);  // using Hs instead of HE
     }
 
     return the;
@@ -269,6 +272,7 @@ Foam::tmp<Foam::scalarField> Foam::heThermo<BasicThermo, MixtureType>::he
     forAll(T, facei)
     {
         he[facei] =
+            // this->patchFaceMixture(patchi, facei).Hs(p[facei], T[facei]);   // using Hs instead of HE
             this->patchFaceMixture(patchi, facei).Hs(p[facei], T[facei]);   // using Hs instead of HE
     }
 
@@ -276,6 +280,103 @@ Foam::tmp<Foam::scalarField> Foam::heThermo<BasicThermo, MixtureType>::he
 
     // Info << "Print ::he 3 " << endl;
     return the;
+}
+
+template<class BasicThermo, class MixtureType>
+Foam::tmp<Foam::volScalarField> Foam::heThermo<BasicThermo, MixtureType>::hs
+(
+    const volScalarField& p,
+    const volScalarField& T
+) const
+{
+    const fvMesh& mesh = this->T_.mesh();
+
+    tmp<volScalarField> ths
+    (
+        new volScalarField
+        (
+            IOobject
+            (
+                "hs",
+                mesh.time().timeName(),
+                mesh,
+                IOobject::NO_READ,
+                IOobject::NO_WRITE,
+                false
+            ),
+            mesh,
+            this->he_.dimensions()
+        )
+    );
+
+    volScalarField& hs = ths();
+    scalarField& hsCells = hs.internalField();
+    const scalarField& pCells = p;
+    const scalarField& TCells = T;
+
+    forAll(hsCells, celli)
+    {
+        hsCells[celli] =
+            this->cellMixture(celli).Hs(pCells[celli], TCells[celli]);
+    }
+
+    volScalarField::GeometricBoundaryField& hsBf = hs.boundaryField();
+
+    forAll(hsBf, patchi)
+    {
+        scalarField& hsp = hsBf[patchi];
+        const scalarField& pp = p.boundaryField()[patchi];
+        const scalarField& Tp = T.boundaryField()[patchi];
+
+        forAll(hsp, facei)
+        {
+            hsp[facei] =
+                this->patchFaceMixture(patchi, facei).Hs(pp[facei], Tp[facei]);  // using Hs instead of HE
+        }
+    }
+
+    return ths;
+}
+
+
+
+template<class BasicThermo, class MixtureType>
+Foam::tmp<Foam::scalarField> Foam::heThermo<BasicThermo, MixtureType>::hs
+(
+    const scalarField& p,
+    const scalarField& T,
+    const labelList& cells
+) const
+{
+    tmp<scalarField> ths(new scalarField(T.size()));
+    scalarField& hs = ths();
+
+    forAll(T, celli)
+    {
+        hs[celli] = this->cellMixture(cells[celli]).Hs(p[celli], T[celli]);  // using Hs instead of HE
+    }
+
+    return ths;
+}
+
+
+template<class BasicThermo, class MixtureType>
+Foam::tmp<Foam::scalarField> Foam::heThermo<BasicThermo, MixtureType>::hs
+(
+    const scalarField& p,
+    const scalarField& T,
+    const label patchi
+) const
+{
+    tmp<scalarField> ths(new scalarField(T.size(), 0));
+    scalarField& hs = ths();
+
+    forAll(T, facei)
+    {
+        hs[facei] =
+            this->patchFaceMixture(patchi, facei).Hs(p[facei], T[facei]);   
+    }
+    return ths;
 }
 
 

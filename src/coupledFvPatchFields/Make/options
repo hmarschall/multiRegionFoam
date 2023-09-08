@@ -19,4 +19,6 @@ LIB_LIBS = \
  -ldynamicMesh \
  -ldynamicFvMesh \
  -lmeshTools \
+ -L$(FOAM_USER_LIBBIN) -lbasicElectroThermophysicalModels \
+ -L$(FOAM_USER_LIBBIN) -lradiationElectro \
  -L$(FOAM_USER_LIBBIN) -lregionInterface
