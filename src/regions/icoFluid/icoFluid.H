@@ -208,7 +208,7 @@ public:
             return p_();
         }
 
-        word regionTypeName() const
+        virtual word regionTypeName() const
         {
             return icoFluid::typeName;
         }

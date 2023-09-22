@@ -146,7 +146,7 @@ public:
             return T_();
         }
 
-        word regionTypeName() const
+        virtual word regionTypeName() const
         {
             return conductTemperature::typeName;
         }

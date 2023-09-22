@@ -236,6 +236,11 @@ public:
             );
         }
 
+        virtual word regionTypeName() const
+        {
+            return pUCoupledIcoFluid::typeName;
+        }
+
         virtual bool usesPIMPLE() const
         {
             return false;
