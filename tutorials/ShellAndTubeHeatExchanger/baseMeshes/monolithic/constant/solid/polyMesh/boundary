@@ -1,0 +1,64 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.3.1                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       polyBoundaryMesh;
+    location    "constant/solid/polyMesh";
+    object      boundary;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+3
+(
+    solid_to_inner
+    {
+        type            regionCouple;      
+        nFaces          184216;
+        startFace       1259402;
+        shadowRegion    inner;
+        shadowPatch     inner_to_solid;
+        zone            InnerFluid_boundingFaces;
+        attached        off;
+        master          off;
+        isWall          on;
+        bridgeOverlap   off; 
+    }
+    solid_to_outer
+    {
+        type            regionCouple;      
+        nFaces          254056;
+        startFace       1443618;
+        shadowRegion    outer;
+        shadowPatch     outer_to_solid;
+        zone            OuterFluid_boundingFaces;
+        attached        off;
+        master          off;
+        isWall          on;
+        bridgeOverlap   off; 
+    }
+    solid_to_domain1
+    {
+        type            patch; 
+        inGroups        
+2
+(
+wall
+mappedPatch
+)
+;
+        nFaces          9468;
+        startFace       1697674;
+        sampleMode      nearestPatchFace;
+        sampleRegion    domain1;
+        samplePatch     domain1_to_solid;
+    }
+)
+
+// ************************************************************************* //

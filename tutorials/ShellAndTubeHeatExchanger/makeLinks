@@ -1,12 +1,16 @@
 #!/bin/bash
 
+
+
 cd constant
+mkdir outer
 ln -s ../inner/transportProperties outer/transportProperties
 ln -s ../inner/dynamicMeshDict outer/dynamicMeshDict
 ln -s ../inner/rotationalMRFZones outer/rotationalMRFZones
 ln -s ../inner/translationalMRFZones outer/translationalMRFZones
 
 cd ../system
+mkdir outer
 ln -s ../decomposeParDict outer/decomposeParDict
 ln -s ../decomposeParDict inner/decomposeParDict
 ln -s ../decomposeParDict solid/decomposeParDict

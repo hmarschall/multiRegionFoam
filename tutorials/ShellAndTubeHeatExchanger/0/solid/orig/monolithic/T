@@ -23,7 +23,7 @@ boundaryField
 {
     solid_to_inner
     {
-        type                    monolithicTemperature;
+        type                    chtRcTemperature;
         radiation               off;
         K                       k;
         remoteField             T;
@@ -31,7 +31,7 @@ boundaryField
     }
     solid_to_outer
     {
-        type                    monolithicTemperature;
+        type                    chtRcTemperature;
         radiation               off;
         K                       k;
         remoteField             T;

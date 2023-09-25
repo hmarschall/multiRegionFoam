@@ -263,7 +263,11 @@ void Foam::dnaControl::writeResFlds
 {
     typedef GeometricField<Type, fvPatchField, volMesh> fieldType;
 
-    if (interface.meshA().foundObject<fieldType>(fldName))
+    if
+    (
+        interface.meshA().foundObject<fieldType>(fldName)
+     && interface.meshB().foundObject<fieldType>(fldName)
+    )
     {
         const fvPatchField<Type>& patchAField =
             interface.patchA().lookupPatchField<fieldType, Type>(fldName);

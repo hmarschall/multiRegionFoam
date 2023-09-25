@@ -32,7 +32,7 @@ boundaryField
     }
     inner_to_solid
     {
-        type                    monolithicTemperature;
+        type                    chtRcTemperature;
         radiation               off;
         K                       k;
         remoteField             T;

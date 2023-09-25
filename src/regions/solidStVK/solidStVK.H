@@ -169,7 +169,7 @@ public:
             return U_();
         }
 
-        word regionTypeName() const
+        virtual word regionTypeName() const
         {
             return solidStVK::typeName;
         }
