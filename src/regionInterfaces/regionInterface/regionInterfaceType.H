@@ -138,10 +138,6 @@ class regionInterfaceType
         //- B-side
         mutable autoPtr<globalPolyPatch> globalPatchBPtr_;
 
-        //- Mapping object for passing fields between the pairs of interfaces
-        //  e.g. this could be GGI or a direct map or other
-        mutable autoPtr<interfaceToInterfaceMapping> interfaceToInterfacePtr_;
-
         //- Reference to fvMesh A
         const fvMesh& meshA_;
 
@@ -169,6 +165,12 @@ class regionInterfaceType
         //- e.g. fixedSurfacePatches or centerlinePatches (wedge cases)
         wordList curvatureCorrectedSurfacePatches_;
 
+protected:
+
+        //- Mapping object for passing fields between the pairs of interfaces
+        //  e.g. this could be GGI or a direct map or other
+        mutable autoPtr<interfaceToInterfaceMapping> interfaceToInterfacePtr_;
+
 private:
 
     // Private Member Functions
@@ -186,9 +188,6 @@ private:
 
         //- Clear global poly patch
         void clearGlobalPatches() const;
-
-        //- Make interface-to-interface
-        void makeInterfaceToInterface() const;
 
         //- Create/update interface physics
         void makeFaMesh() const;
@@ -270,6 +269,9 @@ protected:
         //- Clear all demand-driven data
         virtual void clearOut() const;
 
+        //- Make interface-to-interface
+        virtual void makeInterfaceToInterface() const;
+
 public:
 
     // Member Functions
@@ -277,13 +279,13 @@ public:
         // Access
 
             //- Return reference to region properties
-            const IOdictionary& regionProperties()
+            const IOdictionary& regionProperties() const
             {
                 return multiRegionProperties_;
             }
 
             //- Return reference to interface properties
-            const IOdictionary& interfaceProperties()
+            const IOdictionary& interfaceProperties() const
             {
                 return regionInterfaceProperties_;
             }
@@ -304,13 +306,13 @@ public:
             virtual word interfaceName() const;
 
             //- Return a reference to the patch A
-            inline const fvPatch& patchA() const
+            const fvPatch& patchA() const
             {
                 return patchA_;
             };
 
             //- Return a reference to the patch B
-            inline const fvPatch& patchB() const
+            const fvPatch& patchB() const
             {
                 return patchB_;
             };

@@ -13,7 +13,7 @@ EXE_INC =  \
  -I../regionInterfaceProperties \
  -I./regionInterface \
  -I../globalPolyPatch \
- -I../../lnInclude \
+ -I../../lnInclude
 
 LIB_LIBS = \
  -lfoam \

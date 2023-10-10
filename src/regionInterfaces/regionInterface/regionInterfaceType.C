@@ -349,7 +349,6 @@ Foam::regionInterfaceType::regionInterfaceType
     patchB_(patchB),
     globalPatchAPtr_(),
     globalPatchBPtr_(),
-    interfaceToInterfacePtr_(),
     meshA_(patchA_.boundaryMesh().mesh()),
     meshB_(patchB_.boundaryMesh().mesh()),
     attachedA_(false),
@@ -366,7 +365,8 @@ Foam::regionInterfaceType::regionInterfaceType
     curvatureCorrectedSurfacePatches_
     (
         regionInterfaceProperties_.lookup("curvatureCorrectedSurfacePatches")
-    )
+    ),
+    interfaceToInterfacePtr_()
 {
     // Create global patches
     makeGlobalPatches();
@@ -476,7 +476,8 @@ const Foam::globalPolyPatch& Foam::regionInterfaceType::globalPatchB() const
 
 void Foam::regionInterfaceType::updateInterpolatorAndGlobalPatches()
 {
-    Info << "Updating interpolator and global patches for regionInterfaceType" << endl;
+    Info<< "Updating interpolator and global patches for regionInterfaceType "
+        << interfaceName() << endl;
 
     if (interfaceToInterfacePtr_.empty())
     {
