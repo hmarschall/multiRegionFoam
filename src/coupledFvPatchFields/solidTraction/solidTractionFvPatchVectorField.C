@@ -410,7 +410,7 @@ void solidTractionFvPatchVectorField::updateCoeffs()
         patch().lookupPatchField<volSymmTensorField, symmTensor>("sigma");
 
     const fvPatchField<tensor>& gradD =
-        patch().lookupPatchField<volTensorField, tensor>("grad(D)");
+        patch().lookupPatchField<volTensorField, tensor>("gradD");
 
     scalarField SoS0 = mag(n & inv(I+gradD.T()))*det(I+gradD.T());
 

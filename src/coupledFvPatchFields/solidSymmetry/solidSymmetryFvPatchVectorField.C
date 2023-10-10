@@ -160,7 +160,7 @@ tmp<Field<vector> > solidSymmetryFvPatchVectorField::snGrad() const
     const fvPatchField<tensor>& gradD =
         patch().lookupPatchField<volTensorField, tensor>
         (
-            "grad(D)"
+            "gradD"
         );
 
     // Calculate the corrected patch internal field
@@ -214,7 +214,7 @@ evaluate(const Pstream::commsTypes)
     const fvPatchField<tensor>& gradD =
         patch().lookupPatchField<volTensorField, tensor>
         (
-            "grad(D)"
+            "gradD"
         );
 
     // Calculate the corrected patch internal field

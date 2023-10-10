@@ -122,7 +122,7 @@ Foam::regionTypes::solidStVK::solidStVK
     gradD_ = lookupOrRead<volTensorField>
     (
         mesh(),
-        "grad(D)",
+        "gradD",
         // false,
         // true,
         //fvc::grad(D_())
