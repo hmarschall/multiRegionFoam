@@ -74,6 +74,7 @@ Description
 #include "HashPtrTable.H"
 #include "pimpleControl.H"
 #include "solutionControl.H"
+#include "volFieldsFwd.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -124,6 +125,9 @@ class icoFluid
         wordList pcorrTypes_;
 
         autoPtr<volScalarField> pcorr_;
+
+        //- forces
+        autoPtr<volSymmTensorField> sigma_;
 
         //- Under-relaxation factor
         scalar UUrf_;

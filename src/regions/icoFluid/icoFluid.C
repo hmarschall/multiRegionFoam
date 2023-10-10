@@ -92,6 +92,7 @@ Foam::regionTypes::icoFluid::icoFluid
     ),
     pcorrTypes_(),
     pcorr_(nullptr),
+    sigma_(nullptr),
     UUrf_(1),
 
     closedVolume_
@@ -213,6 +214,16 @@ Foam::regionTypes::icoFluid::icoFluid
         dimensionedScalar("pcorr", p_().dimensions(), 0.0),
         pcorrTypes_,
         true
+    );
+
+    sigma_ = lookupOrRead<volSymmTensorField>
+    (
+        mesh(),
+        "sigma",
+        false,
+        false,
+        (-p_()*symmTensor(1,0,0,1,0,1))
+      + (mu_()*twoSymm(fvc::grad(U_())))
     );
 
     IOdictionary fvSchemesDict
@@ -419,6 +430,11 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
 
         U_().correctBoundaryConditions();
         p_().correctBoundaryConditions();
+
+        // Update sigma field
+        sigma_() =
+            (-p_()*symmTensor(1,0,0,1,0,1))
+          + (mu_()*twoSymm(fvc::grad(U_())));
     }
 
     Info<< nl
