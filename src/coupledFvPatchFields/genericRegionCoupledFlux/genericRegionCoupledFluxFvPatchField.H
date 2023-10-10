@@ -117,6 +117,12 @@ protected:
 
     // Protected member functions
 
+        //- Switch to use directly computed flux instead of flux jump
+        virtual bool useDirectFlux() const
+        {
+            return false;
+        }
+
 public:
 
     //- Runtime type information
@@ -181,6 +187,19 @@ public:
 
         //- Calculate flux jump
         virtual tmp<Field<Type>> fluxJump() const
+        {
+            notImplemented
+            (
+                "genericRegionCoupledFluxFvPatchField.C\n"
+                "tmp<Field<Type>> fluxJump()\n"
+                "not implemented"
+            );
+
+            return (*this * 0);
+        };
+
+        //- If direct flux should be computed instead of flux jump
+        virtual tmp<Field<Type>> flux() const
         {
             notImplemented
             (

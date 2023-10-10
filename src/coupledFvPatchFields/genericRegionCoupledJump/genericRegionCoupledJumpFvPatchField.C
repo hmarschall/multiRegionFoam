@@ -184,29 +184,41 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
     // Update and correct the region interface physics
     const_cast<regionInterfaceType&>(rgInterface()).update();
 
-    // Lookup neighbouring patch field
-    const GeometricField<Type, fvPatchField, volMesh>& nbrField =
-        nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
+    if (useDirectValue())
+    {
+        // Enforce fixed value condition
+        fvPatchField<Type>::operator==
         (
-            // same field name as on this side
-            this->dimensionedInternalField().name()
+            value()
         );
 
-    // Calculate interpolated patch field
-    Field<Type> fieldNbrToOwn = interpolateFromNbrField<Type>
-    (
-        nbrPatch()
-        .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
-    );
+    }
+    else
+    {
+        // Lookup neighbouring patch field
+        const GeometricField<Type, fvPatchField, volMesh>& nbrField =
+            nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
+            (
+                // same field name as on this side
+                this->dimensionedInternalField().name()
+            );
 
-    // Add interfacial jump
-    fieldNbrToOwn += valueJump();
+        // Calculate interpolated patch field
+        Field<Type> fieldNbrToOwn = interpolateFromNbrField<Type>
+        (
+            nbrPatch()
+            .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+        );
 
-    // Enforce fixed value condition
-    fvPatchField<Type>::operator==
-    (
-        fieldNbrToOwn
-    );
+        // Add interfacial jump
+        fieldNbrToOwn += valueJump();
+
+        // Enforce fixed value condition
+        fvPatchField<Type>::operator==
+        (
+            fieldNbrToOwn
+        );
+    }
 
     // Relax fixed value condition
     accModel_->relax(*this);

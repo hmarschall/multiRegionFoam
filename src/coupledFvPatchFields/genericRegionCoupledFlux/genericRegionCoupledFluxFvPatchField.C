@@ -95,7 +95,7 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     neighbourRegionName_(dict.lookup("neighbourRegionName")),
     neighbourPatchName_(dict.lookup("neighbourPatchName")),
     neighbourFieldName_(this->dimensionedInternalField().name()),
-    kName_(dict.lookup("k")),
+    kName_(dict.lookupOrDefault<word>("k", "k")),
     accModel_
     (
         accelerationModel<Type>::New
@@ -122,30 +122,30 @@ genericRegionCoupledFluxFvPatchField<Type>::genericRegionCoupledFluxFvPatchField
     // Coupled fields should have same names,
     // e.g. there is only one temperature -> T
     // (disambiguous since fields are registered to different meshes)
-    if (dict.found("neighbourPatchName"))
-    {
-        if
-        (
-            !this->db().objectRegistry::
-            foundObject<GeometricField<Type, fvPatchField, volMesh> >
-            (dict.lookup("neighbourFieldName"))
-        )
-        {
-            FatalError
-                << "\nIncorrect neigbour field name "
-                << dict.lookup("neighbourFieldName")
-                << " instead " << this->dimensionedInternalField().name()
-                << exit(FatalError);
-        }
-    }
-    else
-    {
-        FatalError
-            << "\nNeigbour field name not found but needed for coupling manager"
-            << " Provide neighbourFieldName: "
-            << this->dimensionedInternalField().name()
-            << exit(FatalError);
-    }
+    // if (dict.found("neighbourPatchName"))
+    // {
+    //     if
+    //     (
+    //         !this->db().objectRegistry::
+    //         foundObject<GeometricField<Type, fvPatchField, volMesh> >
+    //         (dict.lookup("neighbourFieldName"))
+    //     )
+    //     {
+    //         FatalError
+    //             << "\nIncorrect neigbour field name "
+    //             << dict.lookup("neighbourFieldName")
+    //             << " instead " << this->dimensionedInternalField().name()
+    //             << exit(FatalError);
+    //     }
+    // }
+    // else
+    // {
+    //     FatalError
+    //         << "\nNeigbour field name not found but needed for coupling manager"
+    //         << " Provide neighbourFieldName: "
+    //         << this->dimensionedInternalField().name()
+    //         << exit(FatalError);
+    // }
 
     accModel_->initialize(*this);
 }
@@ -192,50 +192,57 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     // Update and correct the region interface physics
     const_cast<regionInterfaceType&>(rgInterface()).update();
 
-    // Lookup neighbouring patch field
-    const GeometricField<Type, fvPatchField, volMesh>& nbrField =
-        nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
-        (
-            // same field name as on this side
-            this->dimensionedInternalField().name()
-        );
-
-    // Interpolate flux face values from neighbour patch
-    tmp<Field<Type> > tnbrFlux =
-        refCast<const genericRegionCoupledJumpFvPatchField<Type>>
-        (
-            nbrPatch()
-            .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
-        ).flux();
-
-    const Field<Type>& nbrFlux = tnbrFlux();
-
-    // Calculate interpolated patch field
-    Field<Type> fluxNbrToOwn = interpolateFromNbrField<Type>(nbrFlux);
-
-    // Enforce flux matching
-    fluxNbrToOwn *= -1.0;
-    fluxNbrToOwn += fluxJump();
-
-    // Get the diffusivity
-    scalarField k(this->patch().size(), pTraits<scalar>::zero);
-
-    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    if (useDirectFlux())
     {
-        k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+        this->gradient() = flux();
     }
     else
     {
-        k = dimensionedScalar
-        (
-            refPatch().boundaryMesh().mesh().objectRegistry::
-            lookupObject<IOdictionary>("transportProperties")
-            .lookup(kName_)
-        ).value();
-    }
+        // Lookup neighbouring patch field
+        const GeometricField<Type, fvPatchField, volMesh>& nbrField =
+            nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
+            (
+                // same field name as on this side
+                this->dimensionedInternalField().name()
+            );
 
-    // Add interfacial flux
-    this->gradient() = fluxNbrToOwn/k;
+        // Interpolate flux face values from neighbour patch
+        tmp<Field<Type> > tnbrFlux =
+            refCast<const genericRegionCoupledJumpFvPatchField<Type>>
+            (
+                nbrPatch()
+                .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+            ).flux();
+
+        const Field<Type>& nbrFlux = tnbrFlux();
+
+        // Calculate interpolated patch field
+        Field<Type> fluxNbrToOwn = interpolateFromNbrField<Type>(nbrFlux);
+
+        // Enforce flux matching
+        fluxNbrToOwn *= -1.0;
+        fluxNbrToOwn += fluxJump();
+
+        // Get the diffusivity
+        scalarField k(this->patch().size(), pTraits<scalar>::zero);
+
+        if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+        {
+            k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
+        }
+        else
+        {
+            k = dimensionedScalar
+            (
+                refPatch().boundaryMesh().mesh().objectRegistry::
+                lookupObject<IOdictionary>("transportProperties")
+                .lookup(kName_)
+            ).value();
+        }
+
+        // Add interfacial flux
+        this->gradient() = fluxNbrToOwn/k;
+    }
 
     // Relax fixed gradient condition
     accModel_->relax(this->gradient());

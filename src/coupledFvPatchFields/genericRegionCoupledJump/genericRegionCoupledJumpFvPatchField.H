@@ -120,6 +120,12 @@ protected:
 
     // Protected member functions
 
+        //- Switch to use directly computed value instead of value jump
+        virtual bool useDirectValue() const
+        {
+            return false;
+        }
+
         //- Update phi
         virtual void updatePhi()
         {
@@ -195,6 +201,19 @@ public:
             (
                 "genericRegionCoupledJumpFvPatchField.C\n"
                 "tmp<Field<Type>> valueJump()\n"
+                "not implemented"
+            );
+
+            return (*this * 0);
+        };
+
+        //- If direct flux should be computed instead of flux jump
+        virtual tmp<Field<Type>> value() const
+        {
+            notImplemented
+            (
+                "genericRegionCoupledFluxFvPatchField.C\n"
+                "tmp<Field<Type>> fluxJump()\n"
                 "not implemented"
             );
 
