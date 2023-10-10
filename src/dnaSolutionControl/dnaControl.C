@@ -467,7 +467,7 @@ void Foam::dnaControl::outputMaxResInfo
                     << endl;
             }
 
-        forAll (interfaces_, intI)
+            forAll (interfaces_, intI)
             {
                 forAll (dnaResControl_, ctrlI)
                 {
