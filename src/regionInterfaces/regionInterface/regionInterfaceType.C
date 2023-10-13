@@ -355,6 +355,8 @@ Foam::regionInterfaceType::regionInterfaceType
     attachedB_(false),
     changing_(false),
     moving_(false),
+    coupled_(dict.lookupOrDefault<Switch>("coupled", true)),
+    couplingStartTime_(dict.lookupOrDefault<scalar>("couplingStartTime", 0)),
     interpolatorUpdateFrequency_
     (
         regionInterfaceProperties_
@@ -514,6 +516,26 @@ Foam::regionInterfaceType::interfaceToInterface() const
 
     return interfaceToInterfacePtr_();
 }
+
+const Foam::Switch& Foam::regionInterfaceType::coupled() const
+{
+    if (couplingStartTime_ > SMALL && !coupled_)
+    {
+        if (runTime().value() > (couplingStartTime_ - SMALL))
+        {
+            InfoIn("regionInterfaceType::coupled()")
+                << "Enabling interface coupling for interface "
+                << interfaceName()
+                << endl;
+
+            // Enable coupling
+            coupled_ = true;
+        }
+    }
+
+    return coupled_;
+}
+
 
 void Foam::regionInterfaceType::attach()
 {

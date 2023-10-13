@@ -143,6 +143,9 @@ protected:
         //- Reference to neighbour patch
         const fvPatch& nbrPatch() const;
 
+        //- Reference of coupled switch of interface
+        const Switch& interfaceCoupled() const;
+
 public:
 
     // Constructors

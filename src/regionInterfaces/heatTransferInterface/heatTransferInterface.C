@@ -58,7 +58,7 @@ Foam::regionInterfaces::heatTransferInterface::heatTransferInterface
 :
     regionInterfaceType(type, dict, runTime, patchA, patchB),
 
-    dict_(dict),
+    dict_(dict.subDict(type + "Coeffs")),
 
     K_(dimensionedScalar(dict_.lookup("K")))
 {}

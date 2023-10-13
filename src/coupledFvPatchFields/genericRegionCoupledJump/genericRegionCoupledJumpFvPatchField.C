@@ -176,7 +176,7 @@ genericRegionCoupledJumpFvPatchField<Type>::gradientBoundaryCoeffs() const
 template<class Type>
 void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
 {
-    if (this->updated())
+    if (this->updated() || !interfaceCoupled())
     {
         return;
     }

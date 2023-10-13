@@ -56,7 +56,8 @@ Foam::regionInterfaces::fsiInterface::fsiInterface
     const fvPatch& patchB
 )
 :
-    regionInterfaceType(type, dict, runTime, patchA, patchB)
+    regionInterfaceType(type, dict, runTime, patchA, patchB),
+    dict_(dict.subDict(type + "Coeffs"))
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //

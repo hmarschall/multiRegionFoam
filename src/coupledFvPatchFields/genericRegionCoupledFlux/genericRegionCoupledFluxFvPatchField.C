@@ -184,7 +184,7 @@ void genericRegionCoupledFluxFvPatchField<Type>::evaluate(const Pstream::commsTy
 template<class Type>
 void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
 {
-    if (this->updated())
+    if (this->updated() || !interfaceCoupled())
     {
         return;
     }

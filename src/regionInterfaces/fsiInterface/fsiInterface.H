@@ -93,6 +93,10 @@ class fsiInterface
 :
     public regionInterfaceType
 {
+    // Private data
+
+        // interface dictionary
+        dictionary dict_;
 
 public:
 

@@ -74,7 +74,7 @@ Foam::word Foam::interfaceToInterfaceCoupleManager::assembleName
     );
 }
 
-const Foam::regionInterfaceType& 
+const Foam::regionInterfaceType&
 Foam::interfaceToInterfaceCoupleManager::rgInterface() const
 {
     const fvMesh& mesh = refPatch().boundaryMesh().mesh();
@@ -128,7 +128,7 @@ Foam::interfaceToInterfaceCoupleManager::rgInterface() const
     return obr.lookupObject<regionInterfaceType>(rgIntName);
 }
 
-const Foam::fvMesh& 
+const Foam::fvMesh&
 Foam::interfaceToInterfaceCoupleManager::nbrMesh() const
 {
     if (refPatch().name() == rgInterface().patchA().name())
@@ -139,7 +139,7 @@ Foam::interfaceToInterfaceCoupleManager::nbrMesh() const
     return rgInterface().meshA();
 }
 
-const Foam::fvPatch& 
+const Foam::fvPatch&
 Foam::interfaceToInterfaceCoupleManager::nbrPatch() const
 {
     if (refPatch().name() == rgInterface().patchA().name())
@@ -148,6 +148,12 @@ Foam::interfaceToInterfaceCoupleManager::nbrPatch() const
     }
 
     return rgInterface().patchA();
+}
+
+const Foam::Switch&
+Foam::interfaceToInterfaceCoupleManager::interfaceCoupled() const
+{
+    return rgInterface().coupled();
 }
 
 void Foam::interfaceToInterfaceCoupleManager::updateRegionInterface()

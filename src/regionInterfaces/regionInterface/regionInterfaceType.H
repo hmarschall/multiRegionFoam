@@ -155,6 +155,12 @@ class regionInterfaceType
         //- Is meshA moving?
         bool moving_;
 
+        //- Interface coupling on/of
+        mutable Switch coupled_;
+
+        //- Optional: enable interface coupling after specified time
+        const scalar couplingStartTime_;
+
         //- Interpolator update frequency
         label interpolatorUpdateFrequency_;
 
@@ -407,6 +413,9 @@ public:
             ) const;
 
         // Edit
+
+            //- Is the interface coupling enabled
+            const Switch& coupled() const;
 
             //- Update interpolator
             virtual void updateInterpolatorAndGlobalPatches();
