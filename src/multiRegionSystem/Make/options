@@ -1,6 +1,5 @@
 EXE_INC = \
     -I$(LIB_MRF)/lnInclude \
-    -DFULLDEBUG -g -O0 \
     -I../regions/region \
     -I../regionInterfaces/regionInterface \
     -I../regionProperties \

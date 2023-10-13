@@ -216,15 +216,9 @@ public:
 
         // virtual functions
 
-        virtual word regionTypeName() const
-        {
-            return word("regionTypeBase");
-        }
+        virtual word regionTypeName() const = 0;
 
-        virtual bool usesPIMPLE() const
-        {
-            return true;
-        }
+        virtual bool usesPIMPLE() const = 0;
 
         virtual void correct() = 0;
 

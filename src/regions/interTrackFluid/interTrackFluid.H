@@ -207,14 +207,14 @@ public:
             return p_();
         }
 
-        word regionTypeName() const
-        {
-            return interTrackFluid::typeName;
-        }
-
         virtual bool usesPIMPLE() const
         {
             return true;
+        }
+
+        virtual word regionTypeName() const
+        {
+            return interTrackFluid::typeName;
         }
 
         virtual void correct();
