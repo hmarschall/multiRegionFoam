@@ -337,6 +337,7 @@ void Foam::regionTypes::icoFluid::momentumPredictor()
     (
         fvm::div(fvc::interpolate(rho_())*phi_(), U_(), "div(phi,U)")
       - fvm::laplacian(mu_(), U_())
+      - fvc::div(mu_()*dev(T(fvc::grad(U_()))))
     );
 
     // Time derivative matrix
