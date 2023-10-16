@@ -212,13 +212,8 @@ solidTractionFvPatchVectorField
 )
 :
     fixedGradientFvPatchVectorField(stpvf, p, iF, mapper),
-#ifdef OPENFOAMFOUNDATION
-    traction_(mapper(stpvf.traction_)),
-    pressure_(mapper(stpvf.pressure_)),
-#else
     traction_(stpvf.traction_, mapper),
     pressure_(stpvf.pressure_, mapper),
-#endif
     tractionSeries_(stpvf.tractionSeries_),
     pressureSeries_(stpvf.pressureSeries_),
     tractionFieldPtr_(),
@@ -280,13 +275,8 @@ void solidTractionFvPatchVectorField::autoMap
 {
     fixedGradientFvPatchVectorField::autoMap(m);
 
-#ifdef OPENFOAMFOUNDATION
-    m(traction_, traction_);
-    m(pressure_, pressure_);
-#else
     traction_.autoMap(m);
     pressure_.autoMap(m);
-#endif
 }
 
 
@@ -424,11 +414,6 @@ void solidTractionFvPatchVectorField::updateCoeffs()
           + twoMuLambda*fvPatchField<vector>::snGrad() - (n & sigma)
         )/twoMuLambda
         + (1.0 - relaxFac_)*gradient();
-        // relaxFac_*solMod.tractionBoundarySnGrad
-        // (
-        //     traction_, press, patch()
-        // )
-        // + (1.0 - relaxFac_)*gradient();
 
     fixedGradientFvPatchVectorField::updateCoeffs();
 }
@@ -448,11 +433,7 @@ void solidTractionFvPatchVectorField::evaluate
     const fvPatchField<tensor>& gradField =
         patch().lookupPatchField<volTensorField, tensor>
         (
-#ifdef OPENFOAMESIORFOUNDATION
-            "grad(" + internalField().name() + ")"
-#else
-            "grad(" + dimensionedInternalField().name() + ")"
-#endif
+            "grad" + dimensionedInternalField().name()
         );
 
     // Face unit normals
@@ -513,11 +494,7 @@ void solidTractionFvPatchVectorField::write(Ostream& os) const
     }
     else
     {
-#ifdef OPENFOAMFOUNDATION
-        writeEntry(os, "traction", traction_);
-#else
         traction_.writeEntry("traction", os);
-#endif
     }
 
     if (pressureFieldPtr_.valid())
@@ -534,11 +511,7 @@ void solidTractionFvPatchVectorField::write(Ostream& os) const
     }
     else
     {
-#ifdef OPENFOAMFOUNDATION
-        writeEntry(os, "pressure", pressure_);
-#else
         pressure_.writeEntry("pressure", os);
-#endif
     }
 
     os.writeKeyword("secondOrder")
@@ -548,13 +521,8 @@ void solidTractionFvPatchVectorField::write(Ostream& os) const
     os.writeKeyword("relaxationFactor")
         << relaxFac_ << token::END_STATEMENT << nl;
 
-#ifdef OPENFOAMFOUNDATION
-    writeEntry(os, "value", *this);
-    writeEntry(os, "gradient", gradient());
-#else
     writeEntry("value", os);
     gradient().writeEntry("gradient", os);
-#endif
 }
 
 
