@@ -48,7 +48,8 @@ PICARD
     {
         maxCorr 1000;
         tolerance       1e-09;
-        relTol          0.1;
+        relTol          1e-7;
+        infoFrequency   100;
     }
 }
 
