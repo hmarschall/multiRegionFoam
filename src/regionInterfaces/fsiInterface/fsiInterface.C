@@ -130,6 +130,9 @@ void Foam::regionInterfaces::fsiInterface::makeInterfaceToInterface() const
 
     // Move the mesh back in the initial configuration
     const_cast<fvMesh&>(*solidMesh).movePoints(newSolidMeshPoints);
+
+    // Set moving switch of mesh to be false again
+    const_cast<fvMesh&>(*solidMesh).moving(false);
 }
 
 void Foam::regionInterfaces::fsiInterface::correct()
