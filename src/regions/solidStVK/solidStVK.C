@@ -27,6 +27,7 @@ License
 #include "solidStVK.H"
 #include "addToRunTimeSelectionTable.H"
 #include "dimensionedTypes.H"
+#include "transformGeometricField.H"
 
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
@@ -44,6 +45,24 @@ namespace regionTypes
         dictionary
     );
 }
+}
+
+// * * * * * * * * * * * * Privat Member Functions * * * * * * * * * * * * * //
+
+void  Foam::regionTypes::solidStVK::correctSigma(volSymmTensorField& sigma)
+{
+    // Calculate the right Cauchy–Green deformation tensor
+    const volSymmTensorField c(symm(F_().T() & F_()));
+
+    // Calculate the Green strain tensor
+    const volSymmTensorField E(0.5*(c - I));
+
+    // Calculate the 2nd Piola Kirchhoff stress
+    const volSymmTensorField S(2.0*mu_*E + lambda_*tr(E)*I);
+
+    // Convert the 2nd Piola Kirchhoff stress to the Cauchy stress
+    // sigma = (1.0/J)*symm(F() & S & F().T());
+    sigma = (1.0/J_())*transform(F_(), S);
 }
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -82,12 +101,23 @@ Foam::regionTypes::solidStVK::solidStVK
     lambda_(nu_*E_/((1.0 + nu_)*(1.0 - 2.0*nu_))),
     threeK_(E_/(1.0 - 2.0*nu_)),
 
+    F_(nullptr),
+    Finv_(nullptr),
+    J_(nullptr),
+    impK_(nullptr),
+    impKf_(nullptr),
+    rImpK_(nullptr),
+
     D_(nullptr),
+    DD_(nullptr),
     pointD_(nullptr),
+    pointDD_(nullptr),
     U_(nullptr),
     gradD_(nullptr),
+    gradDD_(nullptr),
     sigma_(nullptr),
-    DPrevOuterIter_(nullptr)
+
+    stabilisationPtr_()
 {
     // Correct Lamé coefficients for plane stress
     Switch planeStress(mechanicalProperties_.lookup("planeStress"));
@@ -101,33 +131,87 @@ Foam::regionTypes::solidStVK::solidStVK
         threeK_ = E_/(1.0 - nu_);
     }
 
-    //D_ = lookupOrRead<volVectorField>(mesh(), "D");
-
-    D_.reset
+    F_ = lookupOrRead<volTensorField>
     (
-        new volVectorField
-        (
-            IOobject
-            (
-                "D",
-                runTime.timeName(),
-                mesh(),
-                IOobject::MUST_READ,
-                IOobject::AUTO_WRITE
-            ),
-            mesh()
-        )
+        mesh(),
+        "F",
+        dimensionedTensor("I", dimless, I)
+    );
+
+    Finv_ = lookupOrRead<volTensorField>
+    (
+        mesh(),
+        "Finv",
+        dimensionedTensor("I", dimless, I)
+        // false,
+        // false,
+        // inv(F_)
+    );
+
+    J_ = lookupOrRead<volScalarField>
+    (
+        mesh(),
+        "J",
+        dimensionedScalar("1", dimless, 1.0)
+        // false,
+        // false,
+        // det(F_)
+    );
+
+    impK_ = lookupOrRead<volScalarField>
+    (
+        mesh(),
+        "impK",
+        (2.0*mu_ + lambda_)
+    );
+
+    impKf_ = lookupOrRead<surfaceScalarField>
+    (
+        mesh(),
+        "impKf",
+        (2.0*mu_ + lambda_)
+    );
+
+    rImpK_ = lookupOrRead<volScalarField>
+    (
+        mesh(),
+        "rImpK",
+        false,
+        false,
+        1.0/impK_()
+    );
+
+    D_ = lookupOrRead<volVectorField>
+    (
+        mesh(),
+        "D"
+    );
+
+    DD_ = lookupOrRead<volVectorField>
+    (
+        mesh(),
+        "DD",
+        dimensionedVector("0", dimLength, vector::zero)
     );
 
     gradD_ = lookupOrRead<volTensorField>
     (
         mesh(),
         "gradD",
-        // false,
         // true,
-        //fvc::grad(D_())
-        dimensionedTensor("0", dimless, tensor::zero),
-        true
+        // false,
+        // fvc::grad(D_())
+        dimensionedTensor("0", dimless, tensor::zero)
+    );
+
+    gradDD_ = lookupOrRead<volTensorField>
+    (
+        mesh(),
+        "gradDD",
+        // true,
+        // false,
+        // fvc::grad(DD_())
+        dimensionedTensor("0", dimless, tensor::zero)
     );
 
     // Change lookupOrRead functionality to also handle pointMesh fields
@@ -144,11 +228,28 @@ Foam::regionTypes::solidStVK::solidStVK
                 IOobject::AUTO_WRITE
             ),
             pointMesh::New(mesh()),
-            dimensionedVector("", vector::zero)
+            dimensionedVector("0", vector::zero)
         )
     );
     cpi_.interpolate(D_(), pointD_());
-    pointD_->storePrevIter();
+
+    pointDD_.reset
+    (
+        new pointVectorField
+        (
+            IOobject
+            (
+                "pointDD",
+                mesh().time().timeName(),
+                mesh(),
+                IOobject::READ_IF_PRESENT,
+                IOobject::AUTO_WRITE
+            ),
+            pointMesh::New(mesh()),
+            dimensionedVector("0", vector::zero)
+        )
+    );
+    cpi_.interpolate(DD_(), pointDD_());
 
     U_ = lookupOrRead<volVectorField>
     (
@@ -178,13 +279,32 @@ Foam::regionTypes::solidStVK::solidStVK
         true
     );
 
-    DPrevOuterIter_ = lookupOrRead<volVectorField>
+    // Force old time fields to be stored
+    D_().oldTime().oldTime();
+    DD_().oldTime().oldTime();
+    pointD_().oldTime();
+    pointDD_().oldTime();
+    gradD_().oldTime();
+    gradDD_().oldTime();
+    sigma_().oldTime();
+
+    // Create stabilisation object
+    if (!mechanicalProperties_.found("stabilisation"))
+    {
+        // If the stabilisation sub-dict is not found, we will add it with
+        // default settings
+        dictionary stabDict;
+        stabDict.add("type", "RhieChow");
+        stabDict.add("scaleFactor", 0.1);
+        mechanicalProperties_.add("stabilisation", stabDict);
+    }
+
+    stabilisationPtr_.set
     (
-        mesh(),
-        "DPrevOuterIter",
-        false,
-        true,
-        D_()
+        new momentumStabilisation
+        (
+            mechanicalProperties_.subDict("stabilisation")
+        )
     );
 }
 
@@ -198,11 +318,11 @@ Foam::regionTypes::solidStVK::~solidStVK()
 
 void Foam::regionTypes::solidStVK::correct()
 {
-    pointD_().storePrevIter();
+    // pointD_().storePrevIter();
 
     D_().correctBoundaryConditions();
 
-    DPrevOuterIter_() = D_();
+    // DPrevOuterIter_() = D_();
 }
 
 
@@ -214,18 +334,16 @@ Foam::scalar Foam::regionTypes::solidStVK::getMinDeltaT()
 
 void Foam::regionTypes::solidStVK::setCoupledEqns()
 {
-
-    #   include "solidStVKDdtCoeffs.H"
-
     D_().storePrevIter();
 
     DEqn =
     (
-        rho_*(Cn*fvm::ddt(D_()) - Co*U_().oldTime() + Coo*U_().oldTime().oldTime())
+        rho_*fvm::d2dt2(D_())
      ==
-        fvm::laplacian(2*mu_ + lambda_, D_(), "laplacian(DD,D)")
-      - fvc::laplacian(2*mu_ + lambda_, D_(), "laplacian(DD,D)")
-      + fvc::div(sigma_() & (I + gradD_()))
+        fvm::laplacian(impKf_(), D_(), "laplacian(DD,D)")
+      - fvc::laplacian(impKf_(), D_(), "laplacian(DD,D)")
+      + fvc::div(J_()*Finv_() & sigma_())
+      + stabilisationPtr_().stabilisation(DD_(), gradDD_(), impK_)
     );
 
     fvVectorMatrices.set
@@ -242,16 +360,34 @@ void Foam::regionTypes::solidStVK::postSolve()
 {
     D_().relax();
 
-    gradD_() = fvc::grad(D_());
-    sigma_() = symm((mu_*(gradD_() + gradD_().T()))
-           + ((lambda_*I)*tr(gradD_()))
-           + (mu_*(gradD_() & gradD_().T()))
-           + (0.5*lambda_*I*tr(gradD_() & gradD_().T())));
+    // Increment of displacement
+    DD_() = D_() - D_().oldTime();
 
+    // Update gradient of displacement
+    gradD_() = fvc::grad(D_());
+
+    // Update gradient of displacement increment
+    gradDD_() = gradD_() - gradD_().oldTime();
+
+    // Total deformation gradient
+    F_() = I + gradD_().T();
+
+    // Inverse of the deformation gradient
+    Finv_() = inv(F_());
+
+    // Jacobian of the deformation gradient
+    J_() = det(F_());
+
+    // Calculate the cauchy stress
+    correctSigma(sigma_());
+
+    // Interpolate cell displacements to vertices
     cpi_.interpolate(D_(), pointD_());
 
-    pointD_().correctBoundaryConditions();
+    // Increment of point displacement
+    pointDD_() = pointD_() - pointD_().oldTime();
 
+    // Velocity
     U_() = fvc::ddt(D_());
 }
 

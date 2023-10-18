@@ -244,11 +244,7 @@ backwardD2dt2Scheme<Type>::fvmD2dt2
         )
     );
 
-#ifdef FOAMEXTEND
     fvMatrix<Type>& fvm = tfvm();
-#else
-    fvMatrix<Type>& fvm = tfvm.ref();
-#endif
 
     const scalar rDeltaT = 1.0/deltaT_();
     const scalar deltaT = deltaT_();
@@ -261,7 +257,6 @@ backwardD2dt2Scheme<Type>::fvmD2dt2
     fvm = coefft*dimensionedScalar("rDeltaT", dimless/dimTime, rDeltaT)
        *backwardDdtScheme<Type>(mesh()).fvmDdt(vf);
 
-#ifdef FOAMEXTEND
     fvm.source() += rDeltaT*mesh().V()*
     (
         coefft0*backwardDdtScheme<Type>
@@ -273,19 +268,6 @@ backwardD2dt2Scheme<Type>::fvmD2dt2
             mesh()
         ).fvcDdt(vf.oldTime().oldTime())().internalField()
     );
-#else
-    fvm.source() += rDeltaT*mesh().V()*
-    (
-        coefft0*backwardDdtScheme<Type>
-        (
-            mesh()
-        ).fvcDdt(vf.oldTime())().primitiveField()
-      - coefft00*backwardDdtScheme<Type>
-        (
-            mesh()
-        ).fvcDdt(vf.oldTime().oldTime())().primitiveField()
-    );
-#endif
 
     return tfvm;
 }
@@ -327,11 +309,7 @@ backwardD2dt2Scheme<Type>::fvmD2dt2
         )
     );
 
-#ifdef FOAMEXTEND
     fvMatrix<Type>& fvm = tfvm();
-#else
-    fvMatrix<Type>& fvm = tfvm.ref();
-#endif
 
     const scalar rDeltaT = 1.0/deltaT_();
     const scalar deltaT = deltaT_();
@@ -344,7 +322,6 @@ backwardD2dt2Scheme<Type>::fvmD2dt2
     fvm = coefft*rho*dimensionedScalar("rDeltaT", dimless/dimTime, rDeltaT)
        *backwardDdtScheme<Type>(mesh()).fvmDdt(vf);
 
-#ifdef FOAMEXTEND
     fvm.source() += rDeltaT*rho*mesh().V()*
     (
         coefft0*backwardDdtScheme<Type>
@@ -356,19 +333,6 @@ backwardD2dt2Scheme<Type>::fvmD2dt2
             mesh()
         ).fvcDdt(vf.oldTime().oldTime())().internalField()
     );
-#else
-    fvm.source() += rDeltaT*rho*mesh().V()*
-    (
-        coefft0*backwardDdtScheme<Type>
-        (
-            mesh()
-        ).fvcDdt(vf.oldTime())().primitiveField()
-      - coefft00*backwardDdtScheme<Type>
-        (
-            mesh()
-        ).fvcDdt(vf.oldTime().oldTime())().primitiveField()
-    );
-#endif
 
     return tfvm;
 }
@@ -410,11 +374,7 @@ backwardD2dt2Scheme<Type>::fvmD2dt2
         )
     );
 
-#ifdef FOAMEXTEND
     fvMatrix<Type>& fvm = tfvm();
-#else
-    fvMatrix<Type>& fvm = tfvm.ref();
-#endif
 
     const scalar rDeltaT = 1.0/deltaT_();
     const scalar deltaT = deltaT_();
@@ -427,7 +387,6 @@ backwardD2dt2Scheme<Type>::fvmD2dt2
     fvm = coefft*rho*dimensionedScalar("rDeltaT", dimless/dimTime, rDeltaT)
        *backwardDdtScheme<Type>(mesh()).fvmDdt(vf);
 
-#ifdef FOAMEXTEND
     fvm.source() += rDeltaT*mesh().V()*
     (
         coefft0*rho.oldTime()*backwardDdtScheme<Type>
@@ -439,19 +398,6 @@ backwardD2dt2Scheme<Type>::fvmD2dt2
             mesh()
         ).fvcDdt(vf.oldTime().oldTime())().internalField()
     );
-#else
-    fvm.source() += rDeltaT*mesh().V()*
-    (
-        coefft0*rho.oldTime()*backwardDdtScheme<Type>
-        (
-            mesh()
-        ).fvcDdt(vf.oldTime())().primitiveField()
-      - coefft00*rho.oldTime().oldTime()*backwardDdtScheme<Type>
-        (
-            mesh()
-        ).fvcDdt(vf.oldTime().oldTime())().primitiveField()
-    );
-#endif
 
     return tfvm;
 }

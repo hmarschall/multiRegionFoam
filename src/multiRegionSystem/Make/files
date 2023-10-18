@@ -1,5 +1,8 @@
 mergePolyMesh.C
 
+numerics = ./../numerics
+$(numerics)/backwardD2dt2Scheme/backwardD2dt2Schemes.C
+
 dnaControl = ./../dnaSolutionControl
 $(dnaControl)/dnaControl.C
 
@@ -12,6 +15,8 @@ $(regions)/transportTemperature/transportTemperature.C
 $(regions)/icoFluid/icoFluid.C
 $(regions)/pUCoupledIcoFluid/pUCoupledIcoFluid.C
 $(regions)/interTrackFluid/interTrackFluid.C
+
+$(regions)/solidStVK/momentumStabilisation/momentumStabilisation.C
 $(regions)/solidStVK/solidStVK.C
 
 ../regionProperties/regionProperties.C

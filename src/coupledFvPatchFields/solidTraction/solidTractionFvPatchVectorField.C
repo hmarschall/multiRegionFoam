@@ -359,60 +359,42 @@ void solidTractionFvPatchVectorField::updateCoeffs()
         press -= p;
     }
 
-    // Lookup the solidModel object
-    //const solidModel& solMod = lookupSolidModel(patch().boundaryMesh().mesh());
+    // Patch implicit stiffness field
+    const fvPatchField<scalar>& impK =
+        patch().lookupPatchField<volScalarField, scalar>("impK");
 
-    const dictionary& mechanicalProperties =
-        db().lookupObject<IOdictionary>("mechanicalProperties");
+    // Patch reciprocal implicit stiffness field
+    const fvPatchField<scalar>& rImpK =
+        patch().lookupPatchField<volScalarField, scalar>("rImpK");
 
-    dimensionedScalar rho
-    (
-        mechanicalProperties.lookup("rho")
-    );
-
-    dimensionedScalar E
-    (
-        mechanicalProperties.lookup("E")
-    );
-
-    dimensionedScalar nu
-    (
-        mechanicalProperties.lookup("nu")
-    );
-
-    dimensionedScalar mu = E/(2.0*(1.0 + nu));
-    dimensionedScalar lambda = nu*E/((1.0 + nu)*(1.0 - 2.0*nu));
-    dimensionedScalar threeK = E/(1.0 - 2.0*nu);
-
-    Switch planeStress(mechanicalProperties.lookup("planeStress"));
-
-    if (planeStress)
-    {
-        lambda = nu*E/((1.0 + nu)*(1.0 - nu));
-        threeK = E/(1.0 - nu);
-    }
-    scalar twoMuLambda = (2*mu + lambda).value();
-
-    vectorField n = patch().nf();
-
-        // Lookup the gradient field
-    const fvPatchField<symmTensor>& sigma =
-        patch().lookupPatchField<volSymmTensorField, symmTensor>("sigma");
-
+    // Patch gradient
     const fvPatchField<tensor>& gradD =
         patch().lookupPatchField<volTensorField, tensor>("gradD");
 
-    scalarField SoS0 = mag(n & inv(I+gradD.T()))*det(I+gradD.T());
+    // Patch Cauchy stress
+    const fvPatchField<symmTensor>& sigma =
+        patch().lookupPatchField<volSymmTensorField, symmTensor>("sigma");
+
+    // Patch total deformation gradient inverse
+    const fvPatchField<tensor>& Finv =
+        patch().lookupPatchField<volTensorField, tensor>("Finv");
+
+    //- Patch normals in initial/undeformed configuration
+    const vectorField n(patch().nf());
+
+    // Patch unit normals (deformed configuration)
+    vectorField nCurrent(Finv.T() & n);
+    nCurrent /= mag(nCurrent);
 
     // Set surface-normal gradient on the patch corresponding to the desired
     // traction
     gradient() =
         relaxFac_*
         (
-            (((traction_ + press*((n & inv(I+gradD.T()))
-          / mag(n & inv(I+gradD.T()))))*SoS0) & (inv(I+gradD)))
-          + twoMuLambda*fvPatchField<vector>::snGrad() - (n & sigma)
-        )/twoMuLambda
+            (traction_ - nCurrent*press)
+          - (nCurrent & sigma)
+          + impK*(n & gradD)
+        )*rImpK
         + (1.0 - relaxFac_)*gradient();
 
     fixedGradientFvPatchVectorField::updateCoeffs();

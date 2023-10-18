@@ -78,6 +78,7 @@ Description
 #include "CrankNicolsonDdtScheme.H"
 #include "backwardDdtScheme.H"
 #include "steadyStateDdtScheme.H"
+#include "momentumStabilisation.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -95,6 +96,8 @@ class solidStVK
 :
     public regionType
 {
+    // Private Data
+
         //- name
         word regionName_;
 
@@ -103,6 +106,7 @@ class solidStVK
 
         // Properties
         IOdictionary mechanicalProperties_;
+
         dimensionedScalar rho_;
         dimensionedScalar E_;
         dimensionedScalar nu_;
@@ -111,15 +115,32 @@ class solidStVK
         dimensionedScalar threeK_;
 
         // Finite volume fields pointers
+        autoPtr<volTensorField> F_;
+        autoPtr<volTensorField> Finv_;
+        autoPtr<volScalarField> J_;
+        autoPtr<volScalarField> impK_;
+        autoPtr<surfaceScalarField> impKf_;
+        autoPtr<volScalarField> rImpK_;
+
+
         autoPtr<volVectorField> D_;
+        autoPtr<volVectorField> DD_;
         autoPtr<pointVectorField> pointD_;
+        autoPtr<pointVectorField> pointDD_;
         autoPtr<volVectorField> U_;
         autoPtr<volTensorField> gradD_;
+        autoPtr<volTensorField> gradDD_;
         autoPtr<volSymmTensorField> sigma_;
-        autoPtr<volVectorField> DPrevOuterIter_;
+
+        //- Stabilisation term for momentum equation
+        autoPtr<momentumStabilisation> stabilisationPtr_;
 
         //- Cached deformation matrix
         tmp<fvVectorMatrix> DEqn;
+
+    // Private Member Functions
+
+        void correctSigma(volSymmTensorField& sigma);
 
 public:
 
@@ -139,6 +160,67 @@ public:
     // Member Functions
 
         // Access
+
+        const volTensorField& F() const
+        {
+            return F_();
+        }
+
+        volTensorField& F()
+        {
+            return F_();
+        }
+
+        const volTensorField& Finv() const
+        {
+            return Finv_();
+        }
+
+        volTensorField& Finv()
+        {
+            return Finv_();
+        }
+
+        const volScalarField& J() const
+        {
+            return J_();
+        }
+
+        volScalarField& J()
+        {
+            return J_();
+        }
+
+        const volScalarField& impK() const
+        {
+            return impK_();
+        }
+
+        volScalarField& impK()
+        {
+            return impK_();
+        }
+
+        const surfaceScalarField& impKf() const
+        {
+            return impKf_();
+        }
+
+        surfaceScalarField& impKf()
+        {
+            return impKf_();
+        }
+
+        const volScalarField& rImpK() const
+        {
+            return rImpK_();
+        }
+
+        volScalarField& rImpK()
+        {
+            return rImpK_();
+        }
+
         const volVectorField& D() const
         {
             return D_();
@@ -147,6 +229,17 @@ public:
         volVectorField& D()
         {
             return D_();
+        }
+
+        // Access
+        const volVectorField& DD() const
+        {
+            return DD_();
+        }
+
+        volVectorField& DD()
+        {
+            return DD_();
         }
 
         const pointVectorField& pointD() const
@@ -159,6 +252,16 @@ public:
             return pointD_();
         }
 
+        const pointVectorField& pointDD() const
+        {
+            return pointDD_();
+        }
+
+        pointVectorField& pointDD()
+        {
+            return pointDD_();
+        }
+
         const volVectorField& U() const
         {
             return U_();
@@ -168,6 +271,38 @@ public:
         {
             return U_();
         }
+
+        const volTensorField& gradD() const
+        {
+            return gradD_();
+        }
+
+        volTensorField& gradD()
+        {
+            return gradD_();
+        }
+
+        const volTensorField& gradDD() const
+        {
+            return gradDD_();
+        }
+
+        volTensorField& gradDD()
+        {
+            return gradDD_();
+        }
+
+        const volSymmTensorField& sigma() const
+        {
+            return sigma_();
+        }
+
+        volSymmTensorField& sigma()
+        {
+            return sigma();
+        }
+
+        // regionType member functions
 
         virtual word regionTypeName() const
         {
