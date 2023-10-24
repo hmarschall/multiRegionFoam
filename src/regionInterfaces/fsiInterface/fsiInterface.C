@@ -57,7 +57,8 @@ Foam::regionInterfaces::fsiInterface::fsiInterface
 )
 :
     regionInterfaceType(type, dict, runTime, patchA, patchB),
-    dict_(dict.subDict(type + "Coeffs"))
+    dict_(dict.subDict(type + "Coeffs")),
+    totalForce_(vector::zero)
 {}
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
@@ -135,6 +136,11 @@ void Foam::regionInterfaces::fsiInterface::makeInterfaceToInterface() const
     const_cast<fvMesh&>(*solidMesh).moving(false);
 }
 
+void Foam::regionInterfaces::fsiInterface::setTotalForce(const vector& totalForce) const
+{
+    totalForce_ = totalForce;
+}
+
 void Foam::regionInterfaces::fsiInterface::correct()
 {
     // do nothing
@@ -143,5 +149,11 @@ void Foam::regionInterfaces::fsiInterface::correct()
 Foam::scalar Foam::regionInterfaces::fsiInterface::getMinDeltaT()
 {
     return GREAT;
+}
+
+void Foam::regionInterfaces::fsiInterface::info() const
+{
+    Info<< "Total force on solid interface: "
+        << totalForce_<< endl;
 }
 // ************************************************************************* //

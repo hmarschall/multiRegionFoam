@@ -98,6 +98,9 @@ class fsiInterface
         // interface dictionary
         dictionary dict_;
 
+        // Total force on solid
+        mutable vector totalForce_;
+
 public:
 
     TypeName("fsiInterface");
@@ -125,14 +128,16 @@ protected:
 public:
 
     // Correct interface physics
+    void setTotalForce(const vector& totalForce) const;
+
+    // Correct interface physics
     virtual void correct();
 
     // Get min time step based on stability criteria
     virtual scalar getMinDeltaT();
 
     // Log interface specific information
-    virtual void info() const
-    {};
+    virtual void info() const;
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

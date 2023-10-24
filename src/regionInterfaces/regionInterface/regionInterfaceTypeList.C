@@ -260,6 +260,8 @@ void Foam::regionInterfaceTypeList::update()
        {
            this->operator[](i).updateInterpolatorAndGlobalPatches();
        }
+
+       this->operator[](i).info();
    }
 }
 
