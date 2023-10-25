@@ -43,7 +43,7 @@ void Foam::aitkenRelaxation<Type>::updateAitkenFactor(Field<Type> &curFld)
 template<>
 inline void Foam::aitkenRelaxation<Foam::vector>::updateAitkenFactor(Field<vector> &curFld)
 {
-    if (this->corr_ == 1)
+    if (this->corr_ < 3)
     {
         aitkenRelax_ =
             (aitkenRelax_ < this->initRelax_)
@@ -72,6 +72,7 @@ inline void Foam::aitkenRelaxation<Foam::vector>::updateAitkenFactor(Field<vecto
                       - this->prevResFld_
                     )
                 )
+              + SMALL
             )
         );
 
@@ -89,13 +90,24 @@ inline void Foam::aitkenRelaxation<Foam::vector>::updateAitkenFactor(Field<vecto
 
         aitkenRelax_ = 1.0;
     }
+    else if (aitkenRelax_ < SMALL)
+    {
+        Info<< nl
+            << "Aitken relaxation tending to 0" << nl
+            << "Setting Aitken relaxation factor to intial relaxation factor of "
+            << this->initRelax_
+            << endl;
+
+        aitkenRelax_ = this->initRelax_;
+    }
+
 }
 
 
 template<>
 inline void Foam::aitkenRelaxation<Foam::scalar>::updateAitkenFactor(Field<scalar> &curFld)
 {
-    if (this->corr_ == 1)
+    if (this->corr_ < 3)
     {
         aitkenRelax_ =
             (aitkenRelax_ < this->initRelax_)
@@ -124,6 +136,7 @@ inline void Foam::aitkenRelaxation<Foam::scalar>::updateAitkenFactor(Field<scala
                       - this->prevResFld_
                     )
                 )
+              + SMALL
             )
         );
 
@@ -141,6 +154,16 @@ inline void Foam::aitkenRelaxation<Foam::scalar>::updateAitkenFactor(Field<scala
             << endl;
 
         aitkenRelax_ = 1.0;
+    }
+    else if (aitkenRelax_ < SMALL)
+    {
+        Info<< nl
+            << "Aitken relaxation tending to 0" << nl
+            << "Setting Aitken relaxation factor to intial relaxation factor of "
+            << this->initRelax_
+            << endl;
+
+        aitkenRelax_ = this->initRelax_;
     }
 }
 
