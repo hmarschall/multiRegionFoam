@@ -44,9 +44,6 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
 :
     fixedValueFvPatchField<Type>(p, iF),
     interfaceToInterfaceCoupleManager(p),
-    neighbourRegionName_(),
-    neighbourPatchName_(),
-    neighbourFieldName_(),
     kName_("k"),
     KName_("K"),
     accModel_
@@ -72,10 +69,7 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
 )
 :
     fixedValueFvPatchField<Type>(grcj, p, iF, mapper),
-    interfaceToInterfaceCoupleManager(p),
-    neighbourRegionName_(grcj.neighbourRegionName_),
-    neighbourPatchName_(grcj.neighbourPatchName_),
-    neighbourFieldName_(grcj.neighbourFieldName_),
+    interfaceToInterfaceCoupleManager(grcj),
     kName_(grcj.kName_),
     KName_(grcj.KName_),
     accModel_(grcj.accModel_, false),
@@ -93,9 +87,6 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
 :
     fixedValueFvPatchField<Type>(p, iF),
     interfaceToInterfaceCoupleManager(p, dict),
-    neighbourRegionName_(dict.lookup("neighbourRegionName")),
-    neighbourPatchName_(dict.lookup("neighbourPatchName")),
-    neighbourFieldName_(this->dimensionedInternalField().name()),
     kName_(dict.lookup("k")),
     KName_(dict.lookupOrDefault<word>("K", word::null)),
     accModel_
@@ -133,9 +124,6 @@ genericRegionCoupledJumpFvPatchField<Type>::genericRegionCoupledJumpFvPatchField
 :
     fixedValueFvPatchField<Type>(grcj, iF),
     interfaceToInterfaceCoupleManager(grcj),
-    neighbourRegionName_(grcj.neighbourRegionName_),
-    neighbourPatchName_(grcj.neighbourPatchName_),
-    neighbourFieldName_(grcj.neighbourFieldName_),
     kName_(grcj.kName_),
     KName_(grcj.KName_),
     accModel_(grcj.accModel_, false),
@@ -406,12 +394,7 @@ void genericRegionCoupledJumpFvPatchField<Type>::write
 ) const
 {
     fvPatchField<Type>::write(os);
-    os.writeKeyword("neighbourRegionName") << neighbourRegionName_
-        << token::END_STATEMENT << nl;
-    os.writeKeyword("neighbourPatchName") << neighbourPatchName_
-        << token::END_STATEMENT << nl;
-    os.writeKeyword("neighbourFieldName") << neighbourFieldName_
-        << token::END_STATEMENT << nl;
+    interfaceToInterfaceCoupleManager::writeEntries(os);
     os.writeKeyword("k") << kName_ << token::END_STATEMENT << nl;
     accModel_->write(os);
     os.writeKeyword("nonOrthCorr") << nonOrthCorr_

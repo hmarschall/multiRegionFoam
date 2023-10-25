@@ -90,15 +90,6 @@ class genericRegionCoupledFluxFvPatchField
     public interfaceToInterfaceCoupleManager
 {
 
-    // Private data
-
-        //- Neighbour names
-        word neighbourRegionName_;
-
-        word neighbourPatchName_;
-
-        word neighbourFieldName_;
-
 protected:
 
     // Protected data

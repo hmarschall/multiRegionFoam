@@ -176,10 +176,10 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 :
     patch_(patch),
     typeName_(type),
+    localRegion_(patch_.boundaryMesh().mesh()),
     neighbourRegionName_(),
     neighbourPatchName_(),
-    neighbourFieldName_(),
-    localRegion_(patch_.boundaryMesh().mesh())
+    neighbourFieldName_()
 {}
 
 
@@ -192,10 +192,10 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 :
     patch_(patch),
     typeName_(dict.lookup("interfaceType")),
+    localRegion_(patch_.boundaryMesh().mesh()),
     neighbourRegionName_(dict.lookup("neighbourRegionName")),
     neighbourPatchName_(dict.lookup("neighbourPatchName")),
-    neighbourFieldName_(dict.lookup("neighbourFieldName")),
-    localRegion_(patch_.boundaryMesh().mesh())
+    neighbourFieldName_(dict.lookup("neighbourFieldName"))
 {}
 
 
@@ -206,10 +206,10 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 :
     patch_(pcm.refPatch()),
     typeName_(pcm.typeName_),
+    localRegion_(patch_.boundaryMesh().mesh()),
     neighbourRegionName_(pcm.neighbourRegionName()),
     neighbourPatchName_(pcm.neighbourPatchName()),
-    neighbourFieldName_(pcm.neighbourFieldName()),
-    localRegion_(patch_.boundaryMesh().mesh())
+    neighbourFieldName_(pcm.neighbourFieldName())
 {}
 
 // * * * * * * * * * * * * * * * * Destructor  * * * * * * * * * * * * * * * //
@@ -221,6 +221,8 @@ Foam::interfaceToInterfaceCoupleManager::~interfaceToInterfaceCoupleManager()
 
 void Foam::interfaceToInterfaceCoupleManager::writeEntries(Ostream& os) const
 {
+    os.writeKeyword("interfaceType");
+    os << typeName_ << token::END_STATEMENT << nl;
     os.writeKeyword("neighbourRegionName");
     os << neighbourRegionName_ << token::END_STATEMENT << nl;
     os.writeKeyword("neighbourPatchName");

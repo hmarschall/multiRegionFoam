@@ -96,18 +96,6 @@ class interfaceToInterfaceCoupleManager
         //- Reference to the local fvPatch
         const fvPatch& patch_;
 
-        //- Region interface type name
-        word typeName_;
-
-        //- Name of neighbour region
-        word neighbourRegionName_;
-
-        //- Name of patch on the neighbour region
-        word neighbourPatchName_;
-
-        //- Name of field on the neighbour region
-        word neighbourFieldName_;
-
         //- Reference to the local region
         const fvMesh& localRegion_;
 
@@ -133,6 +121,18 @@ class interfaceToInterfaceCoupleManager
         void operator=(const interfaceToInterfaceCoupleManager&);
 
 protected:
+
+        //- Region interface type name
+        word typeName_;
+
+        //- Name of neighbour region
+        word neighbourRegionName_;
+
+        //- Name of patch on the neighbour region
+        word neighbourPatchName_;
+
+        //- Name of field on the neighbour region
+        word neighbourFieldName_;
 
         //- Reference to meshInterface
         const regionInterfaceType& rgInterface() const;
