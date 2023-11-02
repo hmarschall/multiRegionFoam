@@ -175,8 +175,8 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 )
 :
     patch_(patch),
-    typeName_(type),
     localRegion_(patch_.boundaryMesh().mesh()),
+    typeName_(type),
     neighbourRegionName_(),
     neighbourPatchName_(),
     neighbourFieldName_()
@@ -191,8 +191,8 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 )
 :
     patch_(patch),
-    typeName_(dict.lookup("interfaceType")),
     localRegion_(patch_.boundaryMesh().mesh()),
+    typeName_(dict.lookup("interfaceType")),
     neighbourRegionName_(dict.lookup("neighbourRegionName")),
     neighbourPatchName_(dict.lookup("neighbourPatchName")),
     neighbourFieldName_(dict.lookup("neighbourFieldName"))
@@ -205,8 +205,8 @@ Foam::interfaceToInterfaceCoupleManager::interfaceToInterfaceCoupleManager
 )
 :
     patch_(pcm.refPatch()),
-    typeName_(pcm.typeName_),
     localRegion_(patch_.boundaryMesh().mesh()),
+    typeName_(pcm.typeName_),
     neighbourRegionName_(pcm.neighbourRegionName()),
     neighbourPatchName_(pcm.neighbourPatchName()),
     neighbourFieldName_(pcm.neighbourFieldName())
