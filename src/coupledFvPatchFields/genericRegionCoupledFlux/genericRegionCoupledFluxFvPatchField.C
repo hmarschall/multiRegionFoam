@@ -241,6 +241,19 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
 template<class Type>
 scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
 {
+    if (useDirectFlux())
+    {
+        FatalErrorIn
+            ("scalarField"
+             "genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const")
+            << "Can not evaluate interface flux residual on patch "
+            << this->patch().name() << "\n"
+            << ", because it uses the direct flux definition.\n"
+            << "You might need to use an interface type that implements a\n"
+            << "specialized interface residual"
+            << abort(FatalError);
+    }
+
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>&
         nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
@@ -322,6 +335,19 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
 template<class Type>
 scalar genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
 {
+    if (useDirectFlux())
+    {
+        FatalErrorIn
+            ("scalar"
+             "genericRegionCoupledFluxFvPatchField<Type>::normResidual() const")
+            << "Can not evaluate interface flux residual on patch "
+            << this->patch().name() << "\n"
+            << ", because it uses the direct flux definition.\n"
+            << "You might need to use an interface type that implements a\n"
+            << "specialized interface residual"
+            << abort(FatalError);
+    }
+
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>&
         nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
@@ -385,6 +411,19 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
 template<class Type>
 scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
 {
+    if (useDirectFlux())
+    {
+        FatalErrorIn
+            ("scalar"
+             "genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const")
+            << "Can not evaluate interface flux residual on patch "
+            << this->patch().name() << "\n"
+            << ", because it uses the direct flux definition.\n"
+            << "You might need to use an interface type that implements a\n"
+            << "specialized interface residual"
+            << abort(FatalError);
+    }
+
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>&
         nbrField =

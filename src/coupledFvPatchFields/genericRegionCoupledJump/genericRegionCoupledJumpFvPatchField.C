@@ -244,6 +244,19 @@ tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::flux() const
 template<class Type>
 scalarField genericRegionCoupledJumpFvPatchField<Type>::rawResidual() const
 {
+    if (useDirectValue())
+    {
+        FatalErrorIn
+            ("scalarField"
+             "genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const")
+            << "Can not evaluate interface jump residual on patch "
+            << this->patch().name() << "\n"
+            << ", because it uses the direct value definition.\n"
+            << "You might need to use an interface type that implements a\n"
+            << "specialized interface residual"
+            << abort(FatalError);
+    }
+
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
         nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
@@ -303,6 +316,19 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::rawResidual() const
 template<class Type>
 scalar genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
 {
+    if (useDirectValue())
+    {
+        FatalErrorIn
+            ("scalar"
+             "genericRegionCoupledFluxFvPatchField<Type>::normResidual() const")
+            << "Can not evaluate interface jump residual on patch "
+            << this->patch().name() << "\n"
+            << ", because it uses the direct value definition.\n"
+            << "You might need to use an interface type that implements a\n"
+            << "specialized interface residual"
+            << abort(FatalError);
+    }
+
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
         nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
@@ -345,6 +371,19 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
 template<class Type>
 scalar genericRegionCoupledJumpFvPatchField<Type>::ofNormResidual() const
 {
+    if (useDirectValue())
+    {
+        FatalErrorIn
+            ("scalar"
+             "genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const")
+            << "Can not evaluate interface jump residual on patch "
+            << this->patch().name() << "\n"
+            << ", because it uses the direct value definition.\n"
+            << "You might need to use an interface type that implements a\n"
+            << "specialized interface residual"
+            << abort(FatalError);
+    }
+
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
         nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >

@@ -2,7 +2,7 @@
   =========                 |
   \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
    \\    /   O peration     | Fork:     foam-extend
-    \\  /    A nd           | Version:  4.1                                 
+    \\  /    A nd           | Version:  4.1
      \\/     M anipulation  |
 -------------------------------------------------------------------------------
 License
@@ -51,7 +51,10 @@ Acknowledgement
 
 Description
     Class for controling the Dirichlet-Neumann iteration procedure based on
-    the interface residuals
+    the interface residuals.
+
+    It can either use a single interface residual or use the jump and flux
+    residual separately.
 
     This file is part of the multiRegionFoam library.
 
@@ -95,8 +98,10 @@ public:
     struct fieldData
     {
         word name;
+        scalar maxIntRes;
         scalar maxJumpRes;
         scalar maxFluxRes;
+        Switch outputIntResField;
         Switch outputJumpResField;
         Switch outputFluxResField;
     };
@@ -119,12 +124,16 @@ protected:
         List<fieldData> dnaResControl_;
 
         //- List of max interface residuals for each subField
+        List<scalar> globalMaxIntRes_;
         List<scalar> globalMaxJumpRes_;
         List<scalar> globalMaxFluxRes_;
 
         //- Hashed ptr tables for residual fields
+        HashPtrTable<volScalarField> initIntResFlds_;
         HashPtrTable<volScalarField> initJumpResFlds_;
         HashPtrTable<volScalarField> initFluxResFlds_;
+
+        HashPtrTable<volScalarField> finalIntResFlds_;
         HashPtrTable<volScalarField> finalJumpResFlds_;
         HashPtrTable<volScalarField> finalFluxResFlds_;
 
@@ -144,6 +153,7 @@ protected:
         (
             const regionInterfaceType& interface,
             const word& fldName,
+            scalar& globalMaxIntRes,
             scalar& globalMaxJumpRes,
             scalar& globalMaxFluxRes
         );
@@ -152,6 +162,7 @@ protected:
         (
             const regionInterfaceType& interface,
             const word& fldName,
+            scalar& globalMaxIntRes,
             scalar& globalMaxJumpRes,
             scalar& globalMaxFluxRes
         );
@@ -161,6 +172,7 @@ protected:
         (
             const regionInterfaceType& interface,
             const word& fldName,
+            const Switch outputIntResField,
             const Switch outputJumpResField,
             const Switch outputFluxResField,
             bool final
@@ -170,6 +182,7 @@ protected:
         (
             const regionInterfaceType& interface,
             const word& fldName,
+            const Switch outputIntResField,
             const Switch outputJumpResField,
             const Switch outputFluxResField,
             bool final

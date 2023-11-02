@@ -93,6 +93,9 @@ Description
 
 #include "interfaceToInterfaceMapping.H"
 
+// #include "genericRegionCoupledFluxFvPatchField.H"
+// #include "genericRegionCoupledJumpFvPatchField.H"
+
 #include "MeshObject.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -411,6 +414,18 @@ public:
             (
                 const Field<Type>& fromField
             ) const;
+            //   from zone A/B points (to zone B/A points)
+            template<class Type>
+            tmp<Field<Type> > interpolatePointsFromA
+            (
+                const Field<Type>& fromField
+            ) const;
+
+            template<class Type>
+            tmp<Field<Type> > interpolatePointsFromB
+            (
+                const Field<Type>& fromField
+            ) const;
 
         // Edit
 
@@ -444,86 +459,54 @@ public:
             // Set deltaT based on interface stability criteria
             virtual scalar getMinDeltaT() = 0;
 
+            //- Uses only a single interface residual instead of a separate jump
+            //  and flux residual? Default: false
+            virtual Switch usesOneInterfaceRes() const
+            {
+                return false;
+            }
+
+            //- Couples fields on both sides of the interface?
+            template<class Type>
+            bool couplesField(const word& fldName) const;
+
+            //- Return raw jump residual field at interface
+            template<class Type>
+            scalarField rawJumpRes(const word& fldName) const;
+
+            //- Return raw flux residual field at interface
+            template<class Type>
+            scalarField rawFluxRes(const word& fldName) const;
+
+            virtual scalarField rawIntRes(const word& fldName) const
+            {
+                scalarField zeroField(this->patchA().size(), 0.0);
+                return zeroField;
+            };
+
+            //- Return normalised jump residual at interface
+            template<class Type>
+            scalar normJumpRes(const word& fldName) const;
+
+            //- Return normalised flux residual at interface
+            template<class Type>
+            scalar normFluxRes(const word& fldName) const;
+
+            //- Return normalised single interface residual
+            virtual scalar normIntRes(const word& fldName) const
+            {
+                return 0.0;
+            };
+
             // Log interface specific information
             virtual void info() const = 0;
 };
 
-template<class Type>
-tmp<Field<Type> > regionInterfaceType::interpolateFacesFromA
-(
-    const Field<Type>& fromField
-) const
-{
-    notImplemented
-    (
-        "regionInterfaceTypeTemplates.C\n"
-        "tmp<Field<Type> > regionInterfaceType::interpolateFacesFromA\n"
-        "(\n"
-        "const Field<Type>& fromField\n"
-        ") const\n"
-        "not implemented"
-    );
-
-    tmp<Field<Type> > ttoField
-    (
-        new Field<Type>(globalPatchB().globalPatch().size())
-    );
-
-    return ttoField;
-}
-
-template<class Type>
-tmp<Field<Type> > regionInterfaceType::interpolateFacesFromB
-(
-    const Field<Type>& fromField
-) const
-{
-    notImplemented
-    (
-        "regionInterfaceTypeTemplates.C\n"
-        "tmp<Field<Type> > regionInterfaceType::interpolateFacesFromB\n"
-        "(\n"
-        "const Field<Type>& fromField\n"
-        ") const\n"
-        "not implemented"
-    );
-
-    tmp<Field<Type> > ttoField
-    (
-        new Field<Type>(globalPatchA().globalPatch().size())
-    );
-
-    return ttoField;
-}
-
-//-Specialisations
-template<>
-tmp<Field<scalar> > regionInterfaceType::interpolateFacesFromA
-(
-    const Field<scalar>& fromField
-) const;
-
-template<>
-tmp<Field<vector> > regionInterfaceType::interpolateFacesFromA
-(
-    const Field<vector>& fromField
-) const;
-
-template<>
-tmp<Field<scalar> > regionInterfaceType::interpolateFacesFromB
-(
-    const Field<scalar>& fromField
-) const;
-
-template<>
-tmp<Field<vector> > regionInterfaceType::interpolateFacesFromB
-(
-    const Field<vector>& fromField
-) const;
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
+
+#include "regionInterfaceTypeTemplates.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

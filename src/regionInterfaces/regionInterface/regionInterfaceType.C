@@ -27,6 +27,7 @@ License
 #include "fixedGradientFaPatchFields.H"
 #include "regionInterfaceType.H"
 #include "OFstream.H"
+#include "scalar.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -108,6 +109,9 @@ void Foam::regionInterfaceType::makeInterfaceToInterface() const
             "makeInterfaceToInterface() const"
         )   << "Mapping object already set!" << abort(FatalError);
     }
+
+    Info<< "Creating new interpolator for regionInterfaceType "
+        << interfaceName() << endl;
 
     // Lookup the type
     const word type = regionInterfaceProperties_.lookupOrDefault<word>
@@ -478,9 +482,6 @@ const Foam::globalPolyPatch& Foam::regionInterfaceType::globalPatchB() const
 
 void Foam::regionInterfaceType::updateInterpolatorAndGlobalPatches()
 {
-    Info<< "Updating interpolator and global patches for regionInterfaceType "
-        << interfaceName() << endl;
-
     if (interfaceToInterfacePtr_.empty())
     {
         interfaceToInterface();
@@ -493,6 +494,9 @@ void Foam::regionInterfaceType::updateInterpolatorAndGlobalPatches()
          || (!moving() && changing())
         )
         {
+            Info<< "Updating interpolator and global patches for regionInterfaceType "
+                << interfaceName() << endl;
+
             // Clear current interpolators
             interfaceToInterfacePtr_.clear();
 
@@ -521,10 +525,9 @@ const Foam::Switch& Foam::regionInterfaceType::coupled() const
 {
     if (couplingStartTime_ > SMALL && !coupled_)
     {
-        if (runTime().value() > (couplingStartTime_ - SMALL))
+        if (runTime().value() >= couplingStartTime_)
         {
-            InfoIn("regionInterfaceType::coupled()")
-                << "Enabling interface coupling for interface "
+            Info<< "Enabling interface coupling for interface "
                 << interfaceName()
                 << endl;
 
