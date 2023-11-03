@@ -77,6 +77,8 @@ Description
 #include "HashPtrTable.H"
 #include "pointMesh.H"
 #include "pointField.H"
+#include "pointPatchField.H"
+#include "primitivePatchInterpolation.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -135,6 +137,11 @@ public:
 
     // Get min time step based on stability criteria
     virtual scalar getMinDeltaT();
+
+    // Specific interface residual for FSI interfaces
+    virtual scalarField rawIntRes(const word& fldName) const;
+
+    virtual scalar normIntRes(const word& fldName) const;
 
     // Log interface specific information
     virtual void info() const;

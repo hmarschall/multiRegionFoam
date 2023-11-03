@@ -24,6 +24,7 @@ License
 \*---------------------------------------------------------------------------*/
 
 #include "fsiInterface.H"
+#include "scalar.H"
 #include "surfaceInterpolationScheme.H"
 #include "zeroGradientFvPatchFields.H"
 #include "addToRunTimeSelectionTable.H"
@@ -82,13 +83,11 @@ void Foam::regionInterfaces::fsiInterface::makeInterfaceToInterface() const
 
     // Assume meshA as solid region
     const fvMesh* solidMesh = &meshA();
-    const fvMesh* fluidMesh = &meshB();
 
     // Check if meshB is solid mesh
     if (meshB().foundObject<pointVectorField>("pointD"))
     {
         solidMesh = &meshB();
-        fluidMesh = &meshA();
     }
 
     Info<< endl << "Moving " << solidMesh->name()
@@ -136,7 +135,8 @@ void Foam::regionInterfaces::fsiInterface::makeInterfaceToInterface() const
     const_cast<fvMesh&>(*solidMesh).moving(false);
 }
 
-void Foam::regionInterfaces::fsiInterface::setTotalForce(const vector& totalForce) const
+void
+Foam::regionInterfaces::fsiInterface::setTotalForce(const vector& totalForce) const
 {
     totalForce_ = totalForce;
 }
@@ -149,6 +149,184 @@ void Foam::regionInterfaces::fsiInterface::correct()
 Foam::scalar Foam::regionInterfaces::fsiInterface::getMinDeltaT()
 {
     return GREAT;
+}
+
+Foam::scalarField
+Foam::regionInterfaces::fsiInterface::rawIntRes(const word& fldName) const
+{
+    //- RESIDUAL BASED ON TOTAL INTERFACE POINTS POSITIONS
+
+    // Assume meshA as solid region
+    bool solidMeshIsMeshA = true;
+    const fvMesh* solidMesh = &meshA();
+    const fvMesh* fluidMesh = &meshB();
+    const fvPatch* solidPatch = &patchA();
+    const fvPatch* fluidPatch = &patchB();
+
+    // Check if meshB is solid mesh instead
+    if (meshB().foundObject<pointVectorField>("pointD"))
+    {
+        solidMeshIsMeshA = false;
+        solidMesh = &meshB();
+        fluidMesh = &meshA();
+        solidPatch = &patchB();
+        fluidPatch = &patchA();
+    }
+
+    vectorField pResidual(patchA().patch().nPoints());
+
+    const vectorField solidPatchPointD
+    (
+        solidMesh->lookupObject<pointVectorField>("pointD").internalField(),
+        solidPatch->patch().meshPoints()
+    );
+
+    vectorField solidPatchPoints
+    (
+        solidMesh->allPoints(),
+        solidPatch->patch().meshPoints()
+    );
+
+    // Location of solid patch points are the patch points
+    // + their displacement
+    solidPatchPoints = solidPatchPoints + solidPatchPointD;
+
+    const vectorField fluidPatchPoints
+    (
+        fluidMesh->allPoints(),
+        fluidPatch->patch().meshPoints()
+    );
+
+    if (solidMeshIsMeshA)
+    {
+        // Interpolate the fluid points to the solid side
+        tmp<vectorField> tfluidPatchPointsToSolid =
+            interpolatePointsFromB<vector>(fluidPatchPoints);
+
+        vectorField fluidPatchPointsToSolid = tfluidPatchPointsToSolid();
+
+        // Calculate residual
+        pResidual = solidPatchPoints - fluidPatchPointsToSolid;
+    }
+    else
+    {
+        // Interpolate the solid points to the fluid side
+        tmp<vectorField> tsolidPatchPointsToFluid =
+            interpolatePointsFromB<vector>(solidPatchPoints);
+
+        vectorField solidPatchPointsToFluid = tsolidPatchPointsToFluid();
+
+        //Calculate residual
+        pResidual = solidPatchPointsToFluid - fluidPatchPoints;
+    }
+
+    const primitivePatchInterpolation pfi(patchA().patch());
+
+    tmp<vectorField> residual = pfi.pointToFaceInterpolate(pResidual);
+
+    const tmp<scalarField> tmpRawResidual = mag(residual);
+    const scalarField rawResidual = tmpRawResidual();
+
+    return rawResidual;
+}
+
+Foam::scalar
+Foam::regionInterfaces::fsiInterface::normIntRes(const word& fldName) const
+{
+    //- RESIDUAL BASED ON TOTAL INTERFACE POINTS POSITIONS
+
+    // Assume meshA as solid region
+    bool solidMeshIsMeshA = true;
+    const fvMesh* solidMesh = &meshA();
+    const fvMesh* fluidMesh = &meshB();
+    const fvPatch* solidPatch = &patchA();
+    const fvPatch* fluidPatch = &patchB();
+
+    // Check if meshB is solid mesh instead
+    if (meshB().foundObject<pointVectorField>("pointD"))
+    {
+        solidMeshIsMeshA = false;
+        solidMesh = &meshB();
+        fluidMesh = &meshA();
+        solidPatch = &patchB();
+        fluidPatch = &patchA();
+    }
+
+    vectorField residual(patchA().patch().nPoints());
+
+    scalar n = 0;
+
+    const vectorField solidPatchPointD
+    (
+        solidMesh->lookupObject<pointVectorField>("pointD").internalField(),
+        solidPatch->patch().meshPoints()
+    );
+
+    vectorField solidPatchPoints
+    (
+        solidMesh->allPoints(),
+        solidPatch->patch().meshPoints()
+    );
+
+    // Location of solid patch points are the patch points
+    // + their displacement
+    solidPatchPoints = solidPatchPoints + solidPatchPointD;
+
+    const vectorField fluidPatchPoints
+    (
+        fluidMesh->allPoints(),
+        fluidPatch->patch().meshPoints()
+    );
+
+    if (solidMeshIsMeshA)
+    {
+        // Interpolate the fluid points to the solid side
+        tmp<vectorField> tfluidPatchPointsToSolid =
+            interpolatePointsFromB<vector>(fluidPatchPoints);
+
+        vectorField fluidPatchPointsToSolid = tfluidPatchPointsToSolid();
+
+        // Calculate residual
+        residual = solidPatchPoints - fluidPatchPointsToSolid;
+
+        n = max
+            (
+                max
+                (
+                    Foam::sqrt(gSum(magSqr(solidPatchPoints))),
+                    Foam::sqrt(gSum(magSqr(fluidPatchPointsToSolid)))
+                ),
+                SMALL
+            );
+    }
+    else
+    {
+        // Interpolate the solid points to the fluid side
+        tmp<vectorField> tsolidPatchPointsToFluid =
+            interpolatePointsFromB<vector>(solidPatchPoints);
+
+        vectorField solidPatchPointsToFluid = tsolidPatchPointsToFluid();
+
+        //Calculate residual
+        residual = solidPatchPointsToFluid - fluidPatchPoints;
+
+        n = max
+            (
+                max
+                (
+                    Foam::sqrt(gSum(magSqr(solidPatchPointsToFluid))),
+                    Foam::sqrt(gSum(magSqr(fluidPatchPoints)))
+                ),
+                SMALL
+            );
+
+    }
+
+    //Return normalised residual
+    return
+    (
+        Foam::sqrt(gSum(magSqr(residual)))/n
+    );
 }
 
 void Foam::regionInterfaces::fsiInterface::info() const
