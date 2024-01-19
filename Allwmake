@@ -42,9 +42,10 @@ done
 dependencies/movingReferenceFrame/Allwmake
 
 wmake libso src/regionInterfaces
-
 wmake libso src/coupledFvPatchFields
-
 wmake libso src/multiRegionSystem
+
+wmake applications/utilities/calcCurvature
+wmake applications/utilities/checkFaMesh
 
 wmake applications/solvers/multiRegionFoam
