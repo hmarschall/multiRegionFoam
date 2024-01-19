@@ -7,9 +7,14 @@ rmoall
 
 (cd dependencies/movingReferenceFrame/ && ./Allwclean )
 
+wclean libso src/numerics/fvSchemes
+wclean libso src/regionInterfaces
 wclean libso src/coupledFvPatchFields
-
 wclean libso src/multiRegionSystem
+wclean libso src/functionObjects
+
+wclean applications/utilities/calcCurvature
+wclean applications/utilities/checkFaMesh
 
 wclean applications/solvers/multiRegionFoam
 

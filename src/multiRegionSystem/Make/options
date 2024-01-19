@@ -1,5 +1,6 @@
 EXE_INC = \
     -I$(LIB_MRF)/lnInclude \
+    -I../numerics/fvSchemes \
     -I../regions/region \
     -I../regionInterfaces/regionInterface \
     -I../regionProperties \
@@ -35,6 +36,7 @@ LIB_LIBS = \
     -lincompressibleTurbulenceModel \
     -lincompressibleRASModels \
     -lincompressibleLESModels \
+    -L$(FOAM_USER_LIBBIN) -lfvSchemes \
     -L$(FOAM_USER_LIBBIN) -lmrfZones \
     -L$(FOAM_USER_LIBBIN) -lregionInterface \
     -L$(FOAM_USER_LIBBIN) -lcoupledFvPatchBCs

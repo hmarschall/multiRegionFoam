@@ -1,8 +1,5 @@
 mergePolyMesh.C
 
-numerics = ./../numerics
-$(numerics)/backwardD2dt2Scheme/backwardD2dt2Schemes.C
-
 dnaControl = ./../dnaSolutionControl
 $(dnaControl)/dnaControl.C
 
