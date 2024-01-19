@@ -1,0 +1,59 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      coupledSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+regions
+(
+    // fluidB must be first entry since fluidA requires it for
+    // building global patch communication within interfaceTrackingFvMesh
+    // (must be also reflected in dynamicMeshDict)
+    // ( fluidA (icoFluid) )
+    // ( fluidB (icoFluid) )
+    ( fluidA (interTrackFluid) )
+    ( fluidB (interTrackFluid) )
+);
+
+// Assembles a super-mesh
+superMeshRegions
+();
+
+DNA
+{
+    pUPimple
+    {
+        maxCoupleIter 10;
+
+        residualControl
+        {
+            U
+            {
+                maxJumpRes 1e-5;
+                outputJumpResField yes;
+                maxFluxRes 1e-4;
+                outputFluxResField yes;
+            }
+
+            p
+            {
+                maxJumpRes 1e-5;
+                outputJumpResField yes;
+                maxFluxRes 1e-5;
+                outputFluxResField yes;
+            }
+        }
+    }
+}
+
+// ************************************************************************* //

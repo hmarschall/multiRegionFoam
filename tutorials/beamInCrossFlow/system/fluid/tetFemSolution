@@ -1,0 +1,71 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      tetFemSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+solvers
+{
+    motionU
+    {
+        solver          PCG;
+        preconditioner  DIC;
+        minIter          0;
+        maxIter          100;
+        tolerance       1e-06;
+        relTol          0.001;
+    }
+
+    // motionU
+    // {
+    //     solver           CG;
+    //     preconditioner   Cholesky;
+
+    //     minIter          0;
+    //     maxIter          1000;
+    //     tolerance       1e-06;
+    //     relTol          0.001;
+    // }
+
+    // motionU
+    // {
+    //     solver          GMRES;
+    //     nDirections     8;
+    //     preconditioner  Cholesky;
+    //     tolerance       1e-06;
+    //     relTol          0.001;
+    // }
+
+    // motionU
+    // {
+    //     solver          amgSolver;
+    //     cycle           W-cycle;
+    //     policy          AAMG;
+    //     nPreSweeps      2;
+    //     nPostSweeps     2;
+    //     groupSize       4;
+    //     minCoarseEqns   30;
+    //     nMaxLevels      100;
+    //     scale           on;
+    //     smoother        ILU;
+
+    //     minIter         0;
+    //     maxIter         500;
+    //     tolerance       1e-06;
+    //     relTol          0.001;
+    // };
+}
+
+
+// ************************************************************************* //

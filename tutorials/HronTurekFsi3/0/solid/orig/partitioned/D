@@ -1,0 +1,45 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      D;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dimensions      [0 1 0 0 0 0 0];
+
+internalField   uniform (0 0 0);
+
+boundaryField
+{
+    interface
+    {
+        type                    genericInterfaceCoupledTraction;
+        neighbourRegionName     fluid;
+        neighbourPatchName      interfaceShadow;
+        neighbourFieldName      sigma;
+        interfaceType           fsiInterface;
+        secondOrder             false;
+        nonOrthCorr             false;
+        value                   uniform (0 0 0);
+    }
+    plateFix
+    {
+        type            fixedValue;
+        value           uniform (0 0 0);
+    }
+    frontAndBackPlanes
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

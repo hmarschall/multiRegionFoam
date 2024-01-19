@@ -1,0 +1,85 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      dynamicMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dynamicFvMesh interfaceTrackingFvMesh;
+
+solver velocityLaplacian;
+
+diffusivity quadratic inverseDistance (interfaceShadow);
+
+twoDMotion no;
+
+motionPlaneNormal (0 0 1);
+
+// solver laplace;
+
+// diffusivity quadratic;
+
+// frozenDiffusion yes;
+
+// twoDMotion no;
+
+// motionPlaneNormal (0 0 1);
+
+// distancePatches 1 (interfaceShadow);
+
+// pseudoSolid
+// {
+//     poissonsRatio           0.3;
+//     nCorrectors             3;
+//     convergenceTolerance    1e-9;
+// };
+
+
+interfaceTrackingFvMeshCoeffs
+{
+    movingSurfacePatches
+    (
+        interfaceShadow
+        {
+            fsiInterface yes;
+
+            neighbourPatch   interface;
+            neighbourMesh    solid;
+
+            accType           fixed;
+            relax             0.1;
+
+            normalMotionDir no;
+
+            fixedSurfacePatches 0();
+
+            interfaceDeformationLimit interfaceDeformationLimit [ 0 0 0 0 0 0 0 ] 0.0;
+
+            interpolatorUpdateFrequency 0;
+
+            pointNormalsCorrectionPatches 0();
+
+            interfaceTransferMethod directMap;
+
+            directMapCoeffs{}
+
+            GGICoeffs{}
+
+            smoothing no;
+
+            smoothSurfaceMeshCoeffs{}
+
+        }
+    );
+}
+
+// ************************************************************************* //

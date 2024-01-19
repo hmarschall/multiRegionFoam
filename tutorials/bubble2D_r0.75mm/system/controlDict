@@ -1,0 +1,89 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     4.1                                |
+|   \\  /    A nd           | Web:         http://www.foam-extend.org         |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+libs
+(
+    "libinterfaceTrackingFvMesh.so"
+    "libinterfaceTrackingBCs.so"
+    "liblduSolvers.so"
+);
+
+applicationClass    multiRegionFoam;
+
+startFrom           startTime;
+
+startTime           0;
+
+stopAt              endTime;
+
+endTime             0.3;
+
+deltaT              1e-5;
+
+writeControl        runTime;
+
+writeInterval       0.001;
+
+cycleWrite          0;
+
+writeFormat         ascii;
+
+writePrecision      16;
+
+writeCompression    off;
+
+timeFormat          general;
+
+timePrecision       12;
+
+runTimeModifiable   yes;
+
+adjustTimeStep no;
+
+maxCo 0.3; 
+
+maxDeltaT 1e-05;
+
+minDeltaT 1e-07;
+
+DebugSwitches
+{
+    globalPolyPatch 0;
+    Pstream 0;
+    leastSquaresVolPointInterpolation 0;
+}
+
+// OptimisationSwitches
+// {
+//     nProcsSimpleSum 8;
+// }
+
+//functions
+//(
+//    history
+//    {
+//        type bubbleHistory;
+//        functionObjectLibs
+//        (
+//            "libbubbleHistory.so"
+//        );
+//    }
+//);
+
+
+// ************************************************************************* //
+
