@@ -46,6 +46,8 @@ wmake libso src/regionInterfaces
 wmake libso src/coupledFvPatchFields
 wmake libso src/multiRegionSystem
 
+wmake libso src/dynamicFvMesh
+
 wmake libso src/functionObjects
 
 wmake applications/utilities/calcCurvature
