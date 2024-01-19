@@ -54,3 +54,12 @@ wmake applications/utilities/calcCurvature
 wmake applications/utilities/checkFaMesh
 
 wmake applications/solvers/multiRegionFoam
+
+
+# Replace optional files in the main foam libraries
+(cd filesToReplace && ./AllcheckOptional)
+if [ $? -ne 0 ]
+then
+    echo "Please consider to fix the filesToReplace above if you want to run cases wih AMR!"
+    exit 1
+fi
