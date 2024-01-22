@@ -80,8 +80,6 @@ Description
 #include "HashPtrTable.H"
 #include "hashedWordList.H"
 
-#include "mergePolyMesh.H"
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam

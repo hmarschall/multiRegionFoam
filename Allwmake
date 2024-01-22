@@ -13,10 +13,7 @@ fi
 set -x
 
 wmakeLnInclude -f .
-
 wmakeLnInclude -f src/.
-ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.C" "src/multiRegionSystem/mergePolyMesh.C"
-ln -sf "$FOAM_UTILITIES/mesh/manipulation/mergeMeshes/mergePolyMesh.H" "src/multiRegionSystem/mergePolyMesh.H"
 
 while getopts ":b" option; do
    case $option in
@@ -24,13 +21,17 @@ while getopts ":b" option; do
       b) # compile with bear
          bear -- dependencies/movingReferenceFrame/Allwmake
 
+         bear --append -- wmake libso src/numerics/fvSchemes
          bear --append -- wmake libso src/regionInterfaces
+         bear --append -- wmake libso src/coupledFvPatchFields
+         bear --append -- wmake libso src/multiRegionSystem
+         bear --append -- wmake libso src/dynamicFvMesh
+         bear --append -- wmake libso src/functionObjects
 
-         bear --append -- libso src/coupledFvPatchFields
+         bear --append -- wmake applications/utilities/calcCurvature
+         bear --append -- wmake applications/utilities/checkFaMesh
 
-         bear --append -- libso src/multiRegionSystem
-
-         bear --append -- applications/solvers/multiRegionFoam
+         bear --append -- wmake applications/solvers/multiRegionFoam
 
          exit;;
      \?) # Invalid option
@@ -39,15 +40,13 @@ while getopts ":b" option; do
    esac
 done
 
-dependencies/movingReferenceFrame/Allwmake
+(cd dependencies/movingReferenceFrame/ && ./Allwmake )
 
 wmake libso src/numerics/fvSchemes
 wmake libso src/regionInterfaces
 wmake libso src/coupledFvPatchFields
 wmake libso src/multiRegionSystem
-
 wmake libso src/dynamicFvMesh
-
 wmake libso src/functionObjects
 
 wmake applications/utilities/calcCurvature
