@@ -19,7 +19,7 @@ functions
     {
         type                solidPointDisplacement;
         region              solid;
-        functionObjectLibs  ( "libinterfaceTrackingFOs.so" );
+        functionObjectLibs  ( "libmultiRegionFOs.so" );
         point               (0.6 0.2 0.0075);
     }
 );
