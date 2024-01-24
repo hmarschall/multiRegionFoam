@@ -23,7 +23,7 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "MRFZones.H"
+#include "MovingReferenceFrameZones.H"
 #include "cylindricalCS.H"
 #include "fvMesh.H"
 #include "volFields.H"
@@ -35,7 +35,7 @@ License
 
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
-Foam::MRFZones::MRFZones
+Foam::MovingReferenceFrameZones::MovingReferenceFrameZones
 (
     const fvMesh& mesh
 )

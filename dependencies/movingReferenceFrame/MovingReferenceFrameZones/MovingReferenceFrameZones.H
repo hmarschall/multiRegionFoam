@@ -22,18 +22,18 @@ License
     along with foam-extend.  If not, see <http://www.gnu.org/licenses/>.
 
 Class
-    Foam::MRFZoness
+    Foam::MovingReferenceFrameZoness
 
 Description
-    Abstract base class for MRFZoness.
+    Abstract base class for MovingReferenceFrameZoness.
 
 SourceFiles
-    MRFZones.C
+    MovingReferenceFrameZones.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef MRFZones_H
-#define MRFZones_H
+#ifndef MovingReferenceFrameZones_H
+#define MovingReferenceFrameZones_H
 
 #include "dictionary.H"
 #include "wordList.H"
@@ -62,10 +62,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-                         Class MRFZones Declaration
+                         Class MovingReferenceFrameZones Declaration
 \*---------------------------------------------------------------------------*/
 
-class MRFZones
+class MovingReferenceFrameZones
 {
 
 protected:
@@ -86,21 +86,21 @@ private:
     // Private Member Functions
 
         //- Disallow default bitwise copy construct
-        MRFZones(const MRFZones&);
+        MovingReferenceFrameZones(const MovingReferenceFrameZones&);
 
         //- Disallow default bitwise assignment
-        void operator=(const MRFZones&);
+        void operator=(const MovingReferenceFrameZones&);
 
 public:
 
     // Constructors
 
         //- Construct from fvMesh and Istream
-        MRFZones(const fvMesh& mesh);
+        MovingReferenceFrameZones(const fvMesh& mesh);
 
     //- Destructor
 
-        virtual ~MRFZones()
+        virtual ~MovingReferenceFrameZones()
         {}
 
     // Member Functions
