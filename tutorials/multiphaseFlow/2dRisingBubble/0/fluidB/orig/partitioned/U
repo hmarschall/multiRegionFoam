@@ -23,7 +23,7 @@ boundaryField
 {
     interfaceShadow
     {
-        type                    genericInterfaceCoupledVelocityValue;
+        type                    regionCoupledVelocityValue;
         k                       "mu";
         neighbourRegionName     fluidA;
         neighbourPatchName      interface;

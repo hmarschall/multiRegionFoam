@@ -22,7 +22,7 @@ boundaryField
 {
     interface
     {
-        type                    genericInterfaceCoupledTraction;
+        type                    regionCoupledTraction;
         neighbourRegionName     fluid;
         neighbourPatchName      interfaceShadow;
         neighbourFieldName      sigma;

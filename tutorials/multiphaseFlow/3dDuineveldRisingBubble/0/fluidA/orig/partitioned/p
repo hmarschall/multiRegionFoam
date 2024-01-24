@@ -27,7 +27,7 @@ boundaryField
     }
     interface
     {
-        type                    genericInterfaceCoupledPressureValue;
+        type                    regionCoupledPressureValue;
         k                       "v";
         neighbourRegionName     fluidB;
         neighbourPatchName      interfaceShadow;

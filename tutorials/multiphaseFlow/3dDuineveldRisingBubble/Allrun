@@ -75,8 +75,8 @@ do
             cp -r ./polyBaseMeshes/constant/domain0/polyMesh/ ./constant/fluidB/
 
             # scale to bubble with radius 0.75mm
-            transformPoints -scale "(0.00075 0.00075 0.00075)" -region fluidB
-            transformPoints -scale "(0.00075 0.00075 0.00075)" -region fluidA
+            runApplication transformPoints -scale "(0.00075 0.00075 0.00075)" -region fluidA
+            runApplication -l log.transformPoints.fluidB transformPoints -scale "(0.00075 0.00075 0.00075)" -region fluidB
 
             runApplication makeFaMesh -region fluidA
 
