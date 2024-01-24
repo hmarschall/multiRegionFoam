@@ -65,7 +65,7 @@ Description
 #define icoFluid_H
 
 #include "regionType.H"
-#include "MRFZones.H"
+#include "MovingReferenceFrameZones.H"
 #include "dimensionedScalar.H"
 #include "multiRegionSystem.H"
 #include "volFields.H"
@@ -157,7 +157,7 @@ class icoFluid
         label corrNonOrtho_;
 
         //- Moving reference frames
-        MRFZones mrfZones_;
+        MovingReferenceFrameZones mrfZones_;
         label myTimeIndex_;
 
         //- Adjustable time-step switch

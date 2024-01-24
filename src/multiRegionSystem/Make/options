@@ -33,4 +33,4 @@ LIB_LIBS = \
     -lincompressibleLESModels \
     -lbasicThermophysicalModels \
     -lradiation \
-    -L$(FOAM_USER_LIBBIN) -lmrfZones
+    -L$(FOAM_USER_LIBBIN) -lmovingReferenceFrameZones

@@ -65,7 +65,7 @@ Description
 #define pimpleFluid_H
 
 #include "regionType.H"
-#include "MRFZones.H"
+#include "MovingReferenceFrameZones.H"
 #include "dimensionedScalar.H"
 #include "multiRegionSystem.H"
 #include "volFields.H"
@@ -135,7 +135,7 @@ class pimpleFluid
         scalar pRefValue_;
 
         //- Moving reference frames
-        MRFZones mrfZones_;
+        MovingReferenceFrameZones mrfZones_;
         label myTimeIndex_;
 
         //- For adjustable time-step, this is the maximum Courant number
