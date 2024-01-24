@@ -16,11 +16,6 @@ FoamFile
 
 regions
 (
-    // fluidB must be first entry since fluidA requires it for
-    // building global patch communication within interfaceTrackingFvMesh
-    // (must be also reflected in dynamicMeshDict)
-    // ( fluidA (icoFluid) )
-    // ( fluidB (icoFluid) )
     ( fluidA (interTrackFluid) )
     ( fluidB (interTrackFluid) )
 );
