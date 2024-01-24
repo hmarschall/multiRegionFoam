@@ -21,6 +21,10 @@ checkAndReport()
         echo "You can do it by running the following commands:"
         echo "    cp filesToReplace/${1} ${2}/"
         echo "    wmake libso ${3}"
+        echo
+        echo "These actions will not break your working foam-extend installation."
+        echo "It will just fix some minor bugs in the listed file which need to "
+        echo "be fixed in order to make multiRegionFoam work propperly."
         echo "************************************"
         echo
         return 1
