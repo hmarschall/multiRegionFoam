@@ -1,21 +1,95 @@
-dnaControl = ./../dnaSolutionControl
+numerics = ./../numerics
+
+fvSchemes = $(numerics)/fvSchemes
+$(fvSchemes)/ddtSchemes/bdf2/bdf2DdtSchemes.C
+$(fvSchemes)/d2dt2Schemes/backwardD2dt2/backwardD2dt2Schemes.C
+$(fvSchemes)/d2dt2Schemes/backward2D2dt2/backward2D2dt2Schemes.C
+$(fvSchemes)/d2dt2Schemes/Euler1D2dt2/Euler1D2dt2Schemes.C
+
+globalPolyPatch = $(numerics)/globalPolyPatch
+$(globalPolyPatch)/globalPolyPatch.C
+
+interfaceToInterface = $(numerics)/interfaceToInterfaceMappings
+$(interfaceToInterface)/interfaceToInterfaceMapping/interfaceToInterfaceMapping.C
+$(interfaceToInterface)/ggiInterfaceToInterfaceMapping/ggiInterfaceToInterfaceMapping.C
+$(interfaceToInterface)/directMapInterfaceToInterfaceMapping/directMapInterfaceToInterfaceMapping.C
+
+acceleration = $(numerics)/acceleration
+$(acceleration)/makeAccelerationModels.C
+
+dnaControl = $(numerics)/dnaSolutionControl
 $(dnaControl)/dnaControl.C
 
+
+
+
+regionInterfaces = ./../regionInterfaces
+
+$(regionInterfaces)/../regionInterfaceProperties/regionInterfaceProperties.C
+
+$(regionInterfaces)/regionInterface/interfaceKey.C
+$(regionInterfaces)/regionInterface/regionInterfaceType.C
+$(regionInterfaces)/regionInterface/regionInterfaceTypeTemplates.C
+$(regionInterfaces)/regionInterface/regionInterfaceTypeList.C
+$(regionInterfaces)/regionInterface/newRegionInterfaceType.C
+
+$(regionInterfaces)/capillaryInterface/capillaryInterface.C
+$(regionInterfaces)/defaultInterface/defaultInterface.C
+$(regionInterfaces)/heatTransferInterface/heatTransferInterface.C
+$(regionInterfaces)/fsiInterface/fsiInterface.C
+
+
+
+fvPatchFields = ./../fvPatchFields
+
+partitionedCoupled = $(fvPatchFields)/coupledFvPatchFields/partitionedCoupledFvPatchFields
+$(partitionedCoupled)/interfaceToInterfaceCoupleManager/interfaceToInterfaceCoupleManager.C
+$(partitionedCoupled)/genericRegionCoupledJump/genericRegionCoupledJumpFvPatchFields.C
+$(partitionedCoupled)/genericRegionCoupledFlux/genericRegionCoupledFluxFvPatchFields.C
+$(partitionedCoupled)/regionCoupledScalarJump/regionCoupledScalarJump.C
+$(partitionedCoupled)/regionCoupledScalarFlux/regionCoupledScalarFlux.C
+$(partitionedCoupled)/regionCoupledTemperatureJump/regionCoupledTemperatureJump.C
+$(partitionedCoupled)/regionCoupledHeatFlux/regionCoupledHeatFlux.C
+$(partitionedCoupled)/regionCoupledVelocityValue/regionCoupledVelocityValue.C
+$(partitionedCoupled)/regionCoupledVelocityFlux/regionCoupledVelocityFlux.C
+$(partitionedCoupled)/regionCoupledPressureValue/regionCoupledPressureValue.C
+$(partitionedCoupled)/regionCoupledPressureFlux/regionCoupledPressureFlux.C
+$(partitionedCoupled)/regionCoupledTraction/regionCoupledTraction.C
+
+monolithicCoupled = $(fvPatchFields)/coupledFvPatchFields/monolithicCoupledFvPatchFields
+$(monolithicCoupled)/monolithicCoupling/monolithicCouplingFvPatchFields.C
+$(monolithicCoupled)/monolithicBase/monolithicBase.C
+$(monolithicCoupled)/monolithicThermalDiffusivity/monolithicThermalDiffusivityFvPatchScalarField.C
+$(monolithicCoupled)/monolithicTemperature/monolithicTemperatureFvPatchScalarField.C
+$(monolithicCoupled)/monolithicThermalDiffusivitySlave/monolithicThermalDiffusivitySlaveFvPatchScalarField.C
+
+notCoupled = $(fvPatchFields)/fvPatchFields
+$(notCoupled)/solidSymmetry/solidSymmetryFvPatchScalarField.C
+$(notCoupled)/solidSymmetry/solidSymmetryFvPatchVectorField.C
+$(notCoupled)/solidTraction/solidTractionFvPatchVectorField.C
+$(notCoupled)/paraboloidInletVelocity/paraboloidInletVelocityFvPatchVectorField.C
+
+
+
 regions = ./../regions
+
+$(regions)/../regionProperties/regionProperties.C
+
 $(regions)/region/regionType.C
 $(regions)/region/newRegionType.C
 $(regions)/region/regionTypeList.C
+
 $(regions)/conductTemperature/conductTemperature.C
 $(regions)/transportTemperature/transportTemperature.C
 $(regions)/icoFluid/icoFluid.C
 $(regions)/pimpleFluid/pimpleFluid.C
 $(regions)/pUCoupledIcoFluid/pUCoupledIcoFluid.C
 $(regions)/interTrackFluid/interTrackFluid.C
-
 $(regions)/solidStVK/momentumStabilisation/momentumStabilisation.C
 $(regions)/solidStVK/solidStVK.C
 
-../regionProperties/regionProperties.C
+
+
 
 multiRegionSystem.C
 

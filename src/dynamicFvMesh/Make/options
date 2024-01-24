@@ -19,7 +19,6 @@ EXE_INC = \
     -I$(LIB_SRC_MULTIREGION)/lnInclude
 
 LIB_LIBS = \
-    -L$(FOAM_USER_LIBBIN) \
     -lincompressibleTransportModels \
     -lfiniteVolume \
     -lfiniteArea \
@@ -29,4 +28,4 @@ LIB_LIBS = \
     -ltopoChangerFvMesh \
     -ltetMotionSolver \
     -lfvMotionSolver \
-    -lcoupledFvPatchBCs
+    -L$(FOAM_USER_LIBBIN) -lmultiRegionSystem

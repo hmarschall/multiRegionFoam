@@ -23,40 +23,42 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    genericInterfaceCoupledTraction
+    regionCoupledVelocityValue
 
 Author
-    Constantin Habes (constantin.habes@tu-darmstadt.de)
+    Holger Marschall (marschall@csi.tu-darmstadt.de)
 
 Description
-    Neumann boundary condition for displacement within a FSI problem.
-    The formulation uses the St.Venant-Kirchhoff constitutive law.
-    The boundary condition computes the traction from the interacting
-    fluid flow on the solid side of the FSI interface.
+    Dirichlet boundary condition for velocity within the ALE interface tracking.
+    The no-jump condition of the velocity at the interface is taken into
+    account by copying the value from the neighbour patch. Flux continuity is 
+    enforced likewise. The momentum flux is calculated as the normal gradient 
+    multiplied by mu.
 
     Example usage:
-
-	    interfacePatchShadow
+        interfacePatch
         {
-            type                    genericInterfaceCoupledTraction;
-            neighbourRegionName     fluid;
-            neighbourPatchName      interfacePatch;
-            nonOrthCorr             yes;
-            secondOrder             yes;
-            value                   uniform (0 0 0);
+            type                regionCoupledVelocityValue;
+            k                   "mu";
+            relax               1.0;
+            neighbourRegionName liquid;
+            neighbourPatchName  interfacePatchShadow;
+            nonOrthCorr         yes;
+            secondOrder         yes;
+            value               uniform (0 0 0);
         }
 
 
 SourceFiles
-    genericInterfaceCoupledTraction.C
+    regionCoupledVelocityValue.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef genericInterfaceCoupledTraction_H
-#define genericInterfaceCoupledTraction_H
+#ifndef regionCoupledVelocityValue_H
+#define regionCoupledVelocityValue_H
 
-#include "genericRegionCoupledFluxFvPatchField.H"
-#include "fsiInterface.H"
+#include "genericRegionCoupledJumpFvPatchField.H"
+#include "capillaryInterface.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
@@ -64,49 +66,47 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-   Class genericInterfaceCoupledTraction Declaration
+        Class regionCoupledVelocityValue Declaration
 \*---------------------------------------------------------------------------*/
 
-class genericInterfaceCoupledTraction
+class regionCoupledVelocityValue
 :
-    public genericRegionCoupledFluxFvPatchField<vector>
+    public genericRegionCoupledJumpFvPatchField<vector>
 {
 
 protected:
-    //- Switch to use directly computed flux instead of flux jump
-    virtual bool useDirectFlux() const
-    {
-        return true;
-    }
+
+    //- Update phi 
+    virtual void updatePhi();
 
 public:
 
     //- Runtime type information
-    TypeName("genericInterfaceCoupledTraction");
+    TypeName("regionCoupledVelocityValue");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        genericInterfaceCoupledTraction
+        regionCoupledVelocityValue
         (
             const fvPatch&,
             const DimensionedField<vector, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        genericInterfaceCoupledTraction
+        regionCoupledVelocityValue
         (
             const fvPatch&,
             const DimensionedField<vector, volMesh>&,
             const dictionary&
         );
 
-        //- Construct by mapping given genericInterfaceCoupledTraction
+        //- Construct by mapping given regionCoupledVelocityValue
         //  onto a new patch
-        genericInterfaceCoupledTraction
+        regionCoupledVelocityValue
         (
-            const genericInterfaceCoupledTraction&,
+            const regionCoupledVelocityValue&,
             const fvPatch&,
             const DimensionedField<vector, volMesh>&,
             const fvPatchFieldMapper&
@@ -117,14 +117,14 @@ public:
         {
             return tmp<fvPatchVectorField>
             (
-            	new genericInterfaceCoupledTraction(*this)
+                new regionCoupledVelocityValue(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        genericInterfaceCoupledTraction
+        regionCoupledVelocityValue
         (
-            const genericInterfaceCoupledTraction&,
+            const regionCoupledVelocityValue&,
             const DimensionedField<vector, volMesh>&
         );
 
@@ -136,16 +136,17 @@ public:
         {
             return tmp<fvPatchVectorField>
             (
-                new genericInterfaceCoupledTraction(*this, iF)
+                new regionCoupledVelocityValue(*this, iF)
             );
         }
 
+
     // Member functions
 
-        //- Calculate the forces
-        virtual tmp<vectorField> flux() const;
+        //- Calculate velocity jump
+        virtual tmp<vectorField> valueJump() const;
 
-        const regionInterfaces::fsiInterface& fsiInterface() const;
+        const regionInterfaces::capillaryInterface& capInterface() const;
 };
 
 
@@ -158,3 +159,4 @@ public:
 #endif
 
 // ************************************************************************* //
+

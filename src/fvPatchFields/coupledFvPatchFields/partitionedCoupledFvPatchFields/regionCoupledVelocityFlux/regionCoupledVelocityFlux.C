@@ -24,16 +24,16 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "genericInterfaceCoupledVelocityFlux.H"
-#include "genericInterfaceCoupledVelocityValue.H"
+#include "regionCoupledVelocityFlux.H"
+#include "regionCoupledVelocityValue.H"
 #include "addToRunTimeSelectionTable.H"
 #include "primitiveFieldsFwd.H"
 #include "vector.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::genericInterfaceCoupledVelocityFlux::
-genericInterfaceCoupledVelocityFlux
+Foam::regionCoupledVelocityFlux::
+regionCoupledVelocityFlux
 (
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF
@@ -43,10 +43,10 @@ genericInterfaceCoupledVelocityFlux
 {}
 
 
-Foam::genericInterfaceCoupledVelocityFlux::
-genericInterfaceCoupledVelocityFlux
+Foam::regionCoupledVelocityFlux::
+regionCoupledVelocityFlux
 (
-    const genericInterfaceCoupledVelocityFlux& icvf,
+    const regionCoupledVelocityFlux& icvf,
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF,
     const fvPatchFieldMapper& mapper
@@ -56,8 +56,8 @@ genericInterfaceCoupledVelocityFlux
 {}
 
 
-Foam::genericInterfaceCoupledVelocityFlux::
-genericInterfaceCoupledVelocityFlux
+Foam::regionCoupledVelocityFlux::
+regionCoupledVelocityFlux
 (
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF,
@@ -68,10 +68,10 @@ genericInterfaceCoupledVelocityFlux
 {}
 
 
-Foam::genericInterfaceCoupledVelocityFlux::
-genericInterfaceCoupledVelocityFlux
+Foam::regionCoupledVelocityFlux::
+regionCoupledVelocityFlux
 (
-    const genericInterfaceCoupledVelocityFlux& icvf,
+    const regionCoupledVelocityFlux& icvf,
     const DimensionedField<vector, volMesh>& iF
 )
 :
@@ -80,7 +80,7 @@ genericInterfaceCoupledVelocityFlux
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-tmp<vectorField> genericInterfaceCoupledVelocityFlux::fluxJump() const
+tmp<vectorField> regionCoupledVelocityFlux::fluxJump() const
 {
     const vectorField& nf = capInterface().aMesh().faceAreaNormals();
 
@@ -155,7 +155,7 @@ tmp<vectorField> genericInterfaceCoupledVelocityFlux::fluxJump() const
 }
 
 const regionInterfaces::capillaryInterface&
-genericInterfaceCoupledVelocityFlux::capInterface() const
+regionCoupledVelocityFlux::capInterface() const
 {
     if(   rgInterface().type()
        != regionInterfaces::capillaryInterface::typeName )
@@ -182,7 +182,7 @@ namespace Foam
 makePatchTypeField
 (
     fvPatchVectorField,
-    genericInterfaceCoupledVelocityFlux
+    regionCoupledVelocityFlux
 );
 
 } // End namespace Foam

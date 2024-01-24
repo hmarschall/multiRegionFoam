@@ -24,13 +24,13 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "genericInterfaceCoupledVelocityValue.H"
+#include "regionCoupledVelocityValue.H"
 #include "addToRunTimeSelectionTable.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::genericInterfaceCoupledVelocityValue::
-genericInterfaceCoupledVelocityValue
+Foam::regionCoupledVelocityValue::
+regionCoupledVelocityValue
 (
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF
@@ -40,10 +40,10 @@ genericInterfaceCoupledVelocityValue
 {}
 
 
-Foam::genericInterfaceCoupledVelocityValue::
-genericInterfaceCoupledVelocityValue
+Foam::regionCoupledVelocityValue::
+regionCoupledVelocityValue
 (
-    const genericInterfaceCoupledVelocityValue& icvv,
+    const regionCoupledVelocityValue& icvv,
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF,
     const fvPatchFieldMapper& mapper
@@ -53,8 +53,8 @@ genericInterfaceCoupledVelocityValue
 {}
 
 
-Foam::genericInterfaceCoupledVelocityValue::
-genericInterfaceCoupledVelocityValue
+Foam::regionCoupledVelocityValue::
+regionCoupledVelocityValue
 (
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF,
@@ -65,10 +65,10 @@ genericInterfaceCoupledVelocityValue
 {}
 
 
-Foam::genericInterfaceCoupledVelocityValue::
-genericInterfaceCoupledVelocityValue
+Foam::regionCoupledVelocityValue::
+regionCoupledVelocityValue
 (
-    const genericInterfaceCoupledVelocityValue& icvv,
+    const regionCoupledVelocityValue& icvv,
     const DimensionedField<vector, volMesh>& iF
 )
 :
@@ -78,7 +78,7 @@ genericInterfaceCoupledVelocityValue
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-void Foam::genericInterfaceCoupledVelocityValue::updatePhi()
+void Foam::regionCoupledVelocityValue::updatePhi()
 {
     //- Non-const access to flux on patch
     fvsPatchField<scalar>& patchPhiField = const_cast<fvsPatchField<scalar>& >
@@ -100,7 +100,7 @@ void Foam::genericInterfaceCoupledVelocityValue::updatePhi()
 
 
 //- Zero velocity jump
-tmp<vectorField> Foam::genericInterfaceCoupledVelocityValue::valueJump() const
+tmp<vectorField> Foam::regionCoupledVelocityValue::valueJump() const
 {
     const vectorField nf = refMesh().boundary()[refPatchID()].nf();
 
@@ -121,7 +121,7 @@ tmp<vectorField> Foam::genericInterfaceCoupledVelocityValue::valueJump() const
 }
 
 const regionInterfaces::capillaryInterface&
-genericInterfaceCoupledVelocityValue::capInterface() const
+regionCoupledVelocityValue::capInterface() const
 {
     if(   rgInterface().type()
        != regionInterfaces::capillaryInterface::typeName )
@@ -148,7 +148,7 @@ namespace Foam
 makePatchTypeField
 (
     fvPatchVectorField,
-    genericInterfaceCoupledVelocityValue
+    regionCoupledVelocityValue
 );
 
 } // End namespace Foam

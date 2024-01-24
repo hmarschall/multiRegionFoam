@@ -1,12 +1,6 @@
 EXE_INC = \
     -I$(LIB_MRF)/lnInclude \
-    -I../numerics/fvSchemes \
-    -I../regions/region \
-    -I../regionInterfaces/regionInterface \
-    -I../regionProperties \
-    -I../globalPolyPatch \
-    -I../regionInterfaceProperties \
-    -I../../lnInclude \
+    -I$(LIB_SRC)/foam/lnInclude \
     -I$(LIB_SRC)/finiteVolume/lnInclude \
     -I$(LIB_SRC)/finiteArea/lnInclude \
     -I$(LIB_SRC)/coupledMatrix/lnInclude \
@@ -19,7 +13,9 @@ EXE_INC = \
     -I$(LIB_SRC)/turbulenceModels/incompressible/turbulenceModel \
     -I$(LIB_SRC)/transportModels \
     -I$(LIB_SRC)/transportModels/incompressible/singlePhaseTransportModel \
-    -I$(FOAM_UTILITIES)/mesh/manipulation/mergeMeshes
+    -I$(LIB_SRC)/thermophysicalModels/radiation/lnInclude \
+    -I$(LIB_SRC)/thermophysicalModels/basic/lnInclude \
+    -I$(LIB_SRC_MULTIREGION)/lnInclude
 
 LIB_LIBS = \
     -lfiniteVolume \
@@ -30,13 +26,11 @@ LIB_LIBS = \
     -ldynamicFvMesh \
     -ltopoChangerFvMesh \
     -lmeshTools \
-    -lcoupledFvPatchBCs \
     -lconjugateHeatTransfer \
     -lincompressibleTransportModels \
     -lincompressibleTurbulenceModel \
     -lincompressibleRASModels \
     -lincompressibleLESModels \
-    -L$(FOAM_USER_LIBBIN) -lfvSchemes \
-    -L$(FOAM_USER_LIBBIN) -lmrfZones \
-    -L$(FOAM_USER_LIBBIN) -lregionInterface \
-    -L$(FOAM_USER_LIBBIN) -lcoupledFvPatchBCs
+    -lbasicThermophysicalModels \
+    -lradiation \
+    -L$(FOAM_USER_LIBBIN) -lmrfZones

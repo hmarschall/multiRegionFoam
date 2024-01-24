@@ -26,15 +26,15 @@ License
 
 #include "Ostream.H"
 #include "error.H"
-#include "genericInterfaceCoupledPressureValue.H"
+#include "regionCoupledPressureValue.H"
 #include "addToRunTimeSelectionTable.H"
 #include "regionInterfaceType.H"
 #include "capillaryInterface.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::genericInterfaceCoupledPressureValue::
-genericInterfaceCoupledPressureValue
+Foam::regionCoupledPressureValue::
+regionCoupledPressureValue
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF
@@ -44,10 +44,10 @@ genericInterfaceCoupledPressureValue
 {}
 
 
-Foam::genericInterfaceCoupledPressureValue::
-genericInterfaceCoupledPressureValue
+Foam::regionCoupledPressureValue::
+regionCoupledPressureValue
 (
-    const genericInterfaceCoupledPressureValue& icpv,
+    const regionCoupledPressureValue& icpv,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
@@ -57,8 +57,8 @@ genericInterfaceCoupledPressureValue
 {}
 
 
-Foam::genericInterfaceCoupledPressureValue::
-genericInterfaceCoupledPressureValue
+Foam::regionCoupledPressureValue::
+regionCoupledPressureValue
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
@@ -69,10 +69,10 @@ genericInterfaceCoupledPressureValue
 {}
 
 
-Foam::genericInterfaceCoupledPressureValue::
-genericInterfaceCoupledPressureValue
+Foam::regionCoupledPressureValue::
+regionCoupledPressureValue
 (
-    const genericInterfaceCoupledPressureValue& icpv,
+    const regionCoupledPressureValue& icpv,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
@@ -82,7 +82,7 @@ genericInterfaceCoupledPressureValue
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 
-tmp<scalarField> genericInterfaceCoupledPressureValue::valueJump() const
+tmp<scalarField> regionCoupledPressureValue::valueJump() const
 {
     const fvMesh& mesh = patch().boundaryMesh().mesh();
 
@@ -143,7 +143,7 @@ tmp<scalarField> genericInterfaceCoupledPressureValue::valueJump() const
 }
 
 const regionInterfaces::capillaryInterface&
-genericInterfaceCoupledPressureValue::capInterface() const
+regionCoupledPressureValue::capInterface() const
 {
     if(   rgInterface().type()
        != regionInterfaces::capillaryInterface::typeName )
@@ -171,7 +171,7 @@ namespace Foam
 makePatchTypeField
 (
     fvPatchScalarField,
-    genericInterfaceCoupledPressureValue
+    regionCoupledPressureValue
 );
 
 } // End namespace Foam

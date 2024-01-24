@@ -23,7 +23,7 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    genericInterfaceCoupledPressureValue
+    regionCoupledPressureValue
 
 Author
     Holger Marschall (marschall@csi.tu-darmstadt.de)
@@ -37,7 +37,7 @@ Description
     Example usage:
         interfacePatchShadow
             {
-                type                    genericInterfaceCoupledPressureValue;
+                type                    regionCoupledPressureValue;
 	            k			            "v";
 	            neighbourRegionName     gas;
                 neighbourPatchName      interfacePatch;
@@ -48,12 +48,12 @@ Description
 
 
 SourceFiles
-    genericInterfaceCoupledPressureValue.C
+    regionCoupledPressureValue.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef genericInterfaceCoupledPressureValue_H
-#define genericInterfaceCoupledPressureValue_H
+#ifndef regionCoupledPressureValue_H
+#define regionCoupledPressureValue_H
 
 #include "genericRegionCoupledJumpFvPatchField.H"
 #include "capillaryInterface.H"
@@ -64,10 +64,10 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-        Class genericInterfaceCoupledPressureValue Declaration
+        Class regionCoupledPressureValue Declaration
 \*---------------------------------------------------------------------------*/
 
-class genericInterfaceCoupledPressureValue
+class regionCoupledPressureValue
 :
     public genericRegionCoupledJumpFvPatchField<scalar>
 {
@@ -75,31 +75,31 @@ class genericInterfaceCoupledPressureValue
 public:
 
     //- Runtime type information
-    TypeName("genericInterfaceCoupledPressureValue");
+    TypeName("regionCoupledPressureValue");
 
 
     // Constructors
 
         //- Construct from patch and internal field
-        genericInterfaceCoupledPressureValue
+        regionCoupledPressureValue
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        genericInterfaceCoupledPressureValue
+        regionCoupledPressureValue
         (
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const dictionary&
         );
 
-        //- Construct by mapping given genericInterfaceCoupledPressureValue
+        //- Construct by mapping given regionCoupledPressureValue
         //  onto a new patch
-        genericInterfaceCoupledPressureValue
+        regionCoupledPressureValue
         (
-            const genericInterfaceCoupledPressureValue&,
+            const regionCoupledPressureValue&,
             const fvPatch&,
             const DimensionedField<scalar, volMesh>&,
             const fvPatchFieldMapper&
@@ -110,14 +110,14 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new genericInterfaceCoupledPressureValue(*this)
+                new regionCoupledPressureValue(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        genericInterfaceCoupledPressureValue
+        regionCoupledPressureValue
         (
-            const genericInterfaceCoupledPressureValue&,
+            const regionCoupledPressureValue&,
             const DimensionedField<scalar, volMesh>&
         );
 
@@ -129,7 +129,7 @@ public:
         {
             return tmp<fvPatchScalarField>
             (
-                new genericInterfaceCoupledPressureValue(*this, iF)
+                new regionCoupledPressureValue(*this, iF)
             );
         }
 

@@ -12,7 +12,6 @@ fi
 
 set -x
 
-wmakeLnInclude -f .
 wmakeLnInclude -f src/.
 
 while getopts ":b" option; do
@@ -21,9 +20,6 @@ while getopts ":b" option; do
       b) # compile with bear
          bear -- dependencies/movingReferenceFrame/Allwmake
 
-         bear --append -- wmake libso src/numerics/fvSchemes
-         bear --append -- wmake libso src/regionInterfaces
-         bear --append -- wmake libso src/coupledFvPatchFields
          bear --append -- wmake libso src/multiRegionSystem
          bear --append -- wmake libso src/dynamicFvMesh
          bear --append -- wmake libso src/functionObjects
@@ -42,9 +38,6 @@ done
 
 (cd dependencies/movingReferenceFrame/ && ./Allwmake )
 
-wmake libso src/numerics/fvSchemes
-wmake libso src/regionInterfaces
-wmake libso src/coupledFvPatchFields
 wmake libso src/multiRegionSystem
 wmake libso src/dynamicFvMesh
 wmake libso src/functionObjects

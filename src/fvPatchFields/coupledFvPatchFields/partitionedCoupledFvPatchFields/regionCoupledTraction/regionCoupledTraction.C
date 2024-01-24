@@ -24,15 +24,15 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "genericInterfaceCoupledTraction.H"
+#include "regionCoupledTraction.H"
 #include "addToRunTimeSelectionTable.H"
 #include "primitiveFieldsFwd.H"
 #include "vector.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::genericInterfaceCoupledTraction::
-genericInterfaceCoupledTraction
+Foam::regionCoupledTraction::
+regionCoupledTraction
 (
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF
@@ -42,10 +42,10 @@ genericInterfaceCoupledTraction
 {}
 
 
-Foam::genericInterfaceCoupledTraction::
-genericInterfaceCoupledTraction
+Foam::regionCoupledTraction::
+regionCoupledTraction
 (
-    const genericInterfaceCoupledTraction& icvf,
+    const regionCoupledTraction& icvf,
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF,
     const fvPatchFieldMapper& mapper
@@ -55,8 +55,8 @@ genericInterfaceCoupledTraction
 {}
 
 
-Foam::genericInterfaceCoupledTraction::
-genericInterfaceCoupledTraction
+Foam::regionCoupledTraction::
+regionCoupledTraction
 (
     const fvPatch& p,
     const DimensionedField<vector, volMesh>& iF,
@@ -67,10 +67,10 @@ genericInterfaceCoupledTraction
 {}
 
 
-Foam::genericInterfaceCoupledTraction::
-genericInterfaceCoupledTraction
+Foam::regionCoupledTraction::
+regionCoupledTraction
 (
-    const genericInterfaceCoupledTraction& icvf,
+    const regionCoupledTraction& icvf,
     const DimensionedField<vector, volMesh>& iF
 )
 :
@@ -79,7 +79,7 @@ genericInterfaceCoupledTraction
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-tmp<vectorField> genericInterfaceCoupledTraction::flux() const
+tmp<vectorField> regionCoupledTraction::flux() const
 {
     // just a quick check that the used interface is a fsiInterface
     fsiInterface();
@@ -144,7 +144,7 @@ tmp<vectorField> genericInterfaceCoupledTraction::flux() const
 }
 
 const regionInterfaces::fsiInterface&
-genericInterfaceCoupledTraction::fsiInterface() const
+regionCoupledTraction::fsiInterface() const
 {
     if(   rgInterface().type()
        != regionInterfaces::fsiInterface::typeName )
@@ -171,7 +171,7 @@ namespace Foam
 makePatchTypeField
 (
     fvPatchVectorField,
-    genericInterfaceCoupledTraction
+    regionCoupledTraction
 );
 
 } // End namespace Foam

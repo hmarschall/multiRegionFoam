@@ -23,33 +23,37 @@ License
     Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
 
 Class
-    genericInterfaceCoupledPressureFlux
+    regionCoupledVelocityFlux
 
 Author
     Holger Marschall (marschall@csi.tu-darmstadt.de)
 
 Description
-    Neumann boundary condition for pressure within the ALE interface tracking.
-    Normal pressure flux jump is calculated from the neighbour patch flux.
+    Neumann boundary condition for velocity within the ALE interface tracking.
+    Jump in velocity normal flux is implemented using the normal velocity
+    gradient jump from tangential momentum jump condition.
 
     Example usage:
-        interfacePatch
-            {
-                type                    genericInterfaceCoupledPressureFlux;
-                k                       "v";
-                neighbourRegionName     liquid;
-                neighbourPatchName      interfacePatchShadow;
-                value                   uniform 0;
-            }
+
+	    interfacePatchShadow
+        {
+            type                    regionCoupledVelocityFlux;
+            k                       "mu";
+            neighbourRegionName     gas;
+            neighbourPatchName      interfacePatch;
+            nonOrthCorr             yes;
+            secondOrder             yes;
+            value                   uniform (0 0 0);
+        }
 
 
 SourceFiles
-    genericInterfaceCoupledPressureFlux.C
+    regionCoupledVelocityFlux.C
 
 \*---------------------------------------------------------------------------*/
 
-#ifndef genericInterfaceCoupledPressureFlux_H
-#define genericInterfaceCoupledPressureFlux_H
+#ifndef regionCoupledVelocityFlux_H
+#define regionCoupledVelocityFlux_H
 
 #include "genericRegionCoupledFluxFvPatchField.H"
 #include "capillaryInterface.H"
@@ -60,79 +64,79 @@ namespace Foam
 {
 
 /*---------------------------------------------------------------------------*\
-   Class genericInterfaceCoupledPressureFlux Declaration
+   Class regionCoupledVelocityFlux Declaration
 \*---------------------------------------------------------------------------*/
 
-class genericInterfaceCoupledPressureFlux
+class regionCoupledVelocityFlux
 :
-    public genericRegionCoupledFluxFvPatchField<scalar>
+    public genericRegionCoupledFluxFvPatchField<vector> 
 {
 
 public:
 
     //- Runtime type information
-    TypeName("genericInterfaceCoupledPressureFlux");
+    TypeName("regionCoupledVelocityFlux");
+
 
     // Constructors
 
         //- Construct from patch and internal field
-        genericInterfaceCoupledPressureFlux
+        regionCoupledVelocityFlux
         (
             const fvPatch&,
-            const DimensionedField<scalar, volMesh>&
+            const DimensionedField<vector, volMesh>&
         );
 
         //- Construct from patch, internal field and dictionary
-        genericInterfaceCoupledPressureFlux
+        regionCoupledVelocityFlux
         (
             const fvPatch&,
-            const DimensionedField<scalar, volMesh>&,
+            const DimensionedField<vector, volMesh>&,
             const dictionary&
         );
 
-        //- Construct by mapping given genericInterfaceCoupledPressureFlux
+        //- Construct by mapping given regionCoupledVelocityFlux
         //  onto a new patch
-        genericInterfaceCoupledPressureFlux
+        regionCoupledVelocityFlux
         (
-            const genericInterfaceCoupledPressureFlux&,
+            const regionCoupledVelocityFlux&,
             const fvPatch&,
-            const DimensionedField<scalar, volMesh>&,
+            const DimensionedField<vector, volMesh>&,
             const fvPatchFieldMapper&
         );
 
         //- Construct and return a clone
-        virtual tmp<fvPatchScalarField> clone() const
+        virtual tmp<fvPatchVectorField> clone() const
         {
-            return tmp<fvPatchScalarField>
+            return tmp<fvPatchVectorField>
             (
-            	new genericInterfaceCoupledPressureFlux(*this)
+            	new regionCoupledVelocityFlux(*this)
             );
         }
 
         //- Construct as copy setting internal field reference
-        genericInterfaceCoupledPressureFlux
+        regionCoupledVelocityFlux
         (
-            const genericInterfaceCoupledPressureFlux&,
-            const DimensionedField<scalar, volMesh>&
+            const regionCoupledVelocityFlux&,
+            const DimensionedField<vector, volMesh>&
         );
 
         //- Construct and return a clone setting internal field reference
-        virtual tmp<fvPatchScalarField> clone
+        virtual tmp<fvPatchVectorField> clone
         (
-            const DimensionedField<scalar, volMesh>& iF
+            const DimensionedField<vector, volMesh>& iF
         ) const
         {
-            return tmp<fvPatchScalarField>
+            return tmp<fvPatchVectorField>
             (
-                new genericInterfaceCoupledPressureFlux(*this, iF)
+                new regionCoupledVelocityFlux(*this, iF)
             );
         }
-
 
     // Member functions
 
         //- Calculate pressure flux jump
-        virtual tmp<scalarField> fluxJump() const;
+        virtual tmp<vectorField> fluxJump() const;
 
         const regionInterfaces::capillaryInterface& capInterface() const;
 };

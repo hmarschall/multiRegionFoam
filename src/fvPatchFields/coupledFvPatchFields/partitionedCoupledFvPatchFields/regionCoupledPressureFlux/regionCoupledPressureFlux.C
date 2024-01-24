@@ -24,16 +24,16 @@ License
 
 \*---------------------------------------------------------------------------*/
 
-#include "genericInterfaceCoupledPressureFlux.H"
-#include "genericInterfaceCoupledPressureValue.H"
+#include "regionCoupledPressureFlux.H"
+#include "regionCoupledPressureValue.H"
 #include "addToRunTimeSelectionTable.H"
 #include "primitiveFieldsFwd.H"
 #include "scalar.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
 
-Foam::genericInterfaceCoupledPressureFlux::
-genericInterfaceCoupledPressureFlux
+Foam::regionCoupledPressureFlux::
+regionCoupledPressureFlux
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF
@@ -43,10 +43,10 @@ genericInterfaceCoupledPressureFlux
 {}
 
 
-Foam::genericInterfaceCoupledPressureFlux::
-genericInterfaceCoupledPressureFlux
+Foam::regionCoupledPressureFlux::
+regionCoupledPressureFlux
 (
-    const genericInterfaceCoupledPressureFlux& icpf,
+    const regionCoupledPressureFlux& icpf,
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
     const fvPatchFieldMapper& mapper
@@ -56,8 +56,8 @@ genericInterfaceCoupledPressureFlux
 {}
 
 
-Foam::genericInterfaceCoupledPressureFlux::
-genericInterfaceCoupledPressureFlux
+Foam::regionCoupledPressureFlux::
+regionCoupledPressureFlux
 (
     const fvPatch& p,
     const DimensionedField<scalar, volMesh>& iF,
@@ -68,10 +68,10 @@ genericInterfaceCoupledPressureFlux
 {}
 
 
-Foam::genericInterfaceCoupledPressureFlux::
-genericInterfaceCoupledPressureFlux
+Foam::regionCoupledPressureFlux::
+regionCoupledPressureFlux
 (
-    const genericInterfaceCoupledPressureFlux& icpf,
+    const regionCoupledPressureFlux& icpf,
     const DimensionedField<scalar, volMesh>& iF
 )
 :
@@ -81,7 +81,7 @@ genericInterfaceCoupledPressureFlux
 
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
-tmp<scalarField> genericInterfaceCoupledPressureFlux::fluxJump() const
+tmp<scalarField> regionCoupledPressureFlux::fluxJump() const
 {
     // const volVectorField& U =
     //     refMesh().objectRegistry::lookupObject<volVectorField>("U");
@@ -201,7 +201,7 @@ tmp<scalarField> genericInterfaceCoupledPressureFlux::fluxJump() const
 }
 
 const regionInterfaces::capillaryInterface&
-genericInterfaceCoupledPressureFlux::capInterface() const
+regionCoupledPressureFlux::capInterface() const
 {
     if(   rgInterface().type()
        != regionInterfaces::capillaryInterface::typeName )
@@ -228,7 +228,7 @@ namespace Foam
 makePatchTypeField
 (
     fvPatchScalarField,
-    genericInterfaceCoupledPressureFlux
+    regionCoupledPressureFlux
 );
 
 } // End namespace Foam
