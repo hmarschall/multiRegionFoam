@@ -68,7 +68,6 @@ Description
 #define regionTypeList_H
 
 #include "dynamicFvMesh.H"
-#include "mergePolyMesh.H"
 #include "dictionary.H"
 #include "hashedWordList.H"
 #include "regionProperties.H"

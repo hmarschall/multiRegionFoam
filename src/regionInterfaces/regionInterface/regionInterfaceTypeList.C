@@ -95,7 +95,6 @@ void Foam::regionInterfaceTypeList::reset(const regionInterfaceProperties& rip)
         word interfaceType(dict.lookup("interfaceType"));
         coupledFields fields(dict.lookup("coupledFields"));
         coupledPatchPair patchPair(dict.lookup("coupledPatchPair"));
-        dictionary interfaceDict(dict.subDict(interfaceType + "Coeffs"));
 
         if (patchPair.size() != 2)
         {
@@ -145,7 +144,7 @@ void Foam::regionInterfaceTypeList::reset(const regionInterfaceProperties& rip)
             regionInterfaceType::New
             (
                 interfaceType,
-                interfaceDict,
+                dict,
                 runTime_,
                 firstPatch,
                 secondPatch
@@ -261,6 +260,8 @@ void Foam::regionInterfaceTypeList::update()
        {
            this->operator[](i).updateInterpolatorAndGlobalPatches();
        }
+
+       this->operator[](i).info();
    }
 }
 

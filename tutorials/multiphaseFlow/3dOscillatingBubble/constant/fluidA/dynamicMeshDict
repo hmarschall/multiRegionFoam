@@ -1,0 +1,81 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | foam-extend: Open Source CFD                    |
+|  \\    /   O peration     | Version:     3.1                                |
+|   \\  /    A nd           | Web:         http://www.extend-project.de       |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      dynamicMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+/*dynamicFvMesh staticFvMesh;*/
+
+dynamicFvMesh interfaceTrackingFvMesh;
+
+solver laplace; //velocityLaplacian;
+
+diffusivity quadratic;
+
+frozenDiffusion yes;
+
+twoDMotion no;
+
+motionPlaneNormal (0 0 1);
+
+distancePatches 1 (interface);
+
+pseudoSolid
+{
+    poissonsRatio           0.3;
+    nCorrectors             3;
+    convergenceTolerance    1e-9;
+};
+
+interfaceTrackingFvMeshCoeffs
+{
+    movingSurfacePatches
+    (
+        interface
+        {
+            neighbourPatch   interfaceShadow;
+            neighbourMesh    fluidB;
+
+            normalMotionDir yes;
+
+            // motion direction if normalMotionDir is no
+            motionDir (0 1 0);
+
+            fixedSurfacePatches 0();
+
+            interfaceDeformationLimit interfaceDeformationLimit [ 0 0 0 0 0 0 0 ] 0.0; //0.05;
+
+            interpolatorUpdateFrequency 0;
+
+            pointNormalsCorrectionPatches 0();
+
+            interfaceTransferMethod directMap; 
+
+            directMapCoeffs{}
+
+            GGICoeffs{}
+
+            smoothing no;
+
+            smoothSurfaceMeshCoeffs
+            {
+                smoothingFrequency 2;
+                smoothingTolerance 1e-4;
+            }
+
+        }
+    );
+}
+
+
+// ************************************************************************* //

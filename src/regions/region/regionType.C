@@ -115,14 +115,20 @@ Foam::regionType::regionType
                     fldName,
                     readScalar(subFieldDict.lookup("tolerance"))
                 );
+
+                convergenceInfoFeq_.insert
+                (
+                    fldName,
+                    readScalar(subFieldDict.lookup("infoFrequency"))
+                );
             }
         }
     }
 }
 
-Foam::scalar Foam::regionType::maxCorr(word name)
+Foam::scalar Foam::regionType::maxCorr(word name) const
 {
-    HashTable<scalar>::iterator it = maxCorr_.find(name);
+    HashTable<scalar>::const_iterator it = maxCorr_.find(name);
 
     if (it == maxCorr_.end()) // not found
     {
@@ -146,9 +152,9 @@ Foam::scalar Foam::regionType::maxCorr(word name)
 }
 
 
-Foam::scalar Foam::regionType::relativeTolerance(word name)
+Foam::scalar Foam::regionType::relativeTolerance(word name) const
 {
-    HashTable<scalar>::iterator it = relativeTolerance_.find(name);
+    HashTable<scalar>::const_iterator it = relativeTolerance_.find(name);
 
     if (it == relativeTolerance_.end()) // not found
     {
@@ -175,9 +181,9 @@ Foam::scalar Foam::regionType::relativeTolerance(word name)
     return *it;
 }
 
-Foam::scalar Foam::regionType::convergenceTolerance(word name)
+Foam::scalar Foam::regionType::convergenceTolerance(word name) const
 {
-    HashTable<scalar>::iterator it = convergenceTolerance_.find(name);
+    HashTable<scalar>::const_iterator it = convergenceTolerance_.find(name);
 
     if (it == convergenceTolerance_.end()) // not found
     {
@@ -201,6 +207,79 @@ Foam::scalar Foam::regionType::convergenceTolerance(word name)
     }
 
     return *it;
+}
+
+int Foam::regionType::convergenceInfoFeq(word name) const
+{
+    HashTable<int>::const_iterator it = convergenceInfoFeq_.find(name);
+
+    if (it == convergenceTolerance_.end()) // not found
+    {
+        // If not specified set info frequency to be 100 iterations by default
+        return 100;
+    }
+
+    return *it;
+}
+
+bool Foam::regionType::usesPicard(const word name) const
+{
+    if (maxCorr(name) > 0)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool Foam::regionType::converged
+(
+    const word name,
+    const int iCorr,
+    const scalar initRes,
+    const scalar res
+) const
+{
+    bool converged = false;
+
+    if (!usesPicard(name))
+    {
+        // If solution of field does not use picard iterations, set it to be
+        // converged by default
+        return true;
+    }
+
+    if (iCorr >= maxCorr(name))
+    {
+        Info<< "    Reached max number of corrections" << endl;
+        converged = true;
+    }
+
+    if (res < convergenceTolerance(name))
+    {
+        Info<< "    The solver residual has converged" << endl;
+        converged = true;
+    }
+
+    if ((res/(initRes + SMALL) < relativeTolerance(name)))
+    {
+        Info<< "    The relative residual has converged" << endl;
+        converged = true;
+    }
+
+    if (iCorr == 1)
+    {
+        Info<< "    Corr, res, relRes" << endl;
+    }
+    else if (iCorr % convergenceInfoFeq(name) == 0 || converged)
+    {
+        Info<< "    " << iCorr
+            << ", " << res
+            << ", " << res/(initRes + SMALL)
+            << endl;
+    }
+
+    return converged;
 }
 
 

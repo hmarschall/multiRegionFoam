@@ -57,7 +57,7 @@ Foam::regionInterfaces::capillaryInterface::capillaryInterface
 :
     regionInterfaceType(type, dict, runTime, patchA, patchB),
 
-    dict_(dict),
+    dict_(dict.subDict(type + "Coeffs")),
 
     sigma0_
     (

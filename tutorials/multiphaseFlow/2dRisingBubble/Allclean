@@ -1,0 +1,39 @@
+#!/bin/bash
+
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+cleanFaMesh ()
+{
+    rm -rf ./constant/fluidA/faMesh/faceLabels* \
+           ./constant/fluidA/faMesh/boundary* \
+           > /dev/null 2>&1
+}
+
+cleanHistoryFolder ()
+{
+    rm -rf ./history \
+        > /dev/null 2>&1
+}
+
+cleanAuxFolders ()
+{
+    rm -rf forces \
+        > /dev/null 2>&1
+
+    rm -rf path \
+        > /dev/null 2>&1
+}
+
+shopt -s extglob
+
+find -type l -delete
+
+rm -r 0/fluidA/!(orig) 2>/dev/null
+rm -r 0/fluidB/!(orig) 2>/dev/null
+
+cleanHistoryFolder
+cleanTimeDirectories
+cleanFaMesh
+cleanAuxFolders
+cleanCase
+

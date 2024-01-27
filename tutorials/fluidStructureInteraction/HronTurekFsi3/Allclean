@@ -1,0 +1,22 @@
+#!/bin/bash
+
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+cleanCase
+
+find -type l -delete
+
+shopt -s extglob
+
+rm -r constant/fluid/polyMesh/!(blockMeshDict) 2>/dev/null
+rm -r constant/solid/polyMesh/!(blockMeshDict) 2>/dev/null
+
+rm -r constant/fluid/faMesh/!(faMeshDefinition) 2>/dev/null
+rm -r constant/solid/faMesh/!(faMeshDefinition) 2>/dev/null
+
+rm -r 0/fluid/!(orig) 2>/dev/null
+rm -r 0/solid/!(orig) 2>/dev/null
+
+rm -r postProcessing 2>/dev/null
+
+rm *.pdf 2>/dev/null

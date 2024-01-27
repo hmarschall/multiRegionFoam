@@ -269,10 +269,14 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             << " in " << rg.regionTypeName()
             << endl;
 
+        if (rg.usesPicard(fldName))
+        {
+            blockLduMatrix::debug = 0;
+        }
 
-        scalar corr = 0;
+        int corr = 0;
         scalar residual = VGREAT;
-        scalar initialResidual_ = 0;
+        scalar initialResidual = 0;
         do
         {
 
@@ -291,22 +295,20 @@ void Foam::multiRegionSystem::assembleAndSolveEqns
             residual = cmptMax(solPerf.initialResidual());
             if(corr == 0)
             {
-                initialResidual_ = residual;
+                initialResidual = residual;
             }
 
             rg.postSolve();
 
-            Info<< "nonlinear correction number " << corr
-                << ": relResidual=" << (residual/(initialResidual_ + SMALL))
-                << " residual=" << residual
-                << endl;
-
         } while
         (
-            (++corr < rg.maxCorr(fldName))
-            && (residual/(initialResidual_ + SMALL) > rg.relativeTolerance(fldName))
-            && (residual > rg.convergenceTolerance(fldName))
+            !rg.converged(fldName, ++corr, initialResidual, residual)
         );
+
+        if (rg.usesPicard(fldName))
+        {
+            blockLduMatrix::debug = 1;
+        }
 
 //        // Memory management:
 //        // clear coupled equation for transport variable

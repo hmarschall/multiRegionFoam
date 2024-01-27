@@ -71,7 +71,7 @@ Description
 #include "surfaceFields.H"
 #include "IOReferencer.H"
 #include "HashPtrTable.H"
-#include "MRFZones.H"
+#include "MovingReferenceFrameZones.H"
 #include "fvCFD.H"
 #include "fvBlockMatrix.H"
 
@@ -163,7 +163,7 @@ class pUCoupledIcoFluid
         // label corr_;
 
         //- Moving reference frames
-        MRFZones mrfZones_;
+        MovingReferenceFrameZones mrfZones_;
         label myTimeIndex_;
 
         //- Adjustable time-step switch

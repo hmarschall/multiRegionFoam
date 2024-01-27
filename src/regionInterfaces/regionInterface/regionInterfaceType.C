@@ -27,6 +27,7 @@ License
 #include "fixedGradientFaPatchFields.H"
 #include "regionInterfaceType.H"
 #include "OFstream.H"
+#include "scalar.H"
 
 // * * * * * * * * * * * * * * Static Data Members * * * * * * * * * * * * * //
 
@@ -108,6 +109,9 @@ void Foam::regionInterfaceType::makeInterfaceToInterface() const
             "makeInterfaceToInterface() const"
         )   << "Mapping object already set!" << abort(FatalError);
     }
+
+    Info<< "Creating new interpolator for regionInterfaceType "
+        << interfaceName() << endl;
 
     // Lookup the type
     const word type = regionInterfaceProperties_.lookupOrDefault<word>
@@ -349,13 +353,14 @@ Foam::regionInterfaceType::regionInterfaceType
     patchB_(patchB),
     globalPatchAPtr_(),
     globalPatchBPtr_(),
-    interfaceToInterfacePtr_(),
     meshA_(patchA_.boundaryMesh().mesh()),
     meshB_(patchB_.boundaryMesh().mesh()),
     attachedA_(false),
     attachedB_(false),
     changing_(false),
     moving_(false),
+    coupled_(dict.lookupOrDefault<Switch>("coupled", true)),
+    couplingStartTime_(dict.lookupOrDefault<scalar>("couplingStartTime", 0)),
     interpolatorUpdateFrequency_
     (
         regionInterfaceProperties_
@@ -366,7 +371,8 @@ Foam::regionInterfaceType::regionInterfaceType
     curvatureCorrectedSurfacePatches_
     (
         regionInterfaceProperties_.lookup("curvatureCorrectedSurfacePatches")
-    )
+    ),
+    interfaceToInterfacePtr_()
 {
     // Create global patches
     makeGlobalPatches();
@@ -476,8 +482,6 @@ const Foam::globalPolyPatch& Foam::regionInterfaceType::globalPatchB() const
 
 void Foam::regionInterfaceType::updateInterpolatorAndGlobalPatches()
 {
-    Info << "Updating interpolator and global patches for regionInterfaceType" << endl;
-
     if (interfaceToInterfacePtr_.empty())
     {
         interfaceToInterface();
@@ -490,6 +494,9 @@ void Foam::regionInterfaceType::updateInterpolatorAndGlobalPatches()
          || (!moving() && changing())
         )
         {
+            Info<< "Updating interpolator and global patches for regionInterfaceType "
+                << interfaceName() << endl;
+
             // Clear current interpolators
             interfaceToInterfacePtr_.clear();
 
@@ -513,6 +520,25 @@ Foam::regionInterfaceType::interfaceToInterface() const
 
     return interfaceToInterfacePtr_();
 }
+
+const Foam::Switch& Foam::regionInterfaceType::coupled() const
+{
+    if (couplingStartTime_ > SMALL && !coupled_)
+    {
+        if (runTime().value() >= couplingStartTime_)
+        {
+            Info<< "Enabling interface coupling for interface "
+                << interfaceName()
+                << endl;
+
+            // Enable coupling
+            coupled_ = true;
+        }
+    }
+
+    return coupled_;
+}
+
 
 void Foam::regionInterfaceType::attach()
 {
