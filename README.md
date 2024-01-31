@@ -20,6 +20,10 @@ individual transport equation. The formulation of boundary conditions is
 generalised in the sense that their implementation is based on the mathematical 
 jump/transmission conditions in the most general form for tensors of any rank.
 
+FOAM-extend was chosen as the foundation of this framework as it utilises, among
+others, the GGI mapping for non-conformal interfaces and the coupledFvMatrices 
+for the block coupled solution of monolithically coupled regions. 
+
 ---
 
 
