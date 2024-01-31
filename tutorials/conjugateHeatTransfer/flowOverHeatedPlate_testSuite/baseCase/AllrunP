@@ -1,0 +1,26 @@
+#!/bin/sh
+
+cd ${0%/*} || exit 1 # Run from this directory
+
+# Source tutorial run functions
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+cp 0/fluid/orig/partitioned/T 0/fluid/.
+cp 0/solid/orig/partitioned/T 0/solid/.
+
+cp constant/fluid/polyMesh/blockMeshDictPartitioned constant/fluid/polyMesh/blockMeshDict 2>/dev/null
+cp constant/solid/polyMesh/blockMeshDictPartitioned constant/solid/polyMesh/blockMeshDict 2>/dev/null
+
+cp constant/regionInterfacePropertiesPartitioned constant/regionInterfaceProperties
+
+runApplication -l log.blockMesh.solid blockMesh -region solid 2>/dev/null
+runApplication blockMesh -region fluid 2>/dev/null
+
+runApplication makeFaMesh -region fluid 2>/dev/null
+runApplication -l log.makeFaMesh.solid makeFaMesh -region solid 2>/dev/null
+
+./makeLinks fluid
+
+runApplication multiRegionFoam 2>/dev/null 
+
+runApplication sample -region fluid -latestTime 2>/dev/null 
