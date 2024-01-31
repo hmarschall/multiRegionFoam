@@ -93,6 +93,9 @@ Description
 
 #include "interfaceToInterfaceMapping.H"
 
+// #include "genericRegionCoupledFluxFvPatchField.H"
+// #include "genericRegionCoupledJumpFvPatchField.H"
+
 #include "MeshObject.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -138,10 +141,6 @@ class regionInterfaceType
         //- B-side
         mutable autoPtr<globalPolyPatch> globalPatchBPtr_;
 
-        //- Mapping object for passing fields between the pairs of interfaces
-        //  e.g. this could be GGI or a direct map or other
-        mutable autoPtr<interfaceToInterfaceMapping> interfaceToInterfacePtr_;
-
         //- Reference to fvMesh A
         const fvMesh& meshA_;
 
@@ -159,6 +158,12 @@ class regionInterfaceType
         //- Is meshA moving?
         bool moving_;
 
+        //- Interface coupling on/of
+        mutable Switch coupled_;
+
+        //- Optional: enable interface coupling after specified time
+        const scalar couplingStartTime_;
+
         //- Interpolator update frequency
         label interpolatorUpdateFrequency_;
 
@@ -168,6 +173,12 @@ class regionInterfaceType
         //- Surface patches requiring curvature correction
         //- e.g. fixedSurfacePatches or centerlinePatches (wedge cases)
         wordList curvatureCorrectedSurfacePatches_;
+
+protected:
+
+        //- Mapping object for passing fields between the pairs of interfaces
+        //  e.g. this could be GGI or a direct map or other
+        mutable autoPtr<interfaceToInterfaceMapping> interfaceToInterfacePtr_;
 
 private:
 
@@ -186,9 +197,6 @@ private:
 
         //- Clear global poly patch
         void clearGlobalPatches() const;
-
-        //- Make interface-to-interface
-        void makeInterfaceToInterface() const;
 
         //- Create/update interface physics
         void makeFaMesh() const;
@@ -270,6 +278,9 @@ protected:
         //- Clear all demand-driven data
         virtual void clearOut() const;
 
+        //- Make interface-to-interface
+        virtual void makeInterfaceToInterface() const;
+
 public:
 
     // Member Functions
@@ -277,13 +288,13 @@ public:
         // Access
 
             //- Return reference to region properties
-            const IOdictionary& regionProperties()
+            const IOdictionary& regionProperties() const
             {
                 return multiRegionProperties_;
             }
 
             //- Return reference to interface properties
-            const IOdictionary& interfaceProperties()
+            const IOdictionary& interfaceProperties() const
             {
                 return regionInterfaceProperties_;
             }
@@ -304,13 +315,13 @@ public:
             virtual word interfaceName() const;
 
             //- Return a reference to the patch A
-            inline const fvPatch& patchA() const
+            const fvPatch& patchA() const
             {
                 return patchA_;
             };
 
             //- Return a reference to the patch B
-            inline const fvPatch& patchB() const
+            const fvPatch& patchB() const
             {
                 return patchB_;
             };
@@ -403,8 +414,23 @@ public:
             (
                 const Field<Type>& fromField
             ) const;
+            //   from zone A/B points (to zone B/A points)
+            template<class Type>
+            tmp<Field<Type> > interpolatePointsFromA
+            (
+                const Field<Type>& fromField
+            ) const;
+
+            template<class Type>
+            tmp<Field<Type> > interpolatePointsFromB
+            (
+                const Field<Type>& fromField
+            ) const;
 
         // Edit
+
+            //- Is the interface coupling enabled
+            const Switch& coupled() const;
 
             //- Update interpolator
             virtual void updateInterpolatorAndGlobalPatches();
@@ -433,86 +459,54 @@ public:
             // Set deltaT based on interface stability criteria
             virtual scalar getMinDeltaT() = 0;
 
+            //- Uses only a single interface residual instead of a separate jump
+            //  and flux residual? Default: false
+            virtual Switch usesOneInterfaceRes() const
+            {
+                return false;
+            }
+
+            //- Couples fields on both sides of the interface?
+            template<class Type>
+            bool couplesField(const word& fldName) const;
+
+            //- Return raw jump residual field at interface
+            template<class Type>
+            scalarField rawJumpRes(const word& fldName) const;
+
+            //- Return raw flux residual field at interface
+            template<class Type>
+            scalarField rawFluxRes(const word& fldName) const;
+
+            virtual scalarField rawIntRes(const word& fldName) const
+            {
+                scalarField zeroField(this->patchA().size(), 0.0);
+                return zeroField;
+            };
+
+            //- Return normalised jump residual at interface
+            template<class Type>
+            scalar normJumpRes(const word& fldName) const;
+
+            //- Return normalised flux residual at interface
+            template<class Type>
+            scalar normFluxRes(const word& fldName) const;
+
+            //- Return normalised single interface residual
+            virtual scalar normIntRes(const word& fldName) const
+            {
+                return 0.0;
+            };
+
             // Log interface specific information
             virtual void info() const = 0;
 };
 
-template<class Type>
-tmp<Field<Type> > regionInterfaceType::interpolateFacesFromA
-(
-    const Field<Type>& fromField
-) const
-{
-    notImplemented
-    (
-        "regionInterfaceTypeTemplates.C\n"
-        "tmp<Field<Type> > regionInterfaceType::interpolateFacesFromA\n"
-        "(\n"
-        "const Field<Type>& fromField\n"
-        ") const\n"
-        "not implemented"
-    );
-
-    tmp<Field<Type> > ttoField
-    (
-        new Field<Type>(globalPatchB().globalPatch().size())
-    );
-
-    return ttoField;
-}
-
-template<class Type>
-tmp<Field<Type> > regionInterfaceType::interpolateFacesFromB
-(
-    const Field<Type>& fromField
-) const
-{
-    notImplemented
-    (
-        "regionInterfaceTypeTemplates.C\n"
-        "tmp<Field<Type> > regionInterfaceType::interpolateFacesFromB\n"
-        "(\n"
-        "const Field<Type>& fromField\n"
-        ") const\n"
-        "not implemented"
-    );
-
-    tmp<Field<Type> > ttoField
-    (
-        new Field<Type>(globalPatchA().globalPatch().size())
-    );
-
-    return ttoField;
-}
-
-//-Specialisations
-template<>
-tmp<Field<scalar> > regionInterfaceType::interpolateFacesFromA
-(
-    const Field<scalar>& fromField
-) const;
-
-template<>
-tmp<Field<vector> > regionInterfaceType::interpolateFacesFromA
-(
-    const Field<vector>& fromField
-) const;
-
-template<>
-tmp<Field<scalar> > regionInterfaceType::interpolateFacesFromB
-(
-    const Field<scalar>& fromField
-) const;
-
-template<>
-tmp<Field<vector> > regionInterfaceType::interpolateFacesFromB
-(
-    const Field<vector>& fromField
-) const;
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 } // End namespace Foam
+
+#include "regionInterfaceTypeTemplates.H"
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 

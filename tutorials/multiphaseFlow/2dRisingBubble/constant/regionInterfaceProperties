@@ -1,0 +1,56 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.5                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      regionInterfaceProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+partitionedCoupledPatches
+(
+    fluidAfluidB
+    {
+        interfaceType capillaryInterface;
+
+        coupledPatchPair
+        (
+            (fluidA interface)
+            (fluidB interfaceShadow)
+        );
+
+        coupledFields
+        (
+            pUPimple
+        );
+
+        capillaryInterfaceCoeffs
+        {
+            sigma       sigma [ 1 0 -2 0 0 0 0 ] 0.07232;
+        }
+    }
+);
+
+monolithicCoupledPatches
+();
+
+curvatureCorrectedSurfacePatches 0();
+
+interpolatorUpdateFrequency 0;
+
+interfaceTransferMethod directMap;
+
+directMapCoeffs
+{}
+
+GGICoeffs
+{}
+
+// ************************************************************************* //

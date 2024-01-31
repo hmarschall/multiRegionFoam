@@ -1,0 +1,37 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  4.1                                   |
+|   \\  /    A nd           | Web:      http://www.OpenFOAM.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      coupledSolution;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+regions
+(
+    ( fluid (pimpleFluid) )
+    ( solid (solidStVK) )
+);
+
+DNA
+{
+    D
+    {
+        maxCoupleIter 100;
+
+        residualControl
+        {
+            maxIntRes 1e-7;
+            outputIntResField yes;
+        }
+    }
+}
+
+// ************************************************************************* //

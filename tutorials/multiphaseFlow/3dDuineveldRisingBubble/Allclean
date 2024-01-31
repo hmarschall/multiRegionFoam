@@ -1,0 +1,18 @@
+#!/bin/bash
+
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
+cleanCase
+
+find -type l -delete
+
+rm -rf constant/fluidA/polyMesh 2>/dev/null
+rm -rf constant/fluidB/polyMesh 2>/dev/null
+
+rm -rf constant/fluidA/faMesh 2>/dev/null
+rm -rf constant/fluidB/faMesh 2>/dev/null
+
+shopt -s extglob
+
+rm -r 0/fluidA/!(orig) 2>/dev/null
+rm -r 0/fluidB/!(orig) 2>/dev/null

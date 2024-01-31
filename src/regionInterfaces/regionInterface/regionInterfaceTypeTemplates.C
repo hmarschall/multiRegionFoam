@@ -82,8 +82,6 @@ tmp<Field<vector> > regionInterfaceType::interpolateFacesFromA
         );
 }
 
-
-
 template<>
 tmp<Field<scalar> > regionInterfaceType::interpolateFacesFromB
 (
@@ -129,6 +127,106 @@ tmp<Field<vector> > regionInterfaceType::interpolateFacesFromB
     );
 
     return globalPatchA().globalFaceToPatch
+        (
+            globalToField
+        );
+}
+
+template<>
+tmp<Field<scalar> > regionInterfaceType::interpolatePointsFromA
+(
+    const Field<scalar>& fromField
+) const
+{
+    Field<scalar> globalFromFld =
+        globalPatchA().patchPointToGlobal(fromField);
+
+    Field<scalar> globalToField(globalPatchB().globalPatch().nPoints());
+
+    interfaceToInterface().transferPointsZoneToZone
+    (
+        globalPatchA().globalPatch(),       // from zone
+        globalPatchB().globalPatch(),       // to zone
+        globalFromFld,                      // from field
+        globalToField                       // to field
+    );
+
+    return globalPatchB().globalPointToPatch
+        (
+            globalToField
+        );
+}
+
+template<>
+tmp<Field<vector> > regionInterfaceType::interpolatePointsFromA
+(
+    const Field<vector>& fromField
+) const
+{
+    Field<vector> globalFromFld =
+        globalPatchA().patchPointToGlobal(fromField);
+
+    Field<vector> globalToField(globalPatchB().globalPatch().nPoints());
+
+    interfaceToInterface().transferPointsZoneToZone
+    (
+        globalPatchA().globalPatch(),       // from zone
+        globalPatchB().globalPatch(),       // to zone
+        globalFromFld,                      // from field
+        globalToField                       // to field
+    );
+
+    return globalPatchB().globalPointToPatch
+        (
+            globalToField
+        );
+}
+
+template<>
+tmp<Field<scalar> > regionInterfaceType::interpolatePointsFromB
+(
+    const Field<scalar>& fromField
+) const
+{
+    Field<scalar> globalFromFld =
+        globalPatchB().patchPointToGlobal(fromField);
+
+    Field<scalar> globalToField(globalPatchA().globalPatch().nPoints());
+
+    interfaceToInterface().transferPointsZoneToZone
+    (
+        globalPatchB().globalPatch(),       // from zone
+        globalPatchA().globalPatch(),       // to zone
+        globalFromFld,                      // from field
+        globalToField                       // to field
+    );
+
+    return globalPatchA().globalPointToPatch
+        (
+            globalToField
+        );
+}
+
+template<>
+tmp<Field<vector> > regionInterfaceType::interpolatePointsFromB
+(
+    const Field<vector>& fromField
+) const
+{
+    Field<vector> globalFromFld =
+        globalPatchB().patchPointToGlobal(fromField);
+
+    Field<vector> globalToField(globalPatchA().globalPatch().nPoints());
+
+    interfaceToInterface().transferPointsZoneToZone
+    (
+        globalPatchB().globalPatch(),       // from zone
+        globalPatchA().globalPatch(),       // to zone
+        globalFromFld,                      // from field
+        globalToField                       // to field
+    );
+
+    return globalPatchA().globalPointToPatch
         (
             globalToField
         );

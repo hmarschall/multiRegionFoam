@@ -80,8 +80,6 @@ Description
 #include "HashPtrTable.H"
 #include "hashedWordList.H"
 
-#include "mergePolyMesh.H"
-
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
 
 namespace Foam
@@ -108,6 +106,7 @@ class regionType
         HashTable<scalar> maxCorr_;
         HashTable<scalar> relativeTolerance_;
         HashTable<scalar> convergenceTolerance_;
+        HashTable<int> convergenceInfoFeq_;
 
 protected:
 
@@ -151,6 +150,14 @@ protected:
             const wordList& patchFieldTypes,
             const bool& write=true
         );
+
+        scalar maxCorr(word name) const;
+
+        scalar relativeTolerance(word name) const;
+
+        scalar convergenceTolerance(word name) const;
+
+        int convergenceInfoFeq(word name) const;
 
 public:
 
@@ -277,9 +284,15 @@ public:
             word name
         );
 
-        scalar maxCorr(word name);
-        scalar relativeTolerance(word name);
-        scalar convergenceTolerance(word name);
+        bool usesPicard(const word name) const;
+
+        bool converged
+        (
+            const word name,
+            const int iCorr,
+            const scalar initRes,
+            const scalar res
+        ) const;
 };
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //

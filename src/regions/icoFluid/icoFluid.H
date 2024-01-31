@@ -65,7 +65,7 @@ Description
 #define icoFluid_H
 
 #include "regionType.H"
-#include "MRFZones.H"
+#include "MovingReferenceFrameZones.H"
 #include "dimensionedScalar.H"
 #include "multiRegionSystem.H"
 #include "volFields.H"
@@ -74,6 +74,7 @@ Description
 #include "HashPtrTable.H"
 #include "pimpleControl.H"
 #include "solutionControl.H"
+#include "volFieldsFwd.H"
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -125,6 +126,9 @@ class icoFluid
 
         autoPtr<volScalarField> pcorr_;
 
+        //- forces
+        autoPtr<volSymmTensorField> sigma_;
+
         //- Under-relaxation factor
         scalar UUrf_;
 
@@ -153,7 +157,7 @@ class icoFluid
         label corrNonOrtho_;
 
         //- Moving reference frames
-        MRFZones mrfZones_;
+        MovingReferenceFrameZones mrfZones_;
         label myTimeIndex_;
 
         //- Adjustable time-step switch

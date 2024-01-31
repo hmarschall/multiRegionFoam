@@ -92,6 +92,7 @@ Foam::regionTypes::icoFluid::icoFluid
     ),
     pcorrTypes_(),
     pcorr_(nullptr),
+    sigma_(nullptr),
     UUrf_(1),
 
     closedVolume_
@@ -215,6 +216,16 @@ Foam::regionTypes::icoFluid::icoFluid
         true
     );
 
+    sigma_ = lookupOrRead<volSymmTensorField>
+    (
+        mesh(),
+        "sigma",
+        false,
+        false,
+        (-p_()*symmTensor(1,0,0,1,0,1))
+      + (mu_()*twoSymm(fvc::grad(U_())))
+    );
+
     IOdictionary fvSchemesDict
     (
         IOobject
@@ -326,6 +337,7 @@ void Foam::regionTypes::icoFluid::momentumPredictor()
     (
         fvm::div(fvc::interpolate(rho_())*phi_(), U_(), "div(phi,U)")
       - fvm::laplacian(mu_(), U_())
+      - fvc::div(mu_()*dev(T(fvc::grad(U_()))))
     );
 
     // Time derivative matrix
@@ -419,6 +431,11 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
 
         U_().correctBoundaryConditions();
         p_().correctBoundaryConditions();
+
+        // Update sigma field
+        sigma_() =
+            (-p_()*symmTensor(1,0,0,1,0,1))
+          + (mu_()*twoSymm(fvc::grad(U_())));
     }
 
     Info<< nl
