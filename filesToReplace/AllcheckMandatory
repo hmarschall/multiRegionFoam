@@ -40,7 +40,7 @@ result=0
 
 checkAndReport \
     "fvBlockMatrix.C" \
-    "$FOAM_SRC/finiteVolume/fvMatrices/fvBlockMatrix/" \
+    "$FOAM_SRC/finiteVolume/fvMatrices/fvBlockMatrix" \
     "!Does not have to be executed!"
 if [ $? -ne 0 ]; then result=1; fi
 
