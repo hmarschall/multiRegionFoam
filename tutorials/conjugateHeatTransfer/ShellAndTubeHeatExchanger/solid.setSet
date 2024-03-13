@@ -1,3 +1,3 @@
-faceSet InnerFluid_boundingFaces new patchToFace solid_to_inner;
-faceSet OuterFluid_boundingFaces new patchToFace solid_to_outer;
+faceSet solidToInnerZone new patchToFace solid_to_inner;
+faceSet solidToOuterZone new patchToFace solid_to_outer;
 quit;

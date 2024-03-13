@@ -36,7 +36,7 @@ FoamFile
         startFace       1198443;
         shadowRegion    solid;
         shadowPatch     solid_to_inner;
-        zone            InnerFluid_boundingFaces;
+        zone            innerToSolidZone;
         attached        off;
         master          on;
         isWall          on;

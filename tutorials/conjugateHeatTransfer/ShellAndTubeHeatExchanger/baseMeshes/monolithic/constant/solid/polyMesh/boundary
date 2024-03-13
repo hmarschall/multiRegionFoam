@@ -19,34 +19,34 @@ FoamFile
 (
     solid_to_inner
     {
-        type            regionCouple;      
+        type            regionCouple;
         nFaces          184216;
         startFace       1259402;
         shadowRegion    inner;
         shadowPatch     inner_to_solid;
-        zone            InnerFluid_boundingFaces;
+        zone            solidToInnerZone;
         attached        off;
         master          off;
         isWall          on;
-        bridgeOverlap   off; 
+        bridgeOverlap   off;
     }
     solid_to_outer
     {
-        type            regionCouple;      
+        type            regionCouple;
         nFaces          254056;
         startFace       1443618;
         shadowRegion    outer;
         shadowPatch     outer_to_solid;
-        zone            OuterFluid_boundingFaces;
+        zone            solidToOuterZone;
         attached        off;
         master          off;
         isWall          on;
-        bridgeOverlap   off; 
+        bridgeOverlap   off;
     }
     solid_to_domain1
     {
-        type            patch; 
-        inGroups        
+        type            patch;
+        inGroups
 2
 (
 wall

@@ -25,7 +25,6 @@ options=$(getopt -l "help,partitioned,monolithic:,serial,parallel" -o "hpm:SP" -
 eval set -- "$options"
 
 no_args=1
-monolithic=0
 
 while true
 do
@@ -59,7 +58,6 @@ do
 
         -m|--monolithic)
             no_args=0
-            monolithic=1
 
             cp 0/fluid/orig/monolithic/T 0/fluid/.
             cp 0/fluid/orig/monolithic/k 0/fluid/.
@@ -89,22 +87,22 @@ do
         -S|--serial)
             no_args=0
 
-            runApplication multiRegionFoam 2>/dev/null &
+            runApplication multiRegionFoam 2>/dev/null
 
             ;;
 
         -P|--parallel)
             no_args=0
 
-            if [ "$monolithic" -eq 1 ]; then
-                echo "\nRunning this case with monolithic coupling in parallel is currently not supported!"
-                exit 1
-            fi
-
             runApplication -l log.decomposePar.fluid decomposePar -region fluid
             runApplication -l log.decomposePar.solid  decomposePar -region solid
 
-            mpirun -np 4 multiRegionFoam -noFunctionObjects -parallel 2>&1 > log.multiRegionFoam &
+            mpirun -np 4 multiRegionFoam -noFunctionObjects -parallel 2>&1 > log.multiRegionFoam
+
+            runApplication -l log.reconstructPar.fluid reconstructPar -region fluid
+            runApplication -l log.reconstructPar.solid reconstructPar -region solid
+
+            rm -r processor*
             ;;
 
         --)

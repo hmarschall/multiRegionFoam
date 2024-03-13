@@ -44,8 +44,6 @@ do
 
             cp constant/regionInterfacePropertiesPartitioned constant/regionInterfaceProperties
 
-	        ./makeLinks
-
             cp -r ./baseMeshes/partitioned/constant/inner/polyMesh/ ./constant/inner
             cp -r ./baseMeshes/partitioned/constant/outer/polyMesh/ ./constant/outer
             cp -r ./baseMeshes/partitioned/constant/solid/polyMesh/ ./constant/solid
@@ -60,7 +58,6 @@ do
 
         -m|--monolithic)
             no_args=0
-            monolithic=1
 
             cp 0/inner/orig/monolithic/T 0/inner/.
             cp 0/inner/orig/monolithic/k 0/inner/.
@@ -70,8 +67,6 @@ do
             cp 0/solid/orig/monolithic/k 0/solid/.
 
             cp constant/regionInterfacePropertiesMonolithic constant/regionInterfaceProperties
-
-            ./makeLinks
 
             cp -r ./baseMeshes/monolithic/constant/inner/polyMesh/ ./constant/inner
             cp -r ./baseMeshes/monolithic/constant/inner/faMesh/ ./constant/inner
@@ -98,24 +93,23 @@ do
         -S|--serial)
             no_args=0
 
-            runApplication multiRegionFoam 2>/dev/null &
+            runApplication multiRegionFoam 2>/dev/null
 
             ;;
 
         -P|--parallel)
             no_args=0
 
-            if [ "$monolithic" -eq 1 ]; then
-                echo "\nRunning the case with monolithic coupling in parallel is currently not supported!"
-                exit 1
-            fi
-
             runApplication -l log.decomposePar.inner decomposePar -region inner
             runApplication -l log.decomposePar.outer  decomposePar -region outer
             runApplication -l log.decomposePar.solid decomposePar -region solid
 
-            mpirun -np 4 multiRegionFoam -noFunctionObjects -parallel 2>&1 > log.multiRegionFoam &
+            mpirun -np 4 multiRegionFoam -noFunctionObjects -parallel 2>&1 > log.multiRegionFoam
 
+            runApplication -l log.reconstructPar.fluid reconstructPar -region fluid
+            runApplication -l log.reconstructPar.solid reconstructPar -region solid
+
+            rm -r processor*
             ;;
 
         --)
