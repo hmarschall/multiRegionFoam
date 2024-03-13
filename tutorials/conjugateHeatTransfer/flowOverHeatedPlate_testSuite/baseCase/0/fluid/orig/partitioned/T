@@ -1,0 +1,81 @@
+/*---------------------------------------------------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  1.3                                   |
+|   \\  /    A nd           | Web:      http://www.openfoam.org               |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           volScalarField;
+    object          T;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+
+dimensions      [0 0 0 1 0 0 0];
+
+internalField   uniform 300;
+
+boundaryField
+{
+    interface
+    {
+        type                    regionCoupledTemperatureJump;
+        interfaceType           heatTransferInterface;
+        k                       "k";
+
+        accType               fixed;
+        relax                   1.0;
+
+        // accType               aitken;
+        // relax                   0.75;
+
+        // accType               IQN-ILS;
+        // relax                   0.75;
+        // couplingReuse           0; //2;
+
+
+        neighbourRegionName     solid;
+        neighbourPatchName      top;
+        neighbourFieldName      T;
+        secondOrder             false;
+        nonOrthCorr             true;
+        value                   $internalField;
+    }
+    inlet
+    {
+        type            fixedValue;
+        value           $internalField;
+    }
+    outlet
+    {
+        type            zeroGradient;
+    }
+    top
+    {
+        type            zeroGradient;
+    }
+    bottom
+    {
+        type            zeroGradient;
+    }
+    slip-bottom
+    {
+        type            zeroGradient;
+    }
+    outerWall
+    {
+        type            zeroGradient;
+    }
+    defaultFaces
+    {
+        type            empty;
+    }
+}
+
+// ************************************************************************* //

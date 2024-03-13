@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Clean previous tests if any
+rm -rf tests __pycache__ logs *.png
+
