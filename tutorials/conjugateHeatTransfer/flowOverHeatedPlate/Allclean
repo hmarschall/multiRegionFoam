@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. $WM_PROJECT_DIR/bin/tools/CleanFunctions
+
 find -type l -delete
 
 rm -rf 0.* [1-9]* log* proc* VTK
@@ -15,3 +17,4 @@ rm 0/solid/k 2>/dev/null
 
 rm constant/regionInterfaceProperties 2>/dev/null
 
+cleanCase

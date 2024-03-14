@@ -18,6 +18,8 @@ numberOfSubdomains 4;
 
 method		simple;
 
+globalFaceZones ( topZone );
+
 simpleCoeffs
 {
     n               (2 1 2);

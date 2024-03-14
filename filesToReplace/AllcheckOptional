@@ -39,13 +39,13 @@ result=0
 
 checkAndReport \
     "pointMeshMapper.H" \
-    "$FOAM_SRC/foam/meshes/pointMesh/pointMeshMapper/" \
+    "$FOAM_SRC/foam/meshes/pointMesh/pointMeshMapper" \
     "$FOAM_SRC/foam"
 if [ $? -ne 0 ]; then result=1; fi
 
 # checkAndReport \
 #     "faMeshUpdate.C" \
-#     "$FOAM_SRC/finiteArea/faMesh/" \
+#     "$FOAM_SRC/finiteArea/faMesh" \
 #     "$FOAM_SRC/finiteArea"
 # if [ $? -ne 0 ]; then result=1; fi
 

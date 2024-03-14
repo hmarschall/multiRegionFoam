@@ -18,6 +18,7 @@ numberOfSubdomains   4;
 
 method               hierarchical;
 
+globalFaceZones ( outerToSolidZone solidToOuterZone solidToInnerZone innerToSolidZone );
 
 hierarchicalCoeffs
 {

@@ -1,2 +1,2 @@
-faceSet OuterFluid_boundingFaces new patchToFace outer_to_solid;
+faceSet outerToSolidZone new patchToFace outer_to_solid;
 quit;
