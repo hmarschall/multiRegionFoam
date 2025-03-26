@@ -32,7 +32,6 @@ Author
 #include "fvPatchFieldMapper.H"
 #include "volFields.H"
 #include "fvMatrices.H"
-#include "magLongDelta.H"
 #include "basicThermo.H"
 
 // * * * * * * * * * * * * * * * * Constructors  * * * * * * * * * * * * * * //
@@ -125,9 +124,8 @@ Foam::tmp<Foam::scalarField> Foam::monolithicBase::forig() const
 Foam::tmp<Foam::scalarField> Foam::monolithicBase::korig() const
 {
     const fvPatch& p = patch();
-    const magLongDelta& mld = magLongDelta::New(p.boundaryMesh().mesh());
-
-    return forig()/(1 - p.weights())/mld.magDelta(p.index());
+    const scalarField& longDeltas = p.magLongDeltas();
+    return forig()/(1 - p.weights())/longDeltas;
 }
 
 

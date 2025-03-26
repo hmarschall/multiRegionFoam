@@ -83,7 +83,7 @@ patchCorrectedSnGrad<Type>::correction
             vf.dimensions()*mesh.deltaCoeffs().dimensions()
         )
     );
-    GeometricField<Type, fvsPatchField, surfaceMesh>& ssf = tssf();
+    GeometricField<Type, fvsPatchField, surfaceMesh>& ssf = tssf.ref();
 
 
     for (direction cmpt = 0; cmpt < pTraits<Type>::nComponents; cmpt++)

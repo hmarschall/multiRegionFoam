@@ -147,7 +147,7 @@ void Foam::regionTypes::conductTemperature::setCoupledEqns()
       + mesh().name() + "Mesh"
       + conductTemperature::typeName + "Type"
       + "Eqn",
-        &TEqn()
+        &TEqn.ref()
     );
 }
 

@@ -7,3 +7,4 @@ List of contributors (generated from git shortlog)
     15	Steffen Hess <s.hess@fz-juelich.de>
      7	Philip Cardiff <philip.cardiff@ucd.ie>
      3	Danial Khazaei <khazaeidanial@gmail.com>
+     1  Greg Burgreen <greg.burgreen@msstate.edu>

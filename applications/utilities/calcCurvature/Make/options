@@ -14,3 +14,7 @@ EXE_LIBS = \
     -lmeshTools \
     -ltetFiniteElement \
     -ltetMotionSolver
+
+EXE_INC += \
+-Wno-dangling-gsl \
+-Wno-unused-but-set-variable \

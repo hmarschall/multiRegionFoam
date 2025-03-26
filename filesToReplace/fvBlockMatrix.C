@@ -907,8 +907,8 @@ void Foam::fvBlockMatrix<Type>::insertAdjointConvection
     const fvMesh& mesh = UStar.mesh();
 
     // Get owner/neighbour addressing
-    const unallocLabelList& owner = mesh.owner();
-    const unallocLabelList& neighbour = mesh.neighbour();
+    const auto& owner = mesh.owner();
+    const auto& neighbour = mesh.neighbour();
 
     // Get surface area vectors
     const surfaceVectorField& Sf = mesh.Sf();
@@ -981,7 +981,7 @@ void Foam::fvBlockMatrix<Type>::insertAdjointConvection
 
         // Get additional references
         const fvsPatchScalarField& wp = tweights().boundaryField()[patchI];
-        const unallocLabelList& fc = patch.faceCells();
+        const auto& fc = patch.faceCells();
         const fvsPatchVectorField Sfp = Sf.boundaryField()[patchI];
         const fvPatchVectorField& Up = U.boundaryField()[patchI];
 
@@ -1212,7 +1212,7 @@ void Foam::fvBlockMatrix<Type>::insertPicardTensor
         const fvPatch& patch = Ub.patch();
         const fvsPatchTensorField& pib = pi.boundaryField()[patchI];
         const fvsPatchScalarField& wb = tweights().boundaryField()[patchI];
-        const unallocLabelList& fc = patch.faceCells();
+        const auto& fc = patch.faceCells();
 
         // Check for empty patches. Needed since the boundary conditions are
         // hard coded. VV. 18/Sep/2014.

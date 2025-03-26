@@ -192,11 +192,7 @@ paraboloidInletVelocityFvPatchVectorField::snGrad() const
             const vectorField dUP(k & gradU.patchInternalField());
             const vectorField nGradUP(n & gradU.patchInternalField());
 
-            #ifdef OPENFOAMESIORFOUNDATION
             tnGradU.ref() =
-            #else
-            tnGradU() =
-            #endif
                 2
                *(
                     *this
@@ -210,11 +206,7 @@ paraboloidInletVelocityFvPatchVectorField::snGrad() const
         // First order
         const vectorField dUP(k & gradU.patchInternalField());
 
-        #ifdef OPENFOAMESIORFOUNDATION
         tnGradU.ref() =
-        #else
-        tnGradU() =
-        #endif
         (
             *this
           - (patchInternalField() + dUP)

@@ -346,7 +346,7 @@ void Foam::regionTypes::icoFluid::momentumPredictor()
 
     // UEqn
     tUEqn = ddtUEqn + HUEqn;
-    fvVectorMatrix& UEqn = tUEqn();
+    fvVectorMatrix& UEqn = tUEqn.ref();
 
     // Save source and boundaryCoeffs
     vectorField S0 = UEqn.source();
@@ -373,7 +373,7 @@ void Foam::regionTypes::icoFluid::pressureCorrector()
         << " in region " << mesh().name()
         << nl << endl;
 
-    fvVectorMatrix& UEqn = tUEqn();
+    fvVectorMatrix& UEqn = tUEqn.ref();
 
     // --- PISO loop
     while (pimple_.correct())

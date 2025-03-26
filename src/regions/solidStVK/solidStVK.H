@@ -299,7 +299,7 @@ public:
 
         volSymmTensorField& sigma()
         {
-            return sigma();
+            return sigma_();
         }
 
         // regionType member functions

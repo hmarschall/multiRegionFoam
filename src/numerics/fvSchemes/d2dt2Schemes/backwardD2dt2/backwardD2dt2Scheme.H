@@ -116,30 +116,30 @@ public:
         tmp<GeometricField<Type, fvPatchField, volMesh> > fvcD2dt2
         (
             const GeometricField<Type, fvPatchField, volMesh>&
-        );
+        ) const;
 
         tmp<GeometricField<Type, fvPatchField, volMesh> > fvcD2dt2
         (
             const volScalarField&,
             const GeometricField<Type, fvPatchField, volMesh>&
-        );
+        ) const;
 
         tmp<fvMatrix<Type> > fvmD2dt2
         (
             const GeometricField<Type, fvPatchField, volMesh>&
-        );
+        ) const;
 
         tmp<fvMatrix<Type> > fvmD2dt2
         (
             const dimensionedScalar&,
             const GeometricField<Type, fvPatchField, volMesh>&
-        );
+        ) const;
 
         tmp<fvMatrix<Type> > fvmD2dt2
         (
             const volScalarField&,
             const GeometricField<Type, fvPatchField, volMesh>&
-        );
+        ) const;
 };
 
 

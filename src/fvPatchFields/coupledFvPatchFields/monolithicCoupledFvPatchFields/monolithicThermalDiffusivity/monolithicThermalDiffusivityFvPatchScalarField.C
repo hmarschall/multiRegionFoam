@@ -184,7 +184,7 @@ Foam::monolithicThermalDiffusivityFvPatchScalarField::calcThermalDiffusivity
 
     const fvPatch& p = owner.patch();
     const fvMesh& mesh = p.boundaryMesh().mesh();
-    const magLongDelta& mld = magLongDelta::New(mesh);
+    const scalarField& mld = p.magLongDeltas();
 
     const scalarField fOwn = owner.forig();
     const scalarField TcOwn = TwOwn.Tc();
@@ -259,11 +259,11 @@ Foam::monolithicThermalDiffusivityFvPatchScalarField::calcThermalDiffusivity
     const scalarField weights = interp.weights(fOwn, fNei, p);
     const scalarField kHarm = weights*fOwn + (1.0 - weights)*fNei;
 
-    const scalarField kOwn = fOwn/(1.0 - p.weights())/mld.magDelta(p.index());
-    const scalarField kNei = fNei/p.weights()/mld.magDelta(p.index());
+    const scalarField kOwn = fOwn/(1.0 - p.weights())/mld;
+    const scalarField kNei = fNei/p.weights()/mld;
 
     tmp<scalarField> kTmp(new scalarField(p.size()));
-    scalarField& k = kTmp();
+    scalarField& k = kTmp.ref();
 
     k = kOwn*(kNei + Qr/stabilise(TcNei - TcOwn, SMALL));
     k /= p.deltaCoeffs()*(kOwn + kNei);
@@ -297,7 +297,7 @@ Foam::monolithicThermalDiffusivityFvPatchScalarField::calcTemperature
 
     const fvPatch& p = TwOwn.patch();
     const fvMesh& mesh = p.boundaryMesh().mesh();
-    const magLongDelta& mld = magLongDelta::New(mesh);
+    const scalarField& mld = p.magLongDeltas();
 
     const scalarField fOwn = ownerK.forig();
     const scalarField TcOwn = TwOwn.Tc();
@@ -372,11 +372,11 @@ Foam::monolithicThermalDiffusivityFvPatchScalarField::calcTemperature
     scalarField weights = interp.weights(fOwn, fNei, p);
     const scalarField kHarm = weights*fOwn + (1.0 - weights)*fNei;
 
-    const scalarField kOwn = fOwn/(1.0 - p.weights())/mld.magDelta(p.index());
-    const scalarField kNei = fNei/p.weights()/mld.magDelta(p.index());
+    const scalarField kOwn = fOwn/(1.0 - p.weights())/mld;
+    const scalarField kNei = fNei/p.weights()/mld;
 
     tmp<scalarField> TwTmp(new scalarField(TwOwn.Tw()));
-    scalarField& Tw = TwTmp();
+    scalarField& Tw = TwTmp.ref();
 
     Tw = (Qr + kOwn*TcOwn + kNei*TcNei)/(kOwn + kNei);
 

@@ -352,7 +352,7 @@ void Foam::regionTypes::solidStVK::setCoupledEqns()
       + mesh().name() + "Mesh"
       + solidStVK::typeName + "Type"
       + "Eqn",
-        &DEqn()
+        &DEqn.ref()
     );
 }
 

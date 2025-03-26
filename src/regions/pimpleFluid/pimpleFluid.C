@@ -247,7 +247,7 @@ void Foam::regionTypes::pimpleFluid::momentumPredictor()
 
     // Time derivative matrix
     tddtUEqn = fvm::ddt(U_());
-    fvVectorMatrix& ddtUEqn = tddtUEqn();
+    fvVectorMatrix& ddtUEqn = tddtUEqn.ref();
 
     // Convection-diffusion matrix
     tHUEqn =
@@ -255,7 +255,7 @@ void Foam::regionTypes::pimpleFluid::momentumPredictor()
             fvm::div(phi_(), U_())
           + turbulence_().divDevReff()
         );
-    fvVectorMatrix& HUEqn = tHUEqn();
+    fvVectorMatrix& HUEqn = tHUEqn.ref();
 
     mrfZones_.translationalMRFs().addFrameAcceleration(ddtUEqn);
 
@@ -272,8 +272,8 @@ void Foam::regionTypes::pimpleFluid::pressureCorrector()
         << nl << endl;
 
     // Get cached matricies from momentum predictor
-    fvVectorMatrix& ddtUEqn = tddtUEqn();
-    fvVectorMatrix& HUEqn = tHUEqn();
+    fvVectorMatrix& ddtUEqn = tddtUEqn.ref();
+    fvVectorMatrix& HUEqn = tHUEqn.ref();
 
     // --- PISO loop
     while (pimple_.correct())

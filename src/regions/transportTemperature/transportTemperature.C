@@ -128,15 +128,15 @@ Foam::scalar Foam::regionTypes::transportTemperature::getMinDeltaT()
 
 void Foam::regionTypes::transportTemperature::setCoupledEqns()
 {
+// burgreen
+Info << "transportTemperature::setCoupledEqns()" << nl;
+Info << "  - fvm:: operators seg fault for partitioned loops" << nl;
+
     TEqn =
     (
-        rho_*cp_
-       *(
-            fvm::ddt(T())
-          + fvm::div(phi_(), T())
-        )
+        rho_*cp_*( fvm::ddt(T()) + fvm::div(phi_(), T()) )
      ==
-        fvm::laplacian(kappa_(), T())
+        fvm::laplacian( kappa_(), T() )
     );
 
     fvScalarMatrices.set
@@ -145,7 +145,7 @@ void Foam::regionTypes::transportTemperature::setCoupledEqns()
       + mesh().name() + "Mesh"
       + transportTemperature::typeName + "Type"
       + "Eqn",
-        &TEqn()
+        &TEqn.ref()
     );
 }
 

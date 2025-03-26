@@ -165,7 +165,6 @@ monolithicCouplingFvPatchField<Type>::monolithicCouplingFvPatchField
     curTimeIndex_(-1)
 {}
 
-
 // * * * * * * * * * * * * * * * Member Functions  * * * * * * * * * * * * * //
 
 // Return a named shadow patch field
@@ -217,7 +216,7 @@ tmp<Field<Type> > monolithicCouplingFvPatchField<Type>::patchNeighbourField() co
          )
     );
 
-    Field<Type>& pnf = tpnf();
+    Field<Type>& pnf = tpnf.ref();
 
     if (regionCouplePatch_.bridgeOverlap())
     {
@@ -436,7 +435,7 @@ void monolithicCouplingFvPatchField<Type>::updateInterfaceMatrix
         scalarField pnf = this->shadowPatchField().matrixUpdateBuffer();
 
         // Multiply the field by coefficients and add into the result
-        const unallocLabelList& fc = regionCouplePatch_.faceCells();
+        const auto& fc = regionCouplePatch_.faceCells();
 
         if (switchToLhs)
         {

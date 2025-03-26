@@ -864,7 +864,7 @@ tmp<vectorField> movingInterfacePatches::pointDisplacement(const scalarField& de
         )
     );
 
-    vectorField& displacement = tdisplacement();
+    vectorField& displacement = tdisplacement.ref();
 
 
     // Calculate displacement of internal points
@@ -1820,8 +1820,8 @@ Foam::movingInterfacePatches::lsPlanePointAndNormal
         new vectorField(2, vector::zero)
     );
 
-    pointAndNormal()[0] = p0;
-    pointAndNormal()[1] = n0;
+    pointAndNormal.ref()[0] = p0;
+    pointAndNormal.ref()[1] = n0;
 
     return pointAndNormal;
 }

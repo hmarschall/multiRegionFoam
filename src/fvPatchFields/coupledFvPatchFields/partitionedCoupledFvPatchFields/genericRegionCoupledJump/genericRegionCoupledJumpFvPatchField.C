@@ -185,7 +185,7 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
     {
         // Lookup neighbouring patch field
         const GeometricField<Type, fvPatchField, volMesh>& nbrField =
-            nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
+            nbrMesh().template lookupObject<GeometricField<Type, fvPatchField, volMesh> >
             (
                 // same field name as on this side
                 this->dimensionedInternalField().name()
@@ -195,7 +195,7 @@ void genericRegionCoupledJumpFvPatchField<Type>::updateCoeffs()
         Field<Type> fieldNbrToOwn = interpolateFromNbrField<Type>
         (
             nbrPatch()
-            .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+            .template patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
         );
 
         // Add interfacial jump
@@ -224,7 +224,7 @@ tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::flux() const
     // Get the diffusivity
     scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    if ( this->db().objectRegistry::template foundObject<volScalarField>(kName_) )
     {
         k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
     }
@@ -233,7 +233,7 @@ tmp<Field<Type> > genericRegionCoupledJumpFvPatchField<Type>::flux() const
         k = dimensionedScalar
         (
             this->db().objectRegistry::
-            lookupObject<IOdictionary>("transportProperties")
+            template lookupObject<IOdictionary>("transportProperties")
             .lookup(kName_)
         ).value();
     }
@@ -259,7 +259,7 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::rawResidual() const
 
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
-        nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
+        nbrMesh().template lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
             //same field name as on this side
             this->dimensionedInternalField().name()
@@ -270,7 +270,7 @@ scalarField genericRegionCoupledJumpFvPatchField<Type>::rawResidual() const
         interpolateFromNbrField<Type>
         (
             nbrPatch()
-            .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+            .template patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
         );
 
     const Field<Type>& fown = *this;
@@ -331,7 +331,7 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
 
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
-        nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
+        nbrMesh().template lookupObject<GeometricField<Type, fvPatchField, volMesh>>
         (
             // same field name as on this side
             this->dimensionedInternalField().name()
@@ -341,7 +341,7 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::normResidual() const
     Field<Type> fieldNbrToOwn = interpolateFromNbrField<Type>
     (
         nbrPatch()
-        .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+        .template patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
     );
 
     const Field<Type>& fown = *this;
@@ -386,7 +386,7 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::ofNormResidual() const
 
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>& nbrField =
-        nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
+        nbrMesh().template lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
             //same field name as on this side
             this->dimensionedInternalField().name()
@@ -396,7 +396,7 @@ scalar genericRegionCoupledJumpFvPatchField<Type>::ofNormResidual() const
     Field<Type> fieldNbrToOwn = interpolateFromNbrField<Type>
     (
         nbrPatch()
-        .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+        .template patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
     );
 
     const Field<Type>& fown = *this;

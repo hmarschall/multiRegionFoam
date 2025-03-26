@@ -318,7 +318,7 @@ void Foam::regionTypes::interTrackFluid::momentumPredictor()
       - fvm::laplacian(mu_(), U_())
     );
 
-    fvVectorMatrix& UEqn = tUEqn();
+    fvVectorMatrix& UEqn = tUEqn.ref();
 
     solve(UEqn == -fvc::grad(p_()));
 }
@@ -329,7 +329,7 @@ void Foam::regionTypes::interTrackFluid::pressureCorrector()
     << " in region " << mesh().name()
     << nl << endl;
 
-    fvVectorMatrix& UEqn = tUEqn();
+    fvVectorMatrix& UEqn = tUEqn.ref();
 
     // --- PISO loop
     while (pimple_.correct())

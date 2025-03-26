@@ -155,7 +155,6 @@ public:
             );
         }
 
-
     // Member functions
 
         // Access functions
@@ -193,6 +192,14 @@ public:
 
 
         // Evaluation functions
+
+            //- Return true if this coupled patch fields are updated
+            //  Return true if cached patchNeighbourField is available
+            //  or if the patch field does not cache it
+            virtual bool couplesUpdated() const
+            {
+                return true;
+            }
 
             //- Return neighbour field given internal cell data
             virtual tmp<Field<Type> > patchNeighbourField() const;

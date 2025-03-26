@@ -45,7 +45,7 @@ tmp<GeometricField<Type, fvPatchField, volMesh> >
 Euler1D2dt2Scheme<Type>::fvcD2dt2
 (
     const GeometricField<Type, fvPatchField, volMesh>& vf
-)
+) const
 {
     dimensionedScalar rDeltaT2 =
         4.0/sqr(mesh().time().deltaT() + mesh().time().deltaT0());
@@ -123,7 +123,7 @@ Euler1D2dt2Scheme<Type>::fvcD2dt2
 (
     const volScalarField& rho,
     const GeometricField<Type, fvPatchField, volMesh>& vf
-)
+) const
 {
     dimensionedScalar rDeltaT2 =
         4.0/sqr(mesh().time().deltaT() + mesh().time().deltaT0());
@@ -233,7 +233,7 @@ tmp<fvMatrix<Type> >
 Euler1D2dt2Scheme<Type>::fvmD2dt2
 (
     const GeometricField<Type, fvPatchField, volMesh>& vf
-)
+) const
 {
     tmp<fvMatrix<Type> > tfvm
     (
@@ -246,7 +246,7 @@ Euler1D2dt2Scheme<Type>::fvmD2dt2
 
     assert(  mesh().moving() == false );
 
-    fvMatrix<Type>& fvm = tfvm();
+    fvMatrix<Type>& fvm = tfvm.ref();
 
     scalar deltaT = mesh().time().deltaT().value();
 
@@ -294,7 +294,7 @@ Euler1D2dt2Scheme<Type>::fvmD2dt2
 (
     const dimensionedScalar& rho,
     const GeometricField<Type, fvPatchField, volMesh>& vf
-)
+) const
 {
     tmp<fvMatrix<Type> > tfvm
     (
@@ -306,7 +306,7 @@ Euler1D2dt2Scheme<Type>::fvmD2dt2
         )
     );
 
-    fvMatrix<Type>& fvm = tfvm();
+    fvMatrix<Type>& fvm = tfvm.ref();
 
     scalar deltaT = mesh().time().deltaT().value();
     scalar deltaT0 = mesh().time().deltaT0().value();
@@ -355,7 +355,7 @@ Euler1D2dt2Scheme<Type>::fvmD2dt2
 (
     const volScalarField& rho,
     const GeometricField<Type, fvPatchField, volMesh>& vf
-)
+) const
 {
     tmp<fvMatrix<Type> > tfvm
     (
@@ -367,7 +367,7 @@ Euler1D2dt2Scheme<Type>::fvmD2dt2
         )
     );
 
-    fvMatrix<Type>& fvm = tfvm();
+    fvMatrix<Type>& fvm = tfvm.ref();
 
     scalar deltaT = mesh().time().deltaT().value();
     scalar deltaT0 = mesh().time().deltaT0().value();

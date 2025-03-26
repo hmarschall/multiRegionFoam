@@ -188,7 +188,7 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
     {
         // Lookup neighbouring patch field
         const GeometricField<Type, fvPatchField, volMesh>& nbrField =
-            nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
+            nbrMesh().template lookupObject<GeometricField<Type, fvPatchField, volMesh> >
             (
                 // same field name as on this side
                 this->dimensionedInternalField().name()
@@ -199,7 +199,7 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
             refCast<const genericRegionCoupledJumpFvPatchField<Type>>
             (
                 nbrPatch()
-                .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+                .template patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
             ).flux();
 
         const Field<Type>& nbrFlux = tnbrFlux();
@@ -214,7 +214,7 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
         // Get the diffusivity
         scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-        if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+        if ( this->db().objectRegistry::template foundObject<volScalarField>(kName_) )
         {
             k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
         }
@@ -223,7 +223,7 @@ void genericRegionCoupledFluxFvPatchField<Type>::updateCoeffs()
             k = dimensionedScalar
             (
                 refPatch().boundaryMesh().mesh().objectRegistry::
-                lookupObject<IOdictionary>("transportProperties")
+                template lookupObject<IOdictionary>("transportProperties")
                 .lookup(kName_)
             ).value();
         }
@@ -256,7 +256,7 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
 
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>&
-        nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
+        nbrField = nbrMesh().template lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
             // same field name as on this side
             this->dimensionedInternalField().name()
@@ -267,7 +267,7 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
         refCast<const genericRegionCoupledJumpFvPatchField<Type>>
         (
             nbrPatch()
-            .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+            .template patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
         ).flux();
 
     const Field<Type>& nbrFlux = tnbrFlux();
@@ -278,7 +278,7 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
     // Get the diffusivity
     scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    if ( this->db().objectRegistry::template foundObject<volScalarField>(kName_) )
     {
         k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
     }
@@ -287,7 +287,7 @@ scalarField genericRegionCoupledFluxFvPatchField<Type>::rawResidual() const
         k = dimensionedScalar
         (
             refPatch().boundaryMesh().mesh().objectRegistry::
-            lookupObject<IOdictionary>("transportProperties")
+            template lookupObject<IOdictionary>("transportProperties")
             .lookup(kName_)
         ).value();
     }
@@ -350,7 +350,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
 
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>&
-        nbrField = nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh>>
+        nbrField = nbrMesh().template lookupObject<GeometricField<Type, fvPatchField, volMesh>>
         (
             //same field name as on this side
             this->dimensionedInternalField().name()
@@ -361,7 +361,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
         refCast<const genericRegionCoupledJumpFvPatchField<Type>>
         (
             nbrPatch()
-            .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+            .template patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
         ).flux();
 
     const Field<Type>& nbrFlux = tnbrFlux();
@@ -372,7 +372,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
     // Get the diffusivity
     scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    if ( this->db().objectRegistry::template foundObject<volScalarField>(kName_) )
     {
         k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
     }
@@ -381,7 +381,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::normResidual() const
         k = dimensionedScalar
         (
             refPatch().boundaryMesh().mesh().objectRegistry::
-            lookupObject<IOdictionary>("transportProperties")
+            template lookupObject<IOdictionary>("transportProperties")
             .lookup(kName_)
         ).value();
     }
@@ -427,7 +427,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
     // Lookup neighbouring patch field
     const GeometricField<Type, fvPatchField, volMesh>&
         nbrField =
-        nbrMesh().lookupObject<GeometricField<Type, fvPatchField, volMesh> >
+        nbrMesh().template lookupObject<GeometricField<Type, fvPatchField, volMesh> >
         (
             // same field name as on this side
             this->dimensionedInternalField().name()
@@ -438,7 +438,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
         refCast<const genericRegionCoupledJumpFvPatchField<Type>>
         (
             nbrPatch()
-            .patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
+            .template patchField<GeometricField<Type, fvPatchField, volMesh>, Type>(nbrField)
         ).flux();
 
     const Field<Type>& nbrFlux = tnbrFlux();
@@ -449,7 +449,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
     // Get the diffusivity
     scalarField k(this->patch().size(), pTraits<scalar>::zero);
 
-    if ( this->db().objectRegistry::foundObject<volScalarField>(kName_) )
+    if ( this->db().objectRegistry::template foundObject<volScalarField>(kName_) )
     {
         k = this->patch().template lookupPatchField<volScalarField, scalar>(kName_);
     }
@@ -458,7 +458,7 @@ scalar genericRegionCoupledFluxFvPatchField<Type>::ofNormResidual() const
         k = dimensionedScalar
         (
             refPatch().boundaryMesh().mesh().objectRegistry::
-            lookupObject<IOdictionary>("transportProperties")
+            template lookupObject<IOdictionary>("transportProperties")
             .lookup(kName_)
         ).value();
     }

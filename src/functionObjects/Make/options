@@ -7,3 +7,7 @@ LIB_LIBS = \
     -lfiniteVolume \
     -lmeshTools \
     -lsampling
+    
+EXE_INC += \
+-Wno-dangling-gsl \
+-Wno-unused-but-set-variable \

@@ -117,7 +117,7 @@ Foam::genericRegionCoupledJumpFvPatchField<Foam::scalar>::snGrad() const
             new scalarField(this->patch().size(), 0)
         );
 
-        tnGradpsi() =
+        tnGradpsi.ref() =
             2
            *(
                 *this
@@ -134,7 +134,7 @@ Foam::genericRegionCoupledJumpFvPatchField<Foam::scalar>::snGrad() const
         new scalarField(this->patch().size(), 0)
     );
 
-    tnGradpsi() =
+    tnGradpsi.ref() =
         (
             *this
           - (patchInternalField() + dpsiP)
@@ -206,7 +206,7 @@ Foam::genericRegionCoupledJumpFvPatchField<Foam::vector>::snGrad() const
             new vectorField(this->patch().size(), vector::zero)
         );
 
-        tnGradpsi() =
+        tnGradpsi.ref() =
             2
            *(
                 *this
@@ -214,7 +214,7 @@ Foam::genericRegionCoupledJumpFvPatchField<Foam::vector>::snGrad() const
             )*this->patch().deltaCoeffs()
           - nGradpsiP;
 
-        tnGradpsi() -= n*(n&tnGradpsi());
+        tnGradpsi.ref() -= n*(n&tnGradpsi());
 
         return tnGradpsi;
     }
@@ -225,13 +225,13 @@ Foam::genericRegionCoupledJumpFvPatchField<Foam::vector>::snGrad() const
         new vectorField(this->patch().size(), vector::zero)
     );
 
-    tnGradpsi() =
+    tnGradpsi.ref() =
         (
             *this
           - (patchInternalField() + dpsiP)
         )*this->patch().deltaCoeffs();
 
-    tnGradpsi() -= n*(n&tnGradpsi());
+    tnGradpsi.ref() -= n*(n&tnGradpsi());
 
     return tnGradpsi;
 }

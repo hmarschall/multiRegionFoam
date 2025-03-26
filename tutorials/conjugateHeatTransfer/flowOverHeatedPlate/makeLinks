@@ -10,6 +10,6 @@ echo changing into controlRegion directory
 cd ./constant
 
 echo creating links
-ln -s ./$1/polyMesh polyMesh
+ln -s ../$1/polyMesh polyMesh
 cd ..
 

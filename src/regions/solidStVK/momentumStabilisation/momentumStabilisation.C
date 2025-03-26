@@ -76,11 +76,7 @@ Foam::tmp<Foam::volVectorField> Foam::momentumStabilisation::stabilisation
             )
         )
     );
-#ifdef OPENFOAMESIORFOUNDATION
     volVectorField& result = tresult.ref();
-#else
-    volVectorField& result = tresult();
-#endif
 
     // Lookup method
     const word method = word(dict_.lookup("type"));

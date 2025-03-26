@@ -29,3 +29,7 @@ LIB_LIBS = \
     -ltetMotionSolver \
     -lfvMotionSolver \
     -L$(FOAM_USER_LIBBIN) -lmultiRegionSystem
+
+EXE_INC += \
+-Wno-dangling-gsl \
+-Wno-unused-but-set-variable \

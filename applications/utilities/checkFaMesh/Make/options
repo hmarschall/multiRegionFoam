@@ -8,3 +8,7 @@ EXE_LIBS = \
     -lfiniteVolume \
     -lfiniteArea \
     -ldynamicFvMesh
+
+EXE_INC += \
+-Wno-dangling-gsl \
+-Wno-unused-but-set-variable \

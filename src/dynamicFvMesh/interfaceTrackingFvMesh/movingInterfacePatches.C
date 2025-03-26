@@ -1010,7 +1010,7 @@ Foam::movingInterfacePatches::pointDisplacementPredictor()
         )
     );
 
-    vectorField& displacement = tdisplacement();
+    vectorField& displacement = tdisplacement.ref();
 
     if(!totalDisplacementPtr_.empty())
     {
@@ -1128,7 +1128,7 @@ Foam::movingInterfacePatches::pointDisplacementCorrector()
         )
     );
 
-    vectorField& displacement = tdisplacement();
+    vectorField& displacement = tdisplacement.ref();
 
 
     if (isInterface_ && !isFsiInterface_)
@@ -1203,8 +1203,7 @@ Foam::movingInterfacePatches::pointDisplacementCorrector()
         }
         else if
         (
-            (ddtScheme == "bdf2")
-         ||
+            // burgreen punt on porting this (ddtScheme == "bdf2") ||
             (ddtScheme == fv::backwardDdtScheme<vector>::typeName)
         )
         {
@@ -1826,7 +1825,7 @@ Foam::movingInterfacePatches::shadowPointDisplacement
     globalNbrPatchPtr_().movePoints(globalShadowDisplacement);
 
     // Filter global patch point data to patch
-    shadowDisplacement() = globalNbrPatch().globalPointToPatch
+    shadowDisplacement.ref() = globalNbrPatch().globalPointToPatch
     (
         globalShadowDisplacement
     );
@@ -1845,7 +1844,6 @@ Foam::movingInterfacePatches::getSolidPointDisplacement()
     (
         new vectorField(patch().patch().nPoints())
     );
-    vectorField& incFluidDisplacement = tIncFluidDisplacement();
 
     // Create global displacement field for globalPatch
     vectorField globalShadowSolidDisplacement(globalPatch().globalPatch().nPoints());
@@ -1885,7 +1883,7 @@ Foam::movingInterfacePatches::getSolidPointDisplacement()
 
     // Turn mapped total displacement from solid into incremental displacement
     // for fluid
-    incFluidDisplacement = shadowSolidDisplacement - prevDisplacement();
+    tIncFluidDisplacement.ref() = shadowSolidDisplacement - prevDisplacement();
 
     prevDisplacement() = shadowSolidDisplacement;
 
@@ -1934,7 +1932,7 @@ movingInterfacePatches::smoothSurfaceMesh()
         return tdisplacement;
     }
 
-    vectorField& displacement = tdisplacement();
+    vectorField& displacement = tdisplacement.ref();
 
     const vectorField& oldPoints = aMesh().patch().localPoints();
 

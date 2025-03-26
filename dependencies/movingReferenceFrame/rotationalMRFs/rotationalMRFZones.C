@@ -75,7 +75,7 @@ Foam::tmp<Foam::volVectorField> Foam::rotationalMRFZones::omega() const
             dimensionedVector("zero", dimless/dimTime, vector::zero)
         )
     );
-    volVectorField& rotationalMRFZonesOmega = trotationalMRFZonesOmega();
+    volVectorField& rotationalMRFZonesOmega = trotationalMRFZonesOmega.ref();
 
     forAll (*this, i)
     {
@@ -104,7 +104,7 @@ Foam::tmp<Foam::surfaceScalarField> Foam::rotationalMRFZones::fluxCorrection() c
             dimensionedScalar("zero", dimVelocity*dimArea, 0)
         )
     );
-    surfaceScalarField& rotationalMRFZonesPhiCorr = trotationalMRFZonesPhiCorr();
+    surfaceScalarField& rotationalMRFZonesPhiCorr = trotationalMRFZonesPhiCorr.ref();
 
     forAll (*this, i)
     {
@@ -133,7 +133,7 @@ Foam::tmp<Foam::surfaceScalarField> Foam::rotationalMRFZones::meshPhi() const
             dimensionedScalar("zero", dimVolume/dimTime, 0)
         )
     );
-    surfaceScalarField& rotationalMRFZonesFaceU = trotationalMRFZonesFaceU();
+    surfaceScalarField& rotationalMRFZonesFaceU = trotationalMRFZonesFaceU.ref();
 
     forAll (*this, i)
     {
@@ -259,7 +259,7 @@ Foam::tmp<Foam::volScalarField> Foam::rotationalMRFZones::Su
             zeroGradientFvPatchScalarField::typeName
         )
     );
-    volScalarField& source = tPhiSource();
+    volScalarField& source = tPhiSource.ref();
 
     // Due to gradient cacheing, must take a tmp field
     // HJ, 22/Apr/2016
@@ -297,7 +297,7 @@ Foam::tmp<Foam::volVectorField> Foam::rotationalMRFZones::Su
             zeroGradientFvPatchVectorField::typeName
         )
     );
-    volVectorField& source = tPhiSource();
+    volVectorField& source = tPhiSource.ref();
 
     // Due to gradient cacheing, must take a tmp field
     // HJ, 22/Apr/2016

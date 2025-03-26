@@ -18,3 +18,7 @@ EXE_LIBS = \
     -lmeshTools \
     -lsampling \
     -L$(FOAM_USER_LIBBIN) -lmultiRegionSystem
+
+EXE_INC += \
+-Wno-unused-but-set-variable \
+-Wno-dangling-gsl \
